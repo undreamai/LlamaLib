@@ -53,7 +53,7 @@ jobs:
           git checkout ${{ steps.tag.outputs.name }}
 
       - name: Dependencies
-       run: |
+        run: |
           sudo apt-get update
           sudo apt-get install build-essential
           sudo apt-get install cmake
