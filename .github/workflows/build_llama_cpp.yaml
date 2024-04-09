@@ -44,7 +44,7 @@ jobs:
         shell: bash
         run: |
           LLAMACPP_VERSION="$(cat Runtime/LLMUnitySetup.cs |grep LLamaCPPVersion|cut -d '"' -f2)"
-          echo "name=${SAFE_NAME}-b${BUILD_NUMBER}-${SHORT_HASH}" >> $GITHUB_OUTPUT
+          echo "name=${LLAMACPP_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Clone llama.cpp
         run: |
