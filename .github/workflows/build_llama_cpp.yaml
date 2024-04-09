@@ -48,17 +48,17 @@ jobs:
 
       - name: Clone llama.cpp
         run: |
-        git clone https://github.com/ggerganov/llama.cpp llama.cpp
-        cd llama.cpp
-        git checkout ${{ steps.tag.outputs.name }}
+          git clone https://github.com/ggerganov/llama.cpp llama.cpp
+          cd llama.cpp
+          git checkout ${{ steps.tag.outputs.name }}
 
-     - name: Dependencies
+      - name: Dependencies
        run: |
-         sudo apt-get update
-         sudo apt-get install build-essential
-         sudo apt-get install cmake
-         sudo apt-get install tar
-         sudo apt-get install p7zip-full
+          sudo apt-get update
+          sudo apt-get install build-essential
+          sudo apt-get install cmake
+          sudo apt-get install tar
+          sudo apt-get install p7zip-full
 
       - name: Download OpenCL SDK
         id: get_opencl
