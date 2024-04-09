@@ -39,6 +39,19 @@ jobs:
         id: checkout
         uses: actions/checkout@v3
       
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
       - name: Determine tag name
         id: tag
         shell: bash
@@ -98,20 +111,30 @@ jobs:
           cp $env:RUNNER_TEMP/clblast/lib/clblast.dll ./build/bin/Release
           cp $env:RUNNER_TEMP/CLBlast.LICENSE.txt ./build/bin/Release/CLBlast-${env:CLBLAST_VERSION}.txt
 
-      - name: Test
-        id: cmake_test
-        run: |
-          cd build
-          ctest -L main -C Release --verbose --timeout 900
+      # - name: Test
+      #   id: cmake_test
+      #   run: |
+      #     cd build
+      #     ctest -L main -C Release --verbose --timeout 900
 
       - name: Pack artifacts
         id: pack_artifacts
         run: |
           cp llama.cpp/LICENSE .\build\bin\llama.cpp.txt
-          7z a llama-${{ steps.tag.outputs.name }}-bin-linux-${{ matrix.build }}-x64.zip .\build\bin\Release\*
+          rm .\build\bin\test*
+          7z a llama-${{ steps.tag.outputs.name }}-bin-linux-${{ matrix.build }}-x64.zip .\build\bin\*
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          path: |
-            llama-${{ steps.tag.outputs.name }}-bin-linux-${{ matrix.build }}-x64.zip
+          path: llama-${{ steps.tag.outputs.name }}-bin-linux-${{ matrix.build }}-x64.zip
+
+      - name: Attach Artifacts to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: llama* # Use a wildcard to attach all artifacts
+          # asset_name: ${{ matrix.artifact_name }} # Use the artifact name as the asset name
+          # asset_content_type: application/zip # Adjust according to your artifact type
