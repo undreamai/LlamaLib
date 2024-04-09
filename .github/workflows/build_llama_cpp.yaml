@@ -111,8 +111,7 @@ jobs:
           7z a llama-${{ steps.tag.outputs.name }}-bin-linux-${{ matrix.build }}-x64.zip .\build\bin\Release\*
 
       - name: Upload artifacts
-        if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: |
             llama-${{ steps.tag.outputs.name }}-bin-linux-${{ matrix.build }}-x64.zip
