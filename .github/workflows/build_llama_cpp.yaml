@@ -115,9 +115,8 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: artifacts
-          path: |
-            llama-*
+          name: llama-${{ env.llamacpp_version }}-bin-linux-${{ matrix.build }}-x64.zip
+          path: llama-${{ env.llamacpp_version }}-bin-linux-${{ matrix.build }}-x64.zip
   
 
   create_release:
@@ -134,6 +133,8 @@ jobs:
 
       - name: Download Artifacts
         uses: actions/download-artifact@v4
+        with:
+          name: llama*
 
       - name: list
         run: |
