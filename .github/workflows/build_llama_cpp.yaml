@@ -23,16 +23,16 @@ jobs:
     strategy:
       matrix:
         include:
-          - build: 'noavx'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON'
-          - build: 'avx2'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=ON'
-          - build: 'avx'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX2=OFF -DBUILD_SHARED_LIBS=ON'
-          - build: 'avx512'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
-          # - build: 'clblast'
-          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CLBLAST=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_PREFIX_PATH="$env:RUNNER_TEMP/clblast"'
+          # - build: 'noavx'
+          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON'
+          # - build: 'avx2'
+          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=ON'
+          # - build: 'avx'
+          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX2=OFF -DBUILD_SHARED_LIBS=ON'
+          # - build: 'avx512'
+          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
+          - build: 'clblast'
+            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CLBLAST=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/clblast"'
           # - build: 'arm64'
           #   defines: '-A ARM64 -DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=ON'
 
@@ -65,8 +65,8 @@ jobs:
         id: get_opencl
         if: ${{ matrix.build == 'clblast' }}
         run: |
-          curl -o $env:RUNNER_TEMP/opencl.zip -L "https://github.com/KhronosGroup/OpenCL-SDK/releases/download/v${env:OPENCL_VERSION}/OpenCL-SDK-v${env:OPENCL_VERSION}-Win-x64.zip"
-          mkdir $env:RUNNER_TEMP/opencl
+          curl -o $RUNNER_TEMP/opencl.zip -L "https://github.com/KhronosGroup/OpenCL-SDK/releases/download/v${env:OPENCL_VERSION}/OpenCL-SDK-v${env:OPENCL_VERSION}-Win-x64.zip"
+          mkdir $RUNNER_TEMP/opencl
           unzip -q "$RUNNER_TEMP/opencl.zip" -d "$RUNNER_TEMP/opencl"
           unzip -q "$RUNNER_TEMP/opencl.zip" -d "$RUNNER_TEMP"
           mv "$RUNNER_TEMP"/opencl/*/* "$RUNNER_TEMP"/opencl/
@@ -75,10 +75,10 @@ jobs:
         id: get_clblast
         if: ${{ matrix.build == 'clblast' }}
         run: |
-          curl -o $env:RUNNER_TEMP/clblast.7z -L "https://github.com/CNugteren/CLBlast/releases/download/${env:CLBLAST_VERSION}/CLBlast-${env:CLBLAST_VERSION}-windows-x64.7z"
-          curl -o $env:RUNNER_TEMP/CLBlast.LICENSE.txt -L "https://github.com/CNugteren/CLBlast/raw/${env:CLBLAST_VERSION}/LICENSE"
-          7z x "-o${env:RUNNER_TEMP}" $env:RUNNER_TEMP/clblast.7z
-          mv $env:RUNNER_TEMP/CLBlast-${env:CLBLAST_VERSION}-windows-x64 clblast
+          curl -o $RUNNER_TEMP/clblast.7z -L "https://github.com/CNugteren/CLBlast/releases/download/${env:CLBLAST_VERSION}/CLBlast-${env:CLBLAST_VERSION}-windows-x64.7z"
+          curl -o $RUNNER_TEMP/CLBlast.LICENSE.txt -L "https://github.com/CNugteren/CLBlast/raw/${env:CLBLAST_VERSION}/LICENSE"
+          7z x "-o${RUNNER_TEMP}" $RUNNER_TEMP/clblast.7z
+          mv $RUNNER_TEMP/CLBlast-${env:CLBLAST_VERSION}-windows-x64 clblast
           find "$RUNNER_TEMP/clblast" -type f -name '*.cmake' -print0 | while IFS= read -r -d '' f; do
               txt=$(<"$f")
               echo "$txt" | sed "s|C:/vcpkg/packages/opencl_x64-windows/|$RUNNER_TEMP/opencl/|g" > "$f"
@@ -96,8 +96,8 @@ jobs:
         id: add_clblast_dll
         if: ${{ matrix.build == 'clblast' }}
         run: |
-          cp $env:RUNNER_TEMP/clblast/lib/clblast.dll ./build/bin/Release
-          cp $env:RUNNER_TEMP/CLBlast.LICENSE.txt ./build/bin/Release/CLBlast-${env:CLBLAST_VERSION}.txt
+          cp $RUNNER_TEMP/clblast/lib/clblast.dll ./build/bin/Release
+          cp $RUNNER_TEMP/CLBlast.LICENSE.txt ./build/bin/Release/CLBlast-${env:CLBLAST_VERSION}.txt
 
       # - name: Test
       #   id: cmake_test
