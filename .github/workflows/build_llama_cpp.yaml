@@ -24,8 +24,8 @@ jobs:
         include:
           - build: 'noavx'
             defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON'
-          # - build: 'avx2'
-          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=ON'
+          - build: 'avx2'
+            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=ON'
           # - build: 'avx'
           #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX2=OFF -DBUILD_SHARED_LIBS=ON'
           # - build: 'avx512'
@@ -41,12 +41,11 @@ jobs:
         id: checkout
         uses: actions/checkout@v4
 
-      - name: Determine tag name
-        id: tag
-        shell: bash
+      - name: Get Variables
         run: |
           LLAMACPP_VERSION="$(cat Runtime/LLMUnitySetup.cs |grep LLamaCPPVersion|cut -d '"' -f2)"
           echo "name=${LLAMACPP_VERSION}" >> $GITHUB_OUTPUT
+          echo "version=$(cat VERSION)" >> $GITHUB_ENV
 
       - name: Clone llama.cpp
         run: |
@@ -117,4 +116,6 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
+          name: "Release ${{ env.version }}"
+          body_path: ${{ github.workspace }}-CHANGELOG.txt
           files: llama*
