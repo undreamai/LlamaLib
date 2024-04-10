@@ -110,7 +110,7 @@ jobs:
         run: |
           cp llama.cpp/LICENSE build/bin/llama.cpp.txt
           rm build/bin/test*
-          7z a -j llama-${{ env.llamacpp_version }}-bin-linux-${{ matrix.build }}-x64.zip build/bin/*
+          zip -j llama-${{ env.llamacpp_version }}-bin-linux-${{ matrix.build }}-x64.zip build/bin/*
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
