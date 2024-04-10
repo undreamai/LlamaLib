@@ -2,6 +2,8 @@ name: Build llama.cpp linux binaries
 
 on:
   push:
+    tags:
+      - "v*.*.*"
 
 env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
@@ -37,20 +39,7 @@ jobs:
     steps:
       - name: Clone
         id: checkout
-        uses: actions/checkout@v3
-      
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: |
-            Release ${{ github.ref }}
-          draft: false
-          prerelease: false
+        uses: actions/checkout@v4
 
       - name: Determine tag name
         id: tag
@@ -124,17 +113,7 @@ jobs:
           rm .\build\bin\test*
           7z a llama-${{ steps.tag.outputs.name }}-bin-linux-${{ matrix.build }}-x64.zip .\build\bin\*
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+      - name: Release
+        uses: softprops/action-gh-release@v2
         with:
-          path: llama-${{ steps.tag.outputs.name }}-bin-linux-${{ matrix.build }}-x64.zip
-
-      - name: Attach Artifacts to Release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: llama* # Use a wildcard to attach all artifacts
-          # asset_name: ${{ matrix.artifact_name }} # Use the artifact name as the asset name
-          # asset_content_type: application/zip # Adjust according to your artifact type
+          files: llama*
