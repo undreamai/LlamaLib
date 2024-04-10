@@ -136,26 +136,26 @@ jobs:
           echo "version=$(cat VERSION)" >> $GITHUB_ENV
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v2
         with:
           path: artifacts
           merge-multiple: true
 
       - name: list
         run: |
-          ls -al *
-
-      # - name: Release
-      #   uses: softprops/action-gh-release@v2
-      #   with:
-      #     name: "Release ${{ env.version }}"
-      #     body_path: CHANGELOG.release.md
-      #     files: "artifacts/*"
+          ls -R artifacts
 
       - name: Release
-        uses: ncipollo/release-action@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: "Release ${{ env.version }}"
-          bodyFile: CHANGELOG.release.md
-          artifacts: "artifacts/llama*"
+          body_path: CHANGELOG.release.md
+          files: "artifacts/*"
+
+      # - name: Release
+      #   uses: ncipollo/release-action@v1
+      #   with:
+      #     name: "Release ${{ env.version }}"
+      #     bodyFile: CHANGELOG.release.md
+      #     artifacts: "artifacts/llama*"
           
