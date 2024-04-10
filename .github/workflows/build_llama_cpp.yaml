@@ -65,6 +65,7 @@ jobs:
         id: get_opencl
         if: ${{ matrix.build == 'clblast' }}
         run: |
+          echo "curl -o $RUNNER_TEMP/opencl.zip -L \"https://github.com/KhronosGroup/OpenCL-SDK/releases/download/v${env:OPENCL_VERSION}/OpenCL-SDK-v${env:OPENCL_VERSION}-Win-x64.zip\""
           curl -o $RUNNER_TEMP/opencl.zip -L "https://github.com/KhronosGroup/OpenCL-SDK/releases/download/v${env:OPENCL_VERSION}/OpenCL-SDK-v${env:OPENCL_VERSION}-Win-x64.zip"
           mkdir $RUNNER_TEMP/opencl
           unzip -q "$RUNNER_TEMP/opencl.zip" -d "$RUNNER_TEMP/opencl"
