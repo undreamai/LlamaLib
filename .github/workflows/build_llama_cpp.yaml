@@ -112,6 +112,10 @@ jobs:
           rm build/bin/test*
           zip -j llama-${{ env.llamacpp_version }}-bin-linux-${{ matrix.build }}-x64.zip build/bin/*
 
+      - name: list
+        run: |
+            ls -al *
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -136,7 +140,7 @@ jobs:
 
       - name: list
         run: |
-          ls
+          ls -al *
 
       # - name: Release
       #   uses: softprops/action-gh-release@v2
