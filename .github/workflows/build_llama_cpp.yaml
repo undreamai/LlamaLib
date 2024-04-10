@@ -44,15 +44,14 @@ jobs:
 
       - name: Get Variables
         run: |
-          LLAMACPP_VERSION="$(cat Runtime/LLMUnitySetup.cs |grep LLamaCPPVersion|cut -d '"' -f2)"
-          echo "name=${LLAMACPP_VERSION}" >> $GITHUB_OUTPUT
           echo "version=$(cat VERSION)" >> $GITHUB_ENV
+          echo "llamacpp_version=$(cat Runtime/LLMUnitySetup.cs |grep LLamaCPPVersion|cut -d '"' -f2)" >> $GITHUB_ENV
 
       - name: Clone llama.cpp
         run: |
           git clone https://github.com/ggerganov/llama.cpp llama.cpp
           cd llama.cpp
-          git checkout ${{ steps.tag.outputs.name }}
+          git checkout ${{ env.llamacpp_version }}
 
       - name: Dependencies
         run: |
@@ -110,10 +109,16 @@ jobs:
         id: pack_artifacts
         run: |
           cp llama.cpp/LICENSE build/bin/llama.cpp.txt
-          ls -R build
           rm build/bin/test*
-          7z a llama-${{ steps.tag.outputs.name }}-bin-linux-${{ matrix.build }}-x64.zip build/bin/*
+          7z a -j llama-${{ env.llamacpp_version }}-bin-linux-${{ matrix.build }}-x64.zip build/bin/*
 
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts
+          path: |
+            llama-*
+  
 
   create_release:
     name: Create Release
@@ -132,6 +137,6 @@ jobs:
         with:
           name: "Release ${{ env.version }}"
           body_path: CHANGELOG.release.md
-          files: llama*
+          files: llama-*
 
           
