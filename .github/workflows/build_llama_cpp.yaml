@@ -138,11 +138,17 @@ jobs:
         run: |
           ls
 
+      # - name: Release
+      #   uses: softprops/action-gh-release@v2
+      #   with:
+      #     name: "Release ${{ env.version }}"
+      #     body_path: CHANGELOG.release.md
+      #     files: llama-*
+
       - name: Release
-        uses: softprops/action-gh-release@v2
+        uses: ncipollo/release-action@v1
         with:
           name: "Release ${{ env.version }}"
-          body_path: CHANGELOG.release.md
-          files: llama-*
-
+          bodyFile: CHANGELOG.release.md
+          artifacts: "llama*"
           
