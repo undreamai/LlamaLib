@@ -130,8 +130,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          merge-multiple: true
 
       - name: Get Variables
         run: |
@@ -139,6 +137,8 @@ jobs:
 
       - name: Download Artifacts
         uses: actions/download-artifact@v3
+        with:
+          merge-multiple: true
 
       - name: list
         run: |
