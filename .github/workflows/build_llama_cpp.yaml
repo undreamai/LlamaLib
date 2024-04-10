@@ -11,7 +11,8 @@ env:
   GGML_N_THREADS: 1
 
 jobs:
-  ubuntu-latest-build:
+  build_artifacts:
+    name: Build Artifacts
     runs-on: ubuntu-latest
 
     env:
@@ -113,9 +114,24 @@ jobs:
           rm build/bin/test*
           7z a llama-${{ steps.tag.outputs.name }}-bin-linux-${{ matrix.build }}-x64.zip build/bin/*
 
+
+  create_release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: build_artifacts
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get Variables
+        run: |
+          echo "version=$(cat VERSION)" >> $GITHUB_ENV
+
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           name: "Release ${{ env.version }}"
-          body_path: ${{ github.workspace }}-CHANGELOG.txt
+          body_path: CHANGELOG.release.md
           files: llama*
+
+          
