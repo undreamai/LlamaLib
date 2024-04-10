@@ -109,9 +109,10 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts
         run: |
-          cp llama.cpp/LICENSE .\build\bin\llama.cpp.txt
-          rm .\build\bin\test*
-          7z a llama-${{ steps.tag.outputs.name }}-bin-linux-${{ matrix.build }}-x64.zip .\build\bin\*
+          cp llama.cpp/LICENSE build/bin/llama.cpp.txt
+          ls -R build
+          rm build/bin/test*
+          7z a llama-${{ steps.tag.outputs.name }}-bin-linux-${{ matrix.build }}-x64.zip build/bin/*
 
       - name: Release
         uses: softprops/action-gh-release@v2
