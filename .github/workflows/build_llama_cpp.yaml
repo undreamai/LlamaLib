@@ -139,7 +139,6 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           path: artifacts
-          name: llama*
 
       - name: list
         run: |
