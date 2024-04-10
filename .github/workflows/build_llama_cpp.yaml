@@ -138,6 +138,7 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
+          path: artifacts
           merge-multiple: true
 
       - name: list
@@ -149,7 +150,7 @@ jobs:
         with:
           name: "Release ${{ env.version }}"
           body_path: CHANGELOG.release.md
-          files: llama-*
+          files: artifacts/*
 
       # - name: Release
       #   uses: ncipollo/release-action@v1
