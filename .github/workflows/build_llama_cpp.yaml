@@ -113,7 +113,7 @@ jobs:
           zip -j llama-${{ env.llamacpp_version }}-bin-linux-${{ matrix.build }}-x64.zip build/bin/*
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: llama-${{ env.llamacpp_version }}-bin-linux-${{ matrix.build }}-x64.zip
           path: llama-${{ env.llamacpp_version }}-bin-linux-${{ matrix.build }}-x64.zip
@@ -132,7 +132,7 @@ jobs:
           echo "version=$(cat VERSION)" >> $GITHUB_ENV
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
 
       - name: list
         run: |
