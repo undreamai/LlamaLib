@@ -16,17 +16,19 @@ jobs:
     strategy:
       matrix:
         include:
-          # - build: 'noavx'
-          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON'
-          # - build: 'avx2'
-          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=ON'
-          # - build: 'avx'
-          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX2=OFF -DBUILD_SHARED_LIBS=ON'
-          # - build: 'avx512'
-          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
-          # - build: 'clblast'
-          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CLBLAST=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/clblast"'
-          - build: 'cu11.7.1'
+          - build: 'noavx'
+            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON'
+          - build: 'avx2'
+            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=ON'
+          - build: 'avx'
+            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX2=OFF -DBUILD_SHARED_LIBS=ON'
+          - build: 'avx512'
+            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
+          - build: 'clblast'
+            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CLBLAST=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/clblast"'
+          - build: 'cuda-cu11.7.1'
+            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CUDA=ON -DBUILD_SHARED_LIBS=ON'
+          - build: 'cuda-cu12.2.0'
             defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CUDA=ON -DBUILD_SHARED_LIBS=ON'
 
     steps:
@@ -37,7 +39,7 @@ jobs:
       - name: Get Variables
         run: |
           echo "LLAMACPP_VERSION=$(echo "${GITHUB_REF#refs/tags/}")" >> $GITHUB_ENV
-          echo "CUDA=$(echo "${{ matrix.build }}" | cut -c 3- )" >> $GITHUB_ENV
+          echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
 
       - name: Clone llama.cpp
         run: |
@@ -93,19 +95,18 @@ jobs:
 
       - uses: Jimver/cuda-toolkit@v0.2.11
         id: cuda-toolkit
-        if: startsWith(matrix.build, 'cu')
+        if: startsWith(matrix.build, 'cuda')
         with:
           cuda: ${{ env.CUDA }}
           method: 'network'
           linux-local-args: '["--toolkit"]'
 
       - name: Copy and pack Cuda runtime
-        if: startsWith(matrix.build, 'cu')
+        if: startsWith(matrix.build, 'cuda')
         run: |
           CUDA_LIBS="${{ steps.cuda-toolkit.outputs.CUDA_PATH }}/targets/x86_64-linux/lib"
           echo "Cuda install location: $CUDA_LIBS"
-          ls -R $CUDA_LIBS
-          zip -j cudart-llama-bin-linux-${{ matrix.build }}-x64.zip $CUDA_LIBS/libcudart.so $CUDA_LIBS/libcublas.so $CUDA_LIBS/libcublasLt.so
+          zip -j cudart-llama-bin-linux-cu${{ env.CUDA }}-x64.zip $CUDA_LIBS/libcudart.so $CUDA_LIBS/libcublas.so $CUDA_LIBS/libcublasLt.so
 
       - name: Build
         id: cmake_build
@@ -117,7 +118,7 @@ jobs:
 
       - name: Test
         id: cmake_test
-        if: ${{ matrix.build != 'clblast' && !startsWith(matrix.build, 'cu') }}
+        if: ${{ matrix.build != 'clblast' && !startsWith(matrix.build, 'cuda') }}
         run: |
           cd build
           ctest -L main --verbose --timeout 900
@@ -134,11 +135,11 @@ jobs:
           path: llama-${{ env.LLAMACPP_VERSION }}-bin-linux-${{ matrix.build }}-x64.zip
   
       - name: Upload Cuda runtime
-        if: startsWith(matrix.build, 'cu')
+        if: startsWith(matrix.build, 'cuda')
         uses: actions/upload-artifact@v3
         with:
-          path: cudart-llama-bin-linux-${{ matrix.build }}-x64.zip
-          name: cudart-llama-bin-linux-${{ matrix.build }}-x64.zip
+          path: cudart-llama-bin-linux-cu${{ env.CUDA }}-x64.zip
+          name: cudart-llama-bin-linux-cu${{ env.CUDA }}-x64.zip
 
   create_release:
     name: Create Release
@@ -164,5 +165,5 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "Release ${{ env.LLAMACPP_VERSION }}"
+          name: "${{ env.LLAMACPP_VERSION }}"
           files: "artifacts/*/*"
