@@ -27,7 +27,7 @@ jobs:
           # - build: 'avx512'
           #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
           - build: 'clblast'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CLBLAST=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_PREFIX_PATH="${{ github.workspace }}/clblast"'
+            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CLBLAST=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/clblast"'
           # - build: 'arm64'
           #   defines: '-A ARM64 -DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=ON'
 
@@ -110,7 +110,7 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts
         run: |
-          zip -r llama-${{ steps.tag.outputs.name }}-bin-linux-${{ matrix.build }}-x64.zip build/bin/* build/licenses/* build/libs/*
+          zip -r llama-${{ env.llamacpp_version }}-bin-linux-${{ matrix.build }}-x64.zip build/bin/* build/licenses/* build/libs/*
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
