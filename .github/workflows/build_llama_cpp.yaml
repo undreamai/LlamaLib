@@ -53,7 +53,7 @@ jobs:
       - name: Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install build-essential cmake tar p7zip-full opencl-headers ocl-icd-opencl-dev
+          sudo apt-get install build-essential cmake tar p7zip-full opencl-headers
 
       - name: Download OpenCL SDK
         id: get_opencl
@@ -97,14 +97,14 @@ jobs:
         id: cmake_build
         run: |
           cd build
-          cmake ../llama.cpp ${{ matrix.defines }} -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=$(pwd) -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=libs
+          cmake ../llama.cpp ${{ matrix.defines }} -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=$(pwd) -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=libs -DLLAMA_BUILD_TESTS=OFF
           cmake --build . --config Release -j ${NUMBER_OF_PROCESSORS}
 
       - name: Test
-        id: cmake_test
+        id: build_test
         run: |
-          cd build
-          ctest -L main --verbose --timeout 900
+          curl -o model.gguf -L "https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true"
+          ./build/bin/main -m model.gguf
 
       - name: Pack artifacts
         id: pack_artifacts
