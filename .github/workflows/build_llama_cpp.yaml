@@ -103,6 +103,7 @@ jobs:
       - name: Test
         id: build_test
         run: |
+          ldd ./build/bin/main
           curl -o model.gguf -L "https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true"
           ./build/bin/main -m model.gguf
 
