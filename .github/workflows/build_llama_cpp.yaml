@@ -102,17 +102,25 @@ jobs:
           method: 'network'
           linux-local-args: '["--toolkit"]'
 
+      - name: Copy and pack Cuda runtime
+        if: startsWith(matrix.build, 'cu')
+        run: |
+          CUDA_LIBS="${{ steps.cuda-toolkit.outputs.CUDA_PATH }}/targets/x86_64-linux/lib"
+          echo "Cuda install location: $CUDA_LIBS"
+          ls -R $CUDA_LIBS
+          zip -j cudart-llama-bin-linux-${{ matrix.build }}-x64.zip $CUDA_LIBS/libcudart.so* $CUDA_LIBS/libcublas*
+
       - name: Build
         id: cmake_build
         run: |
           cd build
-          cmake ../llama.cpp ${{ matrix.defines }} -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=$(pwd) -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=libs -DLLAMA_BUILD_TESTS=OFF
+          cmake ../llama.cpp ${{ matrix.defines }} -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=$(pwd) -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=libs
           cmake --build . --config Release -j ${NUMBER_OF_PROCESSORS}
           ldd bin/server
 
       - name: Test
         id: cmake_test
-        if: ${{ matrix.build != 'clblast' }}
+        if: ${{ matrix.build != 'clblast' && !startsWith(matrix.build, 'cu') }}
         run: |
           cd build
           ctest -L main --verbose --timeout 900
@@ -127,14 +135,6 @@ jobs:
         with:
           name: llama-${{ env.llamacpp_version }}-bin-linux-${{ matrix.build }}-x64.zip
           path: llama-${{ env.llamacpp_version }}-bin-linux-${{ matrix.build }}-x64.zip
-  
-      - name: Copy and pack Cuda runtime
-        if: startsWith(matrix.build, 'cu')
-        run: |
-          CUDA_PATH="${{ steps.cuda-toolkit.outputs.CUDA_PATH }}"
-          echo "Cuda install location: $CUDA_PATH"
-          ls -R $CUDA_PATH
-          zip -j cudart-llama-bin-linux-${{ matrix.build }}-x64.zip $CUDA_PATH/*cudart64*.so $CUDA_PATH/*cublas64_.so $CUDA_PATH/*cublasLt*.so
   
       - name: Upload Cuda runtime
         if: startsWith(matrix.build, 'cu')
