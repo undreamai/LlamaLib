@@ -135,7 +135,7 @@ jobs:
   
       - name: Upload Cuda runtime
         if: startsWith(matrix.build, 'cu')
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           path: cudart-llama-bin-linux-${{ matrix.build }}-x64.zip
           name: cudart-llama-bin-linux-${{ matrix.build }}-x64.zip
@@ -150,7 +150,7 @@ jobs:
 
       - name: Get Variables
         run: |
-          echo "version=$(cat VERSION)" >> $GITHUB_ENV
+          echo "LLAMACPP_VERSION=$(echo "${GITHUB_REF#refs/tags/}")" >> $GITHUB_ENV
 
       - name: Download Artifacts
         uses: actions/download-artifact@v3
@@ -165,5 +165,4 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           name: "Release ${{ env.LLAMACPP_VERSION }}"
-          body_path: CHANGELOG.release.md
           files: "artifacts/*/*"
