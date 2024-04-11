@@ -97,8 +97,7 @@ jobs:
         id: cmake_build
         run: |
           cd build
-          echo "cmake ../llama.cpp ${{ matrix.defines }} -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=$(pwd) -DLLAMA_BUILD_TESTS=OFF -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=libs"
-          cmake ../llama.cpp ${{ matrix.defines }} -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=$(pwd) -DLLAMA_BUILD_TESTS=OFF -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=libs
+          cmake ../llama.cpp ${{ matrix.defines }} -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=$(pwd) -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=libs
           cmake --build . --config Release -j ${NUMBER_OF_PROCESSORS}
 
       - name: Test
@@ -110,7 +109,7 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts
         run: |
-          zip -r llama-${{ env.llamacpp_version }}-bin-linux-${{ matrix.build }}-x64.zip build/bin/* build/licenses/* build/libs/*
+          zip -r llama-${{ env.llamacpp_version }}-bin-linux-${{ matrix.build }}-x64.zip build/bin/server build/licenses/* build/libs/*
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
