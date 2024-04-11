@@ -38,15 +38,14 @@ jobs:
 
       - name: Get Variables
         run: |
-          echo "version=$(cat VERSION)" >> $GITHUB_ENV
-          echo "llamacpp_version=$(cat Runtime/LLMUnitySetup.cs |grep LLamaCPPVersion|cut -d '"' -f2)" >> $GITHUB_ENV
+          echo "LLAMACPP_VERSION=$(echo "${GITHUB_REF#refs/tags/}")" >> $GITHUB_ENV
           echo "CUDA=$(echo "${{ matrix.build }}" | cut -c 3- )" >> $GITHUB_ENV
 
       - name: Clone llama.cpp
         run: |
           git clone https://github.com/ggerganov/llama.cpp llama.cpp
           cd llama.cpp
-          git checkout ${{ env.llamacpp_version }}
+          git checkout ${{ env.LLAMACPP_VERSION }}
           cd ..
           mkdir -p build/licenses build/libs
           cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
@@ -108,7 +107,7 @@ jobs:
           CUDA_LIBS="${{ steps.cuda-toolkit.outputs.CUDA_PATH }}/targets/x86_64-linux/lib"
           echo "Cuda install location: $CUDA_LIBS"
           ls -R $CUDA_LIBS
-          zip -j cudart-llama-bin-linux-${{ matrix.build }}-x64.zip $CUDA_LIBS/libcudart.so* $CUDA_LIBS/libcublas*
+          zip -j cudart-llama-bin-linux-${{ matrix.build }}-x64.zip $CUDA_LIBS/libcudart.so $CUDA_LIBS/libcublas.so $CUDA_LIBS/libcublasLt.so
 
       - name: Build
         id: cmake_build
@@ -128,20 +127,20 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts
         run: |
-          zip -r llama-${{ env.llamacpp_version }}-bin-linux-${{ matrix.build }}-x64.zip build/bin/server build/licenses/* build/libs/*
+          zip -r llama-${{ env.LLAMACPP_VERSION }}-bin-linux-${{ matrix.build }}-x64.zip build/bin/server build/licenses/* build/libs/*
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: llama-${{ env.llamacpp_version }}-bin-linux-${{ matrix.build }}-x64.zip
-          path: llama-${{ env.llamacpp_version }}-bin-linux-${{ matrix.build }}-x64.zip
+          name: llama-${{ env.LLAMACPP_VERSION }}-bin-linux-${{ matrix.build }}-x64.zip
+          path: llama-${{ env.LLAMACPP_VERSION }}-bin-linux-${{ matrix.build }}-x64.zip
   
       - name: Upload Cuda runtime
         if: startsWith(matrix.build, 'cu')
         uses: actions/upload-artifact@v4
         with:
-          path: cudart-llama-bin-win-${{ matrix.build }}-x64.zip
-          name: cudart-llama-bin-win-${{ matrix.build }}-x64.zip
+          path: cudart-llama-bin-linux-${{ matrix.build }}-x64.zip
+          name: cudart-llama-bin-linux-${{ matrix.build }}-x64.zip
 
   create_release:
     name: Create Release
@@ -167,14 +166,6 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "Release ${{ env.version }}"
+          name: "Release ${{ env.LLAMACPP_VERSION }}"
           body_path: CHANGELOG.release.md
           files: "artifacts/*/*"
-
-      # - name: Release
-      #   uses: ncipollo/release-action@v1
-      #   with:
-      #     name: "Release ${{ env.version }}"
-      #     bodyFile: CHANGELOG.release.md
-      #     artifacts: "artifacts/llama*"
-          
