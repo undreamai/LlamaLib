@@ -38,7 +38,7 @@ jobs:
         run: |
           echo "version=$(cat VERSION)" >> $GITHUB_ENV
           echo "llamacpp_version=$(cat Runtime/LLMUnitySetup.cs |grep LLamaCPPVersion|cut -d '"' -f2)" >> $GITHUB_ENV
-          echo "CUDA=$(echo ${{ matrix.build }} | cut -d '-' -f2)" >> $GITHUB_ENV
+          echo "CUDA=$(echo "${{ matrix.build }}" | cut -c 3- )" >> $GITHUB_ENV
 
       - name: Clone llama.cpp
         run: |
