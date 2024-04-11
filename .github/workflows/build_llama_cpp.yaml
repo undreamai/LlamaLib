@@ -106,7 +106,8 @@ jobs:
         run: |
           CUDA_LIBS="${{ steps.cuda-toolkit.outputs.CUDA_PATH }}/targets/x86_64-linux/lib"
           echo "Cuda install location: $CUDA_LIBS"
-          zip -j cudart-llama-bin-linux-cu${{ env.CUDA }}-x64.zip $CUDA_LIBS/libcudart.so $CUDA_LIBS/libcublas.so $CUDA_LIBS/libcublasLt.so
+          cp $CUDA_LIBS/libcudart.so $CUDA_LIBS/libcublas.so $CUDA_LIBS/libcublasLt.so build/
+          zip cudart-llama-bin-linux-cu${{ env.CUDA }}-x64.zip build/libcu*.so
 
       - name: Build
         id: cmake_build
