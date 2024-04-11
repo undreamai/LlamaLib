@@ -100,7 +100,7 @@ jobs:
         with:
           cuda: ${{ env.CUDA }}
           method: 'network'
-          sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust", "visual_studio_integration"]'
+          linux-local-args: '["--toolkit"]'
 
       - name: Build
         id: cmake_build
