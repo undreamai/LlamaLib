@@ -18,16 +18,18 @@ jobs:
     strategy:
       matrix:
         include:
-          - build: 'noavx'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON'
-          - build: 'avx2'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=ON'
-          - build: 'avx'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX2=OFF -DBUILD_SHARED_LIBS=ON'
-          - build: 'avx512'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
-          - build: 'clblast'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CLBLAST=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/clblast"'
+          # - build: 'noavx'
+          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON'
+          # - build: 'avx2'
+          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=ON'
+          # - build: 'avx'
+          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX2=OFF -DBUILD_SHARED_LIBS=ON'
+          # - build: 'avx512'
+          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
+          # - build: 'clblast'
+          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CLBLAST=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/clblast"'
+          - build: 'cu11.7.1'
+            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CUDA=ON -DBUILD_SHARED_LIBS=ON'
 
     steps:
       - name: Clone
@@ -38,6 +40,7 @@ jobs:
         run: |
           echo "version=$(cat VERSION)" >> $GITHUB_ENV
           echo "llamacpp_version=$(cat Runtime/LLMUnitySetup.cs |grep LLamaCPPVersion|cut -d '"' -f2)" >> $GITHUB_ENV
+          echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2)" >> $GITHUB_ENV
 
       - name: Clone llama.cpp
         run: |
@@ -91,6 +94,14 @@ jobs:
           set(CMAKE_IMPORT_FILE_VERSION)
           " > clblast/lib/cmake/CLBlast/CLBlastConfig-release.cmake
 
+      - uses: Jimver/cuda-toolkit@v0.2.11
+        id: cuda-toolkit
+        if: startsWith(matrix.build, 'cu')
+        with:
+          cuda: ${{ env.CUDA }}
+          method: 'network'
+          sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust", "visual_studio_integration"]'
+
       - name: Build
         id: cmake_build
         run: |
@@ -117,6 +128,20 @@ jobs:
           name: llama-${{ env.llamacpp_version }}-bin-linux-${{ matrix.build }}-x64.zip
           path: llama-${{ env.llamacpp_version }}-bin-linux-${{ matrix.build }}-x64.zip
   
+      - name: Copy and pack Cuda runtime
+        if: startsWith(matrix.build, 'cu')
+        run: |
+          CUDA_PATH="${{ steps.cuda-toolkit.outputs.CUDA_PATH }}"
+          echo "Cuda install location: $CUDA_PATH"
+          ls -R $CUDA_PATH
+          zip -j cudart-llama-bin-linux-${{ matrix.build }}-x64.zip $CUDA_PATH/*cudart64*.so $CUDA_PATH/*cublas64_.so $CUDA_PATH/*cublasLt*.so
+  
+      - name: Upload Cuda runtime
+        if: startsWith(matrix.build, 'cu')
+        uses: actions/upload-artifact@v4
+        with:
+          path: cudart-llama-bin-win-${{ matrix.build }}-x64.zip
+          name: cudart-llama-bin-win-${{ matrix.build }}-x64.zip
 
   create_release:
     name: Create Release
