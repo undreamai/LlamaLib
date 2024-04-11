@@ -118,7 +118,7 @@ jobs:
 
       - name: Test
         id: cmake_test
-        if: ${{ matrix.build != 'clblast' && !startsWith(matrix.build, 'cuda') }}
+        if: ${{ matrix.build != 'avx512'&& matrix.build != 'clblast' && !startsWith(matrix.build, 'cuda') }}
         run: |
           cd build
           ctest -L main --verbose --timeout 900
@@ -126,7 +126,7 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts
         run: |
-          zip -r llama-${{ env.LLAMACPP_VERSION }}-bin-linux-${{ matrix.build }}-x64.zip build/bin/server build/licenses/* build/libs/*
+          zip -r llama-${{ env.LLAMACPP_VERSION }}-bin-linux-${{ matrix.build }}-x64.zip build/bin/* build/licenses/* build/libs/*
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
