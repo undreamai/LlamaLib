@@ -16,18 +16,18 @@ jobs:
     strategy:
       matrix:
         include:
-          # - build: 'noavx'
-          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON'
-          # - build: 'avx2'
-          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=ON'
-          # - build: 'avx'
-          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX2=OFF -DBUILD_SHARED_LIBS=ON'
-          # - build: 'avx512'
-          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
-          # - build: 'clblast'
-          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CLBLAST=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/clblast"'
-          # - build: 'cuda-cu11.7.1'
-          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CUDA=ON -DBUILD_SHARED_LIBS=ON'
+          - build: 'noavx'
+            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON'
+          - build: 'avx2'
+            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=ON'
+          - build: 'avx'
+            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX2=OFF -DBUILD_SHARED_LIBS=ON'
+          - build: 'avx512'
+            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
+          - build: 'clblast'
+            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CLBLAST=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/clblast"'
+          - build: 'cuda-cu11.7.1'
+            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CUDA=ON -DBUILD_SHARED_LIBS=ON'
           - build: 'cuda-cu12.2.0'
             defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CUDA=ON -DBUILD_SHARED_LIBS=ON -DCUDAToolkit_ROOT=$GITHUB_WORKSPACE/build/cuda'
 
@@ -114,7 +114,6 @@ jobs:
           cd build
           cmake ../llama.cpp ${{ matrix.defines }} -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=$(pwd) -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=libs
           cmake --build . --config Release -j ${NUMBER_OF_PROCESSORS}
-          ldd bin/server
 
       - name: Test
         id: cmake_test
@@ -131,7 +130,6 @@ jobs:
       - name: Copy and pack Cuda runtime
         if: startsWith(matrix.build, 'cuda')
         run: |
-          ldd build/bin/server
           libs=`for f in build/bin/*;do ldd $f;done|grep $CUDA_PATH |cut -d '>' -f2|cut -d'(' -f1|sort|uniq|tr -d ' '|sed -e "s:$CUDA_PATH:build/cuda:g"`
           zip cudart-llama-bin-linux-cu${{ env.CUDA }}-x64.zip $libs
           
