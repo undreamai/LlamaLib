@@ -133,6 +133,9 @@ jobs:
         run: |
           bin_dir=`pwd`/build/bin
           replace=$bin_dir/../libs/..
+          echo $bin_dir
+          echo $replace
+          ls $bin_dir
           libs=`for f in $bin_dir/*;do ldd $f;done|grep $replace/cuda|cut -d '>' -f2|cut -d'(' -f1|sort|uniq|tr -d ' '|sed -e "s:$replace:build:g"`
           zip cudart-llama-bin-linux-cu${{ env.CUDA }}-x64.zip $libs
           
