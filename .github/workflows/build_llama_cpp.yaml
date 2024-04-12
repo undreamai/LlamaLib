@@ -132,7 +132,8 @@ jobs:
         if: startsWith(matrix.build, 'cuda')
         run: |
           bin_dir=`pwd`/build/bin
-          libs=`for f in $bin_dir/*;do ldd $f;done|grep $bin_dir/../cuda|cut -d '>' -f2|cut -d'(' -f1|sort|uniq|tr -d ' '|sed -e "s:$(pwd)/build/bin/..:build:g"`
+          replace=$bin_dir/../libs/..
+          libs=`for f in $bin_dir/*;do ldd $f;done|grep $replace/cuda|cut -d '>' -f2|cut -d'(' -f1|sort|uniq|tr -d ' '|sed -e "s:$replace:build:g"`
           zip cudart-llama-bin-linux-cu${{ env.CUDA }}-x64.zip $libs
           
       - name: Upload Artifacts
