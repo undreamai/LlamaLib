@@ -131,7 +131,8 @@ jobs:
       - name: Copy and pack Cuda runtime
         if: startsWith(matrix.build, 'cuda')
         run: |
-          libs=`for f in build/bin/*;do ldd $f;done|grep ${env.CUDA_PATH} |cut -d '>' -f2|cut -d'(' -f1|sort|uniq|tr -d ' '|sed -e "s:${env.CUDA_PATH}:build/cuda:g"`
+          ldd build/bin/server
+          libs=`for f in build/bin/*;do ldd $f;done|grep $CUDA_PATH |cut -d '>' -f2|cut -d'(' -f1|sort|uniq|tr -d ' '|sed -e "s:$CUDA_PATH:build/cuda:g"`
           zip cudart-llama-bin-linux-cu${{ env.CUDA }}-x64.zip $libs
           
       - name: Upload Artifacts
