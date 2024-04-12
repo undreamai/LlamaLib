@@ -105,7 +105,7 @@ jobs:
         if: startsWith(matrix.build, 'cuda')
         run: |
           cd build
-          ln -s ${{ steps.cuda-toolkit.outputs.CUDA_PATH }} cuda
+          ln -s ${{ env.CUDA_PATH }} cuda
 
       - name: Build
         id: cmake_build
@@ -131,13 +131,7 @@ jobs:
       - name: Copy and pack Cuda runtime
         if: startsWith(matrix.build, 'cuda')
         run: |
-          ldd build/bin/server
-          bin_dir=`pwd`/build/bin
-          replace=$bin_dir/../libs/..
-          echo $bin_dir
-          echo $replace
-          ls $bin_dir
-          libs=`for f in $bin_dir/*;do ldd $f;done|grep $replace/cuda|cut -d '>' -f2|cut -d'(' -f1|sort|uniq|tr -d ' '|sed -e "s:$replace:build:g"`
+          libs=`for f in $bin_dir/*;do ldd $f;done|grep ${env.CUDA_PATH} |cut -d '>' -f2|cut -d'(' -f1|sort|uniq|tr -d ' '|sed -e "s:${env.CUDA_PATH}:build/cuda:g"`
           zip cudart-llama-bin-linux-cu${{ env.CUDA }}-x64.zip $libs
           
       - name: Upload Artifacts
