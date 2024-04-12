@@ -2,6 +2,8 @@ name: Build llama.cpp linux binaries
 
 on:
   push:
+    tags:
+      - '*'
 
 jobs:
   build_artifacts:
