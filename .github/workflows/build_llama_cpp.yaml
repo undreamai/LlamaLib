@@ -29,7 +29,7 @@ jobs:
           # - build: 'cuda-cu11.7.1'
           #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CUDA=ON -DBUILD_SHARED_LIBS=ON'
           - build: 'cuda-cu12.2.0'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CUDA=ON -DBUILD_SHARED_LIBS=ON -DCUDAToolkit_ROOT=$GITHUB_WORKSPACE/build/cuda'
+            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CUDA=ON -DBUILD_SHARED_LIBS=ON'
 
     steps:
       - name: Clone
@@ -111,7 +111,7 @@ jobs:
         id: cmake_build
         run: |
           cd build
-          cmake ../llama.cpp ${{ matrix.defines }} -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=$(pwd) -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=libs
+          cmake ../llama.cpp ${{ matrix.defines }} -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=$(pwd) -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=libs -DCUDAToolkit_ROOT=$GITHUB_WORKSPACE/build/cuda
           cmake --build . --config Release -j ${NUMBER_OF_PROCESSORS}
           ldd bin/server
 
