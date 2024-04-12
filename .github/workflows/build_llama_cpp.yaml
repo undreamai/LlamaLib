@@ -16,20 +16,20 @@ jobs:
     strategy:
       matrix:
         include:
-          - build: 'noavx'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON'
-          - build: 'avx2'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=ON'
-          - build: 'avx'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX2=OFF -DBUILD_SHARED_LIBS=ON'
-          - build: 'avx512'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
-          - build: 'clblast'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CLBLAST=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/clblast"'
-          - build: 'cuda-cu11.7.1'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CUDA=ON -DBUILD_SHARED_LIBS=ON'
+          # - build: 'noavx'
+          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON'
+          # - build: 'avx2'
+          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=ON'
+          # - build: 'avx'
+          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX2=OFF -DBUILD_SHARED_LIBS=ON'
+          # - build: 'avx512'
+          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
+          # - build: 'clblast'
+          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CLBLAST=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/clblast"'
+          # - build: 'cuda-cu11.7.1'
+          #   defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CUDA=ON -DBUILD_SHARED_LIBS=ON'
           - build: 'cuda-cu12.2.0'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CUDA=ON -DBUILD_SHARED_LIBS=ON'
+            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CUDA=ON -DBUILD_SHARED_LIBS=ON -DCUDAToolkit_ROOT=$GITHUB_WORKSPACE/build/cuda'
 
     steps:
       - name: Clone
@@ -104,10 +104,8 @@ jobs:
       - name: Copy and pack Cuda runtime
         if: startsWith(matrix.build, 'cuda')
         run: |
-          CUDA_LIBS="${{ steps.cuda-toolkit.outputs.CUDA_PATH }}/targets/x86_64-linux/lib"
-          echo "Cuda install location: $CUDA_LIBS"
-          cp $CUDA_LIBS/libcudart.so $CUDA_LIBS/libcublas.so $CUDA_LIBS/libcublasLt.so build/
-          zip cudart-llama-bin-linux-cu${{ env.CUDA }}-x64.zip build/libcu*.so
+          cd build
+          ln -s ${{ steps.cuda-toolkit.outputs.CUDA_PATH }} cuda
 
       - name: Build
         id: cmake_build
@@ -129,6 +127,13 @@ jobs:
         run: |
           zip -r llama-${{ env.LLAMACPP_VERSION }}-bin-linux-${{ matrix.build }}-x64.zip build/bin/* build/licenses/* build/libs/*
 
+      - name: Copy and pack Cuda runtime
+        if: startsWith(matrix.build, 'cuda')
+        run: |
+          bin_dir=`pwd`/build/bin
+          libs=`for f in $bin_dir/*;do ldd $f;done|grep $bin_dir/../cuda|cut -d '>' -f2|cut -d'(' -f1|sort|uniq|tr -d ' '|sed -e "s:$(pwd)/build/bin/..:build:g"`
+          zip cudart-llama-bin-linux-cu${{ env.CUDA }}-x64.zip $libs
+          
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
