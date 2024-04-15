@@ -34,10 +34,14 @@ LLM::LLM(std::string params_string){
         argv[i] = new char[arguments[i].size() + 1];
         std::strcpy(argv[i], arguments[i].c_str());
     }
-    LLM(argc, argv);
+    init(argc, argv);
 }
 
 LLM::LLM(int argc, char ** argv){
+    init(argc, argv);
+}
+
+void LLM::init(int argc, char ** argv){
     server_params_parse(argc, argv, sparams, params);
 
     if (!sparams.system_prompt.empty()) {
@@ -240,17 +244,36 @@ void LLM::handle_slots_action(json data) {
     ctx_server.queue_results.remove_waiting_task_id(id_task);
 }
 
+StringWrapper::StringWrapper(){}
+
+void StringWrapper::SetContent(std::string input){
+    if (content != nullptr) {
+        delete[] content;
+    }
+    content = new char[input.length() + 1];
+    strcpy(content, input.c_str());
+}
+
+int StringWrapper::GetStringSize(){
+    return strlen(content) + 1;
+}
+
+void StringWrapper::GetString(char* buffer, int bufferSize){
+    strncpy(buffer, content, bufferSize);
+    buffer[bufferSize - 1] = '\0';
+}
+
 /*
 int main(int argc, char ** argv) {
     LLM llm(argc, argv);
     json data;
-    data = {
-        {"id_slot", 0},
-        {"action", "restore"},
-        {"filename", "la.txt"}
-    };
-    llm.handle_slots_action(data);
-
+    // data = {
+    //     {"id_slot", 0},
+    //     {"action", "restore"},
+    //     {"filename", "la.txt"}
+    // };
+    // llm.handle_slots_action(data);
+    
     std::cout<<"Run prompt"<<std::endl;
     data = {
         {"prompt", "<s>[INST] A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human's questions.\n\n### user: hi [/INST]### assistant:"},
@@ -259,16 +282,14 @@ int main(int argc, char ** argv) {
         {"stop", json::array({"[INST]", "[/INST]", "###"})}
     };
     std::cout<<llm.handle_completions(data)<<std::endl<<std::endl;
-
-    data["prompt"] = "<s>[INST] A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human's questions.\n\n### user: hi ### assistant: hi there ### user: how are you?[/INST]### assistant:";
-    std::cout<<llm.handle_completions(data)<<std::endl;
-
+   
     data = {
         {"id_slot", 0},
         {"action", "save"},
         {"filename", "la.txt"}
     };
     llm.handle_slots_action(data);
+
     return 1;
 }
 */
