@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.14)  # for add_link_options and implicit target directories.
-project("llmunity" C CXX)
+project("undreamai" C CXX)
 add_subdirectory("llama.cpp")
 
-set(TARGET llmunity)
-add_library(${TARGET} llmunity.cpp)
+set(TARGET undreamai)
+add_library(${TARGET} undreamai.cpp)
 install(TARGETS ${TARGET} LIBRARY)
 target_include_directories(${TARGET} PRIVATE  ${CMAKE_CURRENT_SOURCE_DIR} llama.cpp/examples/server)
 target_link_libraries(${TARGET} PRIVATE common llama json-schema-to-grammar  ${CMAKE_THREAD_LIBS_INIT})
