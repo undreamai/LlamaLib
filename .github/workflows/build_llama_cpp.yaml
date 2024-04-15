@@ -2,8 +2,11 @@ name: Build llama.cpp linux binaries
 
 on:
   push:
-    tags:
-      - 'llamacpp-*'
+    paths:
+      - ".github/workflows/build_llama_cpp.yaml"
+
+env:
+  LLAMACPP_VERSION: b2674
 
 jobs:
   build_artifacts:
@@ -40,7 +43,6 @@ jobs:
 
       - name: Get Variables
         run: |
-          echo "LLAMACPP_VERSION=$(echo "${GITHUB_REF#refs/tags/}" | sed -e 's:llamacpp-::g' )" >> $GITHUB_ENV
           echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
 
       - name: Clone llama.cpp
@@ -156,10 +158,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Get Variables
-        run: |
-          echo "LLAMACPP_VERSION=$(echo "${GITHUB_REF#refs/tags/}")" >> $GITHUB_ENV
-
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
@@ -172,5 +170,5 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "${{ env.LLAMACPP_VERSION }}"
+          name: "llamacpp-${{ env.LLAMACPP_VERSION }}"
           files: "artifacts/*/*"
