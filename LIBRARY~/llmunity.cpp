@@ -1,30 +1,6 @@
 #include "llmunity.h"
 
-bool LLMParser::readline(std::string & line) {
-    if (!std::getline(std::cin, line)) {
-        // Input stream is bad or EOF received
-        line.clear();
-        return false;
-    }
-    bool ret = false;
-    if (!line.empty()) {
-        char last = line.back();
-        if (last == '/') { // Always return control on '/' symbol
-            line.pop_back();
-            return false;
-        }
-        if (last == '\\') { // '\\' changes the default action
-            line.pop_back();
-            ret = true;
-        }
-    }
-    line += '\n';
-
-    // By default, continue input if multiline_input is set
-    return ret;
-}
-
-std::vector<std::string> LLMParser::splitArguments(const std::string& inputString) {
+std::vector<std::string> LLM::splitArguments(const std::string& inputString) {
     // Split the input string into individual arguments
     std::vector<std::string> arguments;
 
@@ -48,9 +24,8 @@ std::vector<std::string> LLMParser::splitArguments(const std::string& inputStrin
     return arguments;
 }
 
-
 LLM::LLM(std::string params_string){
-    std::vector<std::string> arguments = LLMParser::splitArguments("llm " + params_string);
+    std::vector<std::string> arguments = splitArguments("llm " + params_string);
 
     // Convert vector of strings to argc and argv
     int argc = static_cast<int>(arguments.size());
@@ -140,7 +115,6 @@ LLM::LLM(int argc, char ** argv){
 }
 
 LLM::~LLM(){
-    std::cout<<"bye"<<std::endl;
     ctx_server.queue_tasks.terminate();
     llama_backend_free();
     server_thread.join();
@@ -148,58 +122,6 @@ LLM::~LLM(){
 
 void LLM::run_server(){
     ctx_server.queue_tasks.start_loop();
-}
-
-void LLM::run_task(){
-    LOG_VERBOSE("new task may arrive", {});
-    while(true){
-        std::unique_lock<std::mutex> lock(ctx_server.queue_tasks.mutex_tasks);
-        if (ctx_server.queue_tasks.queue_tasks.empty()) {
-            lock.unlock();
-            break;
-        }
-        server_task task = ctx_server.queue_tasks.queue_tasks.front();
-        ctx_server.queue_tasks.queue_tasks.erase(ctx_server.queue_tasks.queue_tasks.begin());
-        lock.unlock();
-        LOG_VERBOSE("callback_new_task", {{"id_task", task.id}});
-        LOG_VERBOSE("callback_new_task", {{"task_type", task.type}});
-        ctx_server.queue_tasks.callback_new_task(task);
-    }
-
-    LOG_VERBOSE("update_multitasks", {});
-
-    // check if we have any finished multitasks
-    auto queue_iterator = ctx_server.queue_tasks.queue_multitasks.begin();
-    while (queue_iterator != ctx_server.queue_tasks.queue_multitasks.end()) {
-        if (queue_iterator->subtasks_remaining.empty()) {
-            // all subtasks done == multitask is done
-            server_task_multi current_multitask = *queue_iterator;
-            ctx_server.queue_tasks.callback_finish_multitask(current_multitask);
-            // remove this multitask
-            queue_iterator = ctx_server.queue_tasks.queue_multitasks.erase(queue_iterator);
-        } else {
-            ++queue_iterator;
-        }
-    }
-
-    // all tasks in the current loop is processed, slots data is now ready
-    LOG_VERBOSE("callback_update_slots", {});
-
-    ctx_server.queue_tasks.callback_update_slots();
-
-    LOG_VERBOSE("wait for new task", {});
-    {
-        std::unique_lock<std::mutex> lock(ctx_server.queue_tasks.mutex_tasks);
-        if (ctx_server.queue_tasks.queue_tasks.empty()) {
-            if (!ctx_server.queue_tasks.running) {
-                LOG_VERBOSE("ending start_loop", {});
-                return;
-            }
-            ctx_server.queue_tasks.condition_tasks.wait(lock, [&]{
-                return (!ctx_server.queue_tasks.queue_tasks.empty() || !ctx_server.queue_tasks.running);
-            });
-        }
-    }
 }
 
 std::string LLM::handle_tokenize(json body) {
@@ -229,16 +151,10 @@ std::string LLM::handle_completions(json data) {
 
     ctx_server.queue_results.add_waiting_task_id(id_task);
     ctx_server.request_completion(id_task, -1, data, false, false);
-            for (int i = 0; i < (int) ctx_server.queue_results.queue_results.size(); i++) {
-                if (ctx_server.queue_results.queue_results[i].id == id_task) {
-                    std::cout<<"hell yeah"<<std::endl;
-                }
-            }
 
     if (!json_value(data, "stream", false)) {
         server_task_result result = ctx_server.queue_results.recv(id_task);
         if (!result.error && result.stop) {
-            // res.set_content(result.data.dump(-1, ' ', false, json::error_handler_t::replace), "application/json; charset=utf-8");
             result_data =
                 "data: " +
                 result.data.dump(-1, ' ', false, json::error_handler_t::replace) +
@@ -247,13 +163,11 @@ std::string LLM::handle_completions(json data) {
                 { "to_send", result_data }
             });
         } else {
-            // res_error(res, result.data);
             LOG_ERROR("Error processing request", {});
         }
 
         ctx_server.queue_results.remove_waiting_task_id(id_task);
     } else {
-        // const auto chunked_content_provider = [id_task, &ctx_server](size_t, httplib::DataSink & sink) {
             while (true) {
                 server_task_result result = ctx_server.queue_results.recv(id_task);
                 std::string str;
@@ -266,11 +180,6 @@ std::string LLM::handle_completions(json data) {
                     LOG_VERBOSE("data stream", {
                         { "to_send", str }
                     });
-
-                    // if (!sink.write(str.c_str(), str.size())) {
-                    //     ctx_server.queue_results.remove_waiting_task_id(id_task);
-                    //     return false;
-                    // }
 
                     if (result.stop) {
                         break;
@@ -285,40 +194,81 @@ std::string LLM::handle_completions(json data) {
                         { "to_send", str }
                     });
 
-                    // if (!sink.write(str.c_str(), str.size())) {
-                    //     ctx_server.queue_results.remove_waiting_task_id(id_task);
-                    //     return false;
-                    // }
-
                     break;
                 }
                 result_data += str;
             }
 
-            // ctx_server.queue_results.remove_waiting_task_id(id_task);
-            // sink.done();
-
-            // return true;
-        // };
-
-        // auto on_complete = [id_task, &ctx_server] (bool) {
-            // cancel
             ctx_server.request_cancel(id_task);
             ctx_server.queue_results.remove_waiting_task_id(id_task);
-        // };
-
-        // res.set_chunked_content_provider("text/event-stream", chunked_content_provider, on_complete);
     }
     return result_data;
 }
 
+void LLM::handle_slots_action(json data) {
+    server_task task;
+    int id_slot = json_value(data, "id_slot", 0);
+    task.data = {
+        { "id_slot", id_slot},
+    };
+
+    std::string action = data["action"];
+    if (action == "save" || action == "restore") {
+        std::string filename = data["filename"];
+        if (!validate_file_name(filename)) {
+            LOG_ERROR(("Invalid filename: " + filename).c_str(), {});
+            return;
+        }
+        task.data["filename"] = filename;
+        task.data["filepath"] = sparams.slot_save_path + filename;
+
+        if (action == "save") {
+            task.type = SERVER_TASK_TYPE_SLOT_SAVE;
+        } else {
+            task.type = SERVER_TASK_TYPE_SLOT_RESTORE;
+        }
+    } else if (action == "erase") {
+        task.type = SERVER_TASK_TYPE_SLOT_ERASE;
+    } else {
+        throw std::runtime_error("Invalid action" + action);
+    }
+
+    const int id_task = ctx_server.queue_tasks.post(task);
+    ctx_server.queue_results.add_waiting_task_id(id_task);
+
+    server_task_result result = ctx_server.queue_results.recv(id_task);
+    ctx_server.queue_results.remove_waiting_task_id(id_task);
+}
+
+/*
 int main(int argc, char ** argv) {
     LLM llm(argc, argv);
+    json data;
+    data = {
+        {"id_slot", 0},
+        {"action", "restore"},
+        {"filename", "la.txt"}
+    };
+    llm.handle_slots_action(data);
+
     std::cout<<"Run prompt"<<std::endl;
-    json data = {
+    data = {
         {"prompt", "<s>[INST] A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human's questions.\n\n### user: hi [/INST]### assistant:"},
+        {"cache_prompt", true},
+        {"id_slot", 0},
         {"stop", json::array({"[INST]", "[/INST]", "###"})}
     };
-    std::cout<<llm.handle_completions(data);
+    std::cout<<llm.handle_completions(data)<<std::endl<<std::endl;
+
+    data["prompt"] = "<s>[INST] A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human's questions.\n\n### user: hi ### assistant: hi there ### user: how are you?[/INST]### assistant:";
+    std::cout<<llm.handle_completions(data)<<std::endl;
+
+    data = {
+        {"id_slot", 0},
+        {"action", "save"},
+        {"filename", "la.txt"}
+    };
+    llm.handle_slots_action(data);
     return 1;
 }
+*/
