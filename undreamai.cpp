@@ -264,6 +264,51 @@ void StringWrapper::GetString(char* buffer, int bufferSize){
     buffer[bufferSize - 1] = '\0';
 }
 
+StringWrapper* StringWrapper_Construct() {
+    return new StringWrapper();
+}
+
+void StringWrapper_Delete(StringWrapper* object) {
+    delete object;
+}
+
+int StringWrapper_GetStringSize(StringWrapper* object) {
+    return object->GetStringSize();
+}
+
+void StringWrapper_GetString(StringWrapper* object, char* buffer, int bufferSize){
+    return object->GetString(buffer, bufferSize);
+}
+
+LLM* LLM_Construct(const char* params_string) {
+    return new LLM(std::string(params_string));
+}
+
+void LLM_Delete(LLM* llm) {
+    delete llm;
+}
+
+const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper){
+    wrapper->SetContent(llm->handle_tokenize(json::parse(json_data)));
+}
+
+const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper){
+    wrapper->SetContent(llm->handle_detokenize(json::parse(json_data)));
+}
+
+void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper, void* streamCallbackPointer){
+    StringWrapperCallback* callback = nullptr;
+    if (streamCallbackPointer != nullptr){
+        CompletionCallback streamCallback = reinterpret_cast<CompletionCallback>(streamCallbackPointer);
+        callback = new StringWrapperCallback(wrapper, streamCallback);
+    }
+    wrapper->SetContent(llm->handle_completions(json::parse(json_data), callback));
+}
+
+const void LLM_Slot(LLM* llm, const char* json_data) {
+    llm->handle_slots_action(json::parse(json_data));
+}
+
 /*
 int main(int argc, char ** argv) {
     LLM llm(argc, argv);

@@ -61,33 +61,16 @@ class LLM {
     #define UNDREAMAI_API
 #endif
 
-#ifdef __cplusplus
 extern "C" {
-#endif
-	UNDREAMAI_API StringWrapper* StringWrapper_Construct() { return new StringWrapper(); }
-	UNDREAMAI_API void StringWrapper_Delete(StringWrapper* object) { delete object; }
-	UNDREAMAI_API int StringWrapper_GetStringSize(StringWrapper* object) { return object->GetStringSize(); }
-	UNDREAMAI_API void StringWrapper_GetString(StringWrapper* object, char* buffer, int bufferSize){ return object->GetString(buffer, bufferSize); }
+	UNDREAMAI_API StringWrapper* StringWrapper_Construct();
+	UNDREAMAI_API void StringWrapper_Delete(StringWrapper* object);
+	UNDREAMAI_API int StringWrapper_GetStringSize(StringWrapper* object);
+	UNDREAMAI_API void StringWrapper_GetString(StringWrapper* object, char* buffer, int bufferSize);
 
-    UNDREAMAI_API LLM* LLM_Construct(const char* params_string) { return new LLM(std::string(params_string)); }
-    UNDREAMAI_API void LLM_Delete(LLM* llm) { delete llm; }
-    UNDREAMAI_API const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper){
-        wrapper->SetContent(llm->handle_tokenize(json::parse(json_data)));
-    }
-    UNDREAMAI_API const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper){
-        wrapper->SetContent(llm->handle_detokenize(json::parse(json_data)));
-    }
-    UNDREAMAI_API void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper, void* streamCallbackPointer=nullptr){
-        StringWrapperCallback* callback = nullptr;
-        if (streamCallbackPointer != nullptr){
-            CompletionCallback streamCallback = reinterpret_cast<CompletionCallback>(streamCallbackPointer);
-            callback = new StringWrapperCallback(wrapper, streamCallback);
-        }
-        wrapper->SetContent(llm->handle_completions(json::parse(json_data), callback));
-    }
-    UNDREAMAI_API const void LLM_Slot(LLM* llm, const char* json_data) {
-        llm->handle_slots_action(json::parse(json_data));
-    }
-#ifdef __cplusplus
+    UNDREAMAI_API LLM* LLM_Construct(const char* params_string);
+    UNDREAMAI_API void LLM_Delete(LLM* llm);
+    UNDREAMAI_API const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
+    UNDREAMAI_API const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
+    UNDREAMAI_API void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper, void* streamCallbackPointer=nullptr);
+    UNDREAMAI_API const void LLM_Slot(LLM* llm, const char* json_data);
 };
-#endif

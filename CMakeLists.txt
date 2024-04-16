@@ -6,10 +6,10 @@ if(DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
     set_property(DIRECTORY llama.cpp PROPERTY CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 endif()
 
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-# set_target_properties(json-schema-to-grammar PROPERTIES
-#     COMPILE_FLAGS "-fPIC"
-# )
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+set_target_properties(json-schema-to-grammar PROPERTIES
+    COMPILE_FLAGS "-fPIC"
+)
 
 set(TARGET undreamai)
 add_library(${TARGET} undreamai.cpp)
