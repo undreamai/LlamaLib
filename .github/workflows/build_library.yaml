@@ -130,26 +130,26 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts
         run: |
-          zip -j undreamai-$VERSION-llamacpp-$LLAMACPP_VERSION-linux-${{ matrix.build }}-x64.zip build/licenses/* build/libs/*
+          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}-x64.zip build/licenses/* build/libs/*
 
       - name: Copy and pack Cuda runtime
         if: startsWith(matrix.build, 'cuda')
         run: |
           libs=`for f in build/bin/*;do ldd $f;done|grep $CUDA_PATH |cut -d '>' -f2|cut -d'(' -f1|sort|uniq|tr -d ' '|sed -e "s:$CUDA_PATH:build/cuda:g"`
-          zip cudart-llama-bin-linux-cu$CUDA-x64.zip $libs
+          zip cuda-${{ env.CUDA }}-linux-x64.zip $libs
           
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: undreamai-$VERSION-llamacpp-$LLAMACPP_VERSION-linux-${{ matrix.build }}-x64.zip
-          path: undreamai-$VERSION-llamacpp-$LLAMACPP_VERSION-linux-${{ matrix.build }}-x64.zip
+          name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}-x64.zip
+          path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}-x64.zip
   
       - name: Upload Cuda runtime
         if: startsWith(matrix.build, 'cuda')
         uses: actions/upload-artifact@v3
         with:
-          path: cuda-$CUDA-linux.zip
-          name: cuda-$CUDA-linux.zip
+          path: cuda-${{ env.CUDA }}-linux-x64.zip
+          name: cuda-${{ env.CUDA }}-linux-x64.zip
 
   create_release:
     name: Create Release
