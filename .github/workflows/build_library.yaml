@@ -21,25 +21,25 @@ jobs:
     env:
       OPENCL_VERSION: 2023.04.17
       CLBLAST_VERSION: 1.6.0
-      DEFINES_ALL: -DLLAMA_BUILD_TESTS=OFF -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=$GITHUB_WORKSPACE/build -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=$GITHUB_WORKSPACE/build/libs
+      DEFINES_ALL: -DLLAMA_NATIVE=OFF -DBUILD_SHARED_LIBS=ON -DLLAMA_BUILD_TESTS=OFF -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=$GITHUB_WORKSPACE/build -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=$GITHUB_WORKSPACE/build/libs
 
     strategy:
       matrix:
         include:
           - build: 'noavx'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON'
+            defines: '-DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF'
           - build: 'avx2'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=ON'
+            defines: ''
           - build: 'avx'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX2=OFF -DBUILD_SHARED_LIBS=ON'
+            defines: '-DLLAMA_AVX2=OFF'
           - build: 'avx512'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
+            defines: '-DLLAMA_AVX512=ON'
           - build: 'clblast'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CLBLAST=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/clblast"'
+            defines: '-DLLAMA_CLBLAST=ON -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/clblast"'
           - build: 'cuda-cu11.7.1'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CUDA=ON -DBUILD_SHARED_LIBS=ON'
+            defines: '-DLLAMA_CUDA=ON -DCUDAToolkit_ROOT=$GITHUB_WORKSPACE/build/cuda'
           - build: 'cuda-cu12.2.0'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_CUDA=ON -DBUILD_SHARED_LIBS=ON -DCUDAToolkit_ROOT=$GITHUB_WORKSPACE/build/cuda'
+            defines: '-DLLAMA_CUDA=ON -DCUDAToolkit_ROOT=$GITHUB_WORKSPACE/build/cuda'
 
     steps:
       - name: Clone
@@ -135,9 +135,10 @@ jobs:
       - name: Copy and pack Cuda runtime
         if: startsWith(matrix.build, 'cuda')
         run: |
-          libs=`for f in build/bin/*;do ldd $f;done|grep $CUDA_PATH |cut -d '>' -f2|cut -d'(' -f1|sort|uniq|tr -d ' '|sed -e "s:$CUDA_PATH:build/cuda:g"`
-          zip cuda-${{ env.CUDA }}-linux-x64.zip $libs
-          
+          libs=`for f in libs/*;do objdump -x $f |grep NEEDED;done |tr -d ' '| sed -e 's:NEEDED::g'|sort|uniq|grep libcu`
+          echo $libs
+          zip -j cuda-${{ env.CUDA }}-linux-x64.zip $libs
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
