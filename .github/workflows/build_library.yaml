@@ -55,7 +55,7 @@ jobs:
         with:
           repository: ggerganov/llama.cpp
           fetch-depth: 0
-          ref: "$LLAMACPP_VERSION"
+          ref: ${{ LLAMACPP_VERSION }}
 
       - name: Dependencies
         run: |
