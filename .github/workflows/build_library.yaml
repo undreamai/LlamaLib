@@ -197,6 +197,7 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts
         run: |
+          ls -R build
           zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip build/licenses/* build/libs/*
 
       - name: Upload Artifacts
