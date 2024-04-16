@@ -403,11 +403,10 @@ jobs:
         run: |
           cd artifacts
           for d in `ls`;do cd $d; unzip $d; rm $d; cd ..; mv $d `echo $d | sed -e 's:.zip::g'`;done
-          cd ..
-          ls -R artifacts
+          zip -r undreamai.zip .
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           name: "Release ${{ env.VERSION }}"
-          files: "artifacts/*/*"
+          files: "artifacts/undreamai.zip"
