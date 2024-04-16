@@ -53,15 +53,17 @@ class LLM {
 
 #ifdef _WIN32
     #ifdef UNDREAMAI_EXPORTS
-    #define UNDREAMAI_API __declspec(dllexport)
+        #define UNDREAMAI_API __declspec(dllexport)
     #else
-    #define UNDREAMAI_API __declspec(dllimport)
+        #define UNDREAMAI_API __declspec(dllimport)
     #endif
 #else
     #define UNDREAMAI_API
 #endif
 
+#ifdef __cplusplus
 extern "C" {
+#endif
 	UNDREAMAI_API StringWrapper* StringWrapper_Construct() { return new StringWrapper(); }
 	UNDREAMAI_API void StringWrapper_Delete(StringWrapper* object) { delete object; }
 	UNDREAMAI_API int StringWrapper_GetStringSize(StringWrapper* object) { return object->GetStringSize(); }
@@ -86,4 +88,6 @@ extern "C" {
     UNDREAMAI_API const void LLM_Slot(LLM* llm, const char* json_data) {
         llm->handle_slots_action(json::parse(json_data));
     }
+#ifdef __cplusplus
 };
+#endif
