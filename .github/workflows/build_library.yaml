@@ -204,52 +204,52 @@ jobs:
   #         name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip
   #         path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip
 
-  macOS-x64-build:
-    runs-on: macos-latest
+  # macOS-x64-build:
+  #   runs-on: macos-latest
 
-    steps:
-      - name: Clone
-        id: checkout
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Clone
+  #       id: checkout
+  #       uses: actions/checkout@v4
 
-      - name: Get Variables
-        run: |
-          echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
+  #     - name: Get Variables
+  #       run: |
+  #         echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
 
-      - name: Clone llama.cpp
-        run: |
-          git clone https://github.com/ggerganov/llama.cpp llama.cpp
-          cd llama.cpp
-          git checkout ${{ env.LLAMACPP_VERSION }}
-          cd ..
-          mkdir -p build/licenses build/libs
-          cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+  #     - name: Clone llama.cpp
+  #       run: |
+  #         git clone https://github.com/ggerganov/llama.cpp llama.cpp
+  #         cd llama.cpp
+  #         git checkout ${{ env.LLAMACPP_VERSION }}
+  #         cd ..
+  #         mkdir -p build/licenses build/libs
+  #         cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
 
-      - name: Dependencies
-        id: depends
-        continue-on-error: true
-        run: |
-          brew update
+  #     - name: Dependencies
+  #       id: depends
+  #       continue-on-error: true
+  #       run: |
+  #         brew update
 
-      - name: Build
-        id: cmake_build
-        run: |
-          rm VERSION
-          cd build
-          cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL=OFF -DLLAMA_CURL=ON ${{ env.CMAKE_COMMON_JOBS }} ..
-          cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
+  #     - name: Build
+  #       id: cmake_build
+  #       run: |
+  #         rm VERSION
+  #         cd build
+  #         cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL=OFF -DLLAMA_CURL=ON ${{ env.CMAKE_COMMON_JOBS }} ..
+  #         cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
 
-      - name: Pack artifacts
-        id: pack_artifacts
-        run: |
-          ls -R build
-          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip build/licenses/* build/libs/*
+  #     - name: Pack artifacts
+  #       id: pack_artifacts
+  #       run: |
+  #         ls -R build
+  #         zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip build/licenses/* build/libs/*
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip
-          path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip
+  #     - name: Upload Artifacts
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip
+  #         path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip
 
 ################################ Windows ################################
 
@@ -340,14 +340,14 @@ jobs:
         id: add_clblast_dll
         if: ${{ matrix.build == 'clblast' }}
         run: |
-          cp $env:RUNNER_TEMP/clblast/lib/clblast.dll ./build/bin/Release
-          cp $env:RUNNER_TEMP/CLBlast.LICENSE.txt ./build/bin/Release/CLBlast-${env:CLBLAST_VERSION}.txt
+          cp $env:RUNNER_TEMP/clblast/lib/clblast.dll ./build/Release
+          cp $env:RUNNER_TEMP/CLBlast.LICENSE.txt ./build/Release/CLBlast-${env:CLBLAST_VERSION}.txt
 
       - name: Pack artifacts
         id: pack_artifacts
         run: |
-          Copy-Item llama.cpp\LICENSE .\build\bin\Release\llama.cpp.LICENSE.txt
-          7z a undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-windows-${{ matrix.build }}.zip .\build\bin\Release\*
+          Copy-Item llama.cpp\LICENSE .\build\Release\llama.cpp.LICENSE.txt
+          7z a undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-windows-${{ matrix.build }}.zip .\build\Release\*
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
