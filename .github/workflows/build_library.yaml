@@ -404,17 +404,16 @@ jobs:
       - name: Merge artifacts
         run: |
           cd artifacts
-          ls -R
+          for d in `ls | grep cuda | grep -v $PREFIX`;do
+            mv $d/$d tmp.zip
+            rm -r $d
+            mv tmp.zip $d
+          done
           for d in `ls | grep $PREFIX`;do
             cd $d; unzip $d; rm $d; cd ..;
             new_name=`echo $d | sed -e "s:$PREFIX-::g" | sed -e 's:.zip::g'`
             mv $d $new_name;
             echo $new_name >> dlls
-          done
-          for d in `ls | grep cuda`;do
-            mv $d/$d tmp.zip
-            rm -r $d
-            mv tmp.zip $d
           done
           zip -r $PREFIX.zip `cat dlls`
 
