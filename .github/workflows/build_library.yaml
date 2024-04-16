@@ -410,7 +410,11 @@ jobs:
             mv $d $new_name;
             echo $new_name >> dlls
           done
-          for d in `ls | grep cuda`;do mv $d tmp; mv tmp/$d ./; rm -r tmp;done
+          for d in `ls | grep cuda`;do
+            mv $d/$d tmp.zip
+            rm -r $d
+            mv tmp.zip $d
+          done
           zip -r $PREFIX.zip `cat dlls`
 
       - name: Release
