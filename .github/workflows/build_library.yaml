@@ -14,7 +14,7 @@ env:
   LLAMACPP_VERSION: b2674
   OPENCL_VERSION: 2023.04.17
   CLBLAST_VERSION: 1.6.0
-  CMAKE_OUTPUT: '-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs'
+  CMAKE_COMMON_JOBS: '-DLLAMA_BUILD_TESTS=OFF -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs'
 
 jobs:
 
@@ -25,7 +25,7 @@ jobs:
   #   runs-on: ubuntu-latest
 
   #   env:
-  #     CMAKE_COMMON: '-DLLAMA_NATIVE=OFF -DBUILD_SHARED_LIBS=ON -DLLAMA_BUILD_TESTS=OFF -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON'
+  #     CMAKE_COMMON: '-DLLAMA_NATIVE=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON'
 
   #   strategy:
   #     matrix:
@@ -127,7 +127,7 @@ jobs:
   #       run: |
   #         export LD_LIBRARY_PATH=""
   #         cd build
-  #         cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_OUTPUT }}
+  #         cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }}
   #         cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
 
   #     - name: Pack artifacts
@@ -191,7 +191,7 @@ jobs:
           rm VERSION
           # sysctl -a
           cd build
-          cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ env.CMAKE_OUTPUT }} ..
+          cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ env.CMAKE_COMMON_JOBS }} -DBUILD_SHARED_LIBS=ON ..
           cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
 
       - name: Pack artifacts
