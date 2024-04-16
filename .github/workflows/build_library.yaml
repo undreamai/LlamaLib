@@ -20,236 +20,236 @@ jobs:
 
   ################################ Linux ################################
 
-  # linux_build:
-  #   name: Build Artifacts
-  #   runs-on: ubuntu-latest
+  linux_build:
+    name: Build Artifacts
+    runs-on: ubuntu-latest
 
-  #   env:
-  #     CMAKE_COMMON: '-DLLAMA_NATIVE=OFF'
+    env:
+      CMAKE_COMMON: '-DLLAMA_NATIVE=OFF'
 
-  #   strategy:
-  #     matrix:
-  #       include:
-  #         - build: 'noavx'
-  #           defines: '-DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF'
-  #         - build: 'avx2'
-  #           defines: ''
-  #         - build: 'avx'
-  #           defines: '-DLLAMA_AVX2=OFF'
-  #         - build: 'avx512'
-  #           defines: '-DLLAMA_AVX512=ON'
-  #         - build: 'clblast'
-  #           defines: '-DLLAMA_CLBLAST=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_PREFIX_PATH=${{ github.workspace }}/clblast'
-  #         - build: 'cuda-cu11.7.1'
-  #           defines: '-DLLAMA_CUDA=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCUDAToolkit_ROOT=${{ github.workspace }}/build/cuda'
-  #         - build: 'cuda-cu12.2.0'
-  #           defines: '-DLLAMA_CUDA=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCUDAToolkit_ROOT=${{ github.workspace }}/build/cuda'
+    strategy:
+      matrix:
+        include:
+          - build: 'noavx'
+            defines: '-DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF'
+          - build: 'avx2'
+            defines: ''
+          - build: 'avx'
+            defines: '-DLLAMA_AVX2=OFF'
+          - build: 'avx512'
+            defines: '-DLLAMA_AVX512=ON'
+          - build: 'clblast'
+            defines: '-DLLAMA_CLBLAST=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_PREFIX_PATH=${{ github.workspace }}/clblast'
+          # - build: 'cuda-cu11.7.1'
+          #   defines: '-DLLAMA_CUDA=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCUDAToolkit_ROOT=${{ github.workspace }}/build/cuda'
+          # - build: 'cuda-cu12.2.0'
+          #   defines: '-DLLAMA_CUDA=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCUDAToolkit_ROOT=${{ github.workspace }}/build/cuda'
 
-  #   steps:
-  #     - name: Clone
-  #       id: checkout
-  #       uses: actions/checkout@v4
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v4
 
-  #     - name: Get Variables
-  #       run: |
-  #         echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
-  #         echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
+      - name: Get Variables
+        run: |
+          echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
+          echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
 
-  #     - name: Clone llama.cpp
-  #       run: |
-  #         git clone https://github.com/ggerganov/llama.cpp llama.cpp
-  #         cd llama.cpp
-  #         git checkout ${{ env.LLAMACPP_VERSION }}
-  #         cd ..
-  #         mkdir -p build/licenses build/libs
-  #         cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+      - name: Clone llama.cpp
+        run: |
+          git clone https://github.com/ggerganov/llama.cpp llama.cpp
+          cd llama.cpp
+          git checkout ${{ env.LLAMACPP_VERSION }}
+          cd ..
+          mkdir -p build/licenses build/libs
+          cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
 
-  #     - name: Dependencies
-  #       run: |
-  #         sudo apt-get update
-  #         sudo apt-get install build-essential cmake tar p7zip-full opencl-headers
+      - name: Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install build-essential cmake tar p7zip-full opencl-headers
 
-  #     - name: Download OpenCL SDK
-  #       id: get_opencl
-  #       if: ${{ matrix.build == 'clblast' }}
-  #       run: |
-  #         sudo apt-get install opencl-headers
-  #         git clone --recurse-submodules https://github.com/KhronosGroup/OpenCL-SDK.git
-  #         curl -o build/licenses/OpenCL.LICENSE.txt -L "https://raw.githubusercontent.com/KhronosGroup/OpenCL-SDK/v${{ env.OPENCL_VERSION }}/LICENSE"
-  #         mkdir OpenCL-SDK/build
-  #         cd OpenCL-SDK/build
-  #         cmake .. -DBUILD_DOCS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DOPENCL_SDK_BUILD_SAMPLES=OFF -DOPENCL_SDK_TEST_SAMPLES=OFF
-  #         cmake --build . --config Release
-  #         cmake --install . --prefix install
-  #         cp install/lib/libOpenCL.so ../../build/libs/libOpenCL.so.1
+      - name: Download OpenCL SDK
+        id: get_opencl
+        if: ${{ matrix.build == 'clblast' }}
+        run: |
+          sudo apt-get install opencl-headers
+          git clone --recurse-submodules https://github.com/KhronosGroup/OpenCL-SDK.git
+          curl -o build/licenses/OpenCL.LICENSE.txt -L "https://raw.githubusercontent.com/KhronosGroup/OpenCL-SDK/v${{ env.OPENCL_VERSION }}/LICENSE"
+          mkdir OpenCL-SDK/build
+          cd OpenCL-SDK/build
+          cmake .. -DBUILD_DOCS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DOPENCL_SDK_BUILD_SAMPLES=OFF -DOPENCL_SDK_TEST_SAMPLES=OFF
+          cmake --build . --config Release
+          cmake --install . --prefix install
+          cp install/lib/libOpenCL.so ../../build/libs/libOpenCL.so.1
 
-  #     - name: Download CLBlast
-  #       id: get_clblast
-  #       if: ${{ matrix.build == 'clblast' }}
-  #       run: |
-  #         sudo apt-get install tar p7zip-full
-  #         curl -o clblast.7z -L "https://github.com/CNugteren/CLBlast/releases/download/${{ env.CLBLAST_VERSION }}/CLBlast-${{ env.CLBLAST_VERSION }}-linux-x86_64.tar.gz"
-  #         curl -o build/licenses/CLBlast.LICENSE.txt -L "https://github.com/CNugteren/CLBlast/raw/${{ env.CLBLAST_VERSION }}/LICENSE"
-  #         7z x clblast.7z
-  #         mv CLBlast-* clblast
-  #         cp clblast/lib/libclblast.so.${{ env.CLBLAST_VERSION }} build/libs/libclblast.so.1
+      - name: Download CLBlast
+        id: get_clblast
+        if: ${{ matrix.build == 'clblast' }}
+        run: |
+          sudo apt-get install tar p7zip-full
+          curl -o clblast.7z -L "https://github.com/CNugteren/CLBlast/releases/download/${{ env.CLBLAST_VERSION }}/CLBlast-${{ env.CLBLAST_VERSION }}-linux-x86_64.tar.gz"
+          curl -o build/licenses/CLBlast.LICENSE.txt -L "https://github.com/CNugteren/CLBlast/raw/${{ env.CLBLAST_VERSION }}/LICENSE"
+          7z x clblast.7z
+          mv CLBlast-* clblast
+          cp clblast/lib/libclblast.so.${{ env.CLBLAST_VERSION }} build/libs/libclblast.so.1
           
-  #         echo "
-  #         set(CMAKE_IMPORT_FILE_VERSION 1)
+          echo "
+          set(CMAKE_IMPORT_FILE_VERSION 1)
           
-  #         set_property(TARGET clblast APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
-  #         set_target_properties(clblast PROPERTIES
-  #           IMPORTED_LINK_INTERFACE_LIBRARIES_RELEASE \"`pwd`/build/libs/libOpenCL.so.1\"
-  #           IMPORTED_LOCATION_RELEASE \"`pwd`/build/libs/libclblast.so.1\"
-  #           IMPORTED_SONAME_RELEASE \"libclblast.so.1\"
-  #           )
+          set_property(TARGET clblast APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+          set_target_properties(clblast PROPERTIES
+            IMPORTED_LINK_INTERFACE_LIBRARIES_RELEASE \"`pwd`/build/libs/libOpenCL.so.1\"
+            IMPORTED_LOCATION_RELEASE \"`pwd`/build/libs/libclblast.so.1\"
+            IMPORTED_SONAME_RELEASE \"libclblast.so.1\"
+            )
           
-  #         list(APPEND _cmake_import_check_targets clblast )
-  #         list(APPEND _cmake_import_check_files_for_clblast \"libs/libclblast.so.1\" )
-  #         set(CMAKE_IMPORT_FILE_VERSION)
-  #         " > clblast/lib/cmake/CLBlast/CLBlastConfig-release.cmake
+          list(APPEND _cmake_import_check_targets clblast )
+          list(APPEND _cmake_import_check_files_for_clblast \"libs/libclblast.so.1\" )
+          set(CMAKE_IMPORT_FILE_VERSION)
+          " > clblast/lib/cmake/CLBlast/CLBlastConfig-release.cmake
 
-  #     - uses: Jimver/cuda-toolkit@v0.2.11
-  #       id: cuda-toolkit
-  #       if: startsWith(matrix.build, 'cuda')
-  #       with:
-  #         cuda: ${{ env.CUDA }}
-  #         method: 'network'
-  #         linux-local-args: '["--toolkit"]'
+      - uses: Jimver/cuda-toolkit@v0.2.11
+        id: cuda-toolkit
+        if: startsWith(matrix.build, 'cuda')
+        with:
+          cuda: ${{ env.CUDA }}
+          method: 'network'
+          linux-local-args: '["--toolkit"]'
 
-  #     - name: Link Cuda
-  #       if: startsWith(matrix.build, 'cuda')
-  #       run: |
-  #         ln -s ${{ env.CUDA_PATH }} ${{ github.workspace }}/build/cuda
+      - name: Link Cuda
+        if: startsWith(matrix.build, 'cuda')
+        run: |
+          ln -s ${{ env.CUDA_PATH }} ${{ github.workspace }}/build/cuda
 
-  #     - name: Build
-  #       id: cmake_build
-  #       run: |
-  #         export LD_LIBRARY_PATH=""
-  #         cd build
-  #         cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }}
-  #         cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+      - name: Build
+        id: cmake_build
+        run: |
+          export LD_LIBRARY_PATH=""
+          cd build
+          cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }}
+          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
 
-  #     - name: Pack artifacts
-  #       id: pack_artifacts
-  #       run: |
-  #         zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}.zip build/licenses/* build/libs/*
+      - name: Pack artifacts
+        id: pack_artifacts
+        run: |
+          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}.zip build/licenses/* build/libs/*
 
-  #     - name: Copy and pack Cuda runtime
-  #       if: startsWith(matrix.build, 'cuda')
-  #       run: |
-  #         libs=`for f in build/libs/*;do objdump -x $f |grep NEEDED;done |tr -d ' '| sed -e "s:NEEDED:${{ github.workspace }}/build/cuda/lib64/:g" |sort|uniq|grep libcu`
-  #         echo $libs
-  #         zip -j cuda-${{ env.CUDA }}-linux.zip $libs
+      - name: Copy and pack Cuda runtime
+        if: startsWith(matrix.build, 'cuda')
+        run: |
+          libs=`for f in build/libs/*;do objdump -x $f |grep NEEDED;done |tr -d ' '| sed -e "s:NEEDED:${{ github.workspace }}/build/cuda/lib64/:g" |sort|uniq|grep libcu`
+          echo $libs
+          zip -j cuda-${{ env.CUDA }}-linux.zip $libs
 
-  #     - name: Upload Artifacts
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}.zip
-  #         path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}.zip
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}.zip
+          path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}.zip
   
-  #     - name: Upload Cuda runtime
-  #       if: startsWith(matrix.build, 'cuda')
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         path: cuda-${{ env.CUDA }}-linux.zip
-  #         name: cuda-${{ env.CUDA }}-linux.zip
+      - name: Upload Cuda runtime
+        if: startsWith(matrix.build, 'cuda')
+        uses: actions/upload-artifact@v3
+        with:
+          path: cuda-${{ env.CUDA }}-linux.zip
+          name: cuda-${{ env.CUDA }}-linux.zip
 
 ################################ macOS ################################
 
-  # macOS-arm64-build:
-  #   runs-on: macos-14
+  macOS-arm64-build:
+    runs-on: macos-14
 
-  #   steps:
-  #     - name: Clone
-  #       id: checkout
-  #       uses: actions/checkout@v4
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v4
 
-  #     - name: Get Variables
-  #       run: |
-  #         echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
+      - name: Get Variables
+        run: |
+          echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
 
-  #     - name: Clone llama.cpp
-  #       run: |
-  #         git clone https://github.com/ggerganov/llama.cpp llama.cpp
-  #         cd llama.cpp
-  #         git checkout ${{ env.LLAMACPP_VERSION }}
-  #         cd ..
-  #         mkdir -p build/licenses build/libs
-  #         cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+      - name: Clone llama.cpp
+        run: |
+          git clone https://github.com/ggerganov/llama.cpp llama.cpp
+          cd llama.cpp
+          git checkout ${{ env.LLAMACPP_VERSION }}
+          cd ..
+          mkdir -p build/licenses build/libs
+          cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
 
-  #     - name: Dependencies
-  #       id: depends
-  #       continue-on-error: true
-  #       run: |
-  #         brew update
+      - name: Dependencies
+        id: depends
+        continue-on-error: true
+        run: |
+          brew update
 
-  #     - name: Build
-  #       id: cmake_build
-  #       run: |
-  #         rm VERSION
-  #         cd build
-  #         cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ env.CMAKE_COMMON_JOBS }} ..
-  #         cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
+      - name: Build
+        id: cmake_build
+        run: |
+          rm VERSION
+          cd build
+          cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ env.CMAKE_COMMON_JOBS }} ..
+          cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
 
-  #     - name: Pack artifacts
-  #       id: pack_artifacts
-  #       run: |
-  #         ls -R build
-  #         zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip build/licenses/* build/libs/*
+      - name: Pack artifacts
+        id: pack_artifacts
+        run: |
+          ls -R build
+          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip build/licenses/* build/libs/*
 
-  #     - name: Upload Artifacts
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip
-  #         path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip
+          path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip
 
-  # macOS-x64-build:
-  #   runs-on: macos-latest
+  macOS-x64-build:
+    runs-on: macos-latest
 
-  #   steps:
-  #     - name: Clone
-  #       id: checkout
-  #       uses: actions/checkout@v4
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v4
 
-  #     - name: Get Variables
-  #       run: |
-  #         echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
+      - name: Get Variables
+        run: |
+          echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
 
-  #     - name: Clone llama.cpp
-  #       run: |
-  #         git clone https://github.com/ggerganov/llama.cpp llama.cpp
-  #         cd llama.cpp
-  #         git checkout ${{ env.LLAMACPP_VERSION }}
-  #         cd ..
-  #         mkdir -p build/licenses build/libs
-  #         cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+      - name: Clone llama.cpp
+        run: |
+          git clone https://github.com/ggerganov/llama.cpp llama.cpp
+          cd llama.cpp
+          git checkout ${{ env.LLAMACPP_VERSION }}
+          cd ..
+          mkdir -p build/licenses build/libs
+          cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
 
-  #     - name: Dependencies
-  #       id: depends
-  #       continue-on-error: true
-  #       run: |
-  #         brew update
+      - name: Dependencies
+        id: depends
+        continue-on-error: true
+        run: |
+          brew update
 
-  #     - name: Build
-  #       id: cmake_build
-  #       run: |
-  #         rm VERSION
-  #         cd build
-  #         cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL=OFF -DLLAMA_CURL=ON ${{ env.CMAKE_COMMON_JOBS }} ..
-  #         cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
+      - name: Build
+        id: cmake_build
+        run: |
+          rm VERSION
+          cd build
+          cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL=OFF -DLLAMA_CURL=ON ${{ env.CMAKE_COMMON_JOBS }} ..
+          cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
 
-  #     - name: Pack artifacts
-  #       id: pack_artifacts
-  #       run: |
-  #         ls -R build
-  #         zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip build/licenses/* build/libs/*
+      - name: Pack artifacts
+        id: pack_artifacts
+        run: |
+          ls -R build
+          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip build/licenses/* build/libs/*
 
-  #     - name: Upload Artifacts
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip
-  #         path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip
+          path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip
 
 ################################ Windows ################################
 
@@ -274,10 +274,10 @@ jobs:
             defines: '-DLLAMA_CLBLAST=ON -DCMAKE_PREFIX_PATH="$env:RUNNER_TEMP/clblast"'
           - build: 'arm64'
             defines: '-A ARM64'
-          - build: 'cuda-cu11.7.1'
-            defines: '-DLLAMA_CUDA=ON'
-          - build: 'cuda-cu12.2.0'
-            defines: '-DLLAMA_CUDA=ON'
+          # - build: 'cuda-cu11.7.1'
+          #   defines: '-DLLAMA_CUDA=ON'
+          # - build: 'cuda-cu12.2.0'
+          #   defines: '-DLLAMA_CUDA=ON'
 
     steps:
       - name: Clone
@@ -378,31 +378,33 @@ jobs:
 
 ################################ Release ################################
 
-  # create_release:
-  #   name: Create Release
-  #   runs-on: ubuntu-latest
-  #   needs:
-  #     # - linux_build
-  #     - macOS-arm64-build
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
+  create_release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs:
+      - linux_build
+      - macOS-arm64-build
+      - macOS-x64-build
+      - windows-build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  #     - name: Get Variables
-  #       run: |
-  #         echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
+      - name: Get Variables
+        run: |
+          echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
 
-  #     - name: Download Artifacts
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         path: artifacts
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
 
-  #     - name: list
-  #       run: |
-  #         ls -R artifacts
+      - name: list
+        run: |
+          ls -R artifacts
 
-  #     - name: Release
-  #       uses: softprops/action-gh-release@v2
-  #       with:
-  #         name: "Release ${{ env.VERSION }}"
-  #         files: "artifacts/*/*"
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Release ${{ env.VERSION }}"
+          files: "artifacts/*/*"
