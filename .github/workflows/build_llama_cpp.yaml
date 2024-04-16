@@ -3,7 +3,9 @@ name: Build llama.cpp linux binaries
 on:
   push:
     paths:
-      - ".github/workflows/build_llama_cpp.yaml"
+      - .github/workflows/build_llama_cpp.yaml
+    tags:
+      - 'llamacpp-*'
 
 env:
   LLAMACPP_VERSION: b2674
