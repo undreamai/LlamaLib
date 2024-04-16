@@ -393,6 +393,7 @@ jobs:
       - name: Get Variables
         run: |
           echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
+          echo "PREFIX=undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}" >> $GITHUB_ENV
 
       - name: Download Artifacts
         uses: actions/download-artifact@v4
@@ -402,11 +403,12 @@ jobs:
       - name: Merge artifacts
         run: |
           cd artifacts
-          for d in `ls`;do cd $d; unzip $d; rm $d; cd ..; mv $d `echo $d | sed -e 's:.zip::g'`;done
-          zip -r undreamai.zip .
+          for d in `ls | grep $PREFIX`;do cd $d; unzip $d; rm $d; cd ..; mv $d `echo $d | sed -e 's:.zip::g'`;done
+          for d in `ls | grep cuda`;do mv $d tmp; mv tmp/$d ./; rm -r tmp;done
+          zip -r $PREFIX.zip $PREFIX*
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           name: "Release ${{ env.VERSION }}"
-          files: "artifacts/undreamai.zip"
+          files: "artifacts/*.zip"
