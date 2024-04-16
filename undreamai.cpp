@@ -149,7 +149,7 @@ std::string LLM::handle_detokenize(json body) {
 }
 
 
-std::string LLM::handle_completions(json data) {
+std::string LLM::handle_completions(json data, StringWrapperCallback* streamCallback) {
     std::string result_data = "";
     const int id_task = ctx_server.queue_tasks.get_new_id();
 
@@ -200,6 +200,7 @@ std::string LLM::handle_completions(json data) {
 
                     break;
                 }
+                if(streamCallback != nullptr) streamCallback->Call(str);
                 result_data += str;
             }
 
