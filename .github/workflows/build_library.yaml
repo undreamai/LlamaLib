@@ -57,6 +57,11 @@ jobs:
           fetch-depth: 0
           ref: ${{ env.LLAMACPP_VERSION }}
 
+      - name: Create build dir
+        run: |
+          mkdir -p build/licenses build/libs
+          cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+
       - name: Dependencies
         run: |
           sudo apt-get update
