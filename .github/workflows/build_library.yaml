@@ -333,7 +333,7 @@ jobs:
           del VERSION
           mkdir build
           cd build
-          cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} -DBUILD_SHARED_LIBS=ON -DLLAMA_BUILD_TESTS=OFF -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}\build -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}\build\libs
+          cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} 
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
 
       - name: Add clblast.dll
