@@ -12,6 +12,9 @@ on:
 
 env:
   LLAMACPP_VERSION: b2674
+  OPENCL_VERSION: 2023.04.17
+  CLBLAST_VERSION: 1.6.0
+  CMAKE_OUTPUT: '-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs'
 
 jobs:
   build_artifacts:
@@ -19,27 +22,25 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      OPENCL_VERSION: 2023.04.17
-      CLBLAST_VERSION: 1.6.0
-      DEFINES_ALL: '-DLLAMA_NATIVE=OFF -DBUILD_SHARED_LIBS=ON -DLLAMA_BUILD_TESTS=OFF -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs'
+      CMAKE_COMMON: '-DLLAMA_NATIVE=OFF -DBUILD_SHARED_LIBS=ON -DLLAMA_BUILD_TESTS=OFF -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON'
 
     strategy:
       matrix:
         include:
-          # - build: 'noavx'
-          #   defines: '-DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF'
+          - build: 'noavx'
+            defines: '-DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF'
           - build: 'avx2'
             defines: ''
-          # - build: 'avx'
-          #   defines: '-DLLAMA_AVX2=OFF'
-          # - build: 'avx512'
-          #   defines: '-DLLAMA_AVX512=ON'
-          # - build: 'clblast'
-          #   defines: '-DLLAMA_CLBLAST=ON -DCMAKE_PREFIX_PATH=${{ github.workspace }}/clblast'
-          # - build: 'cuda-cu11.7.1'
-          #   defines: '-DLLAMA_CUDA=ON -DCUDAToolkit_ROOT=${{ github.workspace }}/build/cuda'
-          # - build: 'cuda-cu12.2.0'
-          #   defines: '-DLLAMA_CUDA=ON -DCUDAToolkit_ROOT=${{ github.workspace }}/build/cuda'
+          - build: 'avx'
+            defines: '-DLLAMA_AVX2=OFF'
+          - build: 'avx512'
+            defines: '-DLLAMA_AVX512=ON'
+          - build: 'clblast'
+            defines: '-DLLAMA_CLBLAST=ON -DCMAKE_PREFIX_PATH=${{ github.workspace }}/clblast'
+          - build: 'cuda-cu11.7.1'
+            defines: '-DLLAMA_CUDA=ON -DCUDAToolkit_ROOT=${{ github.workspace }}/build/cuda'
+          - build: 'cuda-cu12.2.0'
+            defines: '-DLLAMA_CUDA=ON -DCUDAToolkit_ROOT=${{ github.workspace }}/build/cuda'
 
     steps:
       - name: Clone
@@ -71,7 +72,7 @@ jobs:
         run: |
           sudo apt-get install opencl-headers
           git clone --recurse-submodules https://github.com/KhronosGroup/OpenCL-SDK.git
-          curl -o build/licenses/OpenCL.LICENSE.txt -L "https://raw.githubusercontent.com/KhronosGroup/OpenCL-SDK/v${OPENCL_VERSION}/LICENSE"
+          curl -o build/licenses/OpenCL.LICENSE.txt -L "https://raw.githubusercontent.com/KhronosGroup/OpenCL-SDK/v${{ env.OPENCL_VERSION }}/LICENSE"
           mkdir OpenCL-SDK/build
           cd OpenCL-SDK/build
           cmake .. -DBUILD_DOCS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DOPENCL_SDK_BUILD_SAMPLES=OFF -DOPENCL_SDK_TEST_SAMPLES=OFF
@@ -84,11 +85,11 @@ jobs:
         if: ${{ matrix.build == 'clblast' }}
         run: |
           sudo apt-get install tar p7zip-full
-          curl -o clblast.7z -L "https://github.com/CNugteren/CLBlast/releases/download/${CLBLAST_VERSION}/CLBlast-${CLBLAST_VERSION}-linux-x86_64.tar.gz"
-          curl -o build/licenses/CLBlast.LICENSE.txt -L "https://github.com/CNugteren/CLBlast/raw/${CLBLAST_VERSION}/LICENSE"
+          curl -o clblast.7z -L "https://github.com/CNugteren/CLBlast/releases/download/${{ env.CLBLAST_VERSION }}/CLBlast-${{ env.CLBLAST_VERSION }}-linux-x86_64.tar.gz"
+          curl -o build/licenses/CLBlast.LICENSE.txt -L "https://github.com/CNugteren/CLBlast/raw/${{ env.CLBLAST_VERSION }}/LICENSE"
           7z x clblast.7z
           mv CLBlast-* clblast
-          cp clblast/lib/libclblast.so.$CLBLAST_VERSION build/libs/libclblast.so.1
+          cp clblast/lib/libclblast.so.${{ env.CLBLAST_VERSION }} build/libs/libclblast.so.1
           
           echo "
           set(CMAKE_IMPORT_FILE_VERSION 1)
@@ -117,15 +118,15 @@ jobs:
         if: startsWith(matrix.build, 'cuda')
         run: |
           cd build
-          ln -s $CUDA_PATH cuda
+          ln -s ${{ env.CUDA_PATH }} cuda
 
       - name: Build
         id: cmake_build
         run: |
           export LD_LIBRARY_PATH=""
           cd build
-          cmake .. ${{ matrix.defines }} $DEFINES_ALL
-          cmake --build . --config Release -j $NUMBER_OF_PROCESSORS
+          cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_OUTPUT }}
+          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
 
       - name: Pack artifacts
         id: pack_artifacts
