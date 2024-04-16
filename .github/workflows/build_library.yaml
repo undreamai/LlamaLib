@@ -348,7 +348,7 @@ jobs:
         run: |
           mkdir artifacts
           cp llama.cpp\LICENSE artifacts\llama.cpp.LICENSE.txt
-          cp.\build\Release\* .\build\bin\Release\* artifacts\
+          cp .\build\Release\* .\build\bin\Release\* artifacts\
           cd artifacts
           7z a ../undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-windows-${{ matrix.build }}.zip *
 
