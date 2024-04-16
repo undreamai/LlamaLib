@@ -135,7 +135,7 @@ jobs:
       - name: Copy and pack Cuda runtime
         if: startsWith(matrix.build, 'cuda')
         run: |
-          libs=`for f in libs/*;do objdump -x $f |grep NEEDED;done |tr -d ' '| sed -e 's:NEEDED::g'|sort|uniq|grep libcu`
+          libs=`for f in build/libs/*;do objdump -x $f |grep NEEDED;done |tr -d ' '| sed -e "s:NEEDED:build/cuda/:g" |sort|uniq|grep libcu`
           echo $libs
           zip -j cuda-${{ env.CUDA }}-linux-x64.zip $libs
 
