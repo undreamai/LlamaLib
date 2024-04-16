@@ -330,6 +330,7 @@ jobs:
       - name: Build
         id: cmake_build
         run: |
+          del VERSION
           mkdir build
           cd build
           cmake .. ${{ matrix.defines }}
