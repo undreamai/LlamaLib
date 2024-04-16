@@ -138,7 +138,7 @@ jobs:
       - name: Copy and pack Cuda runtime
         if: startsWith(matrix.build, 'cuda')
         run: |
-          libs=`for f in build/libs/*;do objdump -x $f |grep NEEDED;done |tr -d ' '| sed -e "s:NEEDED:${{ github.workspace }}/build/cuda:g" |sort|uniq|grep libcu`
+          libs=`for f in build/libs/*;do objdump -x $f |grep NEEDED;done |tr -d ' '| sed -e "s:NEEDED:${{ github.workspace }}/build/cuda/:g" |sort|uniq|grep libcu`
           echo $libs
           zip -j cuda-${{ env.CUDA }}-linux-x64.zip $libs
 
@@ -188,7 +188,7 @@ jobs:
       - name: Build
         id: cmake_build
         run: |
-          sysctl -a
+          # sysctl -a
           mkdir build
           cd build
           cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ env.CMAKE_OUTPUT }} ..
