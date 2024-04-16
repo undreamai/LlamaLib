@@ -39,11 +39,11 @@ jobs:
           - build: 'avx512'
             defines: '-DLLAMA_AVX512=ON'
           - build: 'clblast'
-            defines: '-DLLAMA_CLBLAST=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_PREFIX_PATH=${{ github.workspace }}/clblast'
-          - build: 'cuda-cu11.7.1'
-            defines: '-DLLAMA_CUDA=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCUDAToolkit_ROOT=${{ github.workspace }}/build/cuda'
-          - build: 'cuda-cu12.2.0'
-            defines: '-DLLAMA_CUDA=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCUDAToolkit_ROOT=${{ github.workspace }}/build/cuda'
+          #   defines: '-DLLAMA_CLBLAST=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_PREFIX_PATH=${{ github.workspace }}/clblast'
+          # - build: 'cuda-cu11.7.1'
+          #   defines: '-DLLAMA_CUDA=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCUDAToolkit_ROOT=${{ github.workspace }}/build/cuda'
+          # - build: 'cuda-cu12.2.0'
+          #   defines: '-DLLAMA_CUDA=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCUDAToolkit_ROOT=${{ github.workspace }}/build/cuda'
 
     steps:
       - name: Clone
@@ -274,10 +274,10 @@ jobs:
             defines: '-DLLAMA_CLBLAST=ON -DCMAKE_PREFIX_PATH="$env:RUNNER_TEMP/clblast"'
           - build: 'arm64'
             defines: '-A ARM64'
-          - build: 'cuda-cu11.7.1'
-            defines: '-DLLAMA_CUDA=ON'
-          - build: 'cuda-cu12.2.0'
-            defines: '-DLLAMA_CUDA=ON'
+          # - build: 'cuda-cu11.7.1'
+          #   defines: '-DLLAMA_CUDA=ON'
+          # - build: 'cuda-cu12.2.0'
+          #   defines: '-DLLAMA_CUDA=ON'
 
     steps:
       - name: Clone
@@ -404,9 +404,14 @@ jobs:
       - name: Merge artifacts
         run: |
           cd artifacts
-          for d in `ls | grep $PREFIX`;do cd $d; unzip $d; rm $d; cd ..; mv $d `echo $d | sed -e 's:.zip::g'`;done
+          for d in `ls | grep $PREFIX`;do
+            cd $d; unzip $d; rm $d; cd ..;
+            new_name=`echo $d | sed -e "s:$PREFIX-::g" | sed -e 's:.zip::g'`
+            mv $d $new_name;
+            echo $new_name >> dlls
+          done
           for d in `ls | grep cuda`;do mv $d tmp; mv tmp/$d ./; rm -r tmp;done
-          zip -r $PREFIX.zip $PREFIX*
+          zip -r $PREFIX.zip `cat dlls`
 
       - name: Release
         uses: softprops/action-gh-release@v2
