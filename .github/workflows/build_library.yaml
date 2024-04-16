@@ -346,8 +346,11 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts
         run: |
-          Copy-Item llama.cpp\LICENSE .\build\Release\llama.cpp.LICENSE.txt
-          7z a -r undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-windows-${{ matrix.build }}.zip -spf .\build\Release\* .\build\bin\Release\*
+          mkdir artifacts
+          Copy-Item llama.cpp\LICENSE artifacts\llama.cpp.LICENSE.txt
+          Copy-Item .\build\Release\* .\build\bin\Release\* artifacts\
+          cd artifacts
+          7z a ../undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-windows-${{ matrix.build }}.zip *
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -359,9 +362,10 @@ jobs:
         if: startsWith(matrix.build, 'cuda')
         run: |
           echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
-          $dst='.\build\bin\cudart\'
+          $dst='cuda'
           robocopy "${{steps.cuda-toolkit.outputs.CUDA_PATH}}\bin" $dst cudart64_*.dll cublas64_*.dll cublasLt64_*.dll
-          7z a cuda-${{ env.CUDA }}-windows.zip $dst\*
+          cd cuda
+          7z a ../cuda-${{ env.CUDA }}-windows.zip *
 
       - name: Upload Cuda runtime
         if: startsWith(matrix.build, 'cuda')
