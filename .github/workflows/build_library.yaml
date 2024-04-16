@@ -51,14 +51,12 @@ jobs:
           echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
           echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
 
-      - uses: actions/checkout@v4
-        with:
-          repository: ggerganov/llama.cpp
-          fetch-depth: 0
-          ref: ${{ env.LLAMACPP_VERSION }}
-
-      - name: Create build dir
+      - name: Clone llama.cpp
         run: |
+          git clone https://github.com/ggerganov/llama.cpp llama.cpp
+          cd llama.cpp
+          git checkout ${{ env.LLAMACPP_VERSION }}
+          cd ..
           mkdir -p build/licenses build/libs
           cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
 
