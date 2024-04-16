@@ -143,14 +143,14 @@ jobs:
           zip -j cuda-${{ env.CUDA }}-linux.zip $libs
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}.zip
           path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}.zip
   
       - name: Upload Cuda runtime
         if: startsWith(matrix.build, 'cuda')
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: cuda-${{ env.CUDA }}-linux.zip
           name: cuda-${{ env.CUDA }}-linux.zip
@@ -199,7 +199,7 @@ jobs:
           zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip build/licenses/* build/libs/*
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip
           path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip
@@ -246,7 +246,7 @@ jobs:
           zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip build/licenses/* build/libs/*
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip
           path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip
@@ -395,12 +395,15 @@ jobs:
           echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
 
-      - name: list
+      - name: Merge artifacts
         run: |
+          cd artifacts
+          for d in `ls`;do cd $d; unzip $d; rm $d; cd ..; mv $d `echo $d | sed -e 's:.zip::g'`;done
+          cd ..
           ls -R artifacts
 
       - name: Release
