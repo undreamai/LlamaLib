@@ -404,6 +404,7 @@ jobs:
       - name: Merge artifacts
         run: |
           cd artifacts
+          ls -R
           for d in `ls | grep $PREFIX`;do
             cd $d; unzip $d; rm $d; cd ..;
             new_name=`echo $d | sed -e "s:$PREFIX-::g" | sed -e 's:.zip::g'`
