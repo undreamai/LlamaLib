@@ -8,9 +8,7 @@ on:
       - undreamai.h
       - undreamai.cpp
     tags:
-      - '*'
-    tags-ignore:
-      - 'llamacpp-*'
+      - 'v*'
 
 env:
   LLAMACPP_VERSION: b2674
