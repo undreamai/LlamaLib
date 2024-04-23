@@ -14,7 +14,7 @@ env:
   LLAMACPP_VERSION: b2674
   OPENCL_VERSION: 2023.04.17
   CLBLAST_VERSION: 1.6.0
-  CMAKE_COMMON_JOBS: '-DBUILD_SHARED_LIBS=ON -DLLAMA_BUILD_TESTS=OFF -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs'
+  CMAKE_COMMON_JOBS: '-DBUILD_SHARED_LIBS=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES -DLLAMA_BUILD_TESTS=OFF=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs'
 
 jobs:
 
@@ -40,10 +40,10 @@ jobs:
             defines: '-DLLAMA_AVX512=ON'
           - build: 'clblast'
             defines: '-DLLAMA_CLBLAST=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_PREFIX_PATH=${{ github.workspace }}/clblast'
-          - build: 'cuda-cu11.7.1'
-            defines: '-DLLAMA_CUDA=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCUDAToolkit_ROOT=${{ github.workspace }}/build/cuda'
-          - build: 'cuda-cu12.2.0'
-            defines: '-DLLAMA_CUDA=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCUDAToolkit_ROOT=${{ github.workspace }}/build/cuda'
+          # - build: 'cuda-cu11.7.1'
+          #   defines: '-DLLAMA_CUDA=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCUDAToolkit_ROOT=${{ github.workspace }}/build/cuda'
+          # - build: 'cuda-cu12.2.0'
+          #   defines: '-DLLAMA_CUDA=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCUDAToolkit_ROOT=${{ github.workspace }}/build/cuda'
 
     steps:
       - name: Clone
@@ -148,6 +148,12 @@ jobs:
           name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}.zip
           path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}.zip
   
+      - name: Upload Server
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}
+          path: build/bin/server
+
       - name: Upload Cuda runtime
         if: startsWith(matrix.build, 'cuda')
         uses: actions/upload-artifact@v4
@@ -204,6 +210,12 @@ jobs:
           name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip
           path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip
 
+      - name: Upload Server
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64
+          path: build/bin/server
+
   macOS-x64-build:
     runs-on: macos-latest
 
@@ -251,6 +263,12 @@ jobs:
           name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip
           path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip
 
+      - name: Upload Server
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64
+          path: build/bin/server
+
 ################################ Windows ################################
 
   windows-build:
@@ -274,10 +292,10 @@ jobs:
             defines: '-DLLAMA_CLBLAST=ON -DCMAKE_PREFIX_PATH="$env:RUNNER_TEMP/clblast"'
           - build: 'arm64'
             defines: '-A ARM64'
-          - build: 'cuda-cu11.7.1'
-            defines: '-DLLAMA_CUDA=ON'
-          - build: 'cuda-cu12.2.0'
-            defines: '-DLLAMA_CUDA=ON'
+          # - build: 'cuda-cu11.7.1'
+          #   defines: '-DLLAMA_CUDA=ON'
+          # - build: 'cuda-cu12.2.0'
+          #   defines: '-DLLAMA_CUDA=ON'
 
     steps:
       - name: Clone
@@ -353,12 +371,19 @@ jobs:
 
           cd artifacts
           7z a ../undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-windows-${{ matrix.build }}.zip *
+          ls -R build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-windows-${{ matrix.build }}.zip
           name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-windows-${{ matrix.build }}.zip
+
+      - name: Upload Server
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-windows-${{ matrix.build }}
+          path: build/bin/server.exe
 
       - name: Copy and pack Cuda runtime
         if: startsWith(matrix.build, 'cuda')
@@ -395,6 +420,7 @@ jobs:
           cat VERSION
           echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
           echo "PREFIX=undreamai-$(cat VERSION)-llamacpp-${{ env.LLAMACPP_VERSION }}" >> $GITHUB_ENV
+          echo "SERVER_PREFIX=server-$(cat VERSION)-llamacpp-${{ env.LLAMACPP_VERSION }}" >> $GITHUB_ENV
 
       - name: Download Artifacts
         uses: actions/download-artifact@v4
@@ -404,6 +430,7 @@ jobs:
       - name: Merge artifacts
         run: |
           cd artifacts
+          ls -R
           for d in `ls | grep cuda | grep -v $PREFIX`;do
             mv $d/$d tmp.zip
             rm -r $d
