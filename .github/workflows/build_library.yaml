@@ -371,7 +371,8 @@ jobs:
 
           cd artifacts
           7z a ../undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-windows-${{ matrix.build }}.zip *
-          ls -R build
+          ls .\build\Release\
+          ls .\build\bin\Release\
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -383,7 +384,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: server-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-windows-${{ matrix.build }}
-          path: build/bin/server.exe
+          path: build/bin/Release/server.exe
 
       - name: Copy and pack Cuda runtime
         if: startsWith(matrix.build, 'cuda')
@@ -436,13 +437,22 @@ jobs:
             rm -r $d
             mv tmp.zip $d
           done
+
           for d in `ls | grep $PREFIX`;do
             cd $d; unzip $d; rm $d; cd ..;
             new_name=`echo $d | sed -e "s:$PREFIX-::g" | sed -e 's:.zip::g'`
             mv $d $new_name;
-            echo $new_name >> dlls
+            echo $new_name >> bundle
           done
-          zip -r $PREFIX.zip `cat dlls`
+          zip -r $PREFIX.zip `cat bundle`
+          rm -r `cat bundle` bundle
+
+          for d in `ls | grep $SERVER_PREFIX`;do
+            new_name=`echo $d | sed -e "s:$SERVER_PREFIX-::g"`
+            mv $d $new_name;
+            echo $new_name >> bundle
+          done
+          zip -r $SERVER_PREFIX.zip `cat bundle`
 
       - name: Release
         uses: softprops/action-gh-release@v2
