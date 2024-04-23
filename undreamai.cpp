@@ -200,8 +200,8 @@ std::string LLM::handle_completions(json data, StringWrapperCallback* streamCall
 
                     break;
                 }
-                if(streamCallback != nullptr) streamCallback->Call(str);
                 result_data += str;
+                if(streamCallback != nullptr) streamCallback->Call(result_data);
             }
 
             ctx_server.request_cancel(id_task);
