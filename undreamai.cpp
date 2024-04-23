@@ -188,8 +188,11 @@ std::string LLM::handle_completions(json data, StringWrapperCallback* streamCall
                     if (result.stop) {
                         break;
                     }
+
+                    result_data += str;
+                    if(streamCallback != nullptr) streamCallback->Call(result_data);
                 } else {
-                    str =
+                    result_data =
                         "error: " +
                         result.data.dump(-1, ' ', false, json::error_handler_t::replace) +
                         "\n\n";
@@ -200,8 +203,6 @@ std::string LLM::handle_completions(json data, StringWrapperCallback* streamCall
 
                     break;
                 }
-                result_data += str;
-                if(streamCallback != nullptr) streamCallback->Call(result_data);
             }
 
             ctx_server.request_cancel(id_task);
@@ -243,6 +244,15 @@ void LLM::handle_slots_action(json data) {
 
     server_task_result result = ctx_server.queue_results.recv(id_task);
     ctx_server.queue_results.remove_waiting_task_id(id_task);
+}
+
+void LLM::handle_cancel_action(int id_slot) {
+    for (auto & slot : ctx_server.slots) {
+        if (slot.id == id_slot) {
+            slot.release();
+            break;
+        }
+    }
 }
 
 StringWrapper::StringWrapper(){}
@@ -307,6 +317,10 @@ void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper, voi
 
 const void LLM_Slot(LLM* llm, const char* json_data) {
     llm->handle_slots_action(json::parse(json_data));
+}
+
+const void LLM_Cancel(LLM* llm, int id_slot) {
+    llm->handle_cancel_action(id_slot);
 }
 
 /*
