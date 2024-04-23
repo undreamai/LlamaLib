@@ -368,11 +368,10 @@ jobs:
           Copy-Item .\llama.cpp\LICENSE .\artifacts\llama.cpp.LICENSE.txt
           Copy-Item .\build\Release\* .\artifacts\
           Copy-Item .\build\bin\Release\* .\artifacts\
-
-          cd artifacts
-          7z a ../undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-windows-${{ matrix.build }}.zip *
           ls .\build\Release\
           ls .\build\bin\Release\
+          cd artifacts
+          7z a ../undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-windows-${{ matrix.build }}.zip *
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
