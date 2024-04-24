@@ -66,7 +66,7 @@ jobs:
 
       - name: Dependencies
         run: |
-          sudo apt-get update
+          # sudo apt-get update
           sudo apt-get install build-essential cmake tar p7zip-full opencl-headers
 
       - name: Download OpenCL SDK
@@ -383,7 +383,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: server-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-windows-${{ matrix.build }}
-          path: build/bin/Release/server.exe
+          path: build/libs/Release/server.exe
 
       - name: Copy and pack Cuda runtime
         if: startsWith(matrix.build, 'cuda')
