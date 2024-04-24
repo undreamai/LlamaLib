@@ -429,7 +429,7 @@ jobs:
         run: |
           cd artifacts
           ls -R
-          for d in `ls | grep cuda | grep -v $PREFIX` | grep -v $SERVER_PREFIX`;do
+          for d in `ls | grep cuda | grep -v $PREFIX | grep -v $SERVER_PREFIX`;do
             mv $d/$d tmp.zip
             rm -r $d
             mv tmp.zip $d
