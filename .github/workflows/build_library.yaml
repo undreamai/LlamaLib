@@ -14,7 +14,7 @@ env:
   LLAMACPP_VERSION: b2674
   OPENCL_VERSION: 2023.04.17
   CLBLAST_VERSION: 1.6.0
-  CMAKE_COMMON_JOBS: '-DBUILD_SHARED_LIBS=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=ON -DLLAMA_BUILD_TESTS=OFF=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs'
+  CMAKE_COMMON_JOBS: '-DBUILD_SHARED_LIBS=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_TESTS=OFF=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs'
 
 jobs:
 
@@ -77,7 +77,9 @@ jobs:
           git clone --recurse-submodules https://github.com/KhronosGroup/OpenCL-SDK.git
           curl -o build/licenses/OpenCL.LICENSE.txt -L "https://raw.githubusercontent.com/KhronosGroup/OpenCL-SDK/v${{ env.OPENCL_VERSION }}/LICENSE"
           mkdir OpenCL-SDK/build
-          cd OpenCL-SDK/build
+          cd OpenCL-SDK
+          git checkout v$OPENCL_VERSION
+          cd build
           cmake .. -DBUILD_DOCS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DOPENCL_SDK_BUILD_SAMPLES=OFF -DOPENCL_SDK_TEST_SAMPLES=OFF
           cmake --build . --config Release
           cmake --install . --prefix install
@@ -133,7 +135,7 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts
         run: |
-          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}.zip build/licenses/* build/libs/*
+          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}.zip build/licenses/* `ls libs/*|grep -v server`
 
       - name: Copy and pack Cuda runtime
         if: startsWith(matrix.build, 'cuda')
@@ -152,7 +154,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: server-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}
-          path: build/bin/server
+          path: build/libs/server
 
       - name: Upload Cuda runtime
         if: startsWith(matrix.build, 'cuda')
@@ -202,7 +204,7 @@ jobs:
         id: pack_artifacts
         run: |
           ls -R build
-          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip build/licenses/* build/libs/*
+          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip build/licenses/* `ls libs/*|grep -v server`
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -214,7 +216,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: server-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64
-          path: build/bin/server
+          path: build/libs/server
 
   macOS-x64-build:
     runs-on: macos-latest
@@ -255,7 +257,7 @@ jobs:
         id: pack_artifacts
         run: |
           ls -R build
-          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip build/licenses/* build/libs/*
+          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip build/licenses/* `ls libs/*|grep -v server`
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -267,7 +269,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: server-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64
-          path: build/bin/server
+          path: build/libs/server
 
 ################################ Windows ################################
 
