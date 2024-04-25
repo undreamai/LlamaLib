@@ -1,5 +1,27 @@
 #include "undreamai.h"
 
+//============================= ERROR HANDLING =============================//
+int exit_code = 1;
+int warning_code = -1;
+int status;
+std::string status_message;
+
+void fail(std::string message, int code=1){
+    status = code;
+    status_message = message;
+}
+
+
+void handle_exception(int code=-1) {
+    try {
+        throw;
+    } catch(const std::exception& ex) {
+        fail(ex.what(), code);
+    } catch(...) {
+        fail("Caught unknown exception", code);
+    }
+}
+
 std::vector<std::string> LLM::splitArguments(const std::string& inputString) {
     // Split the input string into individual arguments
     std::vector<std::string> arguments;
@@ -42,216 +64,255 @@ LLM::LLM(int argc, char ** argv){
 }
 
 void LLM::init(int argc, char ** argv){
-    server_params_parse(argc, argv, sparams, params);
+    try{
+        server_params_parse(argc, argv, sparams, params);
 
-    if (!sparams.system_prompt.empty()) {
-        ctx_server.system_prompt_set(json::parse(sparams.system_prompt));
-    }
-
-    if (params.model_alias == "unknown") {
-        params.model_alias = params.model;
-    }
-
-    llama_backend_init();
-    llama_numa_init(params.numa);
-
-    LOG_INFO("build info", {
-        {"build",  LLAMA_BUILD_NUMBER},
-        {"commit", LLAMA_COMMIT}
-    });
-
-    LOG_INFO("system info", {
-        {"n_threads",       params.n_threads},
-        {"n_threads_batch", params.n_threads_batch},
-        {"total_threads",   std::thread::hardware_concurrency()},
-        {"system_info",     llama_print_system_info()},
-    });
-    // load the model
-    if (!ctx_server.load_model(params)) {
-        throw std::runtime_error("Error loading the model!");
-    } else {
-        ctx_server.init();
-    }
-
-    LOG_INFO("model loaded", {});
-
-    const auto model_meta = ctx_server.model_meta();
-
-    // if a custom chat template is not supplied, we will use the one that comes with the model (if any)
-    if (sparams.chat_template.empty()) {
-        if (!ctx_server.validate_model_chat_template()) {
-            LOG_ERROR("The chat template that comes with this model is not yet supported, falling back to chatml. This may cause the model to output suboptimal responses", {});
-            sparams.chat_template = "chatml";
+        if (!sparams.system_prompt.empty()) {
+            ctx_server.system_prompt_set(json::parse(sparams.system_prompt));
         }
-    }
 
-    // print sample chat example to make it clear which template is used
-    {
-        json chat;
-        chat.push_back({{"role", "system"},    {"content", "You are a helpful assistant"}});
-        chat.push_back({{"role", "user"},      {"content", "Hello"}});
-        chat.push_back({{"role", "assistant"}, {"content", "Hi there"}});
-        chat.push_back({{"role", "user"},      {"content", "How are you?"}});
+        if (params.model_alias == "unknown") {
+            params.model_alias = params.model;
+        }
 
-        const std::string chat_example = format_chat(ctx_server.model, sparams.chat_template, chat);
+        llama_backend_init();
+        llama_numa_init(params.numa);
 
-        LOG_INFO("chat template", {
-            {"chat_example", chat_example},
-            {"built_in", sparams.chat_template.empty()},
+        LOG_INFO("build info", {
+            {"build",  LLAMA_BUILD_NUMBER},
+            {"commit", LLAMA_COMMIT}
         });
-    }
 
-    ctx_server.queue_tasks.on_new_task(std::bind(
-        &server_context::process_single_task, &ctx_server, std::placeholders::_1));
-    ctx_server.queue_tasks.on_finish_multitask(std::bind(
-        &server_context::on_finish_multitask, &ctx_server, std::placeholders::_1));
-    ctx_server.queue_tasks.on_update_slots(std::bind(
-        &server_context::update_slots, &ctx_server));
-    ctx_server.queue_results.on_multitask_update(std::bind(
-        &server_queue::update_multitask,
-        &ctx_server.queue_tasks,
-        std::placeholders::_1,
-        std::placeholders::_2,
-        std::placeholders::_3
-    ));
-    
-    server_thread = std::thread(&LLM::run_server, this);
+        LOG_INFO("system info", {
+            {"n_threads",       params.n_threads},
+            {"n_threads_batch", params.n_threads_batch},
+            {"total_threads",   std::thread::hardware_concurrency()},
+            {"system_info",     llama_print_system_info()},
+        });
+        // load the model
+        if (!ctx_server.load_model(params)) {
+            throw std::runtime_error("Error loading the model!");
+        } else {
+            ctx_server.init();
+        }
+
+        LOG_INFO("model loaded", {});
+
+        const auto model_meta = ctx_server.model_meta();
+
+        // if a custom chat template is not supplied, we will use the one that comes with the model (if any)
+        if (sparams.chat_template.empty()) {
+            if (!ctx_server.validate_model_chat_template()) {
+                LOG_ERROR("The chat template that comes with this model is not yet supported, falling back to chatml. This may cause the model to output suboptimal responses", {});
+                sparams.chat_template = "chatml";
+            }
+        }
+
+        // print sample chat example to make it clear which template is used
+        {
+            json chat;
+            chat.push_back({{"role", "system"},    {"content", "You are a helpful assistant"}});
+            chat.push_back({{"role", "user"},      {"content", "Hello"}});
+            chat.push_back({{"role", "assistant"}, {"content", "Hi there"}});
+            chat.push_back({{"role", "user"},      {"content", "How are you?"}});
+
+            const std::string chat_example = format_chat(ctx_server.model, sparams.chat_template, chat);
+
+            LOG_INFO("chat template", {
+                {"chat_example", chat_example},
+                {"built_in", sparams.chat_template.empty()},
+            });
+        }
+
+        ctx_server.queue_tasks.on_new_task(std::bind(
+            &server_context::process_single_task, &ctx_server, std::placeholders::_1));
+        ctx_server.queue_tasks.on_finish_multitask(std::bind(
+            &server_context::on_finish_multitask, &ctx_server, std::placeholders::_1));
+        ctx_server.queue_tasks.on_update_slots(std::bind(
+            &server_context::update_slots, &ctx_server));
+        ctx_server.queue_results.on_multitask_update(std::bind(
+            &server_queue::update_multitask,
+            &ctx_server.queue_tasks,
+            std::placeholders::_1,
+            std::placeholders::_2,
+            std::placeholders::_3
+        ));
+        
+        server_thread = std::thread(&LLM::run_server, this);
+    } catch(...) {
+        handle_exception(1);
+    }
 }
 
 LLM::~LLM(){
-    ctx_server.queue_tasks.terminate();
-    llama_backend_free();
-    server_thread.join();
+    try {
+        ctx_server.queue_tasks.terminate();
+        llama_backend_free();
+        server_thread.join();
+    } catch(...) {}
 }
 
+int LLM::get_status(){
+    return status;
+}
+std::string LLM::get_status_message(){
+    return status_message;
+}
+
+
 void LLM::run_server(){
-    ctx_server.queue_tasks.start_loop();
+    try {
+        ctx_server.queue_tasks.start_loop();
+    } catch(...) {
+        handle_exception(1);
+    }
 }
 
 std::string LLM::handle_tokenize(json body) {
-    std::vector<llama_token> tokens;
-    if (body.count("content") != 0) {
-        tokens = ctx_server.tokenize(body["content"], false);
+    try {
+        std::vector<llama_token> tokens;
+        if (body.count("content") != 0) {
+            tokens = ctx_server.tokenize(body["content"], false);
+        }
+        const json data = format_tokenizer_response(tokens);
+        return data.dump();
+    } catch(...) {
+        handle_exception();
     }
-    const json data = format_tokenizer_response(tokens);
-    return data.dump();
+    return "";
 }
 
 std::string LLM::handle_detokenize(json body) {
-    std::string content;
-    if (body.count("tokens") != 0) {
-        const std::vector<llama_token> tokens = body["tokens"];
-        content = tokens_to_str(ctx_server.ctx, tokens.cbegin(), tokens.cend());
+    try {
+        std::string content;
+        if (body.count("tokens") != 0) {
+            const std::vector<llama_token> tokens = body["tokens"];
+            content = tokens_to_str(ctx_server.ctx, tokens.cbegin(), tokens.cend());
+        }
+
+        const json data = format_detokenized_response(content);
+        return data.dump();
+    } catch(...) {
+        handle_exception();
     }
-
-    const json data = format_detokenized_response(content);
-    return data.dump();
+    return "";
 }
-
 
 std::string LLM::handle_completions(json data, StringWrapperCallback* streamCallback) {
     std::string result_data = "";
-    const int id_task = ctx_server.queue_tasks.get_new_id();
+    try {
+        const int id_task = ctx_server.queue_tasks.get_new_id();
 
-    ctx_server.queue_results.add_waiting_task_id(id_task);
-    ctx_server.request_completion(id_task, -1, data, false, false);
+        ctx_server.queue_results.add_waiting_task_id(id_task);
+        ctx_server.request_completion(id_task, -1, data, false, false);
 
-    if (!json_value(data, "stream", false)) {
-        server_task_result result = ctx_server.queue_results.recv(id_task);
-        if (!result.error && result.stop) {
-            result_data =
-                "data: " +
-                result.data.dump(-1, ' ', false, json::error_handler_t::replace) +
-                "\n\n";
-            LOG_VERBOSE("data stream", {
-                { "to_send", result_data }
-            });
-        } else {
-            LOG_ERROR("Error processing request", {});
-        }
-
-        ctx_server.queue_results.remove_waiting_task_id(id_task);
-    } else {
-            while (true) {
-                server_task_result result = ctx_server.queue_results.recv(id_task);
-                std::string str;
-                if (!result.error) {
-                    str =
-                        "data: " +
-                        result.data.dump(-1, ' ', false, json::error_handler_t::replace) +
-                        "\n\n";
-
-                    LOG_VERBOSE("data stream", {
-                        { "to_send", str }
-                    });
-
-                    if (result.stop) {
-                        break;
-                    }
-
-                    result_data += str;
-                    if(streamCallback != nullptr) streamCallback->Call(result_data);
-                } else {
-                    result_data =
-                        "error: " +
-                        result.data.dump(-1, ' ', false, json::error_handler_t::replace) +
-                        "\n\n";
-
-                    LOG_VERBOSE("data stream", {
-                        { "to_send", str }
-                    });
-
-                    break;
-                }
+        if (!json_value(data, "stream", false)) {
+            server_task_result result = ctx_server.queue_results.recv(id_task);
+            if (!result.error && result.stop) {
+                result_data =
+                    "data: " +
+                    result.data.dump(-1, ' ', false, json::error_handler_t::replace) +
+                    "\n\n";
+                LOG_VERBOSE("data stream", {
+                    { "to_send", result_data }
+                });
+            } else {
+                LOG_ERROR("Error processing request", {});
             }
 
-            ctx_server.request_cancel(id_task);
             ctx_server.queue_results.remove_waiting_task_id(id_task);
+        } else {
+                while (true) {
+                    server_task_result result = ctx_server.queue_results.recv(id_task);
+                    std::string str;
+                    if (!result.error) {
+                        str =
+                            "data: " +
+                            result.data.dump(-1, ' ', false, json::error_handler_t::replace) +
+                            "\n\n";
+
+                        LOG_VERBOSE("data stream", {
+                            { "to_send", str }
+                        });
+
+                        if (result.stop) {
+                            break;
+                        }
+
+                        result_data += str;
+                        if(streamCallback != nullptr) streamCallback->Call(result_data);
+                    } else {
+                        result_data =
+                            "error: " +
+                            result.data.dump(-1, ' ', false, json::error_handler_t::replace) +
+                            "\n\n";
+
+                        LOG_VERBOSE("data stream", {
+                            { "to_send", str }
+                        });
+
+                        break;
+                    }
+                }
+
+                ctx_server.request_cancel(id_task);
+                ctx_server.queue_results.remove_waiting_task_id(id_task);
+        }
+    } catch(...) {
+        handle_exception();
     }
     return result_data;
 }
 
 void LLM::handle_slots_action(json data) {
-    server_task task;
-    int id_slot = json_value(data, "id_slot", 0);
-    task.data = {
-        { "id_slot", id_slot},
-    };
+    try {
+        server_task task;
+        int id_slot = json_value(data, "id_slot", 0);
+        task.data = {
+            { "id_slot", id_slot},
+        };
 
-    std::string action = data["action"];
-    if (action == "save" || action == "restore") {
-        std::string filename = data["filename"];
-        if (!validate_file_name(filename)) {
-            LOG_ERROR(("Invalid filename: " + filename).c_str(), {});
-            return;
-        }
-        task.data["filename"] = filename;
-        task.data["filepath"] = sparams.slot_save_path + filename;
+        std::string action = data["action"];
+        if (action == "save" || action == "restore") {
+            std::string filename = data["filename"];
+            if (!validate_file_name(filename)) {
+                LOG_ERROR(("Invalid filename: " + filename).c_str(), {});
+                return;
+            }
+            task.data["filename"] = filename;
+            task.data["filepath"] = sparams.slot_save_path + filename;
 
-        if (action == "save") {
-            task.type = SERVER_TASK_TYPE_SLOT_SAVE;
+            if (action == "save") {
+                task.type = SERVER_TASK_TYPE_SLOT_SAVE;
+            } else {
+                task.type = SERVER_TASK_TYPE_SLOT_RESTORE;
+            }
+        } else if (action == "erase") {
+            task.type = SERVER_TASK_TYPE_SLOT_ERASE;
         } else {
-            task.type = SERVER_TASK_TYPE_SLOT_RESTORE;
+            throw std::runtime_error("Invalid action" + action);
         }
-    } else if (action == "erase") {
-        task.type = SERVER_TASK_TYPE_SLOT_ERASE;
-    } else {
-        throw std::runtime_error("Invalid action" + action);
+
+        const int id_task = ctx_server.queue_tasks.post(task);
+        ctx_server.queue_results.add_waiting_task_id(id_task);
+
+        server_task_result result = ctx_server.queue_results.recv(id_task);
+        ctx_server.queue_results.remove_waiting_task_id(id_task);
+    } catch(...) {
+        handle_exception();
     }
-
-    const int id_task = ctx_server.queue_tasks.post(task);
-    ctx_server.queue_results.add_waiting_task_id(id_task);
-
-    server_task_result result = ctx_server.queue_results.recv(id_task);
-    ctx_server.queue_results.remove_waiting_task_id(id_task);
 }
 
 void LLM::handle_cancel_action(int id_slot) {
-    for (auto & slot : ctx_server.slots) {
-        if (slot.id == id_slot) {
-            slot.release();
-            break;
+    try {
+        for (auto & slot : ctx_server.slots) {
+            if (slot.id == id_slot) {
+                slot.release();
+                break;
+            }
         }
+    } catch(...) {
+        handle_exception();
     }
 }
 
@@ -321,6 +382,11 @@ const void LLM_Slot(LLM* llm, const char* json_data) {
 
 const void LLM_Cancel(LLM* llm, int id_slot) {
     llm->handle_cancel_action(id_slot);
+}
+
+const int LLM_Status(LLM* llm, StringWrapper* wrapper) {
+    wrapper->SetContent(llm->get_status_message());
+    return llm->get_status();
 }
 
 /*
