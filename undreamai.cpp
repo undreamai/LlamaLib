@@ -5,12 +5,12 @@ int exit_code = 1;
 int warning_code = -1;
 int status;
 std::string status_message;
+sigjmp_buf point;
 
 void fail(std::string message, int code=1){
     status = code;
     status_message = message;
 }
-
 
 void handle_exception(int code=-1) {
     try {
@@ -20,6 +20,27 @@ void handle_exception(int code=-1) {
     } catch(...) {
         fail("Caught unknown exception", code);
     }
+}
+
+static void handle_signal(int sig, siginfo_t *dont_care, void *dont_care_either)
+{
+    fail("Severe error occured", sig);
+    longjmp(point, 1);
+}
+
+void set_error_handlers(){
+    status = 0;
+    status_message = "";
+    struct sigaction sa;
+
+    memset(&sa, 0, sizeof(sa));
+    sigemptyset(&sa.sa_mask);
+
+    sa.sa_flags     = SA_NODEFER;
+    sa.sa_sigaction = handle_signal;
+
+    sigaction(SIGSEGV, &sa, NULL);
+    sigaction(SIGFPE, &sa, NULL);
 }
 
 std::vector<std::string> LLM::splitArguments(const std::string& inputString) {
@@ -46,6 +67,45 @@ std::vector<std::string> LLM::splitArguments(const std::string& inputString) {
     return arguments;
 }
 
+//============================= StringWrapper IMPLEMENTATION =============================//
+
+StringWrapper::StringWrapper(){}
+
+void StringWrapper::SetContent(std::string input){
+    if (content != nullptr) {
+        delete[] content;
+    }
+    content = new char[input.length() + 1];
+    strcpy(content, input.c_str());
+}
+
+int StringWrapper::GetStringSize(){
+    return strlen(content) + 1;
+}
+
+void StringWrapper::GetString(char* buffer, int bufferSize){
+    strncpy(buffer, content, bufferSize);
+    buffer[bufferSize - 1] = '\0';
+}
+
+StringWrapper* StringWrapper_Construct() {
+    return new StringWrapper();
+}
+
+void StringWrapper_Delete(StringWrapper* object) {
+    delete object;
+}
+
+int StringWrapper_GetStringSize(StringWrapper* object) {
+    return object->GetStringSize();
+}
+
+void StringWrapper_GetString(StringWrapper* object, char* buffer, int bufferSize){
+    return object->GetString(buffer, bufferSize);
+}
+
+//============================= LLM IMPLEMENTATION =============================//
+
 LLM::LLM(std::string params_string){
     std::vector<std::string> arguments = splitArguments("llm " + params_string);
 
@@ -64,6 +124,8 @@ LLM::LLM(int argc, char ** argv){
 }
 
 void LLM::init(int argc, char ** argv){
+    set_error_handlers();
+    if (setjmp(point) != 0) return;
     try{
         server_params_parse(argc, argv, sparams, params);
 
@@ -145,6 +207,7 @@ void LLM::init(int argc, char ** argv){
 }
 
 LLM::~LLM(){
+    if (setjmp(point) != 0) return;
     try {
         ctx_server.queue_tasks.terminate();
         llama_backend_free();
@@ -169,6 +232,7 @@ void LLM::run_server(){
 }
 
 std::string LLM::handle_tokenize(json body) {
+    if (setjmp(point) != 0) return "";
     try {
         std::vector<llama_token> tokens;
         if (body.count("content") != 0) {
@@ -183,6 +247,7 @@ std::string LLM::handle_tokenize(json body) {
 }
 
 std::string LLM::handle_detokenize(json body) {
+    if (setjmp(point) != 0) return "";
     try {
         std::string content;
         if (body.count("tokens") != 0) {
@@ -199,6 +264,7 @@ std::string LLM::handle_detokenize(json body) {
 }
 
 std::string LLM::handle_completions(json data, StringWrapperCallback* streamCallback) {
+    if (setjmp(point) != 0) return "";
     std::string result_data = "";
     try {
         const int id_task = ctx_server.queue_tasks.get_new_id();
@@ -265,6 +331,7 @@ std::string LLM::handle_completions(json data, StringWrapperCallback* streamCall
 }
 
 void LLM::handle_slots_action(json data) {
+    if (setjmp(point) != 0) return;
     try {
         server_task task;
         int id_slot = json_value(data, "id_slot", 0);
@@ -304,6 +371,7 @@ void LLM::handle_slots_action(json data) {
 }
 
 void LLM::handle_cancel_action(int id_slot) {
+    if (setjmp(point) != 0) return;
     try {
         for (auto & slot : ctx_server.slots) {
             if (slot.id == id_slot) {
@@ -316,40 +384,7 @@ void LLM::handle_cancel_action(int id_slot) {
     }
 }
 
-StringWrapper::StringWrapper(){}
-
-void StringWrapper::SetContent(std::string input){
-    if (content != nullptr) {
-        delete[] content;
-    }
-    content = new char[input.length() + 1];
-    strcpy(content, input.c_str());
-}
-
-int StringWrapper::GetStringSize(){
-    return strlen(content) + 1;
-}
-
-void StringWrapper::GetString(char* buffer, int bufferSize){
-    strncpy(buffer, content, bufferSize);
-    buffer[bufferSize - 1] = '\0';
-}
-
-StringWrapper* StringWrapper_Construct() {
-    return new StringWrapper();
-}
-
-void StringWrapper_Delete(StringWrapper* object) {
-    delete object;
-}
-
-int StringWrapper_GetStringSize(StringWrapper* object) {
-    return object->GetStringSize();
-}
-
-void StringWrapper_GetString(StringWrapper* object, char* buffer, int bufferSize){
-    return object->GetString(buffer, bufferSize);
-}
+//============================= API IMPLEMENTATION =============================//
 
 LLM* LLM_Construct(const char* params_string) {
     return new LLM(std::string(params_string));

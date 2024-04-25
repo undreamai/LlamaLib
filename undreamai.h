@@ -1,5 +1,6 @@
 #pragma once
 #include "server.cpp"
+#include <setjmp.h>
 
 class StringWrapper {
     private:
