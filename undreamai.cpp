@@ -7,7 +7,7 @@ int status;
 std::string status_message;
 sigjmp_buf point;
 
-void fail(std::string message, int code=1){
+void fail(std::string message, int code=1) {
     status = code;
     status_message = message;
 }
@@ -28,9 +28,17 @@ static void handle_signal(int sig, siginfo_t *dont_care, void *dont_care_either)
     longjmp(point, 1);
 }
 
-void set_error_handlers(){
+void init_status() {
     status = 0;
     status_message = "";
+}
+
+void clear_status() {
+    if (status < 0) init_status();
+}
+
+void set_error_handlers() {
+    init_status();
     struct sigaction sa;
 
     memset(&sa, 0, sizeof(sa));
@@ -41,30 +49,6 @@ void set_error_handlers(){
 
     sigaction(SIGSEGV, &sa, NULL);
     sigaction(SIGFPE, &sa, NULL);
-}
-
-std::vector<std::string> LLM::splitArguments(const std::string& inputString) {
-    // Split the input string into individual arguments
-    std::vector<std::string> arguments;
-
-    unsigned counter = 0;
-    std::string segment;
-    std::istringstream stream_input(inputString);
-    while(std::getline(stream_input, segment, '\"'))
-    {
-        ++counter;
-        if (counter % 2 == 0)
-        {
-            if (!segment.empty()) arguments.push_back(segment);
-        }
-        else
-        {
-            std::istringstream stream_segment(segment);
-            while(std::getline(stream_segment, segment, ' '))
-                if (!segment.empty()) arguments.push_back(segment);
-        }
-    }
-    return arguments;
 }
 
 //============================= StringWrapper IMPLEMENTATION =============================//
@@ -105,6 +89,30 @@ void StringWrapper_GetString(StringWrapper* object, char* buffer, int bufferSize
 }
 
 //============================= LLM IMPLEMENTATION =============================//
+
+std::vector<std::string> LLM::splitArguments(const std::string& inputString) {
+    // Split the input string into individual arguments
+    std::vector<std::string> arguments;
+
+    unsigned counter = 0;
+    std::string segment;
+    std::istringstream stream_input(inputString);
+    while(std::getline(stream_input, segment, '\"'))
+    {
+        ++counter;
+        if (counter % 2 == 0)
+        {
+            if (!segment.empty()) arguments.push_back(segment);
+        }
+        else
+        {
+            std::istringstream stream_segment(segment);
+            while(std::getline(stream_segment, segment, ' '))
+                if (!segment.empty()) arguments.push_back(segment);
+        }
+    }
+    return arguments;
+}
 
 LLM::LLM(std::string params_string){
     std::vector<std::string> arguments = splitArguments("llm " + params_string);
@@ -208,6 +216,7 @@ void LLM::init(int argc, char ** argv){
 
 LLM::~LLM(){
     if (setjmp(point) != 0) return;
+    clear_status();
     try {
         ctx_server.queue_tasks.terminate();
         llama_backend_free();
@@ -224,15 +233,12 @@ std::string LLM::get_status_message(){
 
 
 void LLM::run_server(){
-    try {
-        ctx_server.queue_tasks.start_loop();
-    } catch(...) {
-        handle_exception(1);
-    }
+    ctx_server.queue_tasks.start_loop();
 }
 
 std::string LLM::handle_tokenize(json body) {
     if (setjmp(point) != 0) return "";
+    clear_status();
     try {
         std::vector<llama_token> tokens;
         if (body.count("content") != 0) {
@@ -248,6 +254,7 @@ std::string LLM::handle_tokenize(json body) {
 
 std::string LLM::handle_detokenize(json body) {
     if (setjmp(point) != 0) return "";
+    clear_status();
     try {
         std::string content;
         if (body.count("tokens") != 0) {
@@ -265,6 +272,7 @@ std::string LLM::handle_detokenize(json body) {
 
 std::string LLM::handle_completions(json data, StringWrapperCallback* streamCallback) {
     if (setjmp(point) != 0) return "";
+    clear_status();
     std::string result_data = "";
     try {
         const int id_task = ctx_server.queue_tasks.get_new_id();
@@ -332,6 +340,7 @@ std::string LLM::handle_completions(json data, StringWrapperCallback* streamCall
 
 void LLM::handle_slots_action(json data) {
     if (setjmp(point) != 0) return;
+    clear_status();
     try {
         server_task task;
         int id_slot = json_value(data, "id_slot", 0);
@@ -372,6 +381,7 @@ void LLM::handle_slots_action(json data) {
 
 void LLM::handle_cancel_action(int id_slot) {
     if (setjmp(point) != 0) return;
+    clear_status();
     try {
         for (auto & slot : ctx_server.slots) {
             if (slot.id == id_slot) {
