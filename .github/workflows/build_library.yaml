@@ -131,6 +131,7 @@ jobs:
       - name: Build
         id: cmake_build
         run: |
+          sed -i "s:undreamailib:undreamai_linux-${{ matrix.build }}:g" CMakeLists.txt
           export LD_LIBRARY_PATH=""
           cd build
           cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }}
@@ -200,6 +201,7 @@ jobs:
         id: cmake_build
         run: |
           rm VERSION
+          sed -i "s:undreamailib:undreamai_macos-arm64:g" CMakeLists.txt
           cd build
           cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ env.CMAKE_COMMON_JOBS }} ..
           cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
@@ -253,6 +255,7 @@ jobs:
         id: cmake_build
         run: |
           rm VERSION
+          sed -i "s:undreamailib:undreamai_macos-x64:g" CMakeLists.txt
           cd build
           cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL=OFF -DLLAMA_CURL=ON ${{ env.CMAKE_COMMON_JOBS }} ..
           cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
@@ -359,6 +362,7 @@ jobs:
         id: cmake_build
         run: |
           del VERSION
+          (Get-Content CMakeLists.txt ) -replace 'undreamailib', 'undreamai_windows-${{ matrix.build }}' | Set-Content CMakeLists.txt
           mkdir build
           cd build
           cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} 
@@ -377,7 +381,7 @@ jobs:
           mkdir artifacts
           Copy-Item .\llama.cpp\LICENSE .\artifacts\llama.cpp.LICENSE.txt
           Copy-Item .\build\Release\* .\artifacts\
-          Copy-Item .\build\bin\Release\*dll .\artifacts\
+          Copy-Item .\build\libs\Release\*dll .\artifacts\
           cd artifacts
           7z a ../undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-windows-${{ matrix.build }}.zip *
 

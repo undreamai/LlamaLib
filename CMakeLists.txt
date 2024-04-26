@@ -13,7 +13,7 @@ set_target_properties(common PROPERTIES COMPILE_FLAGS "-fPIC")
 set_target_properties(ggml PROPERTIES COMPILE_FLAGS "-fPIC")
 set_target_properties(llama PROPERTIES COMPILE_FLAGS "-fPIC")
 
-set(TARGET undreamai_linux-avx)
+set(TARGET undreamailib)
 add_library(${TARGET} SHARED undreamai.cpp)
 install(TARGETS ${TARGET} LIBRARY)
 target_include_directories(${TARGET} PRIVATE  ${CMAKE_CURRENT_SOURCE_DIR} llama.cpp/examples/server)
