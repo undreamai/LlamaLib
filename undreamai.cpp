@@ -17,11 +17,6 @@ void handle_exception(int code=-1) {
     }
 }
 
-static void handle_signal(int sig, siginfo_t *dont_care, void *dont_care_either)
-{
-    fail("Severe error occured", sig);
-    longjmp(point, 1);
-}
 
 void init_status() {
     status = 0;
@@ -32,13 +27,25 @@ void clear_status() {
     if (status < 0) init_status();
 }
 
+static void handle_signal_code(int sig){
+    fail("Severe error occured", sig);
+    longjmp(point, 1);
+}
+
+#ifdef _WIN32
 void set_error_handlers() {
     init_status();
-#ifdef _WIN32
-    // Install Windows signal handler
-    signal(SIGSEGV, handle_signal);
-    signal(SIGFPE, handle_signal);
+    signal(SIGSEGV, handle_signal_code);
+    signal(SIGFPE, handle_signal_code);
+}
 #else
+static void handle_signal(int sig, siginfo_t *dont_care, void *dont_care_either)
+{
+    handle_signal_code(sig);
+}
+
+void set_error_handlers() {
+    init_status();
     struct sigaction sa;
 
     memset(&sa, 0, sizeof(sa));
@@ -49,8 +56,9 @@ void set_error_handlers() {
 
     sigaction(SIGSEGV, &sa, NULL);
     sigaction(SIGFPE, &sa, NULL);
-#endif
 }
+#endif
+
 
 //============================= StringWrapper IMPLEMENTATION =============================//
 
