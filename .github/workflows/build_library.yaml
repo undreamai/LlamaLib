@@ -60,6 +60,10 @@ jobs:
           git clone https://github.com/ggerganov/llama.cpp llama.cpp
           cd llama.cpp
           git checkout ${{ env.LLAMACPP_VERSION }}
+          # make sure that cuda is not bundled!
+          sed -i 's:cudart_static:cudart:g' CMakeLists.txt
+          sed -i 's:cublas_static:cublas:g' CMakeLists.txt
+          sed -i 's:cublasLt_static:cublasLt:g' CMakeLists.txt
           cd ..
           mkdir -p build/licenses build/libs
           cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
@@ -317,6 +321,10 @@ jobs:
           git clone https://github.com/ggerganov/llama.cpp llama.cpp
           cd llama.cpp
           git checkout ${{ env.LLAMACPP_VERSION }}
+          # make sure that cuda is not bundled!
+          (Get-Content CMakeLists.txt ) -replace 'cudart_static', 'cudart' | Set-Content CMakeLists.txt
+          (Get-Content CMakeLists.txt ) -replace 'cublas_static', 'cublas' | Set-Content CMakeLists.txt
+          (Get-Content CMakeLists.txt ) -replace 'cublasLt_static', 'cublasLt' | Set-Content CMakeLists.txt
 
       - name: Download OpenCL SDK
         id: get_opencl
