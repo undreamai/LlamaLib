@@ -39,6 +39,11 @@ void clear_status() {
 
 void set_error_handlers() {
     init_status();
+#ifdef _WIN32
+    // Install Windows signal handler
+    signal(SIGSEGV, handle_signal);
+    signal(SIGFPE, handle_signal);
+#else
     struct sigaction sa;
 
     memset(&sa, 0, sizeof(sa));
@@ -49,6 +54,7 @@ void set_error_handlers() {
 
     sigaction(SIGSEGV, &sa, NULL);
     sigaction(SIGFPE, &sa, NULL);
+#endif
 }
 
 //============================= StringWrapper IMPLEMENTATION =============================//

@@ -1,6 +1,24 @@
 #pragma once
 #include "server.cpp"
-#include <setjmp.h>
+
+#ifdef _WIN32
+    // Define custom equivalent for Windows (using SEH)
+    #include <windows.h>
+    #define sigjmp_buf jmp_buf
+    #define sigsetjmp(jb, savemask) setjmp(jb)
+    #define siglongjmp longjmp
+
+    // Custom signal handler for Windows (using SEH)
+    void sig_handler(int sig) {
+        printf("Signal caught: %d\n", sig);
+        ExitProcess(sig);
+    }
+#else
+    // Unix-like platforms (POSIX)
+    #include <setjmp.h>
+    #include <signal.h>
+#endif
+
 
 class StringWrapper {
     private:
