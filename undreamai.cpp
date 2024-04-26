@@ -1,11 +1,6 @@
 #include "undreamai.h"
 
 //============================= ERROR HANDLING =============================//
-int exit_code = 1;
-int warning_code = -1;
-int status;
-std::string status_message;
-sigjmp_buf point;
 
 void fail(std::string message, int code=1) {
     status = code;
