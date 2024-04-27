@@ -140,7 +140,7 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts
         run: |
-          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}.zip build/licenses/* `ls libs/*|grep -v server`
+          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}.zip build/licenses/* `ls build/libs/*|grep -v server`
 
       - name: Copy and pack Cuda runtime
         if: startsWith(matrix.build, 'cuda')
@@ -210,7 +210,7 @@ jobs:
         id: pack_artifacts
         run: |
           ls -R build
-          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip build/licenses/* `ls libs/*|grep -v server`
+          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip build/licenses/* `ls build/libs/*|grep -v server`
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -264,7 +264,7 @@ jobs:
         id: pack_artifacts
         run: |
           ls -R build
-          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip build/licenses/* `ls libs/*|grep -v server`
+          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip build/licenses/* `ls build/libs/*|grep -v server`
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
