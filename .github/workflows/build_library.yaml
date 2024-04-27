@@ -201,7 +201,7 @@ jobs:
         id: cmake_build
         run: |
           rm VERSION
-          sed -i "s:undreamailib:undreamai_macos-arm64:g" CMakeLists.txt
+          sed -i.bak "s:undreamailib:undreamai_macos-arm64:g" CMakeLists.txt
           cd build
           cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ env.CMAKE_COMMON_JOBS }} ..
           cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
@@ -255,7 +255,7 @@ jobs:
         id: cmake_build
         run: |
           rm VERSION
-          sed -i "s:undreamailib:undreamai_macos-x64:g" CMakeLists.txt
+          sed -i.bak "s:undreamailib:undreamai_macos-x64:g" CMakeLists.txt
           cd build
           cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL=OFF -DLLAMA_CURL=ON ${{ env.CMAKE_COMMON_JOBS }} ..
           cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
