@@ -123,7 +123,7 @@ std::vector<std::string> LLM::splitArguments(const std::string& inputString) {
     return arguments;
 }
 
-LLM::LLM(std::string params_string){
+LLM::LLM(std::string params_string, bool server_mode){
     std::vector<std::string> arguments = splitArguments("llm " + params_string);
 
     // Convert vector of strings to argc and argv
@@ -133,14 +133,14 @@ LLM::LLM(std::string params_string){
         argv[i] = new char[arguments[i].size() + 1];
         std::strcpy(argv[i], arguments[i].c_str());
     }
-    init(argc, argv);
+    init(argc, argv, server_mode);
 }
 
-LLM::LLM(int argc, char ** argv){
-    init(argc, argv);
+LLM::LLM(int argc, char ** argv, bool server_mode){
+    init(argc, argv, server_mode);
 }
 
-void LLM::init(int argc, char ** argv){
+void LLM::init(int argc, char ** argv, bool server_mode){
     set_error_handlers();
     if (setjmp(point) != 0) return;
     try{
@@ -217,16 +217,224 @@ void LLM::init(int argc, char ** argv){
             std::placeholders::_3
         ));
         
-        server_thread = std::thread(&LLM::run_server, this);
+        server_thread = std::thread(&LLM::run_service, this);
+
+        if (server_mode) run_server();
     } catch(...) {
         handle_exception(1);
     }
+}
+
+const json handle_post(const httplib::Request & req, httplib::Response & res) {
+    res.set_header("Access-Control-Allow-Origin", req.get_header_value("Origin"));
+    return json::parse(req.body);
+};
+
+void handle_error(httplib::Response & res, json error_data){
+    json final_response {{"error", error_data}};
+    res.set_content(final_response.dump(), "application/json; charset=utf-8");
+    res.status = json_value(error_data, "code", 500);
+}
+
+void LLM::run_server(){
+#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
+    if (sparams.ssl_key_file != "" && sparams.ssl_cert_file != "") {
+        LOG_INFO("Running with SSL", {{"key", sparams.ssl_key_file}, {"cert", sparams.ssl_cert_file}});
+        svr.reset(
+            new httplib::SSLServer(sparams.ssl_cert_file.c_str(), sparams.ssl_key_file.c_str())
+        );
+    } else {
+        LOG_INFO("Running without SSL", {});
+        svr.reset(new httplib::Server());
+    }
+#else
+    svr.reset(new httplib::Server());
+#endif
+
+    std::atomic<server_state> state{SERVER_STATE_LOADING_MODEL};
+
+    svr->set_default_headers({{"Server", "llama.cpp"}});
+
+    // CORS preflight
+    svr->Options(R"(.*)", [](const httplib::Request & req, httplib::Response & res) {
+        res.set_header("Access-Control-Allow-Origin",      req.get_header_value("Origin"));
+        res.set_header("Access-Control-Allow-Credentials", "true");
+        res.set_header("Access-Control-Allow-Methods",     "POST");
+        res.set_header("Access-Control-Allow-Headers",     "*");
+        return res.set_content("", "application/json; charset=utf-8");
+    });
+
+    svr->set_logger(log_server_request);
+
+    auto res_error = [](httplib::Response & res, json error_data) {
+        handle_error(res, error_data);
+    };
+
+    svr->set_exception_handler([&res_error](const httplib::Request &, httplib::Response & res, std::exception_ptr ep) {
+        std::string message;
+        try {
+            std::rethrow_exception(std::move(ep));
+        } catch (std::exception & e) {
+            message = e.what();
+        } catch (...) {
+            message = "Unknown Exception";
+        }
+
+        json formatted_error = format_error_response(message, ERROR_TYPE_SERVER);
+        LOG_VERBOSE("Got exception", formatted_error);
+        res_error(res, formatted_error);
+    });
+
+    svr->set_error_handler([&res_error](const httplib::Request &, httplib::Response & res) {
+        if (res.status == 404) {
+            res_error(res, format_error_response("File Not Found", ERROR_TYPE_NOT_FOUND));
+        }
+        // for other error codes, we skip processing here because it's already done by res_error()
+    });
+
+    // set timeouts and change hostname and port
+    svr->set_read_timeout (sparams.read_timeout);
+    svr->set_write_timeout(sparams.write_timeout);
+
+    if (!svr->bind_to_port(sparams.hostname, sparams.port)) {
+        throw std::runtime_error("couldn't bind to server socket: hostname=" + sparams.hostname + " port=" + std::to_string(sparams.port));
+    }
+
+    std::unordered_map<std::string, std::string> log_data;
+
+    log_data["hostname"] = sparams.hostname;
+    log_data["port"]     = std::to_string(sparams.port);
+
+    if (sparams.api_keys.size() == 1) {
+        auto key = sparams.api_keys[0];
+        log_data["api_key"] = "api_key: ****" + key.substr(std::max((int)(key.length() - 4), 0));
+    } else if (sparams.api_keys.size() > 1) {
+        log_data["api_key"] = "api_key: " + std::to_string(sparams.api_keys.size()) + " keys loaded";
+    }
+
+    state.store(SERVER_STATE_READY);
+
+
+    auto middleware_validate_api_key = [this, &res_error](const httplib::Request & req, httplib::Response & res) {
+        // TODO: should we apply API key to all endpoints, including "/health" and "/models"?
+        static const std::set<std::string> protected_endpoints = {
+            "/props",
+            "/completion",
+            "/completions",
+            "/v1/completions",
+            "/chat/completions",
+            "/v1/chat/completions",
+            "/infill",
+            "/tokenize",
+            "/detokenize",
+            "/embedding",
+            "/embeddings",
+            "/v1/embeddings",
+        };
+
+        // If API key is not set, skip validation
+        if (sparams.api_keys.empty()) {
+            return true;
+        }
+
+        // If path is not in protected_endpoints list, skip validation
+        if (protected_endpoints.find(req.path) == protected_endpoints.end()) {
+            return true;
+        }
+
+        // Check for API key in the header
+        auto auth_header = req.get_header_value("Authorization");
+
+        std::string prefix = "Bearer ";
+        if (auth_header.substr(0, prefix.size()) == prefix) {
+            std::string received_api_key = auth_header.substr(prefix.size());
+            if (std::find(sparams.api_keys.begin(), sparams.api_keys.end(), received_api_key) != sparams.api_keys.end()) {
+                return true; // API key is valid
+            }
+        }
+
+        // API key is invalid or not provided
+        // TODO: make another middleware for CORS related logic
+        res.set_header("Access-Control-Allow-Origin", req.get_header_value("Origin"));
+        res_error(res, format_error_response("Invalid API Key", ERROR_TYPE_AUTHENTICATION));
+
+        LOG_WARNING("Unauthorized: Invalid API Key", {});
+
+        return false;
+    };
+
+    // register server middlewares
+    svr->set_pre_routing_handler([&middleware_validate_api_key](const httplib::Request & req, httplib::Response & res) {
+        if (!middleware_validate_api_key(req, res)) {
+            return httplib::Server::HandlerResponse::Handled;
+        }
+        return httplib::Server::HandlerResponse::Unhandled;
+    });
+
+    //
+    // Route handlers (or controllers)
+    //
+
+    const auto handle_completions_post = [this, &res_error](const httplib::Request & req, httplib::Response & res) {
+        json data = handle_post(req, res);
+        handle_completions(data, nullptr, &res);
+    };
+
+    const auto handle_tokenize_post = [this](const httplib::Request & req, httplib::Response & res) {
+        return res.set_content(handle_tokenize(handle_post(req, res)), "application/json; charset=utf-8");
+    };
+
+    const auto handle_detokenize_post = [this](const httplib::Request & req, httplib::Response & res) {
+        return res.set_content(handle_detokenize(handle_post(req, res)), "application/json; charset=utf-8");
+    };
+
+    //
+    // Router
+    //
+
+    // register static assets routes
+    if (!sparams.public_path.empty()) {
+        // Set the base directory for serving static files
+        svr->set_base_dir(sparams.public_path);
+    }
+    // register API routes
+    svr->Post("/completion",          handle_completions_post); // legacy
+    svr->Post("/completions",         handle_completions_post);
+    svr->Post("/v1/completions",      handle_completions_post);
+    svr->Post("/tokenize",            handle_tokenize_post);
+    svr->Post("/detokenize",          handle_detokenize_post);
+
+    //
+    // Start the server
+    //
+    if (sparams.n_threads_http < 1) {
+        // +2 threads for monitoring endpoints
+        sparams.n_threads_http = std::max(params.n_parallel + 2, (int32_t) std::thread::hardware_concurrency() - 1);
+    }
+    log_data["n_threads_http"] =  std::to_string(sparams.n_threads_http);
+    svr->new_task_queue = [this] { return new httplib::ThreadPool(sparams.n_threads_http); };
+
+    LOG_INFO("HTTP server listening", log_data);
+
+    // run the HTTP server in a thread - see comment below
+    t = std::thread([&]() {
+        if (!svr->listen_after_bind()) {
+            state.store(SERVER_STATE_ERROR);
+            return 1;
+        }
+
+        return 0;
+    });
 }
 
 LLM::~LLM(){
     if (setjmp(point) != 0) return;
     clear_status();
     try {
+        if (svr.get() != nullptr) {
+            svr->stop();
+            t.join();
+        }
         ctx_server.queue_tasks.terminate();
         llama_backend_free();
         server_thread.join();
@@ -241,7 +449,7 @@ std::string LLM::get_status_message(){
 }
 
 
-void LLM::run_server(){
+void LLM::run_service(){
     ctx_server.queue_tasks.start_loop();
 }
 
@@ -279,7 +487,72 @@ std::string LLM::handle_detokenize(json body) {
     return "";
 }
 
-std::string LLM::handle_completions(json data, StringWrapperCallback* streamCallback) {
+std::string LLM::handle_completions_non_streaming(int id_task, StringWrapperCallback* streamCallback, httplib::Response* res) {
+    std::string result_data = "";
+    server_task_result result = ctx_server.queue_results.recv(id_task);
+    if (!result.error && result.stop) {
+        std::string data_dump = result.data.dump(-1, ' ', false, json::error_handler_t::replace);
+        result_data = "data: " + data_dump +"\n\n";
+        LOG_VERBOSE("data stream", {
+            { "to_send", result_data }
+        });
+        if(res != nullptr) res->set_content(data_dump, "application/json; charset=utf-8");
+    } else {
+        LOG_ERROR("Error processing request", {});
+        if(res != nullptr) handle_error(*res, result.data);
+    }
+    return result_data;
+}
+
+class SinkException : public std::exception {};
+
+
+std::string LLM::handle_completions_streaming(int id_task, StringWrapperCallback* streamCallback, httplib::DataSink* sink) {
+    std::string result_data = "";
+    while (true) {
+        server_task_result result = ctx_server.queue_results.recv(id_task);
+        std::string str;
+        if (!result.error) {
+            str =
+                "data: " +
+                result.data.dump(-1, ' ', false, json::error_handler_t::replace) +
+                "\n\n";
+
+            LOG_VERBOSE("data stream", {
+                { "to_send", str }
+            });
+
+            if (!sink->write(str.c_str(), str.size())) {
+                throw SinkException();
+            }
+
+            if (result.stop) {
+                break;
+            }
+
+            result_data += str;
+            if(streamCallback != nullptr) streamCallback->Call(result_data);
+        } else {
+            result_data =
+                "error: " +
+                result.data.dump(-1, ' ', false, json::error_handler_t::replace) +
+                "\n\n";
+
+            LOG_VERBOSE("data stream", {
+                { "to_send", str }
+            });
+
+            if (!sink->write(str.c_str(), str.size())) {
+                throw SinkException();
+            }
+
+            break;
+        }
+    }
+    return result_data;
+}
+
+std::string LLM::handle_completions(json data, StringWrapperCallback* streamCallback, httplib::Response* res) {
     if (setjmp(point) != 0) return "";
     clear_status();
     std::string result_data = "";
@@ -290,57 +563,33 @@ std::string LLM::handle_completions(json data, StringWrapperCallback* streamCall
         ctx_server.request_completion(id_task, -1, data, false, false);
 
         if (!json_value(data, "stream", false)) {
-            server_task_result result = ctx_server.queue_results.recv(id_task);
-            if (!result.error && result.stop) {
-                result_data =
-                    "data: " +
-                    result.data.dump(-1, ' ', false, json::error_handler_t::replace) +
-                    "\n\n";
-                LOG_VERBOSE("data stream", {
-                    { "to_send", result_data }
-                });
-            } else {
-                LOG_ERROR("Error processing request", {});
-            }
-
+            handle_completions_non_streaming(id_task, streamCallback, res);
             ctx_server.queue_results.remove_waiting_task_id(id_task);
         } else {
-                while (true) {
-                    server_task_result result = ctx_server.queue_results.recv(id_task);
-                    std::string str;
-                    if (!result.error) {
-                        str =
-                            "data: " +
-                            result.data.dump(-1, ' ', false, json::error_handler_t::replace) +
-                            "\n\n";
-
-                        LOG_VERBOSE("data stream", {
-                            { "to_send", str }
-                        });
-
-                        if (result.stop) {
-                            break;
-                        }
-
-                        result_data += str;
-                        if(streamCallback != nullptr) streamCallback->Call(result_data);
-                    } else {
-                        result_data =
-                            "error: " +
-                            result.data.dump(-1, ' ', false, json::error_handler_t::replace) +
-                            "\n\n";
-
-                        LOG_VERBOSE("data stream", {
-                            { "to_send", str }
-                        });
-
-                        break;
-                    }
-                }
-
+            auto on_complete = [id_task, this] (bool) {
+                // cancel
                 ctx_server.request_cancel(id_task);
                 ctx_server.queue_results.remove_waiting_task_id(id_task);
+            };
+            if(res == nullptr){
+                handle_completions_streaming(id_task, streamCallback);
+                on_complete(true);
+            } else {
+                const auto chunked_content_provider = [id_task, this](size_t, httplib::DataSink & sink) {
+                    bool ok = true;
+                    try {
+                        handle_completions_streaming(id_task, nullptr, &sink);
+                    } catch (const SinkException& e) {
+                        ok = false;
+                    }
+                    ctx_server.queue_results.remove_waiting_task_id(id_task);
+                    if(ok) sink.done();
+                    return ok;
+                };
+                res->set_chunked_content_provider("text/event-stream", chunked_content_provider, on_complete);
+            }
         }
+
     } catch(...) {
         handle_exception();
     }
@@ -405,8 +654,8 @@ void LLM::handle_cancel_action(int id_slot) {
 
 //============================= API IMPLEMENTATION =============================//
 
-LLM* LLM_Construct(const char* params_string) {
-    return new LLM(std::string(params_string));
+LLM* LLM_Construct(const char* params_string, bool server_mode) {
+    return new LLM(std::string(params_string, server_mode));
 }
 
 void LLM_Delete(LLM* llm) {
@@ -441,6 +690,10 @@ const void LLM_Cancel(LLM* llm, int id_slot) {
 const int LLM_Status(LLM* llm, StringWrapper* wrapper) {
     wrapper->SetContent(llm->get_status_message());
     return llm->get_status();
+}
+
+int main(int argc, char ** argv) {
+    LLM llm(argc, argv, true);
 }
 
 /*

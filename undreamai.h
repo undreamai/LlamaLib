@@ -45,15 +45,15 @@ class StringWrapperCallback{
 
 class LLM {
     public:
-        LLM(std::string params_string);
-        LLM(int argc, char ** argv);
+        LLM(std::string params_string, bool server_mode=false);
+        LLM(int argc, char ** argv, bool server_mode=false);
         ~LLM();
 
         static std::vector<std::string> splitArguments(const std::string& inputString);
         
         std::string handle_tokenize(json body);
         std::string handle_detokenize(json body);
-        std::string handle_completions(json data, StringWrapperCallback* callback=nullptr);
+        std::string handle_completions(json data, StringWrapperCallback* callback=nullptr, httplib::Response* res=nullptr);
         void handle_slots_action(json data);
         void handle_cancel_action(int id_slot);
         int get_status();
@@ -64,10 +64,15 @@ class LLM {
         server_params sparams;
         server_context ctx_server;
         std::thread server_thread;
+        std::unique_ptr<httplib::Server> svr;
+        std::thread t;
 
-        void init(int argc, char ** argv);
+        void init(int argc, char ** argv, bool server_mode=false);
         void parse_args(std::string params_string);
+        void run_service();
         void run_server();
+        std::string handle_completions_non_streaming(int id_task, StringWrapperCallback* streamCallback, httplib::Response* res=nullptr);
+        std::string handle_completions_streaming(int id_task, StringWrapperCallback* streamCallback, httplib::DataSink* sink=nullptr);
 };
 
 #ifdef _WIN32
@@ -86,7 +91,7 @@ extern "C" {
 	UNDREAMAI_API int StringWrapper_GetStringSize(StringWrapper* object);
 	UNDREAMAI_API void StringWrapper_GetString(StringWrapper* object, char* buffer, int bufferSize);
 
-    UNDREAMAI_API LLM* LLM_Construct(const char* params_string);
+    UNDREAMAI_API LLM* LLM_Construct(const char* params_string, bool server_mode=false);
     UNDREAMAI_API void LLM_Delete(LLM* llm);
     UNDREAMAI_API const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
     UNDREAMAI_API const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
