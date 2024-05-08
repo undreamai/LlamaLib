@@ -430,7 +430,7 @@ jobs:
             mv $d $new_name;
             echo $new_name >> bundle
           done
-          zip -r $PREFIX.zip `cat bundle`
+          zip -r $PREFIX.zip VERSION `cat bundle`
 
       - name: Release
         uses: softprops/action-gh-release@v2
