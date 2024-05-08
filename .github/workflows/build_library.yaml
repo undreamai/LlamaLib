@@ -140,7 +140,7 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts
         run: |
-          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}.zip build/licenses/* `ls build/libs/*|grep -v server`
+          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}.zip build/licenses/* build/libs/*
 
       - name: Copy and pack Cuda runtime
         if: startsWith(matrix.build, 'cuda')
@@ -154,12 +154,6 @@ jobs:
         with:
           name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}.zip
           path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}.zip
-  
-      - name: Upload Server
-        uses: actions/upload-artifact@v4
-        with:
-          name: server-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}
-          path: build/libs/server
 
       - name: Upload Cuda runtime
         if: startsWith(matrix.build, 'cuda')
@@ -210,19 +204,13 @@ jobs:
         id: pack_artifacts
         run: |
           ls -R build
-          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip build/licenses/* `ls build/libs/*|grep -v server`
+          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip build/licenses/* build/libs/*
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip
           path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip
-
-      - name: Upload Server
-        uses: actions/upload-artifact@v4
-        with:
-          name: server-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64
-          path: build/libs/server
 
   macOS-x64-build:
     runs-on: macos-latest
@@ -264,19 +252,13 @@ jobs:
         id: pack_artifacts
         run: |
           ls -R build
-          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip build/licenses/* `ls build/libs/*|grep -v server`
+          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip build/licenses/* build/libs/*
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip
           path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip
-
-      - name: Upload Server
-        uses: actions/upload-artifact@v4
-        with:
-          name: server-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64
-          path: build/libs/server
 
 ################################ Windows ################################
 
@@ -391,12 +373,6 @@ jobs:
           path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-windows-${{ matrix.build }}.zip
           name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-windows-${{ matrix.build }}.zip
 
-      - name: Upload Server
-        uses: actions/upload-artifact@v4
-        with:
-          name: server-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-windows-${{ matrix.build }}
-          path: build/libs/Release/server.exe
-
       - name: Copy and pack Cuda runtime
         if: startsWith(matrix.build, 'cuda')
         run: |
@@ -432,7 +408,6 @@ jobs:
           cat VERSION
           echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
           echo "PREFIX=undreamai-$(cat VERSION)-llamacpp-${{ env.LLAMACPP_VERSION }}" >> $GITHUB_ENV
-          echo "SERVER_PREFIX=server-$(cat VERSION)-llamacpp-${{ env.LLAMACPP_VERSION }}" >> $GITHUB_ENV
 
       - name: Download Artifacts
         uses: actions/download-artifact@v4
@@ -443,7 +418,7 @@ jobs:
         run: |
           cd artifacts
           ls -R
-          for d in `ls | grep cuda | grep -v $PREFIX | grep -v $SERVER_PREFIX`;do
+          for d in `ls | grep cuda | grep -v $PREFIX`;do
             mv $d/$d tmp.zip
             rm -r $d
             mv tmp.zip $d
@@ -456,14 +431,6 @@ jobs:
             echo $new_name >> bundle
           done
           zip -r $PREFIX.zip `cat bundle`
-          rm -r `cat bundle` bundle
-
-          for d in `ls | grep $SERVER_PREFIX`;do
-            new_name=`echo $d | sed -e "s:$SERVER_PREFIX-::g"`
-            mv $d $new_name;
-            echo $new_name >> bundle
-          done
-          zip -r $SERVER_PREFIX.zip `cat bundle`
 
       - name: Release
         uses: softprops/action-gh-release@v2

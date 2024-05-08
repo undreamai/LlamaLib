@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.14)
 project("undreamai" C CXX)
 
 add_subdirectory("llama.cpp")
-add_subdirectory("llama.cpp/examples/server")
 if(DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
     set_property(DIRECTORY llama.cpp PROPERTY CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 endif()
