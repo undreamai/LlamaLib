@@ -692,11 +692,11 @@ const int LLM_Status(LLM* llm, StringWrapper* wrapper) {
     return llm->get_status();
 }
 
+/*
 int main(int argc, char ** argv) {
     LLM llm(argc, argv, true);
 }
 
-/*
 int main(int argc, char ** argv) {
     LLM llm(argc, argv);
     json data;
