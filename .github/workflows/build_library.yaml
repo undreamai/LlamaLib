@@ -402,7 +402,6 @@ jobs:
       - name: Get Variables
         run: |
           echo "VERSION=${{ env.UNDREAMAI_VERSION }}.${{ env.LLAMACPP_VERSION }}" >> $GITHUB_ENV
-          echo "PREFIX=undreamai-$(cat VERSION)-llamacpp" >> $GITHUB_ENV
 
       - name: Download Artifacts
         uses: actions/download-artifact@v4
@@ -413,6 +412,7 @@ jobs:
         run: |
           cd artifacts
           ls -R
+          PREFIX=undreamai-${{ env.VERSION }}-llamacpp"
           for d in `ls | grep cuda | grep -v $PREFIX`;do
             mv $d/$d tmp.zip
             rm -r $d
