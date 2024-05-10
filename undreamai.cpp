@@ -655,7 +655,7 @@ void LLM::handle_cancel_action(int id_slot) {
 //============================= API IMPLEMENTATION =============================//
 
 LLM* LLM_Construct(const char* params_string, bool server_mode) {
-    return new LLM(std::string(params_string, server_mode));
+    return new LLM(std::string(params_string), server_mode);
 }
 
 void LLM_Delete(LLM* llm) {
