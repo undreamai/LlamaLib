@@ -59,44 +59,6 @@ void set_error_handlers() {
 }
 #endif
 
-
-//============================= StringWrapper IMPLEMENTATION =============================//
-
-StringWrapper::StringWrapper(){}
-
-void StringWrapper::SetContent(std::string input){
-    if (content != nullptr) {
-        delete[] content;
-    }
-    content = new char[input.length() + 1];
-    strcpy(content, input.c_str());
-}
-
-int StringWrapper::GetStringSize(){
-    return strlen(content) + 1;
-}
-
-void StringWrapper::GetString(char* buffer, int bufferSize){
-    strncpy(buffer, content, bufferSize);
-    buffer[bufferSize - 1] = '\0';
-}
-
-StringWrapper* StringWrapper_Construct() {
-    return new StringWrapper();
-}
-
-void StringWrapper_Delete(StringWrapper* object) {
-    delete object;
-}
-
-int StringWrapper_GetStringSize(StringWrapper* object) {
-    return object->GetStringSize();
-}
-
-void StringWrapper_GetString(StringWrapper* object, char* buffer, int bufferSize){
-    return object->GetString(buffer, bufferSize);
-}
-
 //============================= LLM IMPLEMENTATION =============================//
 
 std::vector<std::string> LLM::splitArguments(const std::string& inputString) {
@@ -218,7 +180,6 @@ void LLM::init(int argc, char ** argv, bool server_mode){
         ));
         
         server_thread = std::thread(&LLM::run_service, this);
-
         if (server_mode) run_server();
     } catch(...) {
         handle_exception(1);
@@ -448,7 +409,6 @@ std::string LLM::get_status_message(){
     return status_message;
 }
 
-
 void LLM::run_service(){
     ctx_server.queue_tasks.start_loop();
 }
@@ -491,21 +451,16 @@ std::string LLM::handle_completions_non_streaming(int id_task, StringWrapperCall
     std::string result_data = "";
     server_task_result result = ctx_server.queue_results.recv(id_task);
     if (!result.error && result.stop) {
-        std::string data_dump = result.data.dump(-1, ' ', false, json::error_handler_t::replace);
-        result_data = "data: " + data_dump +"\n\n";
-        LOG_VERBOSE("data stream", {
-            { "to_send", result_data }
-        });
-        if(res != nullptr) res->set_content(data_dump, "application/json; charset=utf-8");
+        result_data = result.data.dump(-1, ' ', false, json::error_handler_t::replace);
+        if(res != nullptr) res->set_content(result_data, "application/json; charset=utf-8");
     } else {
-        LOG_ERROR("Error processing request", {});
+        LOG_ERROR("Error processing handle_completions_non_streaming request", {});
         if(res != nullptr) handle_error(*res, result.data);
     }
     return result_data;
 }
 
 class SinkException : public std::exception {};
-
 
 std::string LLM::handle_completions_streaming(int id_task, StringWrapperCallback* streamCallback, httplib::DataSink* sink) {
     std::string result_data = "";
@@ -522,16 +477,16 @@ std::string LLM::handle_completions_streaming(int id_task, StringWrapperCallback
                 { "to_send", str }
             });
 
-            if (!sink->write(str.c_str(), str.size())) {
+            if (sink != nullptr && !sink->write(str.c_str(), str.size())) {
                 throw SinkException();
-            }
-
-            if (result.stop) {
-                break;
             }
 
             result_data += str;
             if(streamCallback != nullptr) streamCallback->Call(result_data);
+
+            if (result.stop) {
+                break;
+            }
         } else {
             result_data =
                 "error: " +
@@ -541,8 +496,9 @@ std::string LLM::handle_completions_streaming(int id_task, StringWrapperCallback
             LOG_VERBOSE("data stream", {
                 { "to_send", str }
             });
+            LOG_ERROR("Error processing handle_completions_streaming request", {});
 
-            if (!sink->write(str.c_str(), str.size())) {
+            if (sink != nullptr && !sink->write(str.c_str(), str.size())) {
                 throw SinkException();
             }
 
@@ -563,16 +519,15 @@ std::string LLM::handle_completions(json data, StringWrapperCallback* streamCall
         ctx_server.request_completion(id_task, -1, data, false, false);
 
         if (!json_value(data, "stream", false)) {
-            handle_completions_non_streaming(id_task, streamCallback, res);
+            result_data = handle_completions_non_streaming(id_task, streamCallback, res);
             ctx_server.queue_results.remove_waiting_task_id(id_task);
         } else {
             auto on_complete = [id_task, this] (bool) {
-                // cancel
                 ctx_server.request_cancel(id_task);
                 ctx_server.queue_results.remove_waiting_task_id(id_task);
             };
             if(res == nullptr){
-                handle_completions_streaming(id_task, streamCallback);
+                result_data = handle_completions_streaming(id_task, streamCallback, nullptr);
                 on_complete(true);
             } else {
                 const auto chunked_content_provider = [id_task, this](size_t, httplib::DataSink & sink) {
@@ -654,6 +609,22 @@ void LLM::handle_cancel_action(int id_slot) {
 
 //============================= API IMPLEMENTATION =============================//
 
+StringWrapper* StringWrapper_Construct() {
+    return new StringWrapper();
+}
+
+void StringWrapper_Delete(StringWrapper* object) {
+    delete object;
+}
+
+int StringWrapper_GetStringSize(StringWrapper* object) {
+    return object->GetStringSize();
+}
+
+void StringWrapper_GetString(StringWrapper* object, char* buffer, int bufferSize){
+    return object->GetString(buffer, bufferSize);
+}
+
 LLM* LLM_Construct(const char* params_string, bool server_mode) {
     return new LLM(std::string(params_string), server_mode);
 }
@@ -693,10 +664,6 @@ const int LLM_Status(LLM* llm, StringWrapper* wrapper) {
 }
 
 /*
-int main(int argc, char ** argv) {
-    LLM llm(argc, argv, true);
-}
-
 int main(int argc, char ** argv) {
     LLM llm(argc, argv);
     json data;

@@ -15,7 +15,7 @@ if (NOT WIN32)
 endif()
 
 set(TARGET undreamailib)
-add_library(${TARGET} SHARED undreamai.cpp)
+add_library(${TARGET} SHARED stringwrapper.cpp undreamai.cpp)
 install(TARGETS ${TARGET} LIBRARY)
 target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} llama.cpp/examples/server)
 target_link_libraries(${TARGET} PRIVATE common json-schema-to-grammar ggml_static llama)
