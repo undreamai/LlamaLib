@@ -8,16 +8,16 @@ on:
       - undreamai.h
       - undreamai.cpp
     tags:
-      - 'v*'
+      - 'release'
 
 env:
+  UNDREAMAI_VERSION: 1.1.0
   LLAMACPP_VERSION: b2674
   OPENCL_VERSION: 2023.04.17
   CLBLAST_VERSION: 1.6.0
   CMAKE_COMMON_JOBS: '-DLLAMA_STATIC=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs'
 
 jobs:
-
   ################################ Linux ################################
 
   linux_build:
@@ -52,7 +52,7 @@ jobs:
 
       - name: Get Variables
         run: |
-          echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
+          echo "VERSION=${{ env.UNDREAMAI_VERSION }}.${{ env.LLAMACPP_VERSION }}" >> $GITHUB_ENV
           echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
 
       - name: Clone llama.cpp
@@ -140,7 +140,7 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts
         run: |
-          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}.zip build/licenses/* build/libs/*
+          zip -j undreamai-${{ env.VERSION }}-llamacpp-linux-${{ matrix.build }}.zip build/licenses/* build/libs/*
 
       - name: Copy and pack Cuda runtime
         if: startsWith(matrix.build, 'cuda')
@@ -152,8 +152,8 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}.zip
-          path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-linux-${{ matrix.build }}.zip
+          name: undreamai-${{ env.VERSION }}-llamacpp-linux-${{ matrix.build }}.zip
+          path: undreamai-${{ env.VERSION }}-llamacpp-linux-${{ matrix.build }}.zip
 
       - name: Upload Cuda runtime
         if: startsWith(matrix.build, 'cuda')
@@ -174,7 +174,7 @@ jobs:
 
       - name: Get Variables
         run: |
-          echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
+          echo "VERSION=${{ env.UNDREAMAI_VERSION }}.${{ env.LLAMACPP_VERSION }}" >> $GITHUB_ENV
 
       - name: Clone llama.cpp
         run: |
@@ -194,7 +194,6 @@ jobs:
       - name: Build
         id: cmake_build
         run: |
-          rm VERSION
           sed -i.bak "s:undreamailib:undreamai_macos-arm64:g" CMakeLists.txt
           cd build
           cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ env.CMAKE_COMMON_JOBS }} ..
@@ -204,13 +203,13 @@ jobs:
         id: pack_artifacts
         run: |
           ls -R build
-          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip build/licenses/* build/libs/*
+          zip -j undreamai-${{ env.VERSION }}-llamacpp-macos-arm64.zip build/licenses/* build/libs/*
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip
-          path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-arm64.zip
+          name: undreamai-${{ env.VERSION }}-llamacpp-macos-arm64.zip
+          path: undreamai-${{ env.VERSION }}-llamacpp-macos-arm64.zip
 
   macOS-x64-build:
     runs-on: macos-latest
@@ -222,7 +221,7 @@ jobs:
 
       - name: Get Variables
         run: |
-          echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
+          echo "VERSION=${{ env.UNDREAMAI_VERSION }}.${{ env.LLAMACPP_VERSION }}" >> $GITHUB_ENV
 
       - name: Clone llama.cpp
         run: |
@@ -242,7 +241,6 @@ jobs:
       - name: Build
         id: cmake_build
         run: |
-          rm VERSION
           sed -i.bak "s:undreamailib:undreamai_macos-x64:g" CMakeLists.txt
           cd build
           cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL=OFF -DLLAMA_CURL=ON ${{ env.CMAKE_COMMON_JOBS }} ..
@@ -252,13 +250,13 @@ jobs:
         id: pack_artifacts
         run: |
           ls -R build
-          zip -j undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip build/licenses/* build/libs/*
+          zip -j undreamai-${{ env.VERSION }}-llamacpp-macos-x64.zip build/licenses/* build/libs/*
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip
-          path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-macos-x64.zip
+          name: undreamai-${{ env.VERSION }}-llamacpp-macos-x64.zip
+          path: undreamai-${{ env.VERSION }}-llamacpp-macos-x64.zip
 
 ################################ Windows ################################
 
@@ -295,8 +293,7 @@ jobs:
 
       - name: Get Variables
         run: |
-          $version = Get-Content VERSION
-          Add-Content $env:GITHUB_ENV "version=$version"
+          Add-Content $env:GITHUB_ENV "version=${{ env.UNDREAMAI_VERSION }}.${{ env.LLAMACPP_VERSION }}"
           $pattern = "\d+\.\d+\.\d+"
           $CUDA = [regex]::Match("${{ matrix.build }}", $pattern).Value
           Add-Content $env:GITHUB_ENV "CUDA=$CUDA"
@@ -343,7 +340,6 @@ jobs:
       - name: Build
         id: cmake_build
         run: |
-          del VERSION
           (Get-Content CMakeLists.txt ) -replace 'undreamailib', 'undreamai_windows-${{ matrix.build }}' | Set-Content CMakeLists.txt
           mkdir build
           cd build
@@ -365,13 +361,13 @@ jobs:
           Copy-Item .\build\Release\* .\artifacts\
           Copy-Item .\build\libs\Release\*dll .\artifacts\
           cd artifacts
-          7z a ../undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-windows-${{ matrix.build }}.zip *
+          7z a ../undreamai-${{ env.VERSION }}-llamacpp-windows-${{ matrix.build }}.zip *
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          path: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-windows-${{ matrix.build }}.zip
-          name: undreamai-${{ env.VERSION }}-llamacpp-${{ env.LLAMACPP_VERSION }}-windows-${{ matrix.build }}.zip
+          path: undreamai-${{ env.VERSION }}-llamacpp-windows-${{ matrix.build }}.zip
+          name: undreamai-${{ env.VERSION }}-llamacpp-windows-${{ matrix.build }}.zip
 
       - name: Copy and pack Cuda runtime
         if: startsWith(matrix.build, 'cuda')
@@ -405,9 +401,8 @@ jobs:
 
       - name: Get Variables
         run: |
-          cat VERSION
-          echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
-          echo "PREFIX=undreamai-$(cat VERSION)-llamacpp-${{ env.LLAMACPP_VERSION }}" >> $GITHUB_ENV
+          echo "VERSION=${{ env.UNDREAMAI_VERSION }}.${{ env.LLAMACPP_VERSION }}" >> $GITHUB_ENV
+          echo "PREFIX=undreamai-$(cat VERSION)-llamacpp" >> $GITHUB_ENV
 
       - name: Download Artifacts
         uses: actions/download-artifact@v4
@@ -430,7 +425,7 @@ jobs:
             mv $d $new_name;
             echo $new_name >> bundle
           done
-          zip -r $PREFIX.zip VERSION `cat bundle`
+          zip -r $PREFIX.zip `cat bundle`
 
       - name: Release
         uses: softprops/action-gh-release@v2
