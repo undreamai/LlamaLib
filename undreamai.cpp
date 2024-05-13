@@ -609,6 +609,18 @@ void LLM::handle_cancel_action(int id_slot) {
 
 //============================= API IMPLEMENTATION =============================//
 
+void Logging(StringWrapper* wrapper, void* streamCallbackPointer)
+{
+    CompletionCallback streamCallback = reinterpret_cast<CompletionCallback>(streamCallbackPointer);
+    logWrapperCallback = new StringWrapperCallback(wrapper, streamCallback);
+}
+
+void StopLogging()
+{
+    if(logWrapperCallback != nullptr) delete logWrapperCallback;
+    logWrapperCallback = nullptr;
+}
+
 StringWrapper* StringWrapper_Construct() {
     return new StringWrapper();
 }

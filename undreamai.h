@@ -1,6 +1,5 @@
 #pragma once
 #include "stringwrapper.h"
-static StringWrapperCallback* logWrapperCallback;
 #include "server.cpp"
 
 #include <setjmp.h>
@@ -62,6 +61,9 @@ class LLM {
 #endif
 
 extern "C" {
+    UNDREAMAI_API void Logging(StringWrapper* wrapper, void* streamCallbackPointer=nullptr);
+    UNDREAMAI_API void StopLogging();
+
 	UNDREAMAI_API StringWrapper* StringWrapper_Construct();
 	UNDREAMAI_API void StringWrapper_Delete(StringWrapper* object);
 	UNDREAMAI_API int StringWrapper_GetStringSize(StringWrapper* object);
