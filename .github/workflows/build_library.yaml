@@ -16,6 +16,7 @@ env:
   OPENCL_VERSION: 2023.04.17
   CLBLAST_VERSION: 1.6.0
   CMAKE_COMMON_JOBS: '-DLLAMA_STATIC=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs'
+  CUDA_SEPARATE: false
 
 jobs:
   ################################ Linux ################################
@@ -61,13 +62,17 @@ jobs:
           cd llama.cpp
           git checkout ${{ env.LLAMACPP_VERSION }}
           sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
-          # make sure that cuda is not bundled!
-          sed -i 's:cudart_static:cudart:g' CMakeLists.txt
-          sed -i 's:cublas_static:cublas:g' CMakeLists.txt
-          sed -i 's:cublasLt_static:cublasLt:g' CMakeLists.txt
           cd ..
           mkdir -p build/licenses build/libs
           cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+
+      - name: Separate CUDA
+        if: env.CUDA_SEPARATE == 'true'
+        run: |
+          cd llama.cpp
+          sed -i 's:cudart_static:cudart:g' CMakeLists.txt
+          sed -i 's:cublas_static:cublas:g' CMakeLists.txt
+          sed -i 's:cublasLt_static:cublasLt:g' CMakeLists.txt
 
       - name: Dependencies
         run: |
@@ -143,21 +148,21 @@ jobs:
         run: |
           zip -j undreamai-${{ env.VERSION }}-llamacpp-linux-${{ matrix.build }}.zip build/licenses/* build/libs/*
 
-      - name: Copy and pack Cuda runtime
-        if: startsWith(matrix.build, 'cuda')
-        run: |
-          libs=`for f in build/libs/*;do objdump -x $f |grep NEEDED;done |tr -d ' '| sed -e "s:NEEDED:${{ github.workspace }}/build/cuda/lib64/:g" |sort|uniq|grep libcu`
-          echo $libs
-          zip -j cuda-${{ env.CUDA }}-linux.zip $libs
-
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: undreamai-${{ env.VERSION }}-llamacpp-linux-${{ matrix.build }}.zip
           path: undreamai-${{ env.VERSION }}-llamacpp-linux-${{ matrix.build }}.zip
 
+      - name: Copy and pack Cuda runtime
+        if: startsWith(matrix.build, 'cuda') && env.CUDA_SEPARATE == 'true'
+        run: |
+          libs=`for f in build/libs/*;do objdump -x $f |grep NEEDED;done |tr -d ' '| sed -e "s:NEEDED:${{ github.workspace }}/build/cuda/lib64/:g" |sort|uniq|grep libcu`
+          echo $libs
+          zip -j cuda-${{ env.CUDA }}-linux.zip $libs
+
       - name: Upload Cuda runtime
-        if: startsWith(matrix.build, 'cuda')
+        if: startsWith(matrix.build, 'cuda') && env.CUDA_SEPARATE == 'true'
         uses: actions/upload-artifact@v4
         with:
           path: cuda-${{ env.CUDA }}-linux.zip
@@ -306,11 +311,15 @@ jobs:
           git clone https://github.com/ggerganov/llama.cpp llama.cpp
           cd llama.cpp
           git checkout ${{ env.LLAMACPP_VERSION }}
-          # make sure that cuda is not bundled!
+          (Get-Content CMakeLists.txt ) -replace 'utils.hpp', 'utils_callback.hpp' | Set-Content examples/server/server.cpp
+
+      - name: Separate CUDA
+        if: env.CUDA_SEPARATE == 'true'
+        run: |
+          cd llama.cpp
           (Get-Content CMakeLists.txt ) -replace 'cudart_static', 'cudart' | Set-Content CMakeLists.txt
           (Get-Content CMakeLists.txt ) -replace 'cublas_static', 'cublas' | Set-Content CMakeLists.txt
           (Get-Content CMakeLists.txt ) -replace 'cublasLt_static', 'cublasLt' | Set-Content CMakeLists.txt
-          (Get-Content CMakeLists.txt ) -replace 'utils.hpp', 'utils_callback.hpp' | Set-Content examples/server/server.cpp
 
       - name: Download OpenCL SDK
         id: get_opencl
@@ -374,7 +383,7 @@ jobs:
           name: undreamai-${{ env.VERSION }}-llamacpp-windows-${{ matrix.build }}.zip
 
       - name: Copy and pack Cuda runtime
-        if: startsWith(matrix.build, 'cuda')
+        if: startsWith(matrix.build, 'cuda') && env.CUDA_SEPARATE == 'true'
         run: |
           echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
           $dst='cuda'
@@ -383,7 +392,7 @@ jobs:
           7z a ../cuda-${{ env.CUDA }}-windows.zip *
 
       - name: Upload Cuda runtime
-        if: startsWith(matrix.build, 'cuda')
+        if: startsWith(matrix.build, 'cuda') && env.CUDA_SEPARATE == 'true'
         uses: actions/upload-artifact@v4
         with:
           path: cuda-${{ env.CUDA }}-windows.zip
