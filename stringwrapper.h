@@ -16,13 +16,9 @@ class StringWrapper {
 typedef void (*CompletionCallback)();
 class StringWrapperCallback{
     public:
-        StringWrapperCallback(StringWrapper* stringWrapper_in, CompletionCallback callback_in) : stringWrapper(stringWrapper_in), callback(callback_in){}
-        void Call(std::string content)
-        {
-            if (callback == nullptr) return;
-            if (stringWrapper != nullptr) stringWrapper->SetContent(content);
-            callback();
-        }
+        StringWrapperCallback(StringWrapper* stringWrapper_in, CompletionCallback callback_in);
+
+        void Call(std::string content);
     private:
         StringWrapper* stringWrapper = nullptr;
         CompletionCallback callback = nullptr;
