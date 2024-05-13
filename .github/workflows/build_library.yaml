@@ -60,6 +60,7 @@ jobs:
           git clone https://github.com/ggerganov/llama.cpp llama.cpp
           cd llama.cpp
           git checkout ${{ env.LLAMACPP_VERSION }}
+          sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
           # make sure that cuda is not bundled!
           sed -i 's:cudart_static:cudart:g' CMakeLists.txt
           sed -i 's:cublas_static:cublas:g' CMakeLists.txt
@@ -181,6 +182,7 @@ jobs:
           git clone https://github.com/ggerganov/llama.cpp llama.cpp
           cd llama.cpp
           git checkout ${{ env.LLAMACPP_VERSION }}
+          sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
           cd ..
           mkdir -p build/licenses build/libs
           cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
@@ -228,6 +230,7 @@ jobs:
           git clone https://github.com/ggerganov/llama.cpp llama.cpp
           cd llama.cpp
           git checkout ${{ env.LLAMACPP_VERSION }}
+          sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
           cd ..
           mkdir -p build/licenses build/libs
           cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
@@ -307,6 +310,7 @@ jobs:
           (Get-Content CMakeLists.txt ) -replace 'cudart_static', 'cudart' | Set-Content CMakeLists.txt
           (Get-Content CMakeLists.txt ) -replace 'cublas_static', 'cublas' | Set-Content CMakeLists.txt
           (Get-Content CMakeLists.txt ) -replace 'cublasLt_static', 'cublasLt' | Set-Content CMakeLists.txt
+          (Get-Content CMakeLists.txt ) -replace 'utils.hpp', 'utils_callback.hpp' | Set-Content examples/server/server.cpp
 
       - name: Download OpenCL SDK
         id: get_opencl
@@ -412,7 +416,7 @@ jobs:
         run: |
           cd artifacts
           ls -R
-          PREFIX=undreamai-${{ env.VERSION }}-llamacpp"
+          PREFIX=undreamai-${{ env.VERSION }}-llamacpp
           for d in `ls | grep cuda | grep -v $PREFIX`;do
             mv $d/$d tmp.zip
             rm -r $d
