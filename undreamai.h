@@ -33,6 +33,8 @@ class LLM {
         void handle_cancel_action(int id_slot);
         int get_status();
         std::string get_status_message();
+        void run_service();
+        void stop_service();
 
     private:
         gpt_params params;
@@ -42,10 +44,9 @@ class LLM {
         std::unique_ptr<httplib::Server> svr;
         std::thread t;
 
-        void init(int argc, char ** argv, bool server_mode=false);
         void parse_args(std::string params_string);
-        void run_service();
-        void run_server();
+        void init(int argc, char ** argv, bool server_mode=false);
+        void init_server();
         std::string handle_completions_non_streaming(int id_task, StringWrapperCallback* streamCallback, httplib::Response* res=nullptr);
         std::string handle_completions_streaming(int id_task, StringWrapperCallback* streamCallback, httplib::DataSink* sink=nullptr);
 };
@@ -71,6 +72,8 @@ extern "C" {
 
     UNDREAMAI_API LLM* LLM_Construct(const char* params_string, bool server_mode=false);
     UNDREAMAI_API void LLM_Delete(LLM* llm);
+    UNDREAMAI_API const void LLM_Start(LLM* llm);
+    UNDREAMAI_API const void LLM_Stop(LLM* llm);
     UNDREAMAI_API const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
     UNDREAMAI_API const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
     UNDREAMAI_API void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper, void* streamCallbackPointer=nullptr);

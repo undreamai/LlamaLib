@@ -178,9 +178,9 @@ void LLM::init(int argc, char ** argv, bool server_mode){
             std::placeholders::_2,
             std::placeholders::_3
         ));
-        
-        server_thread = std::thread(&LLM::run_service, this);
-        if (server_mode) run_server();
+
+        if (server_mode) init_server();
+        else server_thread = std::thread(&LLM::run_service, this);
     } catch(...) {
         handle_exception(1);
     }
@@ -197,7 +197,7 @@ void handle_error(httplib::Response & res, json error_data){
     res.status = json_value(error_data, "code", 500);
 }
 
-void LLM::run_server(){
+void LLM::init_server(){
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
     if (sparams.ssl_key_file != "" && sparams.ssl_cert_file != "") {
         LOG_INFO("Running with SSL", {{"key", sparams.ssl_key_file}, {"cert", sparams.ssl_cert_file}});
@@ -265,7 +265,7 @@ void LLM::run_server(){
 
     log_data["hostname"] = sparams.hostname;
     log_data["port"]     = std::to_string(sparams.port);
-
+/*
     if (sparams.api_keys.size() == 1) {
         auto key = sparams.api_keys[0];
         log_data["api_key"] = "api_key: ****" + key.substr(std::max((int)(key.length() - 4), 0));
@@ -335,7 +335,7 @@ void LLM::run_server(){
     //
     // Route handlers (or controllers)
     //
-
+*/
     const auto handle_completions_post = [this, &res_error](const httplib::Request & req, httplib::Response & res) {
         json data = handle_post(req, res);
         handle_completions(data, nullptr, &res);
@@ -375,8 +375,6 @@ void LLM::run_server(){
     log_data["n_threads_http"] =  std::to_string(sparams.n_threads_http);
     svr->new_task_queue = [this] { return new httplib::ThreadPool(sparams.n_threads_http); };
 
-    LOG_INFO("HTTP server listening", log_data);
-
     // run the HTTP server in a thread - see comment below
     t = std::thread([&]() {
         if (!svr->listen_after_bind()) {
@@ -386,6 +384,8 @@ void LLM::run_server(){
 
         return 0;
     });
+
+    LOG_INFO("HTTP server listening", log_data);
 }
 
 LLM::~LLM(){
@@ -411,6 +411,10 @@ std::string LLM::get_status_message(){
 
 void LLM::run_service(){
     ctx_server.queue_tasks.start_loop();
+}
+
+void LLM::stop_service(){
+    ctx_server.queue_tasks.terminate();
 }
 
 std::string LLM::handle_tokenize(json body) {
@@ -544,7 +548,6 @@ std::string LLM::handle_completions(json data, StringWrapperCallback* streamCall
                 res->set_chunked_content_provider("text/event-stream", chunked_content_provider, on_complete);
             }
         }
-
     } catch(...) {
         handle_exception();
     }
@@ -670,9 +673,21 @@ const void LLM_Cancel(LLM* llm, int id_slot) {
     llm->handle_cancel_action(id_slot);
 }
 
+const void LLM_Start(LLM* llm) {
+    llm->run_service();
+}
+
+const void LLM_Stop(LLM* llm) {
+    llm->stop_service();
+}
+
 const int LLM_Status(LLM* llm, StringWrapper* wrapper) {
     wrapper->SetContent(llm->get_status_message());
     return llm->get_status();
+}
+
+int main(int argc, char ** argv) {
+    LLM llm(argc, argv, true);
 }
 
 /*
