@@ -19,6 +19,59 @@ env:
   CUDA_SEPARATE: true
 
 jobs:
+  ################################ ArchChecker ################################
+
+  archchecker_linux_build:
+    name: Build ArchChecker Linux
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build
+        id: build
+        run: |
+          mkdir archchecker/build
+          cd archchecker/build
+          cmake ..
+          make -j ${env:NUMBER_OF_PROCESSORS}
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: libarchchecker.so
+          path: archchecker/build/libarchchecker.so
+
+
+  archchecker_windows_build:
+    name: Build ArchChecker Windows
+    runs-on: windows-latest
+
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build
+        id: build
+        run: |
+          mkdir archchecker/build
+          cd archchecker/build
+          cmake ..
+          make -j ${env:NUMBER_OF_PROCESSORS}
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: archchecker.dll
+          path: archchecker/build/archchecker.dll
+
   ################################ Linux ################################
 
   linux_build:
@@ -404,6 +457,8 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
     needs:
+      - archchecker_linux_build
+      - archchecker_windows_build
       - linux_build
       - macOS-arm64-build
       - macOS-x64-build
@@ -438,7 +493,7 @@ jobs:
             mv $d $new_name;
             echo $new_name >> bundle
           done
-          zip -r $PREFIX.zip `cat bundle`
+          zip -r $PREFIX.zip `cat bundle` archchecker.dll libarchchecker.so
 
       - name: Release
         uses: softprops/action-gh-release@v2
