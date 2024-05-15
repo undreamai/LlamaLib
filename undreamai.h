@@ -20,8 +20,8 @@ sigjmp_buf point;
 
 class LLM {
     public:
-        LLM(std::string params_string, bool server_mode=false);
-        LLM(int argc, char ** argv, bool server_mode=false);
+        LLM(std::string params_string);
+        LLM(int argc, char ** argv);
         ~LLM();
 
         static std::vector<std::string> splitArguments(const std::string& inputString);
@@ -33,6 +33,7 @@ class LLM {
         void handle_cancel_action(int id_slot);
         int get_status();
         std::string get_status_message();
+        void setup_server();
         void run_service();
         void stop_service();
 
@@ -45,8 +46,7 @@ class LLM {
         std::thread t;
 
         void parse_args(std::string params_string);
-        void init(int argc, char ** argv, bool server_mode=false);
-        void init_server();
+        void init(int argc, char ** argv);
         std::string handle_completions_non_streaming(int id_task, StringWrapperCallback* streamCallback, httplib::Response* res=nullptr);
         std::string handle_completions_streaming(int id_task, StringWrapperCallback* streamCallback, httplib::DataSink* sink=nullptr);
 };
@@ -70,8 +70,9 @@ extern "C" {
 	UNDREAMAI_API int StringWrapper_GetStringSize(StringWrapper* object);
 	UNDREAMAI_API void StringWrapper_GetString(StringWrapper* object, char* buffer, int bufferSize);
 
-    UNDREAMAI_API LLM* LLM_Construct(const char* params_string, bool server_mode=false);
+    UNDREAMAI_API LLM* LLM_Construct(const char* params_string);
     UNDREAMAI_API void LLM_Delete(LLM* llm);
+    UNDREAMAI_API const void LLM_SetupServer(LLM* llm);
     UNDREAMAI_API const void LLM_Start(LLM* llm);
     UNDREAMAI_API const void LLM_Stop(LLM* llm);
     UNDREAMAI_API const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);

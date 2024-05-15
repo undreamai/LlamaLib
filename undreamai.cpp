@@ -85,7 +85,7 @@ std::vector<std::string> LLM::splitArguments(const std::string& inputString) {
     return arguments;
 }
 
-LLM::LLM(std::string params_string, bool server_mode){
+LLM::LLM(std::string params_string){
     std::vector<std::string> arguments = splitArguments("llm " + params_string);
 
     // Convert vector of strings to argc and argv
@@ -95,14 +95,14 @@ LLM::LLM(std::string params_string, bool server_mode){
         argv[i] = new char[arguments[i].size() + 1];
         std::strcpy(argv[i], arguments[i].c_str());
     }
-    init(argc, argv, server_mode);
+    init(argc, argv);
 }
 
-LLM::LLM(int argc, char ** argv, bool server_mode){
-    init(argc, argv, server_mode);
+LLM::LLM(int argc, char ** argv){
+    init(argc, argv);
 }
 
-void LLM::init(int argc, char ** argv, bool server_mode){
+void LLM::init(int argc, char ** argv){
     set_error_handlers();
     if (setjmp(point) != 0) return;
     try{
@@ -178,8 +178,6 @@ void LLM::init(int argc, char ** argv, bool server_mode){
             std::placeholders::_2,
             std::placeholders::_3
         ));
-
-        if (server_mode) init_server();
     } catch(...) {
         handle_exception(1);
     }
@@ -196,7 +194,7 @@ void handle_error(httplib::Response & res, json error_data){
     res.status = json_value(error_data, "code", 500);
 }
 
-void LLM::init_server(){
+void LLM::setup_server(){
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
     if (sparams.ssl_key_file != "" && sparams.ssl_cert_file != "") {
         LOG_INFO("Running with SSL", {{"key", sparams.ssl_key_file}, {"cert", sparams.ssl_cert_file}});
@@ -639,12 +637,24 @@ void StringWrapper_GetString(StringWrapper* object, char* buffer, int bufferSize
     return object->GetString(buffer, bufferSize);
 }
 
-LLM* LLM_Construct(const char* params_string, bool server_mode) {
-    return new LLM(std::string(params_string), server_mode);
+LLM* LLM_Construct(const char* params_string) {
+    return new LLM(std::string(params_string));
 }
 
 void LLM_Delete(LLM* llm) {
     delete llm;
+}
+
+const void LLM_SetupServer(LLM* llm) {
+    llm->setup_server();
+}
+
+const void LLM_Start(LLM* llm) {
+    llm->run_service();
+}
+
+const void LLM_Stop(LLM* llm) {
+    llm->stop_service();
 }
 
 const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper){
@@ -672,24 +682,17 @@ const void LLM_Cancel(LLM* llm, int id_slot) {
     llm->handle_cancel_action(id_slot);
 }
 
-const void LLM_Start(LLM* llm) {
-    llm->run_service();
-}
-
-const void LLM_Stop(LLM* llm) {
-    llm->stop_service();
-}
-
 const int LLM_Status(LLM* llm, StringWrapper* wrapper) {
     wrapper->SetContent(llm->get_status_message());
     return llm->get_status();
 }
 
+/*
 int main(int argc, char ** argv) {
-    LLM llm(argc, argv, true);
+    LLM llm(argc, argv);
+    llm.setup_server();
 }
 
-/*
 int main(int argc, char ** argv) {
     LLM llm(argc, argv);
     json data;
