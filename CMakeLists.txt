@@ -21,13 +21,3 @@ target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} llama.c
 target_link_libraries(${TARGET} PRIVATE common json-schema-to-grammar ggml_static llama)
 target_compile_features(${TARGET} PRIVATE cxx_std_11)
 add_compile_definitions(${TARGET} PRIVATE UNDREAMAI_EXPORTS)
-
-if (NOT LLAMA_AVX AND NOT LLAMA_AVX2)
-    set(TARGET archchecker)
-    add_library(${TARGET} SHARED archchecker.cpp)
-    install(TARGETS ${TARGET} LIBRARY)
-    target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-    target_link_libraries(${TARGET} PRIVATE common ggml_static)
-    target_compile_features(${TARGET} PRIVATE cxx_std_11)
-    add_compile_definitions(${TARGET} PRIVATE ARCHCHECKER_EXPORTS)
-endif()
