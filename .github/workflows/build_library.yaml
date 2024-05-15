@@ -38,7 +38,7 @@ jobs:
           mkdir archchecker/build
           cd archchecker/build
           cmake ..
-          cmake --build . -j ${env:NUMBER_OF_PROCESSORS}
+          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -64,13 +64,13 @@ jobs:
           mkdir archchecker/build
           cd archchecker/build
           cmake ..
-          cmake --build . -j ${env:NUMBER_OF_PROCESSORS}
+          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: archchecker.dll
-          path: archchecker/build/archchecker.dll
+          path: archchecker/build/Release/archchecker.dll
 
   ################################ Linux ################################
 
