@@ -180,7 +180,6 @@ void LLM::init(int argc, char ** argv, bool server_mode){
         ));
 
         if (server_mode) init_server();
-        else server_thread = std::thread(&LLM::run_service, this);
     } catch(...) {
         handle_exception(1);
     }
