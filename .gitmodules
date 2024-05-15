@@ -1,0 +1,3 @@
+[submodule "archchecker/FeatureDetector"]
+	path = archchecker/FeatureDetector
+	url = https://github.com/Mysticial/FeatureDetector.git
