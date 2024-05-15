@@ -26,6 +26,7 @@ class LLM {
 
         static std::vector<std::string> splitArguments(const std::string& inputString);
         
+        std::string handle_template();
         std::string handle_tokenize(json body);
         std::string handle_detokenize(json body);
         std::string handle_completions(json data, StringWrapperCallback* callback=nullptr, httplib::Response* res=nullptr);
@@ -36,6 +37,7 @@ class LLM {
         void setup_server();
         void run_service();
         void stop_service();
+        void set_template(const char* chatTemplate);
 
     private:
         gpt_params params;
@@ -44,6 +46,7 @@ class LLM {
         std::thread server_thread;
         std::unique_ptr<httplib::Server> svr;
         std::thread t;
+        std::string chatTemplate;
 
         void parse_args(std::string params_string);
         void init(int argc, char ** argv);
@@ -75,6 +78,7 @@ extern "C" {
     UNDREAMAI_API const void LLM_SetupServer(LLM* llm);
     UNDREAMAI_API const void LLM_Start(LLM* llm);
     UNDREAMAI_API const void LLM_Stop(LLM* llm);
+    UNDREAMAI_API const void LLM_SetTemplate(LLM* llm, const char* chatTemplate);
     UNDREAMAI_API const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
     UNDREAMAI_API const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
     UNDREAMAI_API void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper, void* streamCallbackPointer=nullptr);

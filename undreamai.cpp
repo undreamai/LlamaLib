@@ -333,6 +333,12 @@ void LLM::setup_server(){
     // Route handlers (or controllers)
     //
 */
+
+    const auto handle_template_post = [this](const httplib::Request & req, httplib::Response & res) {
+        handle_post(req, res);
+        return res.set_content(handle_template(), "application/json; charset=utf-8");
+    };
+
     const auto handle_completions_post = [this, &res_error](const httplib::Request & req, httplib::Response & res) {
         json data = handle_post(req, res);
         handle_completions(data, nullptr, &res);
@@ -359,6 +365,7 @@ void LLM::setup_server(){
     svr->Post("/completion",          handle_completions_post); // legacy
     svr->Post("/completions",         handle_completions_post);
     svr->Post("/v1/completions",      handle_completions_post);
+    svr->Post("/template",            handle_template_post);
     svr->Post("/tokenize",            handle_tokenize_post);
     svr->Post("/detokenize",          handle_detokenize_post);
 
@@ -412,6 +419,24 @@ void LLM::run_service(){
 
 void LLM::stop_service(){
     ctx_server.queue_tasks.terminate();
+}
+
+void LLM::set_template(const char* chatTemplate){
+    this->chatTemplate = chatTemplate;
+}
+
+std::string LLM::handle_template() {
+    if (setjmp(point) != 0) return "";
+    clear_status();
+    try {
+        json data = json {
+            {"template", chatTemplate}
+        };
+        return data.dump();
+    } catch(...) {
+        handle_exception();
+    }
+    return chatTemplate;
 }
 
 std::string LLM::handle_tokenize(json body) {
@@ -655,6 +680,10 @@ const void LLM_Start(LLM* llm) {
 
 const void LLM_Stop(LLM* llm) {
     llm->stop_service();
+}
+
+const void LLM_SetTemplate(LLM* llm, const char* chatTemplate){
+    llm->set_template(chatTemplate);
 }
 
 const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper){
