@@ -22,7 +22,6 @@ class LLM {
     public:
         LLM(std::string params_string);
         LLM(int argc, char ** argv);
-        ~LLM();
 
         static std::vector<std::string> splitArguments(const std::string& inputString);
         
@@ -34,8 +33,9 @@ class LLM {
         void handle_cancel_action(int id_slot);
         int get_status();
         std::string get_status_message();
-        void setup_server();
-        void run_service();
+        void start_server();
+        void stop_server();
+        void start_service();
         void stop_service();
         void set_template(const char* chatTemplate);
 
@@ -75,9 +75,10 @@ extern "C" {
 
     UNDREAMAI_API LLM* LLM_Construct(const char* params_string);
     UNDREAMAI_API void LLM_Delete(LLM* llm);
-    UNDREAMAI_API const void LLM_SetupServer(LLM* llm);
     UNDREAMAI_API const void LLM_Start(LLM* llm);
     UNDREAMAI_API const void LLM_Stop(LLM* llm);
+    UNDREAMAI_API const void LLM_StartServer(LLM* llm);
+    UNDREAMAI_API const void LLM_StopServer(LLM* llm);
     UNDREAMAI_API const void LLM_SetTemplate(LLM* llm, const char* chatTemplate);
     UNDREAMAI_API const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
     UNDREAMAI_API const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);

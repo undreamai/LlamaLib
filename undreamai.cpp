@@ -194,7 +194,7 @@ void handle_error(httplib::Response & res, json error_data){
     res.status = json_value(error_data, "code", 500);
 }
 
-void LLM::setup_server(){
+void LLM::start_server(){
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
     if (sparams.ssl_key_file != "" && sparams.ssl_cert_file != "") {
         LOG_INFO("Running with SSL", {{"key", sparams.ssl_key_file}, {"cert", sparams.ssl_cert_file}});
@@ -392,18 +392,11 @@ void LLM::setup_server(){
     LOG_INFO("HTTP server listening", log_data);
 }
 
-LLM::~LLM(){
-    if (setjmp(point) != 0) return;
-    clear_status();
-    try {
-        if (svr.get() != nullptr) {
-            svr->stop();
-            t.join();
-        }
-        ctx_server.queue_tasks.terminate();
-        llama_backend_free();
-        server_thread.join();
-    } catch(...) {}
+void LLM::stop_server(){
+    if (svr.get() != nullptr) {
+        svr->stop();
+        t.join();
+    }
 }
 
 int LLM::get_status(){
@@ -413,12 +406,15 @@ std::string LLM::get_status_message(){
     return status_message;
 }
 
-void LLM::run_service(){
+void LLM::start_service(){
     ctx_server.queue_tasks.start_loop();
 }
 
 void LLM::stop_service(){
+    for(int id_task:ctx_server.queue_results.waiting_task_ids)
+        ctx_server.send_error(id_task, -1, "shutting down", ERROR_TYPE_INVALID_REQUEST);
     ctx_server.queue_tasks.terminate();
+    llama_backend_free();
 }
 
 void LLM::set_template(const char* chatTemplate){
@@ -670,12 +666,16 @@ void LLM_Delete(LLM* llm) {
     delete llm;
 }
 
-const void LLM_SetupServer(LLM* llm) {
-    llm->setup_server();
+const void LLM_StartServer(LLM* llm) {
+    llm->start_server();
+}
+
+const void LLM_StopServer(LLM* llm) {
+    llm->stop_server();
 }
 
 const void LLM_Start(LLM* llm) {
-    llm->run_service();
+    llm->start_service();
 }
 
 const void LLM_Stop(LLM* llm) {
