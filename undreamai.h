@@ -28,7 +28,7 @@ class LLM {
         std::string handle_template();
         std::string handle_tokenize(json body);
         std::string handle_detokenize(json body);
-        std::string handle_completions(json data, StringWrapperCallback* callback=nullptr, httplib::Response* res=nullptr);
+        std::string handle_completions(json data, StringWrapper* stringWrapper=nullptr, httplib::Response* res=nullptr);
         void handle_slots_action(json data);
         void handle_cancel_action(int id_slot);
         int get_status();
@@ -50,8 +50,8 @@ class LLM {
 
         void parse_args(std::string params_string);
         void init(int argc, char ** argv);
-        std::string handle_completions_non_streaming(int id_task, StringWrapperCallback* streamCallback, httplib::Response* res=nullptr);
-        std::string handle_completions_streaming(int id_task, StringWrapperCallback* streamCallback, httplib::DataSink* sink=nullptr);
+        std::string handle_completions_non_streaming(int id_task, httplib::Response* res=nullptr);
+        std::string handle_completions_streaming(int id_task, StringWrapper* stringWrapper=nullptr, httplib::DataSink* sink=nullptr);
 };
 
 #ifdef _WIN32
@@ -65,16 +65,16 @@ class LLM {
 #endif
 
 extern "C" {
-    UNDREAMAI_API void Logging(StringWrapper* wrapper, void* streamCallbackPointer=nullptr);
-    UNDREAMAI_API void StopLogging();
+    UNDREAMAI_API const void Logging(StringWrapper* wrapper);
+    UNDREAMAI_API const void StopLogging();
 
 	UNDREAMAI_API StringWrapper* StringWrapper_Construct();
-	UNDREAMAI_API void StringWrapper_Delete(StringWrapper* object);
-	UNDREAMAI_API int StringWrapper_GetStringSize(StringWrapper* object);
-	UNDREAMAI_API void StringWrapper_GetString(StringWrapper* object, char* buffer, int bufferSize);
+	UNDREAMAI_API const void StringWrapper_Delete(StringWrapper* object);
+	UNDREAMAI_API const int StringWrapper_GetStringSize(StringWrapper* object);
+	UNDREAMAI_API const void StringWrapper_GetString(StringWrapper* object, char* buffer, int bufferSize, bool clear=false);
 
     UNDREAMAI_API LLM* LLM_Construct(const char* params_string);
-    UNDREAMAI_API void LLM_Delete(LLM* llm);
+    UNDREAMAI_API const void LLM_Delete(LLM* llm);
     UNDREAMAI_API const void LLM_Start(LLM* llm);
     UNDREAMAI_API const void LLM_Stop(LLM* llm);
     UNDREAMAI_API const void LLM_StartServer(LLM* llm);
@@ -82,7 +82,7 @@ extern "C" {
     UNDREAMAI_API const void LLM_SetTemplate(LLM* llm, const char* chatTemplate);
     UNDREAMAI_API const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
     UNDREAMAI_API const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper, void* streamCallbackPointer=nullptr);
+    UNDREAMAI_API const void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper);
     UNDREAMAI_API const void LLM_Slot(LLM* llm, const char* json_data);
     UNDREAMAI_API const void LLM_Cancel(LLM* llm, int id_slot);
     UNDREAMAI_API const int LLM_Status(LLM* llm, StringWrapper* wrapper);
