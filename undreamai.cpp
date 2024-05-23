@@ -506,16 +506,17 @@ std::string LLM::handle_completions_streaming(int id_task, StringWrapper* string
             }
 
             result_data += str;
+            stringWrapper->SetContent(result_data);
 
             if (result.stop) {
                 break;
             }
-            stringWrapper->SetContent(result_data);
         } else {
             result_data =
                 "error: " +
                 result.data.dump(-1, ' ', false, json::error_handler_t::replace) +
                 "\n\n";
+            stringWrapper->SetContent(result_data);
 
             LOG_VERBOSE("data stream", {
                 { "to_send", result_data }
