@@ -515,7 +515,7 @@ jobs:
             mv $d $new_name;
             echo $new_name >> bundle
           done
-          zip -r $PREFIX.zip `cat bundle` archchecker.dll libarchchecker.so
+          zip -r $PREFIX.zip `cat bundle` linux-archchecker windows-archchecker
 
       - name: Release
         uses: softprops/action-gh-release@v2
