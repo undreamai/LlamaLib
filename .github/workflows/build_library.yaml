@@ -382,7 +382,7 @@ jobs:
           cd llama.cpp
           git checkout ${{ env.LLAMACPP_VERSION }}
           (Get-Content examples/server/server.cpp ) -replace 'utils.hpp', 'utils_callback.hpp' | Set-Content examples/server/server.cpp
-          (Get-Content examples/server/server.cpp ) -replace 'main(int argc', 'main_server(int argc' | Set-Content examples/server/server.cpp
+          (Get-Content examples/server/server.cpp ) -replace 'main\(int argc', 'main_server(int argc' | Set-Content examples/server/server.cpp
 
       - name: Separate CUDA
         if: env.CUDA_SEPARATE == 'true'
