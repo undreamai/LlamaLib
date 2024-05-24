@@ -97,6 +97,7 @@ int main(int argc, char ** argv) {
 
     std::string filename = "test_undreamai.save";
     data.clear();
+    data["id_slot"] = 0;
     data["action"] = "save";
     data["filename"] = filename;
     LLM_Slot(llm, data.dump().c_str());
