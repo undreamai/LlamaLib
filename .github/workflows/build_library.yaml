@@ -134,7 +134,7 @@ jobs:
 
       - name: Download OpenCL SDK
         id: get_opencl
-        if: ${{ matrix.build == 'clblast' }}
+        if: matrix.build == 'clblast'
         run: |
           sudo apt-get install opencl-headers
           git clone --recurse-submodules https://github.com/KhronosGroup/OpenCL-SDK.git
@@ -150,7 +150,7 @@ jobs:
 
       - name: Download CLBlast
         id: get_clblast
-        if: ${{ matrix.build == 'clblast' }}
+        if: matrix.build == 'clblast'
         run: |
           sudo apt-get install tar p7zip-full
           curl -o clblast.7z -L "https://github.com/CNugteren/CLBlast/releases/download/${{ env.CLBLAST_VERSION }}/CLBlast-${{ env.CLBLAST_VERSION }}-linux-x86_64.tar.gz"
@@ -198,7 +198,7 @@ jobs:
 
       - name: Test
         id: test
-        if: ${{ matrix.build != 'avx512' }} && !startsWith(matrix.build, 'cuda')
+        if: matrix.build != 'avx512' && !startsWith(matrix.build, 'cuda')
         run: |
           cd build/libs
           curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
@@ -390,7 +390,7 @@ jobs:
 
       - name: Download OpenCL SDK
         id: get_opencl
-        if: ${{ matrix.build == 'clblast' }}
+        if: matrix.build == 'clblast'
         run: |
           curl.exe -o $env:RUNNER_TEMP/opencl.zip -L "https://github.com/KhronosGroup/OpenCL-SDK/releases/download/v${env:OPENCL_VERSION}/OpenCL-SDK-v${env:OPENCL_VERSION}-Win-x64.zip"
           mkdir $env:RUNNER_TEMP/opencl
@@ -398,7 +398,7 @@ jobs:
 
       - name: Download CLBlast
         id: get_clblast
-        if: ${{ matrix.build == 'clblast' }}
+        if: matrix.build == 'clblast'
         run: |
           curl.exe -o $env:RUNNER_TEMP/clblast.7z -L "https://github.com/CNugteren/CLBlast/releases/download/${env:CLBLAST_VERSION}/CLBlast-${env:CLBLAST_VERSION}-windows-x64.7z"
           curl.exe -o $env:RUNNER_TEMP/CLBlast.LICENSE.txt -L "https://github.com/CNugteren/CLBlast/raw/${env:CLBLAST_VERSION}/LICENSE"
@@ -428,7 +428,7 @@ jobs:
 
       - name: Test
         id: test
-        if: ${{ matrix.build != 'avx512' }} && !startsWith(matrix.build, 'cuda')
+        if: matrix.build != 'avx512' && !startsWith(matrix.build, 'cuda')
         run: |
           cd build/libs
           curl.exe -o model.gguf -L https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
@@ -437,7 +437,7 @@ jobs:
 
       - name: Add clblast.dll
         id: add_clblast_dll
-        if: ${{ matrix.build == 'clblast' }}
+        if: matrix.build == 'clblast'
         run: |
           cp $env:RUNNER_TEMP/clblast/lib/clblast.dll ./build/Release
           cp $env:RUNNER_TEMP/CLBlast.LICENSE.txt ./build/Release/CLBlast-${env:CLBLAST_VERSION}.txt
