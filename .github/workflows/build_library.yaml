@@ -8,10 +8,9 @@ on:
       - undreamai.h
       - undreamai.cpp
     tags:
-      - 'release'
+      - 'v*'
 
 env:
-  VERSION: 1.1.0
   LLAMACPP_VERSION: b2674
   OPENCL_VERSION: 2023.04.17
   CLBLAST_VERSION: 1.6.0
@@ -209,13 +208,13 @@ jobs:
         id: pack_artifacts
         run: |
           rm build/libs/test_undreamai
-          zip -j undreamai-${{ env.VERSION }}-llamacpp-linux-${{ matrix.build }}.zip build/licenses/* build/libs/*
+          zip -j undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip build/licenses/* build/libs/*
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: undreamai-${{ env.VERSION }}-llamacpp-linux-${{ matrix.build }}.zip
-          path: undreamai-${{ env.VERSION }}-llamacpp-linux-${{ matrix.build }}.zip
+          name: undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip
+          path: undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip
 
       - name: Copy and pack Cuda runtime
         if: startsWith(matrix.build, 'cuda') && env.CUDA_SEPARATE == 'true'
@@ -271,13 +270,13 @@ jobs:
         run: |
           rm build/libs/test_undreamai
           ls -R build
-          zip -j undreamai-${{ env.VERSION }}-llamacpp-macos-arm64.zip build/licenses/* build/libs/*
+          zip -j undreamai-${{ github.ref_name }}-llamacpp-macos-arm64.zip build/licenses/* build/libs/*
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: undreamai-${{ env.VERSION }}-llamacpp-macos-arm64.zip
-          path: undreamai-${{ env.VERSION }}-llamacpp-macos-arm64.zip
+          name: undreamai-${{ github.ref_name }}-llamacpp-macos-arm64.zip
+          path: undreamai-${{ github.ref_name }}-llamacpp-macos-arm64.zip
 
   macOS-x64-build:
     runs-on: macos-latest
@@ -325,13 +324,13 @@ jobs:
         run: |
           rm build/libs/test_undreamai
           ls -R build
-          zip -j undreamai-${{ env.VERSION }}-llamacpp-macos-x64.zip build/licenses/* build/libs/*
+          zip -j undreamai-${{ github.ref_name }}-llamacpp-macos-x64.zip build/licenses/* build/libs/*
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: undreamai-${{ env.VERSION }}-llamacpp-macos-x64.zip
-          path: undreamai-${{ env.VERSION }}-llamacpp-macos-x64.zip
+          name: undreamai-${{ github.ref_name }}-llamacpp-macos-x64.zip
+          path: undreamai-${{ github.ref_name }}-llamacpp-macos-x64.zip
 
 ################################ Windows ################################
 
@@ -451,13 +450,13 @@ jobs:
           Copy-Item .\build\Release\* .\artifacts\
           Copy-Item .\build\libs\Release\*dll .\artifacts\
           cd artifacts
-          7z a ../undreamai-${{ env.VERSION }}-llamacpp-windows-${{ matrix.build }}.zip *
+          7z a ../undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip *
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          path: undreamai-${{ env.VERSION }}-llamacpp-windows-${{ matrix.build }}.zip
-          name: undreamai-${{ env.VERSION }}-llamacpp-windows-${{ matrix.build }}.zip
+          path: undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip
+          name: undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip
 
       - name: Copy and pack Cuda runtime
         if: startsWith(matrix.build, 'cuda') && env.CUDA_SEPARATE == 'true'
@@ -500,7 +499,7 @@ jobs:
         run: |
           cd artifacts
           ls -R
-          PREFIX=undreamai-${{ env.VERSION }}-llamacpp
+          PREFIX=undreamai-${{ github.ref_name }}-llamacpp
           for d in `ls | grep cuda | grep -v $PREFIX`;do
             mv $d/$d tmp.zip
             rm -r $d
@@ -518,5 +517,5 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "Release ${{ env.VERSION }}"
+          name: "Release ${{ github.ref_name }}"
           files: "artifacts/*.zip"
