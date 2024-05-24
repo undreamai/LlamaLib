@@ -203,11 +203,12 @@ jobs:
           cd build/libs
           curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
           ./test_undreamai -m model.gguf
-          rm test_undreamai model.gguf
+          rm model.gguf
 
       - name: Pack artifacts
         id: pack_artifacts
         run: |
+          rm build/libs/test_undreamai
           zip -j undreamai-${{ env.VERSION }}-llamacpp-linux-${{ matrix.build }}.zip build/licenses/* build/libs/*
 
       - name: Upload Artifacts
@@ -264,19 +265,11 @@ jobs:
           cd build
           cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ env.CMAKE_COMMON_JOBS }} ..
           cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
-          rm libs/test_undreamai
-
-      # - name: Test
-      #   id: test
-      #   run: |
-      #     cd build/libs
-      #     curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
-      #     ./test_undreamai -m model.gguf
-      #     rm test_undreamai model.gguf
 
       - name: Pack artifacts
         id: pack_artifacts
         run: |
+          rm build/libs/test_undreamai
           ls -R build
           zip -j undreamai-${{ env.VERSION }}-llamacpp-macos-arm64.zip build/licenses/* build/libs/*
 
@@ -325,11 +318,12 @@ jobs:
           cd build/libs
           curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
           ./test_undreamai -m model.gguf
-          rm test_undreamai model.gguf
+          rm model.gguf
 
       - name: Pack artifacts
         id: pack_artifacts
         run: |
+          rm build/libs/test_undreamai
           ls -R build
           zip -j undreamai-${{ env.VERSION }}-llamacpp-macos-x64.zip build/licenses/* build/libs/*
 
@@ -438,8 +432,8 @@ jobs:
         run: |
           cd build/libs
           curl.exe -o model.gguf -L https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
-          ./test_undreamai.exe -m model.gguf
-          del test_undreamai.exe model.gguf
+          test_undreamai.exe -m model.gguf
+          del model.gguf
 
       - name: Add clblast.dll
         id: add_clblast_dll
@@ -451,6 +445,7 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts
         run: |
+          del build/libs/test_undreamai.exe
           mkdir artifacts
           Copy-Item .\llama.cpp\LICENSE .\artifacts\llama.cpp.LICENSE.txt
           Copy-Item .\build\Release\* .\artifacts\
