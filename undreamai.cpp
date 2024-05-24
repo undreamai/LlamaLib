@@ -109,7 +109,7 @@ void LLM::init(int argc, char ** argv){
         server_params_parse(argc, argv, sparams, params);
 
         if (!sparams.system_prompt.empty()) {
-            ctx_server.system_prompt_set(json::parse(sparams.system_prompt));
+            ctx_server.system_prompt_set(sparams.system_prompt);
         }
 
         if (params.model_alias == "unknown") {
@@ -446,7 +446,8 @@ std::string LLM::handle_tokenize(json body) {
     try {
         std::vector<llama_token> tokens;
         if (body.count("content") != 0) {
-            tokens = ctx_server.tokenize(body["content"], false);
+            const bool add_special = json_value(body, "add_special", false);
+            tokens = ctx_server.tokenize(body.at("content"), add_special);
         }
         const json data = format_tokenizer_response(tokens);
         return data.dump();
@@ -462,7 +463,7 @@ std::string LLM::handle_detokenize(json body) {
     try {
         std::string content;
         if (body.count("tokens") != 0) {
-            const std::vector<llama_token> tokens = body["tokens"];
+            const std::vector<llama_token> tokens = body.at("tokens");
             content = tokens_to_str(ctx_server.ctx, tokens.cbegin(), tokens.cend());
         }
 
@@ -586,8 +587,8 @@ void LLM::handle_slots_action(json data) {
 
         std::string action = data["action"];
         if (action == "save" || action == "restore") {
-            std::string filename = data["filename"];
-            if (!validate_file_name(filename)) {
+            std::string filename = data.at("filename");;
+            if (!fs_validate_filename(filename)) {
                 LOG_ERROR(("Invalid filename: " + filename).c_str(), {});
                 return;
             }

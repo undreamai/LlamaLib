@@ -12,17 +12,17 @@
 
 StringWrapper* logStringWrapper;
 
-static inline void server_log_callback(const char *level, const char *function, int line, const char *message, const nlohmann::ordered_json &extra) {
+static inline void server_log_callback(const char * level, const char * function, int line, const char * message, const json & extra) {
     std::stringstream ss_tid;
     ss_tid << std::this_thread::get_id();
-    json log = nlohmann::ordered_json{
+    json log = json{
         {"tid",       ss_tid.str()},
         {"timestamp", time(nullptr)},
     };
 
     std::string str;
     if (server_log_json) {
-        log.merge_patch( {
+        log.merge_patch({
             {"level",    level},
             {"function", function},
             {"line",     line},
