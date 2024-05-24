@@ -430,7 +430,7 @@ jobs:
         id: test
         if: matrix.build != 'avx512' && !startsWith(matrix.build, 'cuda')
         run: |
-          cd build/libs
+          cd build/libs/Release
           curl.exe -o model.gguf -L https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
           test_undreamai.exe -m model.gguf -np 1
           del model.gguf
@@ -445,7 +445,7 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts
         run: |
-          del build/libs/test_undreamai.exe
+          del build/libs/Release/test_undreamai.exe
           mkdir artifacts
           Copy-Item .\llama.cpp\LICENSE .\artifacts\llama.cpp.LICENSE.txt
           Copy-Item .\build\Release\* .\artifacts\
