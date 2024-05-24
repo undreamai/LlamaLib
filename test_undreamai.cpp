@@ -96,7 +96,6 @@ int main(int argc, char ** argv) {
     ASSERT(data["n_predict"] == reply_data["tokens"].size());
 
     data.clear();
-    data["id_slot"] = 0;
     data["action"] = "save";
     data["filename"] = "test_undreamai.save";
     LLM_Slot(llm, data.dump().c_str());
