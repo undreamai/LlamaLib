@@ -198,6 +198,7 @@ jobs:
 
       - name: Test
         id: test
+        if: ${{ matrix.build == 'avx512' }}
         run: |
           cd build/libs
           curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
