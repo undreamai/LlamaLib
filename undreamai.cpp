@@ -141,6 +141,7 @@ void LLM::init(int argc, char ** argv){
 
         const auto model_meta = ctx_server.model_meta();
 
+        /*
         // if a custom chat template is not supplied, we will use the one that comes with the model (if any)
         if (sparams.chat_template.empty()) {
             if (!ctx_server.validate_model_chat_template()) {
@@ -163,7 +164,7 @@ void LLM::init(int argc, char ** argv){
                 {"chat_example", chat_example},
                 {"built_in", sparams.chat_template.empty()},
             });
-        }
+        }*/
 
         ctx_server.queue_tasks.on_new_task(std::bind(
             &server_context::process_single_task, &ctx_server, std::placeholders::_1));
@@ -415,9 +416,9 @@ void LLM::start_service(){
 
 void LLM::stop_service(){
     LOG_INFO("shutting down tasks", {});
+    ctx_server.queue_tasks.terminate();
     for(int id_task:ctx_server.queue_results.waiting_task_ids)
         ctx_server.send_error(id_task, -1, "shutting down", ERROR_TYPE_INVALID_REQUEST);
-    ctx_server.queue_tasks.terminate();
     llama_backend_free();
 }
 
@@ -716,39 +717,3 @@ const int LLM_Status(LLM* llm, StringWrapper* wrapper) {
     return llm->get_status();
 }
 
-/*
-int main(int argc, char ** argv) {
-    LLM llm(argc, argv);
-    llm.start_server();
-    llm.start_service();
-}
-
-int main(int argc, char ** argv) {
-    LLM llm(argc, argv);
-    json data;
-    // data = {
-    //     {"id_slot", 0},
-    //     {"action", "restore"},
-    //     {"filename", "la.txt"}
-    // };
-    // llm.handle_slots_action(data);
-    
-    std::cout<<"Run prompt"<<std::endl;
-    data = {
-        {"prompt", "<s>[INST] A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human's questions.\n\n### user: hi [/INST]### assistant:"},
-        {"cache_prompt", true},
-        {"id_slot", 0},
-        {"stop", json::array({"[INST]", "[/INST]", "###"})}
-    };
-    std::cout<<llm.handle_completions(data)<<std::endl<<std::endl;
-   
-    data = {
-        {"id_slot", 0},
-        {"action", "save"},
-        {"filename", "la.txt"}
-    };
-    llm.handle_slots_action(data);
-
-    return 1;
-}
-*/

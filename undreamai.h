@@ -22,8 +22,11 @@ class LLM {
     public:
         LLM(std::string params_string);
         LLM(int argc, char ** argv);
+        std::string chatTemplate;
 
         static std::vector<std::string> splitArguments(const std::string& inputString);
+        int get_status();
+        std::string get_status_message();
         
         std::string handle_template();
         std::string handle_tokenize(json body);
@@ -31,8 +34,7 @@ class LLM {
         std::string handle_completions(json data, StringWrapper* stringWrapper=nullptr, httplib::Response* res=nullptr);
         void handle_slots_action(json data);
         void handle_cancel_action(int id_slot);
-        int get_status();
-        std::string get_status_message();
+
         void start_server();
         void stop_server();
         void start_service();
@@ -46,7 +48,6 @@ class LLM {
         std::thread server_thread;
         std::unique_ptr<httplib::Server> svr;
         std::thread t;
-        std::string chatTemplate;
 
         void parse_args(std::string params_string);
         void init(int argc, char ** argv);
