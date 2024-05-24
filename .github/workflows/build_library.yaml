@@ -196,6 +196,14 @@ jobs:
           cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
 
+      - name: Test
+        id: test
+        run: |
+          cd build/libs
+          curl -L -o model.gguf https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q2_K.gguf?download=true
+          ./test_undreamai -m model.gguf
+          rm test_undreamai model.gguf
+
       - name: Pack artifacts
         id: pack_artifacts
         run: |
@@ -256,6 +264,14 @@ jobs:
           cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ env.CMAKE_COMMON_JOBS }} ..
           cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
 
+      - name: Test
+        id: test
+        run: |
+          cd build/libs
+          curl -L -o model.gguf https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q2_K.gguf?download=true
+          ./test_undreamai -m model.gguf
+          rm test_undreamai model.gguf
+
       - name: Pack artifacts
         id: pack_artifacts
         run: |
@@ -300,6 +316,14 @@ jobs:
           cd build
           cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL=OFF -DLLAMA_CURL=ON ${{ env.CMAKE_COMMON_JOBS }} ..
           cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
+
+      - name: Test
+        id: test
+        run: |
+          cd build/libs
+          curl -L -o model.gguf https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q2_K.gguf?download=true
+          ./test_undreamai -m model.gguf
+          rm test_undreamai model.gguf
 
       - name: Pack artifacts
         id: pack_artifacts
@@ -405,6 +429,14 @@ jobs:
           cd build
           cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} 
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+
+      - name: Test
+        id: test
+        run: |
+          cd build/libs
+          curl.exe -o model.gguf -L https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q2_K.gguf?download=true
+          ./test_undreamai.exe -m model.gguf
+          del test_undreamai.exe model.gguf
 
       - name: Add clblast.dll
         id: add_clblast_dll
