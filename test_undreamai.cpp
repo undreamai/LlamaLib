@@ -113,5 +113,5 @@ int main(int argc, char ** argv) {
     t.join();
     LLM_Delete(llm);
 
-    return 1;
+    return 0;
 }
