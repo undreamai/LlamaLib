@@ -84,6 +84,7 @@ int main(int argc, char ** argv) {
     data.clear();
     data["id_slot"] = 0;
     data["prompt"] = prompt;
+    data["cache_prompt"] = true;
     data["stream"] = false;
     data["n_predict"] = 12;
     LLM_Completion(llm, data.dump().c_str(), stringWrapper);
