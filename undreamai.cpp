@@ -631,8 +631,6 @@ void LLM::handle_cancel_action(int id_slot) {
 
 //============================= API IMPLEMENTATION =============================//
 
-std::list<StringWrapper*> stringWrappers;
-
 const void Logging(StringWrapper* wrapper)
 {
     logStringWrapper = wrapper;

@@ -10,7 +10,7 @@
 #define LOG_WARNING(MSG, ...) server_log_callback("WARN", __func__, __LINE__, MSG, __VA_ARGS__)
 #define LOG_INFO(   MSG, ...) server_log_callback("INFO", __func__, __LINE__, MSG, __VA_ARGS__)
 
-static StringWrapper* logStringWrapper;
+StringWrapper* logStringWrapper;
 
 static inline void server_log_callback(const char *level, const char *function, int line, const char *message, const nlohmann::ordered_json &extra) {
     std::stringstream ss_tid;
