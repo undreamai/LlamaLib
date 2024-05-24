@@ -200,7 +200,7 @@ jobs:
         id: test
         run: |
           cd build/libs
-          curl -L -o model.gguf https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q2_K.gguf?download=true
+          curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
           ./test_undreamai -m model.gguf
           rm test_undreamai model.gguf
 
@@ -268,7 +268,7 @@ jobs:
         id: test
         run: |
           cd build/libs
-          curl -L -o model.gguf https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q2_K.gguf?download=true
+          curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
           ./test_undreamai -m model.gguf
           rm test_undreamai model.gguf
 
@@ -321,7 +321,7 @@ jobs:
         id: test
         run: |
           cd build/libs
-          curl -L -o model.gguf https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q2_K.gguf?download=true
+          curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
           ./test_undreamai -m model.gguf
           rm test_undreamai model.gguf
 
@@ -434,7 +434,7 @@ jobs:
         id: test
         run: |
           cd build/libs
-          curl.exe -o model.gguf -L https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q2_K.gguf?download=true
+          curl.exe -o model.gguf -L https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
           ./test_undreamai.exe -m model.gguf
           del test_undreamai.exe model.gguf
 

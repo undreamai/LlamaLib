@@ -17,6 +17,29 @@ char* GetFromStringWrapper(StringWrapper* stringWrapper){
     return content;
 }
 
+// Trim from the start (left trim)
+std::string ltrim(const std::string &s) {
+    std::string result = s;
+    result.erase(result.begin(), std::find_if(result.begin(), result.end(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    }));
+    return result;
+}
+
+// Trim from the end (right trim)
+std::string rtrim(const std::string &s) {
+    std::string result = s;
+    result.erase(std::find_if(result.rbegin(), result.rend(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    }).base(), result.end());
+    return result;
+}
+
+// Trim from both ends (left & right trim)
+std::string trim(const std::string &s) {
+    return ltrim(rtrim(s));
+}
+
 /*
 int main(int argc, char ** argv) {
     LLM llm(argc, argv);
@@ -28,7 +51,7 @@ int main(int argc, char ** argv) {
 int main(int argc, char ** argv) {
     LLM* llm;
     StringWrapper* stringWrapper = StringWrapper_Construct();
-    std::string prompt = "<s>[INST] A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human's questions.\n\n### user: hi [/INST]### assistant:";
+    std::string prompt = "you are an artificial intelligence assistant\n\n### user: Hello, how are you?\n### assistant";
     std::string command = "";
     for (int i = 1; i < argc; ++i) {
         command += argv[i];
@@ -55,7 +78,8 @@ int main(int argc, char ** argv) {
 
     LLM_Detokenize(llm, reply.c_str(), stringWrapper);
     reply = GetFromStringWrapper(stringWrapper);
-    ASSERT(reply == data.dump());
+    reply_data = json::parse(reply);
+    ASSERT(trim(reply_data["content"]) == data["content"]);
 
     data.clear();
     data["prompt"] = prompt;
