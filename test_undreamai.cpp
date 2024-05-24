@@ -95,17 +95,18 @@ int main(int argc, char ** argv) {
     reply_data = json::parse(reply);
     ASSERT(data["n_predict"] == reply_data["tokens"].size());
 
+    std::string filename = "test_undreamai.save";
     data.clear();
     data["action"] = "save";
-    data["filename"] = "test_undreamai.save";
+    data["filename"] = filename;
     LLM_Slot(llm, data.dump().c_str());
-    std::ifstream f(data["filename"]);
+    std::ifstream f(filename);
     ASSERT(f.good());
     f.close();
 
     data["action"] = "restore";
     LLM_Slot(llm, data.dump().c_str());
-    std::filesystem::remove(data["filename"]);
+    std::remove(filename.c_str());
 
     LLM_StopServer(llm);
     LLM_Stop(llm);
