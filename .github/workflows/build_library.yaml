@@ -190,7 +190,7 @@ jobs:
       - name: Build
         id: cmake_build
         run: |
-          sed -i "s:undreamailib:undreamai_linux-${{ matrix.build }}:g" CMakeLists.txt
+          sed -i "s:LIBRARY undreamai:LIBRARY undreamai_linux-${{ matrix.build }}:g" CMakeLists.txt
           export LD_LIBRARY_PATH=""
           cd build
           cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }}
@@ -261,7 +261,7 @@ jobs:
       - name: Build
         id: cmake_build
         run: |
-          sed -i.bak "s:undreamailib:undreamai_macos-arm64:g" CMakeLists.txt
+          sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_macos-arm64:g" CMakeLists.txt
           cd build
           cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ env.CMAKE_COMMON_JOBS }} ..
           cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
@@ -307,7 +307,7 @@ jobs:
       - name: Build
         id: cmake_build
         run: |
-          sed -i.bak "s:undreamailib:undreamai_macos-x64:g" CMakeLists.txt
+          sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_macos-x64:g" CMakeLists.txt
           cd build
           cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL=OFF -DLLAMA_CURL=ON ${{ env.CMAKE_COMMON_JOBS }} ..
           cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
@@ -420,7 +420,7 @@ jobs:
       - name: Build
         id: cmake_build
         run: |
-          (Get-Content CMakeLists.txt ) -replace 'undreamailib', 'undreamai_windows-${{ matrix.build }}' | Set-Content CMakeLists.txt
+          (Get-Content CMakeLists.txt ) -replace 'LIBRARY undreamai', 'LIBRARY undreamai_windows-${{ matrix.build }}' | Set-Content CMakeLists.txt
           mkdir build
           cd build
           cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} 
