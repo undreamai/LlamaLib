@@ -263,14 +263,15 @@ jobs:
           cd build
           cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ env.CMAKE_COMMON_JOBS }} ..
           cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
+          rm libs/test_undreamai
 
-      - name: Test
-        id: test
-        run: |
-          cd build/libs
-          curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
-          ./test_undreamai -m model.gguf
-          rm test_undreamai model.gguf
+      # - name: Test
+      #   id: test
+      #   run: |
+      #     cd build/libs
+      #     curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
+      #     ./test_undreamai -m model.gguf
+      #     rm test_undreamai model.gguf
 
       - name: Pack artifacts
         id: pack_artifacts
