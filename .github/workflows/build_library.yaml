@@ -11,7 +11,7 @@ on:
       - 'release'
 
 env:
-  UNDREAMAI_VERSION: 1.1.0
+  VERSION: 1.1.0
   LLAMACPP_VERSION: b2674
   OPENCL_VERSION: 2023.04.17
   CLBLAST_VERSION: 1.6.0
@@ -106,7 +106,6 @@ jobs:
 
       - name: Get Variables
         run: |
-          echo "VERSION=${{ env.UNDREAMAI_VERSION }}.${{ env.LLAMACPP_VERSION }}" >> $GITHUB_ENV
           echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
 
       - name: Clone llama.cpp
@@ -231,10 +230,6 @@ jobs:
         id: checkout
         uses: actions/checkout@v4
 
-      - name: Get Variables
-        run: |
-          echo "VERSION=${{ env.UNDREAMAI_VERSION }}.${{ env.LLAMACPP_VERSION }}" >> $GITHUB_ENV
-
       - name: Clone llama.cpp
         run: |
           git clone https://github.com/ggerganov/llama.cpp llama.cpp
@@ -278,10 +273,6 @@ jobs:
       - name: Clone
         id: checkout
         uses: actions/checkout@v4
-
-      - name: Get Variables
-        run: |
-          echo "VERSION=${{ env.UNDREAMAI_VERSION }}.${{ env.LLAMACPP_VERSION }}" >> $GITHUB_ENV
 
       - name: Clone llama.cpp
         run: |
@@ -354,7 +345,6 @@ jobs:
 
       - name: Get Variables
         run: |
-          Add-Content $env:GITHUB_ENV "version=${{ env.UNDREAMAI_VERSION }}.${{ env.LLAMACPP_VERSION }}"
           $pattern = "\d+\.\d+\.\d+"
           $CUDA = [regex]::Match("${{ matrix.build }}", $pattern).Value
           Add-Content $env:GITHUB_ENV "CUDA=$CUDA"
@@ -466,10 +456,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Get Variables
-        run: |
-          echo "VERSION=${{ env.UNDREAMAI_VERSION }}.${{ env.LLAMACPP_VERSION }}" >> $GITHUB_ENV
 
       - name: Download Artifacts
         uses: actions/download-artifact@v4
