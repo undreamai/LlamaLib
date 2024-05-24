@@ -82,6 +82,7 @@ int main(int argc, char ** argv) {
     ASSERT(trim(reply_data["content"]) == data["content"]);
 
     data.clear();
+    data["id_slot"] = 0;
     data["prompt"] = prompt;
     data["stream"] = false;
     data["n_predict"] = 12;
