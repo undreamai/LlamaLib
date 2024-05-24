@@ -202,7 +202,7 @@ jobs:
         run: |
           cd build/libs
           curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
-          ./test_undreamai -m model.gguf
+          ./test_undreamai -m model.gguf -np 1
           rm model.gguf
 
       - name: Pack artifacts
@@ -317,7 +317,7 @@ jobs:
         run: |
           cd build/libs
           curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
-          ./test_undreamai -m model.gguf
+          ./test_undreamai -m model.gguf -np 1
           rm model.gguf
 
       - name: Pack artifacts
@@ -432,7 +432,7 @@ jobs:
         run: |
           cd build/libs
           curl.exe -o model.gguf -L https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
-          test_undreamai.exe -m model.gguf
+          test_undreamai.exe -m model.gguf -np 1
           del model.gguf
 
       - name: Add clblast.dll
