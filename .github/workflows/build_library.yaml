@@ -406,9 +406,9 @@ jobs:
       - name: Create missing files
         run: |
           cd llama.cpp
-          cmake -DINPUT=examples/server/public/completion.js -DOUTPUT=examples/server/completion.js.hpp -P scripts/xxd.cmake
-          cmake -DINPUT=examples/server/public/index.html -DOUTPUT=examples/server/index.html.hpp -P scripts/xxd.cmake
-          cmake -DINPUT=examples/server/public/index.js -DOUTPUT=examples/server/index.js.hpp -P scripts/xxd.cmake
+          cmake -DINPUT="examples/server/public/completion.js" -DOUTPUT=examples/server/completion.js.hpp -P scripts/xxd.cmake
+          cmake -DINPUT="examples/server/public/index\.html" -DOUTPUT=examples/server/index.html.hpp -P scripts/xxd.cmake
+          cmake -DINPUT=examples/server/public/index\.js -DOUTPUT=examples/server/index.js.hpp -P scripts/xxd.cmake
           cmake -DINPUT=examples/server/public/json-schema-to-grammar.mjs -DOUTPUT=examples/server/json-schema-to-grammar.mjs.hpp -P scripts/xxd.cmake
   
       - name: Separate CUDA
