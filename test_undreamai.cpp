@@ -93,15 +93,16 @@ int main(int argc, char ** argv) {
     LLM_Tokenize(llm, reply.c_str(), stringWrapper);
     reply = GetFromStringWrapper(stringWrapper);
     reply_data = json::parse(reply);
-    std::cout<<reply<<std::endl;
     ASSERT(data["n_predict"] == reply_data["tokens"].size());
 
     data.clear();
-    data["id_slot"] = prompt;
+    data["id_slot"] = 0;
     data["action"] = "save";
     data["filename"] = "test_undreamai.save";
     LLM_Slot(llm, data.dump().c_str());
-    ASSERT(std::filesystem::exists(data["filename"]));
+    std::ifstream f(data["filename"]);
+    ASSERT(f.good());
+    f.close();
 
     data["action"] = "restore";
     LLM_Slot(llm, data.dump().c_str());
