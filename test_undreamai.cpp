@@ -1,0 +1,92 @@
+#include "undreamai.h"
+
+#define ASSERT(cond) \
+    do { \
+        if (!(cond)) { \
+            std::cerr << "Assertion failed: " << #cond << "\n" \
+                      << "File: " << __FILE__ << "\n" \
+                      << "Line: " << __LINE__ << std::endl; \
+            std::abort(); \
+        } \
+    } while (false)
+
+char* GetFromStringWrapper(StringWrapper* stringWrapper){
+    int bufferSize(stringWrapper->GetStringSize());
+    char* content = new char[bufferSize];
+    stringWrapper->GetString(content, bufferSize);
+    return content;
+}
+
+/*
+int main(int argc, char ** argv) {
+    LLM llm(argc, argv);
+    llm.start_server();
+    llm.start_service();
+}
+*/
+
+int main(int argc, char ** argv) {
+    LLM* llm;
+    StringWrapper* stringWrapper = StringWrapper_Construct();
+    std::string prompt = "<s>[INST] A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human's questions.\n\n### user: hi [/INST]### assistant:";
+    std::string command = "";
+    for (int i = 1; i < argc; ++i) {
+        command += argv[i];
+        if (i < argc - 1) command += " ";
+    }
+    json data;
+    json reply_data;
+    std::string reply;
+
+    llm = LLM_Construct(command.c_str());
+
+    LLM_StartServer(llm);
+    std::thread t([&]() {LLM_Start(llm);return 1;});
+    
+    LLM_SetTemplate(llm, "mistral");
+    assert(llm->chatTemplate == "mistral");
+    
+    data["content"] = prompt;
+    LLM_Tokenize(llm, data.dump().c_str(), stringWrapper);
+    reply = GetFromStringWrapper(stringWrapper);
+    reply_data = json::parse(reply);
+    ASSERT(reply_data.count("tokens") > 0);
+    ASSERT(reply_data["tokens"].size() > 0);
+
+    LLM_Detokenize(llm, reply.c_str(), stringWrapper);
+    reply = GetFromStringWrapper(stringWrapper);
+    ASSERT(reply == data.dump());
+
+    data.clear();
+    data["prompt"] = prompt;
+    data["stream"] = false;
+    data["n_predict"] = 12;
+    LLM_Completion(llm, data.dump().c_str(), stringWrapper);
+    reply = GetFromStringWrapper(stringWrapper);
+    reply_data = json::parse(reply);
+    ASSERT(reply_data.count("content") > 0);
+
+    LLM_Tokenize(llm, reply.c_str(), stringWrapper);
+    reply = GetFromStringWrapper(stringWrapper);
+    reply_data = json::parse(reply);
+    std::cout<<reply<<std::endl;
+    ASSERT(data["n_predict"] == reply_data["tokens"].size());
+
+    data.clear();
+    data["id_slot"] = prompt;
+    data["action"] = "save";
+    data["filename"] = "test_undreamai.save";
+    LLM_Slot(llm, data.dump().c_str());
+    ASSERT(std::filesystem::exists(data["filename"]));
+
+    data["action"] = "restore";
+    LLM_Slot(llm, data.dump().c_str());
+    std::filesystem::remove(data["filename"]);
+
+    LLM_StopServer(llm);
+    LLM_Stop(llm);
+    t.join();
+    LLM_Delete(llm);
+
+    return 1;
+}
