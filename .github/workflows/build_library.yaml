@@ -118,6 +118,14 @@ jobs:
           mkdir -p build/licenses build/libs
           cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
 
+      - name: Create missing files
+        run: |
+          cd llama.cpp
+          cmake -DINPUT=examples/server/public/completion.js -DOUTPUT=examples/server/completion.js.hpp -P scripts/xxd.cmake
+          cmake -DINPUT=examples/server/public/index.html -DOUTPUT=examples/server/index.html.hpp -P scripts/xxd.cmake
+          cmake -DINPUT=examples/server/public/index.js -DOUTPUT=examples/server/index.js.hpp -P scripts/xxd.cmake
+          cmake -DINPUT=examples/server/public/json-schema-to-grammar.mjs -DOUTPUT=examples/server/json-schema-to-grammar.mjs.hpp -P scripts/xxd.cmake
+
       - name: Separate CUDA
         if: env.CUDA_SEPARATE == 'true'
         run: |
@@ -251,6 +259,14 @@ jobs:
           mkdir -p build/licenses build/libs
           cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
 
+      - name: Create missing files
+        run: |
+          cd llama.cpp
+          cmake -DINPUT=examples/server/public/completion.js -DOUTPUT=examples/server/completion.js.hpp -P scripts/xxd.cmake
+          cmake -DINPUT=examples/server/public/index.html -DOUTPUT=examples/server/index.html.hpp -P scripts/xxd.cmake
+          cmake -DINPUT=examples/server/public/index.js -DOUTPUT=examples/server/index.js.hpp -P scripts/xxd.cmake
+          cmake -DINPUT=examples/server/public/json-schema-to-grammar.mjs -DOUTPUT=examples/server/json-schema-to-grammar.mjs.hpp -P scripts/xxd.cmake
+  
       - name: Dependencies
         id: depends
         continue-on-error: true
@@ -297,6 +313,14 @@ jobs:
           mkdir -p build/licenses build/libs
           cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
 
+      - name: Create missing files
+        run: |
+          cd llama.cpp
+          cmake -DINPUT=examples/server/public/completion.js -DOUTPUT=examples/server/completion.js.hpp -P scripts/xxd.cmake
+          cmake -DINPUT=examples/server/public/index.html -DOUTPUT=examples/server/index.html.hpp -P scripts/xxd.cmake
+          cmake -DINPUT=examples/server/public/index.js -DOUTPUT=examples/server/index.js.hpp -P scripts/xxd.cmake
+          cmake -DINPUT=examples/server/public/json-schema-to-grammar.mjs -DOUTPUT=examples/server/json-schema-to-grammar.mjs.hpp -P scripts/xxd.cmake
+  
       - name: Dependencies
         id: depends
         continue-on-error: true
@@ -379,6 +403,14 @@ jobs:
           (Get-Content examples/server/server.cpp ) -replace 'utils.hpp', 'utils_callback.hpp' | Set-Content examples/server/server.cpp
           (Get-Content examples/server/server.cpp ) -replace 'main\(int argc', 'main_server(int argc' | Set-Content examples/server/server.cpp
 
+      - name: Create missing files
+        run: |
+          cd llama.cpp
+          cmake -DINPUT=examples/server/public/completion.js -DOUTPUT=examples/server/completion.js.hpp -P scripts/xxd.cmake
+          cmake -DINPUT=examples/server/public/index.html -DOUTPUT=examples/server/index.html.hpp -P scripts/xxd.cmake
+          cmake -DINPUT=examples/server/public/index.js -DOUTPUT=examples/server/index.js.hpp -P scripts/xxd.cmake
+          cmake -DINPUT=examples/server/public/json-schema-to-grammar.mjs -DOUTPUT=examples/server/json-schema-to-grammar.mjs.hpp -P scripts/xxd.cmake
+  
       - name: Separate CUDA
         if: env.CUDA_SEPARATE == 'true'
         run: |
