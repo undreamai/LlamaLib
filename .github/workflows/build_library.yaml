@@ -114,6 +114,7 @@ jobs:
           cd llama.cpp
           git checkout ${{ env.LLAMACPP_VERSION }}
           sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+          sed -i 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
           cd ..
           mkdir -p build/licenses build/libs
           cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
@@ -236,6 +237,7 @@ jobs:
           cd llama.cpp
           git checkout ${{ env.LLAMACPP_VERSION }}
           sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+          sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
           cd ..
           mkdir -p build/licenses build/libs
           cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
@@ -280,6 +282,7 @@ jobs:
           cd llama.cpp
           git checkout ${{ env.LLAMACPP_VERSION }}
           sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+          sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
           cd ..
           mkdir -p build/licenses build/libs
           cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
@@ -355,6 +358,7 @@ jobs:
           cd llama.cpp
           git checkout ${{ env.LLAMACPP_VERSION }}
           (Get-Content examples/server/server.cpp ) -replace 'utils.hpp', 'utils_callback.hpp' | Set-Content examples/server/server.cpp
+          (Get-Content examples/server/server.cpp ) -replace 'main(int argc', 'main_server(int argc:g' | Set-Content examples/server/server.cpp
 
       - name: Separate CUDA
         if: env.CUDA_SEPARATE == 'true'
