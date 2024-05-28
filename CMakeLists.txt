@@ -30,7 +30,7 @@ add_compile_definitions(${TEST} PRIVATE UNDREAMAI_EXPORTS)
 
 if (BUILD_UNDREAMAI_SERVER)
     set(SERVER undreamai_server)
-    add_executable(${SERVER} undreamai_server.cpp undreamai.cpp)
+    add_executable(${SERVER} undreamai_server.cpp stringwrapper.cpp)
     target_include_directories(${SERVER} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} llama.cpp/examples/server)
     target_link_libraries(${SERVER} PRIVATE ${LIBRARY} common ggml_static llama)
     target_compile_features(${SERVER} PRIVATE cxx_std_11)
