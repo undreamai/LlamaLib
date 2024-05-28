@@ -40,14 +40,6 @@ std::string trim(const std::string &s) {
     return ltrim(rtrim(s));
 }
 
-/*
-int main(int argc, char ** argv) {
-    LLM llm(argc, argv);
-    llm.start_server();
-    llm.start_service();
-}
-*/
-
 int main(int argc, char ** argv) {
     LLM* llm;
     StringWrapper* stringWrapper = StringWrapper_Construct();
