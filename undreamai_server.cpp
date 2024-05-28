@@ -3,6 +3,7 @@
 int main(int argc, char ** argv) {
     int i = 1; // Start from 1 to skip the program name
     std::string templateValue = "";
+    std::string command = "";
 
     while (i < argc) {
         if (std::string(argv[i]) == "--template") {
@@ -19,15 +20,18 @@ int main(int argc, char ** argv) {
                 exit(1);
             }
         } else {
-            ++i;
+            command += argv[i];
+            if (i < argc - 1) command += " ";
         }
+        ++i;
     }
 
-    LLM llm(argc, argv);
+    LLM* llm = LLM_Construct(command.c_str());
     if (templateValue != ""){
         std::cout<<"Using template "<<templateValue<<std::endl;
-        llm.chatTemplate = templateValue;
+        LLM_SetTemplate(llm, templateValue.c_str());
     }
-    llm.start_server();
-    llm.start_service();
+    LLM_StartServer(llm);
+    LLM_Start(llm);
+    return 0;
 }
