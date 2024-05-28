@@ -92,7 +92,7 @@ jobs:
           - build: 'avx512'
             defines: '-DLLAMA_AVX512=ON'
           - build: 'clblast'
-            defines: '-DLLAMA_CLBLAST=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_PREFIX_PATH=${{ github.workspace }}/clblast'
+            defines: '-DLLAMA_CLBLAST=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_PREFIX_PATH="${{ github.workspace }}/clblast"'
           - build: 'cuda-cu11.7.1'
             defines: '-DLLAMA_CUDA=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCUDAToolkit_ROOT=${{ github.workspace }}/build/cuda'
           - build: 'cuda-cu12.2.0'
