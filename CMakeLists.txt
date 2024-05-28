@@ -27,7 +27,8 @@ target_include_directories(${TEST} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} llama.cpp
 target_link_libraries(${TEST} PRIVATE ${LIBRARY} common ggml_static llama)
 
 if (BUILD_UNDREAMAI_SERVER)
-    add_executable(${TEST} undreamai_server.cpp stringwrapper.cpp)
-    target_include_directories(${TEST} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} llama.cpp/examples/server)
-    target_link_libraries(${TEST} PRIVATE ${LIBRARY} common ggml_static llama)
+    set(SERVER undreamai_server)
+    add_executable(${SERVER} undreamai_server.cpp stringwrapper.cpp)
+    target_include_directories(${SERVER} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} llama.cpp/examples/server)
+    target_link_libraries(${SERVER} PRIVATE ${LIBRARY} common ggml_static llama)
 endif()
