@@ -209,13 +209,13 @@ jobs:
         run: |
           cd build/libs
           curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
-          ./test_undreamai -m model.gguf -np 1
+          ./undreamai_test -m model.gguf -np 1
           rm model.gguf
 
       - name: Pack artifacts
         id: pack_artifacts
         run: |
-          rm build/libs/test_undreamai
+          rm build/libs/undreamai_test
           zip -j undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip build/licenses/* build/libs/*
 
       - name: Upload Artifacts
@@ -284,7 +284,7 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts
         run: |
-          rm build/libs/test_undreamai
+          rm build/libs/undreamai_test
           ls -R build
           zip -j undreamai-${{ github.ref_name }}-llamacpp-macos-arm64.zip build/licenses/* build/libs/*
 
@@ -340,13 +340,13 @@ jobs:
         run: |
           cd build/libs
           curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
-          ./test_undreamai -m model.gguf -np 1
+          ./undreamai_test -m model.gguf -np 1
           rm model.gguf
 
       - name: Pack artifacts
         id: pack_artifacts
         run: |
-          rm build/libs/test_undreamai
+          rm build/libs/undreamai_test
           ls -R build
           zip -j undreamai-${{ github.ref_name }}-llamacpp-macos-x64.zip build/licenses/* build/libs/*
 
@@ -463,7 +463,7 @@ jobs:
         run: |
           cd build/libs/Release
           curl.exe -o model.gguf -L https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
-          ./test_undreamai.exe -m model.gguf -np 1
+          ./undreamai_test.exe -m model.gguf -np 1
           del model.gguf
 
       - name: Add clblast.dll
@@ -476,7 +476,7 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts
         run: |
-          del build/libs/Release/test_undreamai.exe
+          del build/libs/Release/undreamai_test.exe
           mkdir artifacts
           Copy-Item .\llama.cpp\LICENSE .\artifacts\llama.cpp.LICENSE.txt
           Copy-Item .\build\Release\* .\artifacts\
