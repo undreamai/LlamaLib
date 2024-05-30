@@ -106,7 +106,6 @@ jobs:
       - name: Get Variables
         run: |
           echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
-          echo "CUDA_SEPARATE=${{ matrix.cuda_separate }}" >> $GITHUB_ENV
 
       - name: Clone llama.cpp
         run: |
@@ -225,15 +224,12 @@ jobs:
           name: undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip
           path: undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip
 
-      - name: Copy and pack Cuda 11 runtime
-        if: matrix.build == 'cuda-cu11.7.1' && env.CUDA_SEPARATE == 'true'
+      - name: Copy and pack Cuda runtime
+        if: startsWith(matrix.build, 'cuda') && env.CUDA_SEPARATE == 'true'
         run: |
-          zip -j cuda-${{ env.CUDA }}-linux.zip ${{ github.workspace }}/build/cuda/lib64/libcublas.so.11 ${{ github.workspace }}/build/cuda/lib64/libcublasLt.so.11 ${{ github.workspace }}/build/cuda/lib64/libcudart.so.11.0
-
-      - name: Copy and pack Cuda 12 runtime
-        if: matrix.build == 'cuda-cu12.2.0' && env.CUDA_SEPARATE == 'true'
-        run: |
-          zip -j cuda-${{ env.CUDA }}-linux.zip ${{ github.workspace }}/build/cuda/lib64/libcublas.so.12 ${{ github.workspace }}/build/cuda/lib64/libcublasLt.so.12 ${{ github.workspace }}/build/cuda/lib64/libcudart.so.12
+          zip -j cuda-${{ env.CUDA }}-linux.zip \
+            ${{ github.workspace }}/build/cuda/lib64/libcublas.so.11 ${{ github.workspace }}/build/cuda/lib64/libcublasLt.so.11 ${{ github.workspace }}/build/cuda/lib64/libcudart.so.11.0 \
+            ${{ github.workspace }}/build/cuda/lib64/libcublas.so.12 ${{ github.workspace }}/build/cuda/lib64/libcublasLt.so.12 ${{ github.workspace }}/build/cuda/lib64/libcudart.so.12
 
       - name: Upload Cuda runtime
         if: startsWith(matrix.build, 'cuda') && env.CUDA_SEPARATE == 'true'
