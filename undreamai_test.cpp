@@ -97,6 +97,8 @@ int main(int argc, char ** argv) {
     reply_data = json::parse(reply);
     ASSERT(reply_data.count("content") > 0);
 
+    llm->handle_cancel_action(data["id_slot"]);
+
     std::string filename = "test_undreamai.save";
     data.clear();
     data["id_slot"] = 0;
