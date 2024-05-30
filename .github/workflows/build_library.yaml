@@ -395,6 +395,7 @@ jobs:
           $pattern = "\d+\.\d+\.\d+"
           $CUDA = [regex]::Match("${{ matrix.build }}", $pattern).Value
           Add-Content $env:GITHUB_ENV "CUDA=$CUDA"
+          echo cmake .. ${{ matrix.defines }}
 
       - name: Clone llama.cpp
         run: |
