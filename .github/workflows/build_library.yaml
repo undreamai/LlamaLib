@@ -224,12 +224,15 @@ jobs:
           name: undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip
           path: undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip
 
-      - name: Copy and pack Cuda runtime
-        if: startsWith(matrix.build, 'cuda') && env.CUDA_SEPARATE == 'true'
+      - name: Copy and pack Cuda 11 runtime
+        if: matrix.build == 'cuda-cu11.7.1' && env.CUDA_SEPARATE == 'true'
         run: |
-          libs=`for f in build/libs/*;do objdump -x $f |grep NEEDED;done |tr -d ' '| sed -e "s:NEEDED:${{ github.workspace }}/build/cuda/lib64/:g" |sort|uniq|grep libcu`
-          echo $libs
-          zip -j cuda-${{ env.CUDA }}-linux.zip $libs
+          zip -j cuda-${{ env.CUDA }}-linux.zip ${{ github.workspace }}/build/cuda/lib64/libcublas.so.11 ${{ github.workspace }}/build/cuda/lib64/libcublasLt.so.11 ${{ github.workspace }}/build/cuda/lib64/libcudart.so.11.0
+
+      - name: Copy and pack Cuda 12 runtime
+        if: matrix.build == 'cuda-cu12.2.0' && env.CUDA_SEPARATE == 'true'
+        run: |
+          zip -j cuda-${{ env.CUDA }}-linux.zip ${{ github.workspace }}/build/cuda/lib64/libcublas.so.12 ${{ github.workspace }}/build/cuda/lib64/libcublasLt.so.12 ${{ github.workspace }}/build/cuda/lib64/libcudart.so.12
 
       - name: Upload Cuda runtime
         if: startsWith(matrix.build, 'cuda') && env.CUDA_SEPARATE == 'true'
