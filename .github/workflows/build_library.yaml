@@ -479,6 +479,7 @@ jobs:
         run: |
           del build/libs/Release/undreamai_test.exe
           mkdir artifacts
+          ls -R build
           Copy-Item .\llama.cpp\LICENSE .\artifacts\llama.cpp.LICENSE.txt
           Copy-Item .\build\Release\* .\artifacts\
           Copy-Item .\build\libs\Release\*dll .\artifacts\
