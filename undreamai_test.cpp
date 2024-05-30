@@ -52,6 +52,7 @@ int main(int argc, char ** argv) {
     json data;
     json reply_data;
     std::string reply;
+    int id_slot = 0;
 
     llm = LLM_Construct(command.c_str());
 
@@ -74,7 +75,7 @@ int main(int argc, char ** argv) {
     ASSERT(trim(reply_data["content"]) == data["content"]);
 
     data.clear();
-    data["id_slot"] = 0;
+    data["id_slot"] = id_slot;
     data["prompt"] = prompt;
     data["cache_prompt"] = true;
     data["stream"] = false;
@@ -97,11 +98,11 @@ int main(int argc, char ** argv) {
     reply_data = json::parse(reply);
     ASSERT(reply_data.count("content") > 0);
 
-    llm->handle_cancel_action(data["id_slot"]);
+    LLM_Cancel(llm, id_slot);
 
     std::string filename = "test_undreamai.save";
     data.clear();
-    data["id_slot"] = 0;
+    data["id_slot"] = id_slot;
     data["action"] = "save";
     data["filename"] = filename;
     LLM_Slot(llm, data.dump().c_str());
