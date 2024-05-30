@@ -227,9 +227,10 @@ jobs:
       - name: Copy and pack Cuda runtime
         if: startsWith(matrix.build, 'cuda') && env.CUDA_SEPARATE == 'true'
         run: |
-          zip -j cuda-${{ env.CUDA }}-linux.zip \
-            ${{ github.workspace }}/build/cuda/lib64/libcublas.so.11 ${{ github.workspace }}/build/cuda/lib64/libcublasLt.so.11 ${{ github.workspace }}/build/cuda/lib64/libcudart.so.11.0 \
-            ${{ github.workspace }}/build/cuda/lib64/libcublas.so.12 ${{ github.workspace }}/build/cuda/lib64/libcublasLt.so.12 ${{ github.workspace }}/build/cuda/lib64/libcudart.so.12
+          cd build
+          zip ../cuda-${{ env.CUDA }}-linux.zip \
+            cuda/lib64/libcublas.so.11 cuda/lib64/libcublasLt.so.11 cuda/lib64/libcudart.so.11.0 \
+            cuda/lib64/libcublas.so.12 cuda/lib64/libcublasLt.so.12 cuda/lib64/libcudart.so.12
 
       - name: Upload Cuda runtime
         if: startsWith(matrix.build, 'cuda') && env.CUDA_SEPARATE == 'true'
