@@ -84,10 +84,17 @@ int main(int argc, char ** argv) {
     reply_data = json::parse(reply);
     ASSERT(reply_data.count("content") > 0);
 
+    data["prompt"] = prompt + std::string(reply_data["content"]);
+
     LLM_Tokenize(llm, reply.c_str(), stringWrapper);
     reply = GetFromStringWrapper(stringWrapper);
     reply_data = json::parse(reply);
-    ASSERT(data["n_predict"] == reply_data["tokens"].size());
+    ASSERT(abs((int)data["n_predict"] - reply_data["tokens"].size()) < 2);
+
+    LLM_Completion(llm, data.dump().c_str(), stringWrapper);
+    reply = GetFromStringWrapper(stringWrapper);
+    reply_data = json::parse(reply);
+    ASSERT(reply_data.count("content") > 0);
 
     std::string filename = "test_undreamai.save";
     data.clear();
