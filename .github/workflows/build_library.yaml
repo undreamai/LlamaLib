@@ -106,6 +106,7 @@ jobs:
       - name: Get Variables
         run: |
           echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
+          echo "CUDA_SEPARATE=${{ matrix.cuda_separate }}" >> $GITHUB_ENV
 
       - name: Clone llama.cpp
         run: |
