@@ -106,6 +106,7 @@ jobs:
       - name: Get Variables
         run: |
           echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
+          echo cmake .. -DLLAMA_CLBLAST=ON -DCMAKE_PREFIX_PATH="$env:GITHUB_WORKSPACE/clblast" 
 
       - name: Clone llama.cpp
         run: |
