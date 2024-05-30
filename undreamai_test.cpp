@@ -89,7 +89,7 @@ int main(int argc, char ** argv) {
     LLM_Tokenize(llm, reply.c_str(), stringWrapper);
     reply = GetFromStringWrapper(stringWrapper);
     reply_data = json::parse(reply);
-    ASSERT(abs((int)data["n_predict"] - reply_data["tokens"].size()) < 2);
+    ASSERT(std::abs((float)data["n_predict"] - reply_data["tokens"].size()) < 2);
 
     LLM_Completion(llm, data.dump().c_str(), stringWrapper);
     reply = GetFromStringWrapper(stringWrapper);
