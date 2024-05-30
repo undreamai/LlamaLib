@@ -79,6 +79,7 @@ int main(int argc, char ** argv) {
     data["cache_prompt"] = true;
     data["stream"] = false;
     data["n_predict"] = 50;
+    data["n_keep"] = 30;
     LLM_Completion(llm, data.dump().c_str(), stringWrapper);
     reply = GetFromStringWrapper(stringWrapper);
     reply_data = json::parse(reply);
