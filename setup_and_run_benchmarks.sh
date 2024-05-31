@@ -48,7 +48,10 @@ avx2
 avx512
 "
 for arch in ${archs};do
-  ./benchmark.sh "./undreamai/linux-$arch/undreamai_server -ngl 0" $arch.txt $runs >/dev/null 2>/dev/null
+  if [ ! -f $arch.txt ];then
+    ./benchmark.sh "./undreamai/linux-$arch/undreamai_server -ngl 0" $arch.txt.tmp $runs >/dev/null 2>/dev/null
+    mv $arch.txt.tmp $arch.txt
+  fi
   results=`cat $arch.txt`
   echo "$arch "`echo $results` >> benchmark.csv
 done >> experiments.txt
@@ -59,28 +62,40 @@ cuda-cu11.7.1
 cuda-cu12.2.0
 "
 for arch in ${archs};do
-  ./benchmark.sh "./undreamai/linux-$arch/undreamai_server -ngl 9999" $arch.txt $runs >/dev/null 2>/dev/null
+  if [ ! -f $arch.txt ];then
+    ./benchmark.sh "./undreamai/linux-$arch/undreamai_server -ngl 9999" $arch.txt.tmp $runs >/dev/null 2>/dev/null
+    mv $arch.txt.tmp $arch.txt
+  fi
   results=`cat $arch.txt`
   echo "$arch "`echo $results` >> benchmark.csv
 done
 
 for lfv in 0.6.2 0.8.6;do
   arch=llamafile-$lfv-cpu
-  ./benchmark.sh "./$ape ./llamafile-$lfv --nobrowser --nocompile -ngl 0" $arch.txt $runs >/dev/null 2>/dev/null
+  if [ ! -f $arch.txt ];then
+    ./benchmark.sh "./$ape ./llamafile-$lfv --nobrowser --nocompile -ngl 0" $arch.txt.tmp $runs >/dev/null 2>/dev/null
+    mv $arch.txt.tmp $arch.txt
+  fi
   results=`cat $arch.txt`
   echo "$arch "`echo $results` >> benchmark.csv
 done
 
 for lfv in 0.6.2 0.8.6;do
   arch=llamafile-$lfv-tinyblas
-  ./benchmark.sh "./$ape ./llamafile-$lfv --nobrowser --nocompile -ngl 9999" $arch.txt $runs >/dev/null 2>/dev/null
+  if [ ! -f $arch.txt ];then
+    ./benchmark.sh "./$ape ./llamafile-$lfv --nobrowser --nocompile -ngl 9999" $arch.txt.tmp $runs >/dev/null 2>/dev/null
+    mv $arch.txt.tmp $arch.txt
+  fi
   results=`cat $arch.txt`
   echo "$arch "`echo $results` >> benchmark.csv
 done
 
 for lfv in 0.6.2 0.8.6;do
   arch=llamafile-$lfv-cuda
-  ./benchmark.sh "./$ape ./llamafile-$lfv --nobrowser -ngl 9999" $arch.txt $runs >/dev/null 2>/dev/null
+  if [ ! -f $arch.txt ];then
+    ./benchmark.sh "./$ape ./llamafile-$lfv --nobrowser -ngl 9999" $arch.txt.tmp $runs >/dev/null 2>/dev/null
+    mv $arch.txt.tmp $arch.txt
+  fi
   results=`cat $arch.txt`
   echo "$arch "`echo $results` >> benchmark.csv
 done
