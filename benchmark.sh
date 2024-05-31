@@ -1,6 +1,6 @@
 #!/bin/bash
 
-server=$1
+command=$1
 benchmark=$2
 runs=$3
 
@@ -10,7 +10,7 @@ seed=1
 num=0
 prenum=0
 
-$server -m model.gguf -ngl 9999 --port 13333 -sm none -mg 0 > $log &
+$command -m model.gguf --port 13333 -sm none -mg 0 > $log &
 pid=$!
 echo $pid
 sleep 2;
