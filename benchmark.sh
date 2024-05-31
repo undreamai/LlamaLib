@@ -31,5 +31,5 @@ while [ $num -lt $runs ];do
   fi
 done
 
-pkill -9 undreamai_server
+kill -9 $pid
 rm $log
