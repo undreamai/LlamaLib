@@ -10,7 +10,10 @@ num=0
 prenum=0
 
 $server -m model.gguf -ngl 9999 --port 13333 -sm none -mg 0 > $log &
-
+pid=$!
+echo $pid
+sleep 2;
+if [ ! -d /proc/$pid ]; then exit 0; fi
 while [ 1 ];do
   ex=`cat $log | grep "all slots are idle"`
   if [ "$ex" != "" ]; then break; fi
