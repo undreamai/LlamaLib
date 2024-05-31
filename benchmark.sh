@@ -2,6 +2,7 @@
 
 server=$1
 benchmark=$2
+runs=$3
 
 log=$benchmark.log
 prompt="\"write me anything you know about dogs\""
@@ -19,7 +20,7 @@ while [ 1 ];do
   if [ "$ex" != "" ]; then break; fi
 done
 
-while [ $num -lt 10 ];do
+while [ $num -lt $runs ];do
   curl --request POST --url http://localhost:13333/completion   --header "Content-Type: application/json"   --data "{\"prompt\": $prompt, \"n_predict\": 256, \"stream\": true, \"temperature\": 1, \"seed\": $seed}" > /tmp/la
   cat $log|grep generation|grep "256 runs" | grep -oP '\d+(\.\d+)?(?= tokens per second)' > $benchmark
   num=`cat $benchmark|wc -l`
