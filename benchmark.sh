@@ -10,7 +10,7 @@ seed=1
 num=0
 prenum=0
 
-$command -m model.gguf --port 13333 -sm none -mg 0 >$log 2>/dev/null &
+$command -m model.gguf --port 13333 -sm none -mg 0 >$log 2>$log &
 pid=$!
 echo $pid
 sleep 2;
@@ -21,7 +21,7 @@ while [ 1 ];do
 done
 
 while [ $num -lt $runs ];do
-  curl --request POST --url http://localhost:13333/completion   --header "Content-Type: application/json"   --data "{\"prompt\": $prompt, \"n_predict\": 256, \"stream\": true, \"temperature\": 1, \"seed\": $seed, \"n_keep\": 0}" > /dev/null
+  curl --request POST --url http://localhost:13333/completion --header "Content-Type: application/json" --data "{\"prompt\": $prompt, \"n_predict\": 256, \"stream\": true, \"temperature\": 1, \"seed\": $seed, \"n_keep\": 0}" > /dev/null
   cat $log|grep generation|grep "256 runs" | grep -oP '\d+(\.\d+)?(?= tokens per second)' > $benchmark
   num=`cat $benchmark|wc -l`
   if [ $num -eq $prenum ];then
