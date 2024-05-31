@@ -496,10 +496,10 @@ jobs:
         if: startsWith(matrix.build, 'cuda') && env.CUDA_SEPARATE == 'true'
         run: |
           echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
-          $dst='cuda'
+          $dst="windows-${{ matrix.build }}""
           robocopy "${{steps.cuda-toolkit.outputs.CUDA_PATH}}\bin" $dst cudart64_*.dll cublas64_*.dll cublasLt64_*.dll
           cd cuda
-          7z a ../cuda-${{ env.CUDA }}-windows.zip *
+          7z a ../cuda-${{ env.CUDA }}-windows.zip $dst
 
       - name: Upload Cuda runtime
         if: startsWith(matrix.build, 'cuda') && env.CUDA_SEPARATE == 'true'
