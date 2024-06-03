@@ -483,7 +483,10 @@ jobs:
           Copy-Item .\llama.cpp\LICENSE .\artifacts\llama.cpp.LICENSE.txt
           Copy-Item .\build\Release\* .\artifacts\
           Copy-Item .\build\libs\Release\*dll .\artifacts\
-          cd artifacts
+          $serverPath = ".\build\libs\Release\undreamai_server.exe"
+          if (Test-Path $serverPath) {
+              Copy-Item $serverPath -Destination ".\artifacts\"
+          }
           7z a ../undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip *
 
       - name: Upload artifacts
@@ -544,6 +547,12 @@ jobs:
             mv $d $new_name;
             echo $new_name >> bundle
           done
+
+          servers=`find . -name undreamai_server*`
+          if [ "$servers" != "" ];then
+            zip -r undreamai_server.zip $servers
+            rm $servers
+          fi
           zip -r $PREFIX.zip `cat bundle` linux-archchecker windows-archchecker
 
       - name: Release
