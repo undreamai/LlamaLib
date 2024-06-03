@@ -100,6 +100,7 @@ int main(int argc, char ** argv) {
 
     LLM_Cancel(llm, id_slot);
 
+    /*
     std::string filename = "test_undreamai.save";
     data.clear();
     data["id_slot"] = id_slot;
@@ -113,6 +114,7 @@ int main(int argc, char ** argv) {
     data["action"] = "restore";
     LLM_Slot(llm, data.dump().c_str());
     std::remove(filename.c_str());
+    */
 
     LLM_StopServer(llm);
     LLM_Stop(llm);
