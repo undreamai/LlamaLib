@@ -5,7 +5,7 @@ runs=5
 
 ################### SETUP ###################
 
-sudo apt install zip
+sudo apt install -y zip
 
 if [ ! -d undreamai ];then
   curl -o undreamai-$version-llamacpp.zip -L "https://github.com/undreamai/LlamaLib/releases/download/$version/undreamai-$version-llamacpp.zip"
