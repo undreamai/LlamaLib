@@ -9,7 +9,10 @@ sudo apt install -y zip
 
 if [ ! -d undreamai ];then
   curl -o undreamai-$version-llamacpp.zip -L "https://github.com/undreamai/LlamaLib/releases/download/$version/undreamai-$version-llamacpp.zip"
-  unzip undreamai-$version-llamacpp.zip -d undreamai
+  curl -o undreamai-$version-server.zip -L "https://github.com/undreamai/LlamaLib/releases/download/$version/undreamai-$version-server.zip"
+  unzip undreamai-$version-llamacpp.zip -d undreamai.tmp
+  unzip undreamai-$version-server.zip -d undreamai.tmp
+  mv undreamai.tmp undreamai
 fi
 
 if [ ! -f model.gguf ];then
