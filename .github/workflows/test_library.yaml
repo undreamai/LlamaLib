@@ -56,7 +56,7 @@ jobs:
           run: |
             sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_macos-arm64:g" CMakeLists.txt
             cd build
-            cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON -DLLAMA_ACCELERATE=OFF ${{ env.CMAKE_COMMON_JOBS }} ..
+            cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON -DLLAMA_ACCELERATE=OFF -DLLAMA_NATIVE=OFF ${{ env.CMAKE_COMMON_JOBS }} ..
             cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
 
         - name: Pack artifacts
