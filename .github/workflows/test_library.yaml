@@ -1,0 +1,73 @@
+name: Build library
+
+on:
+  push:
+    paths:
+      - .github/workflows/build_library.yaml
+      - CMakeLists.txt
+      - undreamai.h
+      - undreamai.cpp
+    tags:
+      - 'test-v*'
+
+env:
+  LLAMACPP_VERSION: b2989
+  OPENCL_VERSION: 2023.04.17
+  CLBLAST_VERSION: 1.6.2
+  CMAKE_COMMON_JOBS: '-DLLAMA_STATIC=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DBUILD_UNDREAMAI_SERVER=ON'
+  CUDA_SEPARATE: true
+
+jobs:
+    macOS-arm64-build:
+      runs-on: macos-14
+  
+      steps:
+        - name: Clone
+          id: checkout
+          uses: actions/checkout@v4
+  
+        - name: Clone llama.cpp
+          run: |
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+            sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+            sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+            cd ..
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+  
+        - name: Create missing files
+          run: |
+            cd llama.cpp
+            cmake -DINPUT=examples/server/public/completion.js -DOUTPUT=examples/server/completion.js.hpp -P scripts/xxd.cmake
+            cmake -DINPUT=examples/server/public/index.html -DOUTPUT=examples/server/index.html.hpp -P scripts/xxd.cmake
+            cmake -DINPUT=examples/server/public/index.js -DOUTPUT=examples/server/index.js.hpp -P scripts/xxd.cmake
+            cmake -DINPUT=examples/server/public/json-schema-to-grammar.mjs -DOUTPUT=examples/server/json-schema-to-grammar.mjs.hpp -P scripts/xxd.cmake
+    
+        - name: Dependencies
+          id: depends
+          continue-on-error: true
+          run: |
+            brew update
+  
+        - name: Build
+          id: cmake_build
+          run: |
+            sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_macos-arm64:g" CMakeLists.txt
+            cd build
+            cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON -DLLAMA_ACCELERATE=OFF ${{ env.CMAKE_COMMON_JOBS }} ..
+            cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
+
+        - name: Pack artifacts
+          id: pack_artifacts
+          run: |
+            rm build/libs/undreamai_test
+            ls -R build
+            zip -j undreamai-${{ github.ref_name }}-llamacpp-macos-arm64.zip build/licenses/* build/libs/*
+  
+        - name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: undreamai-${{ github.ref_name }}-llamacpp-macos-arm64.zip
+            path: undreamai-${{ github.ref_name }}-llamacpp-macos-arm64.zip
