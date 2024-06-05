@@ -58,6 +58,7 @@ int main(int argc, char ** argv) {
 
     LLM_StartServer(llm);
     std::thread t([&]() {LLM_Start(llm);return 1;});
+    while(!llm->is_running()){}
     
     LLM_SetTemplate(llm, "mistral");
     assert(llm->chatTemplate == "mistral");
