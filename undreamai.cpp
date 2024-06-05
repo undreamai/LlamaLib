@@ -62,13 +62,12 @@ void set_error_handlers() {
 //============================= LLM IMPLEMENTATION =============================//
 
 std::vector<std::string> LLM::splitArguments(const std::string& inputString) {
-    // Split the input string into individual arguments
     std::vector<std::string> arguments;
 
     unsigned counter = 0;
     std::string segment;
     std::istringstream stream_input(inputString);
-    while(std::getline(stream_input, segment, '\"'))
+    while(std::getline(stream_input, segment, '"'))
     {
         ++counter;
         if (counter % 2 == 0)
