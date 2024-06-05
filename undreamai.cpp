@@ -687,6 +687,10 @@ const void LLM_Start(LLM* llm) {
     llm->start_service();
 }
 
+const bool LLM_Started(LLM* llm) {
+    return llm->is_running();
+}
+
 const void LLM_Stop(LLM* llm) {
     llm->stop_service();
 }

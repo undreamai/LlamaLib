@@ -78,6 +78,7 @@ extern "C" {
     UNDREAMAI_API LLM* LLM_Construct(const char* params_string);
     UNDREAMAI_API const void LLM_Delete(LLM* llm);
     UNDREAMAI_API const void LLM_Start(LLM* llm);
+    UNDREAMAI_API const bool LLM_Started(LLM* llm);
     UNDREAMAI_API const void LLM_Stop(LLM* llm);
     UNDREAMAI_API const void LLM_StartServer(LLM* llm);
     UNDREAMAI_API const void LLM_StopServer(LLM* llm);
