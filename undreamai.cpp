@@ -421,6 +421,10 @@ void LLM::stop_service(){
     llama_backend_free();
 }
 
+bool LLM::is_running(){
+    return ctx_server.queue_tasks.running;
+}
+
 void LLM::set_template(const char* chatTemplate){
     this->chatTemplate = chatTemplate;
 }

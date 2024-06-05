@@ -40,6 +40,7 @@ class LLM {
         void start_service();
         void stop_service();
         void set_template(const char* chatTemplate);
+        bool is_running();
 
     private:
         gpt_params params;
