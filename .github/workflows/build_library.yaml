@@ -244,6 +244,14 @@ jobs:
   macOS-arm64-build:
     runs-on: macos-14
 
+    strategy:
+      matrix:
+        include:
+          - build: 'no_acc'
+            defines: '-DLLAMA_ACCELERATE=OFF'
+          - build: 'acc'
+            defines: ''
+
     steps:
       - name: Clone
         id: checkout
@@ -277,9 +285,9 @@ jobs:
       - name: Build
         id: cmake_build
         run: |
-          sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_macos-arm64:g" CMakeLists.txt
+          sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_macos-arm64-${{ matrix.build }}:g" CMakeLists.txt
           cd build
-          cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ env.CMAKE_COMMON_JOBS }} ..
+          cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON_JOBS }} ..
           cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
 
       - name: Pack artifacts
@@ -287,16 +295,24 @@ jobs:
         run: |
           rm build/libs/undreamai_test
           ls -R build
-          zip -j undreamai-${{ github.ref_name }}-llamacpp-macos-arm64.zip build/licenses/* build/libs/*
+          zip -j undreamai-${{ github.ref_name }}-llamacpp-macos-arm64-${{ matrix.build }}.zip build/licenses/* build/libs/*
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: undreamai-${{ github.ref_name }}-llamacpp-macos-arm64.zip
-          path: undreamai-${{ github.ref_name }}-llamacpp-macos-arm64.zip
+          name: undreamai-${{ github.ref_name }}-llamacpp-macos-arm64-${{ matrix.build }}.zip
+          path: undreamai-${{ github.ref_name }}-llamacpp-macos-arm64-${{ matrix.build }}.zip
 
   macOS-x64-build:
     runs-on: macos-latest
+
+    strategy:
+      matrix:
+        include:
+          - build: 'no_acc'
+            defines: '-DLLAMA_ACCELERATE=OFF'
+          - build: 'acc'
+            defines: ''
 
     steps:
       - name: Clone
@@ -331,9 +347,9 @@ jobs:
       - name: Build
         id: cmake_build
         run: |
-          sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_macos-x64:g" CMakeLists.txt
+          sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_macos-x64-${{ matrix.build }}:g" CMakeLists.txt
           cd build
-          cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL=OFF -DLLAMA_CURL=ON ${{ env.CMAKE_COMMON_JOBS }} ..
+          cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL=OFF -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON_JOBS }} ..
           cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
 
       - name: Test
@@ -349,13 +365,13 @@ jobs:
         run: |
           rm build/libs/undreamai_test
           ls -R build
-          zip -j undreamai-${{ github.ref_name }}-llamacpp-macos-x64.zip build/licenses/* build/libs/*
+          zip -j undreamai-${{ github.ref_name }}-llamacpp-macos-x64-${{ matrix.build }}.zip build/licenses/* build/libs/*
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: undreamai-${{ github.ref_name }}-llamacpp-macos-x64.zip
-          path: undreamai-${{ github.ref_name }}-llamacpp-macos-x64.zip
+          name: undreamai-${{ github.ref_name }}-llamacpp-macos-x64-${{ matrix.build }}.zip
+          path: undreamai-${{ github.ref_name }}-llamacpp-macos-x64-${{ matrix.build }}.zip
 
 ################################ Windows ################################
 
