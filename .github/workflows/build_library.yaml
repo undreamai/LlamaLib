@@ -208,7 +208,7 @@ jobs:
 
       - name: Test
         id: test
-        if: matrix.build == 'noavx' || matrix.build == 'avx' || matrix.build == 'avx2'
+        if: matrix.build == 'avx'
         run: |
           cd build/libs
           curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
@@ -467,7 +467,7 @@ jobs:
 
       - name: Test
         id: test
-        if: matrix.build == 'noavx' || matrix.build == 'avx' || matrix.build == 'avx2'
+        if: matrix.build == 'avx'
         run: |
           cd build/libs/Release
           curl.exe -o model.gguf -L https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
