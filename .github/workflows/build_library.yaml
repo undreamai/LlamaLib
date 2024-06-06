@@ -12,10 +12,10 @@ on:
 
 env:
   LLAMACPP_VERSION: b2989
+  LLAMAFILE_VERSION: 0.8.6
   OPENCL_VERSION: 2023.04.17
   CLBLAST_VERSION: 1.6.0
   CMAKE_COMMON_JOBS: '-DLLAMA_STATIC=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DBUILD_UNDREAMAI_SERVER=ON'
-  CUDA_SEPARATE: true
 
 jobs:
   ################################ ArchChecker ################################
@@ -126,13 +126,16 @@ jobs:
           cmake -DINPUT=examples/server/public/index.js -DOUTPUT=examples/server/index.js.hpp -P scripts/xxd.cmake
           cmake -DINPUT=examples/server/public/json-schema-to-grammar.mjs -DOUTPUT=examples/server/json-schema-to-grammar.mjs.hpp -P scripts/xxd.cmake
 
-      - name: Separate CUDA
-        if: env.CUDA_SEPARATE == 'true'
+      - name: Prepare CUDA
+        if: startsWith(matrix.build, 'cuda')
         run: |
           cd llama.cpp
-          sed -i 's:cudart_static:cudart:g' CMakeLists.txt
-          sed -i 's:cublas_static:cublas:g' CMakeLists.txt
-          sed -i 's:cublasLt_static:cublasLt:g' CMakeLists.txt
+          curl -o $RUNNER_TEMP/ggml-cuda.cu -L "https://github.com/Mozilla-Ocho/llamafile/raw/${{ env.LLAMAFILE_VERSION }}/llama.cpp/ggml-cuda.cu"
+          curl -o tinyblas.h -L "https://github.com/Mozilla-Ocho/llamafile/raw/${{ env.LLAMAFILE_VERSION }}/llamafile/tinyblas.h"
+          curl -o tinyblas.cu -L "https://github.com/Mozilla-Ocho/llamafile/raw/${{ env.LLAMAFILE_VERSION }}/llamafile/tinyblas.cu"
+          cat $RUNNER_TEMP/ggml-cuda.cu | grep -v g_backend |grep -v FLAG_log_disable > ggml-cuda.cu
+          rm -r ggml-cuda
+          sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG:g' CMakeLists.txt
 
       - name: Dependencies
         run: |
@@ -216,28 +219,15 @@ jobs:
         id: pack_artifacts
         run: |
           rm build/libs/undreamai_test
-          zip -j undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip build/licenses/* build/libs/*
+          zip -j undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip \
+            build/licenses/* build/libs/* \
+            cuda/lib64/libcudart.so.11.0 cuda/lib64/libcudart.so.12
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip
           path: undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip
-
-      - name: Copy and pack Cuda runtime
-        if: startsWith(matrix.build, 'cuda') && env.CUDA_SEPARATE == 'true'
-        run: |
-          cd build
-          zip ../cuda-${{ env.CUDA }}-linux.zip \
-            cuda/lib64/libcublas.so.11 cuda/lib64/libcublasLt.so.11 cuda/lib64/libcudart.so.11.0 \
-            cuda/lib64/libcublas.so.12 cuda/lib64/libcublasLt.so.12 cuda/lib64/libcudart.so.12
-
-      - name: Upload Cuda runtime
-        if: startsWith(matrix.build, 'cuda') && env.CUDA_SEPARATE == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          path: cuda-${{ env.CUDA }}-linux.zip
-          name: cuda-${{ env.CUDA }}-linux.zip
 
 ################################ macOS ################################
 
@@ -428,13 +418,16 @@ jobs:
           cmake -DINPUT="examples/server/public/index.js" -DOUTPUT="examples/server/index.js.hpp" -P "scripts/xxd.cmake"
           cmake -DINPUT="examples/server/public/json-schema-to-grammar.mjs" -DOUTPUT="examples/server/json-schema-to-grammar.mjs.hpp" -P "scripts/xxd.cmake"
           
-      - name: Separate CUDA
-        if: env.CUDA_SEPARATE == 'true'
+      - name: Prepare CUDA
+        if: startsWith(matrix.build, 'cuda')
         run: |
           cd llama.cpp
-          (Get-Content CMakeLists.txt ) -replace 'cudart_static', 'cudart' | Set-Content CMakeLists.txt
-          (Get-Content CMakeLists.txt ) -replace 'cublas_static', 'cublas' | Set-Content CMakeLists.txt
-          (Get-Content CMakeLists.txt ) -replace 'cublasLt_static', 'cublasLt' | Set-Content CMakeLists.txt
+          curl -o $env:RUNNER_TEMP\ggml-cuda.cu -L "https://github.com/Mozilla-Ocho/llamafile/raw/%LLAMAFILE_VERSION%/llama.cpp/ggml-cuda.cu"
+          curl -o tinyblas.h -L "https://github.com/Mozilla-Ocho/llamafile/raw/%LLAMAFILE_VERSION%/llamafile/tinyblas.h"
+          curl -o tinyblas.cu -L "https://github.com/Mozilla-Ocho/llamafile/raw/%LLAMAFILE_VERSION%/llamafile/tinyblas.cu"
+          findstr /V /C:"g_backend" /C:"FLAG_log_disable" $env:RUNNER_TEMP\ggml-cuda.cu > ggml-cuda.cu
+          del ggml-cuda\*
+          sed -i "s/GGML_USE_CUDA/GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG/g" CMakeLists.txt
 
       - name: Download OpenCL SDK
         id: get_opencl
@@ -503,6 +496,7 @@ jobs:
           if (Test-Path $serverPath) {
               Copy-Item $serverPath -Destination ".\artifacts\"
           }
+          robocopy "${{steps.cuda-toolkit.outputs.CUDA_PATH}}\bin" artifacts/cuda/lib64 cudart64_*.dll
           cd artifacts
           7z a ../undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip *
 
@@ -511,20 +505,6 @@ jobs:
         with:
           path: undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip
           name: undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip
-
-      - name: Copy and pack Cuda runtime
-        if: startsWith(matrix.build, 'cuda') && env.CUDA_SEPARATE == 'true'
-        run: |
-          echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
-          robocopy "${{steps.cuda-toolkit.outputs.CUDA_PATH}}\bin" cuda/lib64 cudart64_*.dll cublas64_*.dll cublasLt64_*.dll
-          7z a ../cuda-${{ env.CUDA }}-windows.zip cuda
-
-      - name: Upload Cuda runtime
-        if: startsWith(matrix.build, 'cuda') && env.CUDA_SEPARATE == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          path: cuda-${{ env.CUDA }}-windows.zip
-          name: cuda-${{ env.CUDA }}-windows.zip
 
 ################################ Release ################################
 
@@ -552,11 +532,6 @@ jobs:
           cd artifacts
           ls -R
           PREFIX=undreamai-${{ github.ref_name }}-llamacpp
-          for d in `ls | grep cuda | grep -v $PREFIX`;do
-            mv $d/$d tmp.zip
-            rm -r $d
-            mv tmp.zip $d
-          done
 
           for d in `ls | grep $PREFIX`;do
             cd $d; unzip $d; rm $d; cd ..;
