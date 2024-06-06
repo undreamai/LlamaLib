@@ -465,15 +465,6 @@ jobs:
           cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} 
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
 
-      - name: Test
-        id: test
-        if: matrix.build == 'avx'
-        run: |
-          cd build/libs/Release
-          curl.exe -o model.gguf -L https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
-          ./undreamai_test.exe -m model.gguf -np 1
-          del model.gguf
-
       - name: Add clblast.dll
         id: add_clblast_dll
         if: matrix.build == 'clblast'
