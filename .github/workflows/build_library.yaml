@@ -219,9 +219,7 @@ jobs:
         id: pack_artifacts
         run: |
           rm build/libs/undreamai_test
-          zip -j undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip \
-            build/licenses/* build/libs/* \
-            cuda/lib64/libcudart.so.11.0 cuda/lib64/libcudart.so.12
+          zip -j undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip build/licenses/* build/libs/*
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -496,7 +494,6 @@ jobs:
           if (Test-Path $serverPath) {
               Copy-Item $serverPath -Destination ".\artifacts\"
           }
-          robocopy "${{steps.cuda-toolkit.outputs.CUDA_PATH}}\bin" artifacts/cuda/lib64 cudart64_*.dll
           cd artifacts
           7z a ../undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip *
 
