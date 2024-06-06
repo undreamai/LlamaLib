@@ -56,7 +56,6 @@ int main(int argc, char ** argv) {
 
     llm = LLM_Construct(command.c_str());
 
-    LLM_StartServer(llm);
     std::thread t([&]() {LLM_Start(llm);return 1;});
     while(!LLM_Started(llm)){}
     
