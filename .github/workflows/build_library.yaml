@@ -364,7 +364,7 @@ jobs:
 ################################ Windows ################################
 
   windows-build:
-    runs-on: windows-latest
+    runs-on: windows-2019
 
     env:
       CMAKE_COMMON: '-DLLAMA_NATIVE=OFF'
@@ -420,9 +420,9 @@ jobs:
         if: startsWith(matrix.build, 'cuda')
         run: |
           cd llama.cpp
-          curl -o $env:RUNNER_TEMP\ggml-cuda.cu -L "https://github.com/Mozilla-Ocho/llamafile/raw/%LLAMAFILE_VERSION%/llama.cpp/ggml-cuda.cu"
-          curl -o tinyblas.h -L "https://github.com/Mozilla-Ocho/llamafile/raw/%LLAMAFILE_VERSION%/llamafile/tinyblas.h"
-          curl -o tinyblas.cu -L "https://github.com/Mozilla-Ocho/llamafile/raw/%LLAMAFILE_VERSION%/llamafile/tinyblas.cu"
+          curl -o $env:RUNNER_TEMP\ggml-cuda.cu -L "https://github.com/Mozilla-Ocho/llamafile/raw/${env:LLAMAFILE_VERSION}/llama.cpp/ggml-cuda.cu"
+          curl -o tinyblas.h -L "https://github.com/Mozilla-Ocho/llamafile/raw/${env:LLAMAFILE_VERSION}/llamafile/tinyblas.h"
+          curl -o tinyblas.cu -L "https://github.com/Mozilla-Ocho/llamafile/raw/${env:LLAMAFILE_VERSION}/llamafile/tinyblas.cu"
           findstr /V /C:"g_backend" /C:"FLAG_log_disable" $env:RUNNER_TEMP\ggml-cuda.cu > ggml-cuda.cu
           del ggml-cuda\*
           sed -i "s/GGML_USE_CUDA/GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG/g" CMakeLists.txt
