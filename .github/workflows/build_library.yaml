@@ -364,7 +364,7 @@ jobs:
 ################################ Windows ################################
 
   windows-build:
-    runs-on: windows-2019
+    runs-on: windows-latest
 
     env:
       CMAKE_COMMON: '-DLLAMA_NATIVE=OFF'
@@ -384,10 +384,6 @@ jobs:
             defines: '-DLLAMA_CLBLAST=ON -DCMAKE_PREFIX_PATH="$env:RUNNER_TEMP/clblast"'
           - build: 'arm64'
             defines: '-A ARM64'
-          - build: 'cuda-cu11.7.1'
-            defines: '-DLLAMA_CUDA=ON'
-          - build: 'cuda-cu12.2.0'
-            defines: '-DLLAMA_CUDA=ON'
 
     steps:
       - name: Clone
@@ -416,17 +412,6 @@ jobs:
           cmake -DINPUT="examples/server/public/index.js" -DOUTPUT="examples/server/index.js.hpp" -P "scripts/xxd.cmake"
           cmake -DINPUT="examples/server/public/json-schema-to-grammar.mjs" -DOUTPUT="examples/server/json-schema-to-grammar.mjs.hpp" -P "scripts/xxd.cmake"
           
-      - name: Prepare CUDA
-        if: startsWith(matrix.build, 'cuda')
-        run: |
-          cd llama.cpp
-          curl -o $env:RUNNER_TEMP\ggml-cuda.cu -L "https://github.com/Mozilla-Ocho/llamafile/raw/${env:LLAMAFILE_VERSION}/llama.cpp/ggml-cuda.cu"
-          curl -o tinyblas.h -L "https://github.com/Mozilla-Ocho/llamafile/raw/${env:LLAMAFILE_VERSION}/llamafile/tinyblas.h"
-          curl -o tinyblas.cu -L "https://github.com/Mozilla-Ocho/llamafile/raw/${env:LLAMAFILE_VERSION}/llamafile/tinyblas.cu"
-          findstr /V /C:"g_backend" /C:"FLAG_log_disable" $env:RUNNER_TEMP\ggml-cuda.cu > ggml-cuda.cu
-          del ggml-cuda\*
-          sed -i "s/GGML_USE_CUDA/GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG/g" CMakeLists.txt
-
       - name: Download OpenCL SDK
         id: get_opencl
         if: matrix.build == 'clblast'
@@ -448,14 +433,6 @@ jobs:
             $txt.Replace('C:/vcpkg/packages/opencl_x64-windows/', "$($env:RUNNER_TEMP.Replace('\','/'))/opencl/") | Set-Content -Path $f -Encoding UTF8
           }
 
-      - uses: Jimver/cuda-toolkit@v0.2.11
-        id: cuda-toolkit
-        if: startsWith(matrix.build, 'cuda')
-        with:
-          cuda: ${{ env.CUDA }}
-          method: 'network'
-          sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust", "visual_studio_integration"]'
-  
       - name: Build
         id: cmake_build
         run: |
@@ -494,6 +471,96 @@ jobs:
           path: undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip
           name: undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip
 
+
+  windows-cuda-build:
+    runs-on: windows-2019
+
+    env:
+      CMAKE_COMMON: '-DLLAMA_NATIVE=OFF'
+    
+    strategy:
+      matrix:
+        include:
+          - build: 'cuda-cu11.7.1'
+            defines: '-DLLAMA_CUDA=ON'
+          - build: 'cuda-cu12.2.0'
+            defines: '-DLLAMA_CUDA=ON'
+
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Get Variables
+        run: |
+          $pattern = "\d+\.\d+\.\d+"
+          $CUDA = [regex]::Match("${{ matrix.build }}", $pattern).Value
+          Add-Content $env:GITHUB_ENV "CUDA=$CUDA"
+
+      - name: Clone llama.cpp
+        run: |
+          git clone https://github.com/ggerganov/llama.cpp llama.cpp
+          cd llama.cpp
+          git checkout ${{ env.LLAMACPP_VERSION }}
+          (Get-Content examples/server/server.cpp ) -replace 'utils.hpp', 'utils_callback.hpp' | Set-Content examples/server/server.cpp
+          (Get-Content examples/server/server.cpp ) -replace 'main\(int argc', 'main_server(int argc' | Set-Content examples/server/server.cpp
+
+      - name: Create missing files
+        run: |
+          cd llama.cpp
+          cmake -DINPUT="examples/server/public/completion.js" -DOUTPUT="examples/server/completion.js.hpp" -P "scripts/xxd.cmake"
+          cmake -DINPUT="examples/server/public/index.html" -DOUTPUT="examples/server/index.html.hpp" -P "scripts/xxd.cmake"
+          cmake -DINPUT="examples/server/public/index.js" -DOUTPUT="examples/server/index.js.hpp" -P "scripts/xxd.cmake"
+          cmake -DINPUT="examples/server/public/json-schema-to-grammar.mjs" -DOUTPUT="examples/server/json-schema-to-grammar.mjs.hpp" -P "scripts/xxd.cmake"
+          
+      - name: Prepare CUDA
+        run: |
+          cd llama.cpp
+          curl -o $env:RUNNER_TEMP\ggml-cuda.cu -L "https://github.com/Mozilla-Ocho/llamafile/raw/${env:LLAMAFILE_VERSION}/llama.cpp/ggml-cuda.cu"
+          curl -o tinyblas.h -L "https://github.com/Mozilla-Ocho/llamafile/raw/${env:LLAMAFILE_VERSION}/llamafile/tinyblas.h"
+          curl -o tinyblas.cu -L "https://github.com/Mozilla-Ocho/llamafile/raw/${env:LLAMAFILE_VERSION}/llamafile/tinyblas.cu"
+          findstr /V /C:"g_backend" /C:"FLAG_log_disable" $env:RUNNER_TEMP\ggml-cuda.cu > ggml-cuda.cu
+          del ggml-cuda\*
+          sed -i "s/GGML_USE_CUDA/GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG/g" CMakeLists.txt
+
+      - uses: Jimver/cuda-toolkit@v0.2.11
+        id: cuda-toolkit
+        with:
+          cuda: ${{ env.CUDA }}
+          method: 'network'
+          sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust", "visual_studio_integration"]'
+
+      - name: Build
+        id: cmake_build
+        run: |
+          (Get-Content CMakeLists.txt ) -replace 'LIBRARY undreamai', 'LIBRARY undreamai_windows-${{ matrix.build }}' | Set-Content CMakeLists.txt
+          mkdir build
+          cd build
+          cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} 
+          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+
+      - name: Pack artifacts
+        id: pack_artifacts
+        run: |
+          del build/libs/Release/undreamai_test.exe
+          mkdir artifacts
+          ls -R build
+          Copy-Item .\llama.cpp\LICENSE .\artifacts\llama.cpp.LICENSE.txt
+          Copy-Item .\build\Release\* .\artifacts\
+          Copy-Item .\build\libs\Release\*dll .\artifacts\
+          $serverPath = ".\build\libs\Release\undreamai_server.exe"
+          if (Test-Path $serverPath) {
+              Copy-Item $serverPath -Destination ".\artifacts\"
+          }
+          cd artifacts
+          7z a ../undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip *
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip
+          name: undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip
+
 ################################ Release ################################
 
   create_release:
@@ -506,6 +573,7 @@ jobs:
       - macOS-arm64-build
       - macOS-x64-build
       - windows-build
+      - windows-cuda-build
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
