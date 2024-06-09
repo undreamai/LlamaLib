@@ -542,7 +542,7 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts
         run: |
-          del build/libs/Release/undreamai_test.exe
+          del build/libs/Release/undreamai_test.*
           mkdir artifacts
           ls -R build
           Copy-Item .\llama.cpp\LICENSE .\artifacts\llama.cpp.LICENSE.txt
