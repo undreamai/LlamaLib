@@ -114,6 +114,7 @@ jobs:
           git checkout ${{ env.LLAMACPP_VERSION }}
           sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
           sed -i 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+          sed -i 's:exit(1):std\:\:terminate():g' ggml-opencl.cpp
           cd ..
           mkdir -p build/licenses build/libs
           cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
@@ -403,6 +404,8 @@ jobs:
           git checkout ${{ env.LLAMACPP_VERSION }}
           (Get-Content examples/server/server.cpp ) -replace 'utils.hpp', 'utils_callback.hpp' | Set-Content examples/server/server.cpp
           (Get-Content examples/server/server.cpp ) -replace 'main\(int argc', 'main_server(int argc' | Set-Content examples/server/server.cpp
+          (Get-Content ggml-opencl.cpp ) -replace 'exit\(1', 'std::terminate(' | Set-Content ggml-opencl.cpp
+          Get-Content ggml-opencl.cpp
 
       - name: Create missing files
         run: |
