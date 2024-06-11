@@ -405,7 +405,6 @@ jobs:
           (Get-Content examples/server/server.cpp ) -replace 'utils.hpp', 'utils_callback.hpp' | Set-Content examples/server/server.cpp
           (Get-Content examples/server/server.cpp ) -replace 'main\(int argc', 'main_server(int argc' | Set-Content examples/server/server.cpp
           (Get-Content ggml-opencl.cpp ) -replace 'exit\(1', 'std::terminate(' | Set-Content ggml-opencl.cpp
-          Get-Content ggml-opencl.cpp
 
       - name: Create missing files
         run: |
