@@ -32,11 +32,18 @@ static void handle_signal_code(int sig){
     longjmp(point, 1);
 }
 
+static void handle_terminate(){
+    handle_signal_code(1);
+}
+
 #ifdef _WIN32
 void set_error_handlers() {
     init_status();
+
     signal(SIGSEGV, handle_signal_code);
     signal(SIGFPE, handle_signal_code);
+
+    std::set_terminate(handle_terminate);
 }
 #else
 static void handle_signal(int sig, siginfo_t *dont_care, void *dont_care_either)
@@ -56,6 +63,8 @@ void set_error_handlers() {
 
     sigaction(SIGSEGV, &sa, NULL);
     sigaction(SIGFPE, &sa, NULL);
+
+    std::set_terminate(handle_terminate);
 }
 #endif
 
@@ -105,6 +114,8 @@ void LLM::init(int argc, char ** argv){
     set_error_handlers();
     if (setjmp(point) != 0) return;
     try{
+        ctx_server.batch = { 0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, 0, 0, 0, };
+
         server_params_parse(argc, argv, sparams, params);
 
         if (!sparams.system_prompt.empty()) {
@@ -672,7 +683,7 @@ LLM* LLM_Construct(const char* params_string) {
 }
 
 const void LLM_Delete(LLM* llm) {
-    delete llm;
+    if (llm!=nullptr) delete llm;
 }
 
 const void LLM_StartServer(LLM* llm) {
