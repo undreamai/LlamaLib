@@ -32,7 +32,7 @@ class LLM {
         std::string handle_tokenize(json body);
         std::string handle_detokenize(json body);
         std::string handle_completions(json data, StringWrapper* stringWrapper=nullptr, httplib::Response* res=nullptr);
-        void handle_slots_action(json data);
+        std::string handle_slots_action(json data, httplib::Response* res=nullptr);
         void handle_cancel_action(int id_slot);
 
         void start_server();
@@ -86,7 +86,7 @@ extern "C" {
     UNDREAMAI_API const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
     UNDREAMAI_API const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
     UNDREAMAI_API const void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Slot(LLM* llm, const char* json_data);
+    UNDREAMAI_API const void LLM_Slot(LLM* llm, const char* json_data, StringWrapper* wrapper);
     UNDREAMAI_API const void LLM_Cancel(LLM* llm, int id_slot);
     UNDREAMAI_API const int LLM_Status(LLM* llm, StringWrapper* wrapper);
 };

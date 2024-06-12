@@ -363,6 +363,10 @@ void LLM::start_server(){
         return res.set_content(handle_detokenize(handle_post(req, res)), "application/json; charset=utf-8");
     };
 
+    const auto handle_slots_action_post = [this](const httplib::Request & req, httplib::Response & res) {
+        return res.set_content(handle_slots_action(handle_post(req, res), &res), "application/json; charset=utf-8");
+    };
+
     //
     // Router
     //
@@ -379,6 +383,7 @@ void LLM::start_server(){
     svr->Post("/template",            handle_template_post);
     svr->Post("/tokenize",            handle_tokenize_post);
     svr->Post("/detokenize",          handle_detokenize_post);
+    svr->Get ("/slots",               handle_slots_action_post);
 
     //
     // Start the server
@@ -589,9 +594,10 @@ std::string LLM::handle_completions(json data, StringWrapper* stringWrapper, htt
     return result_data;
 }
 
-void LLM::handle_slots_action(json data) {
-    if (setjmp(point) != 0) return;
+std::string LLM::handle_slots_action(json data, httplib::Response* res) {
+    if (setjmp(point) != 0) return "";
     clear_status();
+    std::string result_data = "";
     try {
         server_task task;
         int id_slot = json_value(data, "id_slot", 0);
@@ -601,10 +607,11 @@ void LLM::handle_slots_action(json data) {
 
         std::string action = data["action"];
         if (action == "save" || action == "restore") {
-            std::string filename = data.at("filename");;
+            std::string filename = data.at("filename");
             if (!fs_validate_filename(filename)) {
                 LOG_ERROR(("Invalid filename: " + filename).c_str(), {});
-                return;
+                if(res != nullptr) handle_error(*res, format_error_response("Invalid filename", ERROR_TYPE_INVALID_REQUEST));
+                return "";
             }
             task.data["filename"] = filename;
             task.data["filepath"] = sparams.slot_save_path + filename;
@@ -625,9 +632,18 @@ void LLM::handle_slots_action(json data) {
 
         server_task_result result = ctx_server.queue_results.recv(id_task);
         ctx_server.queue_results.remove_waiting_task_id(id_task);
+
+        result_data = result.data.dump();
+        if (result.error) {
+            LOG_ERROR("Error processing handle_slots_action", result_data);
+            if(res != nullptr) handle_error(*res, result.data);
+        } else {
+            if(res != nullptr) res->set_content(result_data, "application/json");
+        }
     } catch(...) {
         handle_exception();
     }
+    return result_data;
 }
 
 void LLM::handle_cancel_action(int id_slot) {
@@ -723,8 +739,9 @@ const void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrappe
     wrapper->SetContent(result);
 }
 
-const void LLM_Slot(LLM* llm, const char* json_data) {
-    llm->handle_slots_action(json::parse(json_data));
+const void LLM_Slot(LLM* llm, const char* json_data, StringWrapper* wrapper) {
+    std::string result = llm->handle_slots_action(json::parse(json_data));
+    wrapper->SetContent(result);
 }
 
 const void LLM_Cancel(LLM* llm, int id_slot) {
