@@ -432,10 +432,12 @@ void LLM::start_service(){
 
 void LLM::stop_service(){
     try {
+        LOG_INFO("shutting down tasks", {});
         ctx_server.queue_tasks.terminate();
         for(int id_task:ctx_server.queue_results.waiting_task_ids)
             ctx_server.send_error(id_task, -1, "shutting down", ERROR_TYPE_INVALID_REQUEST);
         if(llama_backend_has_init) llama_backend_free();
+        LOG_INFO("service stopped", {});
     } catch(...) {
         handle_exception();
     }
