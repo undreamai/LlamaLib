@@ -127,6 +127,7 @@ void LLM::init(int argc, char ** argv){
         }
 
         llama_backend_init();
+        llama_backend_has_init = true;
         llama_numa_init(params.numa);
 
         LOG_INFO("build info", {
@@ -383,7 +384,7 @@ void LLM::start_server(){
     svr->Post("/template",            handle_template_post);
     svr->Post("/tokenize",            handle_tokenize_post);
     svr->Post("/detokenize",          handle_detokenize_post);
-    svr->Post ("/slots",              handle_slots_action_post);
+    svr->Post("/slots",               handle_slots_action_post);
 
     //
     // Start the server
@@ -430,11 +431,14 @@ void LLM::start_service(){
 }
 
 void LLM::stop_service(){
-    LOG_INFO("shutting down tasks", {});
-    ctx_server.queue_tasks.terminate();
-    for(int id_task:ctx_server.queue_results.waiting_task_ids)
-        ctx_server.send_error(id_task, -1, "shutting down", ERROR_TYPE_INVALID_REQUEST);
-    llama_backend_free();
+    try {
+        ctx_server.queue_tasks.terminate();
+        for(int id_task:ctx_server.queue_results.waiting_task_ids)
+            ctx_server.send_error(id_task, -1, "shutting down", ERROR_TYPE_INVALID_REQUEST);
+        if(llama_backend_has_init) llama_backend_free();
+    } catch(...) {
+        handle_exception();
+    }
 }
 
 bool LLM::is_running(){
