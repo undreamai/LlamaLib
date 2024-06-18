@@ -383,7 +383,7 @@ void LLM::start_server(){
     svr->Post("/template",            handle_template_post);
     svr->Post("/tokenize",            handle_tokenize_post);
     svr->Post("/detokenize",          handle_detokenize_post);
-    svr->Get ("/slots",               handle_slots_action_post);
+    svr->Post ("/slots",              handle_slots_action_post);
 
     //
     // Start the server
