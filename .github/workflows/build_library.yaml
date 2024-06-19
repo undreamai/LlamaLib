@@ -13,8 +13,6 @@ on:
 env:
   LLAMACPP_VERSION: b2989
   LLAMAFILE_VERSION: 0.8.6
-  OPENCL_VERSION: 2023.04.17
-  CLBLAST_VERSION: 1.6.0
   CMAKE_COMMON_JOBS: '-DLLAMA_STATIC=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DBUILD_UNDREAMAI_SERVER=ON'
 
 jobs:
@@ -91,8 +89,6 @@ jobs:
             defines: '-DLLAMA_AVX2=OFF'
           - build: 'avx512'
             defines: '-DLLAMA_AVX512=ON'
-          - build: 'clblast'
-            defines: '-DLLAMA_CLBLAST=ON -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/clblast"'
           - build: 'vulkan'
             defines: '-DLLAMA_VULKAN=ON'
           - build: 'cuda-cu11.7.1'
@@ -121,7 +117,6 @@ jobs:
           git checkout ${{ env.LLAMACPP_VERSION }}
           sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
           sed -i 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
-          sed -i 's:exit(1):std\:\:terminate():g' ggml-opencl.cpp
           cd ..
           mkdir -p build/licenses build/libs
           cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
@@ -145,48 +140,6 @@ jobs:
           cp tinyBLAS/${{ env.LLAMACPP_VERSION }}/* llama.cpp/
           rm -r llama.cpp/ggml-cuda
           sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG:g' llama.cpp/CMakeLists.txt
-
-      - name: Download OpenCL SDK
-        id: get_opencl
-        if: matrix.build == 'clblast'
-        run: |
-          sudo apt-get install opencl-headers
-          git clone --recurse-submodules https://github.com/KhronosGroup/OpenCL-SDK.git
-          curl -o build/licenses/OpenCL.LICENSE.txt -L "https://raw.githubusercontent.com/KhronosGroup/OpenCL-SDK/v${{ env.OPENCL_VERSION }}/LICENSE"
-          mkdir OpenCL-SDK/build
-          cd OpenCL-SDK
-          git checkout v$OPENCL_VERSION
-          cd build
-          cmake .. -DBUILD_DOCS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DOPENCL_SDK_BUILD_SAMPLES=OFF -DOPENCL_SDK_TEST_SAMPLES=OFF
-          cmake --build . --config Release
-          cmake --install . --prefix install
-          cp install/lib/libOpenCL.so ../../build/libs/libOpenCL.so.1
-
-      - name: Download CLBlast
-        id: get_clblast
-        if: matrix.build == 'clblast'
-        run: |
-          sudo apt-get install tar p7zip-full
-          curl -o clblast.7z -L "https://github.com/CNugteren/CLBlast/releases/download/${{ env.CLBLAST_VERSION }}/CLBlast-${{ env.CLBLAST_VERSION }}-linux-x86_64.tar.gz"
-          curl -o build/licenses/CLBlast.LICENSE.txt -L "https://github.com/CNugteren/CLBlast/raw/${{ env.CLBLAST_VERSION }}/LICENSE"
-          7z x clblast.7z
-          mv CLBlast-* clblast
-          cp clblast/lib/libclblast.so.${{ env.CLBLAST_VERSION }} build/libs/libclblast.so.1
-          
-          echo "
-          set(CMAKE_IMPORT_FILE_VERSION 1)
-          
-          set_property(TARGET clblast APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
-          set_target_properties(clblast PROPERTIES
-            IMPORTED_LINK_INTERFACE_LIBRARIES_RELEASE \"`pwd`/build/libs/libOpenCL.so.1\"
-            IMPORTED_LOCATION_RELEASE \"`pwd`/build/libs/libclblast.so.1\"
-            IMPORTED_SONAME_RELEASE \"libclblast.so.1\"
-            )
-          
-          list(APPEND _cmake_import_check_targets clblast )
-          list(APPEND _cmake_import_check_files_for_clblast \"libs/libclblast.so.1\" )
-          set(CMAKE_IMPORT_FILE_VERSION)
-          " > clblast/lib/cmake/CLBlast/CLBlastConfig-release.cmake
 
       - uses: Jimver/cuda-toolkit@v0.2.11
         id: cuda-toolkit
@@ -383,8 +336,6 @@ jobs:
             defines: '-DLLAMA_AVX2=OFF'
           - build: 'avx512'
             defines: '-DLLAMA_AVX512=ON'
-          - build: 'clblast'
-            defines: '-DLLAMA_CLBLAST=ON -DCMAKE_PREFIX_PATH="$env:RUNNER_TEMP/clblast"'
           - build: 'vulkan'
             defines: '-DLLAMA_VULKAN=ON'
           - build: 'arm64'
@@ -408,7 +359,6 @@ jobs:
           git checkout ${{ env.LLAMACPP_VERSION }}
           (Get-Content examples/server/server.cpp ) -replace 'utils.hpp', 'utils_callback.hpp' | Set-Content examples/server/server.cpp
           (Get-Content examples/server/server.cpp ) -replace 'main\(int argc', 'main_server(int argc' | Set-Content examples/server/server.cpp
-          (Get-Content ggml-opencl.cpp ) -replace 'exit\(1', 'std::terminate(' | Set-Content ggml-opencl.cpp
           cd ..
           mkdir build
 
@@ -419,27 +369,6 @@ jobs:
           for f in examples/server/public/*; do
             cmake -DINPUT=$f -DOUTPUT=$(echo $f | sed -e 's:public/::g').hpp -P scripts/xxd.cmake
           done
-          
-      - name: Download OpenCL SDK
-        id: get_opencl
-        if: matrix.build == 'clblast'
-        run: |
-          curl.exe -o $env:RUNNER_TEMP/opencl.zip -L "https://github.com/KhronosGroup/OpenCL-SDK/releases/download/v${env:OPENCL_VERSION}/OpenCL-SDK-v${env:OPENCL_VERSION}-Win-x64.zip"
-          mkdir $env:RUNNER_TEMP/opencl
-          tar.exe -xvf $env:RUNNER_TEMP/opencl.zip --strip-components=1 -C $env:RUNNER_TEMP/opencl
-
-      - name: Download CLBlast
-        id: get_clblast
-        if: matrix.build == 'clblast'
-        run: |
-          curl.exe -o $env:RUNNER_TEMP/clblast.7z -L "https://github.com/CNugteren/CLBlast/releases/download/${env:CLBLAST_VERSION}/CLBlast-${env:CLBLAST_VERSION}-windows-x64.7z"
-          curl.exe -o $env:RUNNER_TEMP/CLBlast.LICENSE.txt -L "https://github.com/CNugteren/CLBlast/raw/${env:CLBLAST_VERSION}/LICENSE"
-          7z x "-o${env:RUNNER_TEMP}" $env:RUNNER_TEMP/clblast.7z
-          rename-item $env:RUNNER_TEMP/CLBlast-${env:CLBLAST_VERSION}-windows-x64 clblast
-          foreach ($f in (gci -Recurse -Path "$env:RUNNER_TEMP/clblast" -Filter '*.cmake')) {
-            $txt = Get-Content -Path $f -Raw
-            $txt.Replace('C:/vcpkg/packages/opencl_x64-windows/', "$($env:RUNNER_TEMP.Replace('\','/'))/opencl/") | Set-Content -Path $f -Encoding UTF8
-          }
 
       - name: Install Vulkan SDK
         id: get_vulkan
@@ -461,13 +390,6 @@ jobs:
           cd build
           cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} 
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
-
-      - name: Add clblast.dll
-        id: add_clblast_dll
-        if: matrix.build == 'clblast'
-        run: |
-          cp $env:RUNNER_TEMP/clblast/lib/clblast.dll ./build/Release
-          cp $env:RUNNER_TEMP/CLBlast.LICENSE.txt ./build/Release/CLBlast-${env:CLBLAST_VERSION}.txt
 
       - name: Pack artifacts
         id: pack_artifacts
