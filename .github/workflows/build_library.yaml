@@ -506,6 +506,7 @@ jobs:
 
       - name: Create missing files
         run: |
+          cd llama.cpp
           Get-ChildItem examples/server/public/* | ForEach-Object {
             $f = $_.FullName
             $output = $f -replace "public\\", ""
