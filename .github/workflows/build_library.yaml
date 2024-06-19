@@ -231,7 +231,7 @@ jobs:
         run: |
           sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_macos-arm64-${{ matrix.build }}:g" CMakeLists.txt
           cd build
-          if [ "${{ matrix.build }}" == "no_acc" ];then CBLAS=-DBLAS_INCLUDE_DIRS=`find /Applications/Xcode_*.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOS*.sdk/System/Library/Frameworks/Accelerate.framework -name cblas.h|sed -e 's:cblas.h::g'`; else CBLAS=""; fi
+          if [ "${{ matrix.build }}" == "no_acc" ];then CBLAS=-DBLAS_INCLUDE_DIRS=`find /Applications/Xcode_15.0.1.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk/System/Library/Frameworks/Accelerate.framework -name cblas.h |head -1|sed -e 's:cblas.h::g'`; else CBLAS=""; fi
           echo $CBLAS
           cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON_JOBS }} $CBLAS ..
           cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
