@@ -137,8 +137,7 @@ jobs:
         if: matrix.build == 'vulkan'
         run: |
           sudo apt-get install libvulkan-dev
-          mkdir -p llama.cpp/build/libs
-          cp /lib/x86_64-linux-gnu/libvulkan.so.1 llama.cpp/build/libs/
+          cp /lib/x86_64-linux-gnu/libvulkan.so.1 build/libs/
 
       - name: Prepare CUDA
         if: startsWith(matrix.build, 'cuda')
@@ -450,8 +449,8 @@ jobs:
           Add-Content $env:GITHUB_PATH "C:\VulkanSDK\${env:VULKAN_VERSION}\bin"
           curl.exe -o $env:RUNNER_TEMP/VulkanRT-Components.zip -L "https://sdk.lunarg.com/sdk/download/1.3.283.0/windows/VulkanRT-1.3.283.0-Components.zip"
           7z x "-o${env:RUNNER_TEMP}" $env:RUNNER_TEMP/VulkanRT-Components.zip
-          mkdir -p llama.cpp\build\libs\Release\
-          cp ${env:RUNNER_TEMP}/VulkanRT*\x64\vulkan-1.dll llama.cpp\build\libs\Release\
+          mkdir -p .\build\libs\Release
+          cp ${env:RUNNER_TEMP}/VulkanRT*\x64\vulkan-1.dll .\build\libs\Release
 
       - name: Build
         id: cmake_build
