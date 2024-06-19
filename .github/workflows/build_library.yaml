@@ -208,6 +208,7 @@ jobs:
           for d in /usr/include /usr/local/include /usr/include/openblas /opt/homebrew/opt/openblas/include /usr/local/opt/openblas/include /usr/include/x86_64-linux-gnu/openblas/include;do
             if [[ -e $d/cblas.h ]]; then echo $d;fi;
           done
+          find /Applications/Xcode_15.0.1.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk/System/Library/Frameworks/Accelerate.framework -name cblas.h
 
       - name: Clone llama.cpp
         run: |
