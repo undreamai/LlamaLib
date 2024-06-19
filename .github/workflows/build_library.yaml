@@ -205,12 +205,12 @@ jobs:
 
       - name: Clone llama.cpp
         run: |
-          ls /usr/include/*cblas.h
-          ls /usr/local/include/*cblas.h
-          ls /usr/include/openblas/*cblas.h
-          ls /opt/homebrew/opt/openblas/include/*cblas.h
-          ls /usr/local/opt/openblas/include/*cblas.h
-          ls /usr/include/x86_64-linux-gnu/openblas/include/*cblas.h
+          find /usr/include/ -name cblas.h
+          find /usr/local/include/ -name cblas.h
+          find /usr/include/openblas/ -name cblas.h
+          find /opt/homebrew/opt/openblas/include/ -name cblas.h
+          find /usr/local/opt/openblas/include/ -name cblas.h
+          find /usr/include/x86_64-linux-gnu/openblas/include/ -name cblas.h
 
       - name: Clone llama.cpp
         run: |
