@@ -456,7 +456,7 @@ jobs:
         id: cmake_build
         run: |
           (Get-Content CMakeLists.txt ) -replace 'LIBRARY undreamai', 'LIBRARY undreamai_windows-${{ matrix.build }}' | Set-Content CMakeLists.txt
-          mkdir build
+          mkdir -p build
           cd build
           cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} 
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
