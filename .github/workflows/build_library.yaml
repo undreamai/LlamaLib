@@ -187,13 +187,13 @@ jobs:
 ################################ macOS ################################
 
   macOS-arm64-build:
-    runs-on: macos-13-xlarge
+    runs-on: macos-14
 
     strategy:
       matrix:
         include:
           - build: 'no_acc'
-            defines: '-DLLAMA_ACCELERATE=OFF'
+            defines: '-DLLAMA_ACCELERATE=OFF -DLLAMA_BLAS=OFF'
           - build: 'acc'
             defines: ''
 
@@ -231,9 +231,7 @@ jobs:
         run: |
           sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_macos-arm64-${{ matrix.build }}:g" CMakeLists.txt
           cd build
-          if [ "${{ matrix.build }}" == "no_acc" ];then CBLAS=-DBLAS_INCLUDE_DIRS=`find /Applications/Xcode_15.0.1.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk/System/Library/Frameworks/Accelerate.framework -name cblas.h |head -1|sed -e 's:cblas.h::g'`; else CBLAS=""; fi
-          echo $CBLAS
-          cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON_JOBS }} $CBLAS ..
+          cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON_JOBS }} ..
           cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
 
       - name: Pack artifacts
@@ -256,7 +254,7 @@ jobs:
       matrix:
         include:
           - build: 'no_acc'
-            defines: '-DLLAMA_ACCELERATE=OFF'
+            defines: '-DLLAMA_ACCELERATE=OFF -DLLAMA_BLAS=OFF'
           - build: 'acc'
             defines: ''
 
@@ -294,9 +292,7 @@ jobs:
         run: |
           sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_macos-x64-${{ matrix.build }}:g" CMakeLists.txt
           cd build
-          if [ "${{ matrix.build }}" == "no_acc" ];then CBLAS=-DBLAS_INCLUDE_DIRS=`find /Applications/Xcode_14.2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk/System/Library/Frameworks/Accelerate.framework -name cblas.h |head -1|sed -e 's:cblas.h::g'`; else CBLAS=""; fi
-          echo $CBLAS
-          cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL=OFF -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON_JOBS }} $CBLAS ..
+          cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL=OFF -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON_JOBS }} ..
           cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
 
       - name: Test
