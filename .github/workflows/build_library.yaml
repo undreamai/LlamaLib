@@ -511,7 +511,7 @@ jobs:
             $f = $_.FullName
             $output = $f -replace "public\\", ""
             echo "cmake -DINPUT=$f -DOUTPUT=$output.hpp -P scripts/xxd.cmake"
-            cmake -DINPUT=$f -DOUTPUT=$output.hpp -P scripts/xxd.cmake
+            cmake -DINPUT="$f" -DOUTPUT="$output.hpp" -P "scripts/xxd.cmake"
           }
           
       - name: Prepare CUDA
