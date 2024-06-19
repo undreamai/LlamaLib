@@ -506,10 +506,12 @@ jobs:
 
       - name: Create missing files
         run: |
-          cd llama.cpp
-          for f in examples/server/public/*;do
-            cmake -DINPUT=$f -DOUTPUT=echo $f|sed -e 's:public/::g'.hpp -P scripts/xxd.cmake
-          done
+          Get-ChildItem examples/server/public/* | ForEach-Object {
+            $f = $_.FullName
+            $output = $f -replace "public\\", ""
+            echo "cmake -DINPUT=$f -DOUTPUT=$output.hpp -P scripts/xxd.cmake"
+            cmake -DINPUT=$f -DOUTPUT=$output.hpp -P scripts/xxd.cmake
+          }
           
       - name: Prepare CUDA
         run: |
