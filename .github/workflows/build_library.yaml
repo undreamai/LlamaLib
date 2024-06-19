@@ -531,7 +531,7 @@ jobs:
           
       - name: Prepare CUDA
         run: |
-          cp tinyBLAS/${env:LLAMAFILE_VERSION}/* llama.cpp\
+          cp tinyBLAS/${env:LLAMACPP_VERSION}/* llama.cpp\
           del llama.cpp\ggml-cuda\*
           sed -i "s/GGML_USE_CUDA/GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG/g" llama.cpp\CMakeLists.txt
 
