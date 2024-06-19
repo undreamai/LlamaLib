@@ -406,6 +406,7 @@ jobs:
       - name: Create missing files
         shell: bash
         run: |
+          cd llama.cpp
           for f in examples/server/public/*; do
             cmake -DINPUT=$f -DOUTPUT=$(echo $f | sed -e 's:public/::g').hpp -P scripts/xxd.cmake
           done
