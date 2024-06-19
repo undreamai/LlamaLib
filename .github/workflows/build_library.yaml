@@ -187,7 +187,7 @@ jobs:
 ################################ macOS ################################
 
   macOS-arm64-build:
-    runs-on: macos-14
+    runs-on: macos-13-xlarge
 
     strategy:
       matrix:
@@ -294,7 +294,9 @@ jobs:
         run: |
           sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_macos-x64-${{ matrix.build }}:g" CMakeLists.txt
           cd build
-          cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL=OFF -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON_JOBS }} ..
+          if [ "${{ matrix.build }}" == "no_acc" ];then CBLAS=-DBLAS_INCLUDE_DIRS=`find /Applications/Xcode_14.2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk/System/Library/Frameworks/Accelerate.framework -name cblas.h |head -1|sed -e 's:cblas.h::g'`; else CBLAS=""; fi
+          echo $CBLAS
+          cmake -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL=OFF -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON_JOBS }} $CBLAS ..
           cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
 
       - name: Test
