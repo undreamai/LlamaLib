@@ -1,4 +1,8 @@
+// -*- mode:c++;indent-tabs-mode:nil;c-basic-offset:4;coding:utf-8 -*-
+// vi: set et ft=cpp ts=4 sts=4 sw=4 fenc=utf-8 :vi
+
 #include <algorithm>
+#include <stdarg.h>
 #include <array>
 #include <atomic>
 #include <cassert>
@@ -54,15 +58,46 @@
 #endif
 #include "ggml-common.h"
 
-
 #if defined(GGML_USE_HIPBLAS)
 #include <hip/hip_runtime.h>
-#include <hipblas/hipblas.h>
 #include <hip/hip_fp16.h>
+#include <hip/hip_bfloat16.h>
+
+#ifdef GGML_USE_TINYBLAS
+#include "tinyblas.cu"
+#define __nv_bfloat16 hip_bfloat16
+#define CUBLAS_COMPUTE_16F TINYBLAS_COMPUTE_16F
+#define CUBLAS_COMPUTE_32F TINYBLAS_COMPUTE_32F
+#define CUBLAS_COMPUTE_32F_FAST_16F TINYBLAS_COMPUTE_32F
+#define CUBLAS_GEMM_DEFAULT TINYBLAS_GEMM_DEFAULT
+#define CUBLAS_GEMM_DEFAULT_TENSOR_OP TINYBLAS_GEMM_DEFAULT
+#define CUBLAS_OP_N TINYBLAS_OP_N
+#define CUBLAS_OP_T TINYBLAS_OP_T
+#define CUBLAS_STATUS_SUCCESS TINYBLAS_STATUS_SUCCESS
+#define CUBLAS_TF32_TENSOR_OP_MATH 0
+#define CUDA_R_16F TINYBLAS_R_16F
+#define CUDA_R_32F TINYBLAS_R_32F
+#define cublasComputeType_t tinyblasComputeType_t
+#define cublasCreate tinyblasCreate
+#define cublasDestroy tinyblasDestroy
+#define cublasGemmEx tinyblasGemmEx
+#define cublasGemmBatchedEx tinyblasGemmBatchedEx
+#define cublasGemmStridedBatchedEx tinyblasGemmStridedBatchedEx
+#define cublasHandle_t tinyblasHandle_t
+#define cublasSetMathMode(handle, mode) CUBLAS_STATUS_SUCCESS
+#define cublasSetStream tinyblasSetStream
+#define cublasSgemm tinyblasSgemm
+#define cublasStatus_t tinyblasStatus_t
+#define cudaDataType_t tinyblasDataType_t
+#define cublasGetStatusString tinyblasGetStatusString
+
+#else
+#include <hipblas/hipblas.h>
 #ifdef __HIP_PLATFORM_AMD__
 // for rocblas_initialize()
 #include "rocblas/rocblas.h"
 #endif // __HIP_PLATFORM_AMD__
+#define __nv_bfloat16 hip_bfloat16
 #define CUBLAS_COMPUTE_16F HIPBLAS_R_16F
 #define CUBLAS_COMPUTE_32F HIPBLAS_R_32F
 #define CUBLAS_COMPUTE_32F_FAST_16F HIPBLAS_R_32F
@@ -74,7 +109,6 @@
 #define CUBLAS_TF32_TENSOR_OP_MATH 0
 #define CUDA_R_16F  HIPBLAS_R_16F
 #define CUDA_R_32F  HIPBLAS_R_32F
-#define __shfl_xor_sync(mask, var, laneMask, width) __shfl_xor(var, laneMask, width)
 #define cublasComputeType_t hipblasDatatype_t //deprecated, new hipblasComputeType_t not in 5.6
 #define cublasCreate hipblasCreate
 #define cublasDestroy hipblasDestroy
@@ -87,6 +121,18 @@
 #define cublasSgemm hipblasSgemm
 #define cublasStatus_t hipblasStatus_t
 #define cudaDataType_t hipblasDatatype_t //deprecated, new hipblasDatatype not in 5.6
+#define CUBLAS_STATUS_SUCCESS HIPBLAS_STATUS_SUCCESS
+#define CUBLAS_STATUS_NOT_INITIALIZED HIPBLAS_STATUS_NOT_INITIALIZED
+#define CUBLAS_STATUS_ALLOC_FAILED HIPBLAS_STATUS_ALLOC_FAILED
+#define CUBLAS_STATUS_INVALID_VALUE HIPBLAS_STATUS_INVALID_VALUE
+#define CUBLAS_STATUS_ARCH_MISMATCH HIPBLAS_STATUS_ARCH_MISMATCH
+#define CUBLAS_STATUS_MAPPING_ERROR HIPBLAS_STATUS_MAPPING_ERROR
+#define CUBLAS_STATUS_EXECUTION_FAILED HIPBLAS_STATUS_EXECUTION_FAILED
+#define CUBLAS_STATUS_INTERNAL_ERROR HIPBLAS_STATUS_INTERNAL_ERROR
+#define CUBLAS_STATUS_NOT_SUPPORTED HIPBLAS_STATUS_NOT_SUPPORTED
+#endif
+
+#define __shfl_xor_sync(mask, var, laneMask, width) __shfl_xor(var, laneMask, width)
 #define cudaDeviceCanAccessPeer hipDeviceCanAccessPeer
 #define cudaDeviceDisablePeerAccess hipDeviceDisablePeerAccess
 #define cudaDeviceEnablePeerAccess hipDeviceEnablePeerAccess
@@ -143,20 +189,45 @@
 #define cudaStream_t hipStream_t
 #define cudaSuccess hipSuccess
 #define __trap abort
-#define CUBLAS_STATUS_SUCCESS HIPBLAS_STATUS_SUCCESS
-#define CUBLAS_STATUS_NOT_INITIALIZED HIPBLAS_STATUS_NOT_INITIALIZED
-#define CUBLAS_STATUS_ALLOC_FAILED HIPBLAS_STATUS_ALLOC_FAILED
-#define CUBLAS_STATUS_INVALID_VALUE HIPBLAS_STATUS_INVALID_VALUE
-#define CUBLAS_STATUS_ARCH_MISMATCH HIPBLAS_STATUS_ARCH_MISMATCH
-#define CUBLAS_STATUS_MAPPING_ERROR HIPBLAS_STATUS_MAPPING_ERROR
-#define CUBLAS_STATUS_EXECUTION_FAILED HIPBLAS_STATUS_EXECUTION_FAILED
-#define CUBLAS_STATUS_INTERNAL_ERROR HIPBLAS_STATUS_INTERNAL_ERROR
-#define CUBLAS_STATUS_NOT_SUPPORTED HIPBLAS_STATUS_NOT_SUPPORTED
+
+#elif defined(GGML_USE_TINYBLAS)
+#include <cuda_runtime.h>
+#include <cuda.h>
+#include <cuda_fp16.h>
+#include <cuda_bf16.h>
+#include "tinyblas.cu"
+
+#define CUBLAS_COMPUTE_16F TINYBLAS_COMPUTE_16F
+#define CUBLAS_COMPUTE_32F TINYBLAS_COMPUTE_32F
+#define CUBLAS_OP_N TINYBLAS_OP_N
+#define CUBLAS_OP_T TINYBLAS_OP_T
+#define CUDA_R_16F TINYBLAS_R_16F
+#define CUDA_R_32F TINYBLAS_R_32F
+#define CUBLAS_GEMM_DEFAULT TINYBLAS_GEMM_DEFAULT
+#define CUBLAS_GEMM_DEFAULT_TENSOR_OP TINYBLAS_GEMM_DEFAULT
+#define CUBLAS_STATUS_SUCCESS TINYBLAS_STATUS_SUCCESS
+#define cublasGemmAlgo_t tinyblasGemmAlgo_t
+#define cublasOperation_t tinyblasOperation_t
+#define cublasComputeType_t tinyblasComputeType_t
+#define cublasHandle_t tinyblasHandle_t
+#define cublasStatus_t tinyblasStatus_t
+#define cublasSgemm tinyblasSgemm
+#define cublasGemmEx tinyblasGemmEx
+#define cublasCreate tinyblasCreate
+#define cublasDestroy tinyblasDestroy
+#define cublasSetStream tinyblasSetStream
+#define cublasGemmBatchedEx tinyblasGemmBatchedEx
+#define cublasGemmStridedBatchedEx tinyblasGemmStridedBatchedEx
+#define cublasGetStatusString tinyblasGetStatusString
+#define cudaDataType_t tinyblasDataType_t
+#define cublasSetMathMode(handle, mode) CUBLAS_STATUS_SUCCESS
+
 #else
 #include <cuda_runtime.h>
 #include <cuda.h>
 #include <cublas_v2.h>
 #include <cuda_fp16.h>
+#include <cuda_bf16.h>
 
 #if CUDART_VERSION < 11020
 #define CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED CU_DEVICE_ATTRIBUTE_VIRTUAL_ADDRESS_MANAGEMENT_SUPPORTED
@@ -167,6 +238,64 @@
 #endif // CUDART_VERSION < 11020
 
 #endif // defined(GGML_USE_HIPBLAS)
+
+#include "ggml-backend-impl.h"
+
+
+[[noreturn]]
+static void exit_(int rc) {
+#define exit exit_
+#if defined(__GNUC__) || defined(__llvm__)
+    __builtin_unreachable();
+#elif defined(_MSC_VER)
+    __assume(0);
+#endif
+    for (;;);
+}
+
+// printf() and fprintf() runtime bridge
+// this is needed so text gets printed on windows
+// it also helps ensure the atomicity of log lines
+static void ggml_cuda_print(const char *fmt, ...) {
+#define GGML_CUDA_PRINT_BUFSIZ 512
+#define fflush(_) (void)0
+#define printf(...) ggml_cuda_print(__VA_ARGS__)
+#define fprintf(_, ...) ggml_cuda_print(__VA_ARGS__)
+    int len;
+    va_list va;
+    char buf[GGML_CUDA_PRINT_BUFSIZ];
+    va_start(va, fmt);
+    len = vsnprintf(buf, GGML_CUDA_PRINT_BUFSIZ, fmt, va);
+    va_end(va);
+    if (len < 0)
+        len = strnlen(buf, GGML_CUDA_PRINT_BUFSIZ);
+    if (len >= GGML_CUDA_PRINT_BUFSIZ) {
+        len = GGML_CUDA_PRINT_BUFSIZ;
+        buf[len - 4] = '.';
+        buf[len - 3] = '.';
+        buf[len - 2] = '.';
+        buf[len - 1] = '\n';
+    }
+}
+
+#ifdef GGML_USE_TINYBLAS
+#define BLAS_NAME "tinyBLAS"
+#else
+#define BLAS_NAME GGML_CUBLAS_NAME
+#endif
+
+GGML_CALL bool ggml_cuda_link(const struct ggml_backend_api *backend_api) {
+        fprintf(stderr, "%s: welcome to " GGML_CUDA_NAME " SDK with " BLAS_NAME "\n", __func__);
+#ifdef __HIP_PLATFORM_AMD__
+    // cargo culting workaround below
+#ifndef GGML_USE_TINYBLAS
+    rocblas_initialize();
+    cudaDeviceSynchronize();
+#endif
+#endif
+    int device_count;
+    return cudaGetDeviceCount(&device_count) == cudaSuccess && device_count > 0;
+}
 
 #define STRINGIZE_IMPL(...) #__VA_ARGS__
 #define STRINGIZE(...) STRINGIZE_IMPL(__VA_ARGS__)
@@ -190,7 +319,10 @@
 // -  7B quantum model: +100-200 MB
 // - 13B quantum model: +200-400 MB
 //
-//#define GGML_CUDA_FORCE_MMQ
+// [jart] https://github.com/Mozilla-Ocho/llamafile/issues/403#issuecomment-2103687594
+#ifdef GGML_USE_TINYBLAS
+#define GGML_CUDA_FORCE_MMQ // [jart] want this
+#endif
 
 // TODO: improve this to be correct for more hardware
 //       for example, currently fails for GeForce GTX 1660 which is TURING arch (> VOLTA) but does not have tensor cores
@@ -222,7 +354,7 @@ void ggml_cuda_error(const char * stmt, const char * func, const char * file, in
 
 #define CUDA_CHECK(err) CUDA_CHECK_GEN(err, cudaSuccess, cudaGetErrorString)
 
-#if CUDART_VERSION >= 12000
+#if CUDART_VERSION >= 12000 || defined(GGML_USE_TINYBLAS)
     static const char * cublas_get_error_str(const cublasStatus_t err) {
         return cublasGetStatusString(err);
     }
@@ -382,11 +514,11 @@ static __device__ void no_device_code(
     const char * file_name, const int line, const char * function_name, const int arch, const char * arch_list) {
 
 #if defined(GGML_USE_HIPBLAS) && defined(__HIP_PLATFORM_AMD__)
-    printf("%s:%d: ERROR: HIP kernel %s has no device code compatible with HIP arch %d.\n",
+    (printf)("%s:%d: ERROR: HIP kernel %s has no device code compatible with HIP arch %d.\n",
            file_name, line, function_name, arch);
     GGML_UNUSED(arch_list);
 #else
-    printf("%s:%d: ERROR: CUDA kernel %s has no device code compatible with CUDA arch %d. ggml-cuda.cu was compiled for: %s\n",
+    (printf)("%s:%d: ERROR: CUDA kernel %s has no device code compatible with CUDA arch %d. ggml-cuda.cu was compiled for: %s\n",
            file_name, line, function_name, arch, arch_list);
 #endif // defined(GGML_USE_HIPBLAS) && defined(__HIP_PLATFORM_AMD__)
     __trap();
@@ -2164,6 +2296,8 @@ to_fp32_cuda_t ggml_get_to_fp32_cuda(ggml_type type) {
             return dequantize_row_iq3_s_cuda;
         case GGML_TYPE_F16:
             return convert_unary_cuda<half>;
+        case GGML_TYPE_BF16:
+            return convert_unary_cuda<__nv_bfloat16>;
         default:
             return nullptr;
     }
@@ -3188,6 +3322,14 @@ static __device__ void convert_f16(const void * vx, const int64_t ib, const int 
     v.y = x[ib + iqs + 1];
 }
 
+static __device__ void convert_bf16(const void * vx, const int64_t ib, const int iqs, dfloat2 & v){
+    const __nv_bfloat16 * x = (const __nv_bfloat16 *) vx;
+
+    // automatic __nv_bfloat16 -> float type cast if dfloat == float
+    v.x = x[ib + iqs + 0];
+    v.y = x[ib + iqs + 1];
+}
+
 template <int qk, int qr, dequantize_kernel_t dequantize_kernel>
 static __global__ void dequantize_mul_mat_vec(const void * __restrict__ vx, const dfloat * __restrict__ y, float * __restrict__ dst, const int ncols, const int nrows) {
     // qk = quantized weights per x block
@@ -3350,6 +3492,15 @@ static void convert_mul_mat_vec_f16_cuda(const void * vx, const dfloat * y, floa
         <<<block_nums, block_dims, 0, stream>>>(vx, y, dst, ncols, nrows);
 }
 
+static void convert_mul_mat_vec_bf16_cuda(const void * vx, const dfloat * y, float * dst, const int ncols, const int nrows, cudaStream_t stream) {
+    GGML_ASSERT(ncols % GGML_CUDA_DMMV_X == 0);
+    const int block_num_y = (nrows + GGML_CUDA_MMV_Y - 1) / GGML_CUDA_MMV_Y;
+    const dim3 block_nums(block_num_y, 1, 1);
+    const dim3 block_dims(WARP_SIZE, GGML_CUDA_MMV_Y, 1);
+    dequantize_mul_mat_vec<1, 1, convert_bf16>
+        <<<block_nums, block_dims, 0, stream>>>(vx, y, dst, ncols, nrows);
+}
+
 void ggml_cuda_op_dequantize_mul_mat_vec(
     ggml_backend_cuda_context & ctx,
     const ggml_tensor * src0, const ggml_tensor * src1, ggml_tensor * dst, const char * src0_dd_i, const float * src1_ddf_i,
@@ -3414,6 +3565,9 @@ void ggml_cuda_op_dequantize_mul_mat_vec(
             break;
         case GGML_TYPE_F16:
             convert_mul_mat_vec_f16_cuda(src0_dd_i, src1_dfloat, dst_dd_i, ne00, row_diff, stream);
+            break;
+        case GGML_TYPE_BF16:
+            convert_mul_mat_vec_bf16_cuda(src0_dd_i, src1_dfloat, dst_dd_i, ne00, row_diff, stream);
             break;
         default:
             GGML_ASSERT(false);
@@ -10682,8 +10836,10 @@ static ggml_cuda_device_info ggml_cuda_init() {
 #ifdef __HIP_PLATFORM_AMD__
     // Workaround for a rocBLAS bug when using multiple graphics cards:
     // https://github.com/ROCmSoftwarePlatform/rocBLAS/issues/1346
+#ifndef GGML_USE_TINYBLAS
     rocblas_initialize();
     CUDA_CHECK(cudaDeviceSynchronize());
+#endif
 #endif
 
     ggml_cuda_device_info info = {};
@@ -13468,7 +13624,7 @@ GGML_CALL static bool ggml_backend_cuda_offload_op(ggml_backend_t backend, const
     GGML_UNUSED(backend);
 }
 
-static ggml_backend_event_t ggml_backend_cuda_event_new(ggml_backend_t backend) {
+GGML_CALL static ggml_backend_event_t ggml_backend_cuda_event_new(ggml_backend_t backend) {
 #ifdef GGML_CUDA_NO_PEER_COPY
     return nullptr;
 #else
@@ -13486,19 +13642,19 @@ static ggml_backend_event_t ggml_backend_cuda_event_new(ggml_backend_t backend) 
 #endif
 }
 
-static void ggml_backend_cuda_event_free(ggml_backend_event_t event) {
+GGML_CALL static void ggml_backend_cuda_event_free(ggml_backend_event_t event) {
     CUDA_CHECK(cudaEventDestroy((cudaEvent_t)event->context));
 
     delete event;
 }
 
-static void ggml_backend_cuda_event_record(ggml_backend_event_t event) {
+GGML_CALL static void ggml_backend_cuda_event_record(ggml_backend_event_t event) {
     ggml_backend_cuda_context * cuda_ctx = (ggml_backend_cuda_context *)event->backend->context;
 
     CUDA_CHECK(cudaEventRecord((cudaEvent_t)event->context, cuda_ctx->stream()));
 }
 
-static void ggml_backend_cuda_event_wait(ggml_backend_t backend, ggml_backend_event_t event) {
+GGML_CALL static void ggml_backend_cuda_event_wait(ggml_backend_t backend, ggml_backend_event_t event) {
     ggml_backend_cuda_context * cuda_ctx = (ggml_backend_cuda_context *)backend->context;
 
     if (ggml_backend_is_cuda(event->backend)) {
@@ -13517,7 +13673,7 @@ static void ggml_backend_cuda_event_wait(ggml_backend_t backend, ggml_backend_ev
     }
 }
 
-static void ggml_backend_cuda_event_synchronize(ggml_backend_event_t event) {
+GGML_CALL static void ggml_backend_cuda_event_synchronize(ggml_backend_event_t event) {
     CUDA_CHECK(cudaEventSynchronize((cudaEvent_t)event->context));
 }
 
@@ -13542,7 +13698,7 @@ static ggml_backend_i ggml_backend_cuda_interface = {
     /* .event_synchronize       = */ ggml_backend_cuda_event_synchronize,
 };
 
-static ggml_guid_t ggml_backend_cuda_guid() {
+GGML_CALL static ggml_guid_t ggml_backend_cuda_guid() {
     static ggml_guid guid = { 0x2c, 0xdd, 0xe8, 0x1c, 0x65, 0xb3, 0x65, 0x73, 0x6a, 0x12, 0x88, 0x61, 0x1c, 0xc9, 0xdc, 0x25 };
     return &guid;
 }
@@ -13629,9 +13785,9 @@ GGML_CALL static ggml_backend_t ggml_backend_reg_cuda_init(const char * params, 
     GGML_UNUSED(params);
 }
 
-extern "C" GGML_CALL int ggml_backend_cuda_reg_devices();
+extern "C" GGML_API GGML_CALL int ggml_backend_cuda_reg_devices();
 
-GGML_CALL int ggml_backend_cuda_reg_devices() {
+GGML_API GGML_CALL int ggml_backend_cuda_reg_devices() {
     int device_count = ggml_backend_cuda_get_device_count();
     //int device_count = 1; // DEBUG: some tools require delaying CUDA initialization
     for (int i = 0; i < device_count; i++) {
