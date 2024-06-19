@@ -116,10 +116,17 @@ void LLM::init(int argc, char ** argv){
     try{
         ctx_server.batch = { 0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, 0, 0, 0, };
 
-        server_params_parse(argc, argv, sparams, params);
+        if (!gpt_params_parse(argc, argv, params)) {
+            gpt_params_print_usage(argc, argv, params);
+            return;
+        }
 
-        if (!sparams.system_prompt.empty()) {
-            ctx_server.system_prompt_set(sparams.system_prompt);
+        // TODO: not great to use extern vars
+        server_log_json = params.log_json;
+        server_verbose = params.verbosity > 0;
+
+        if (!params.system_prompt.empty()) {
+            ctx_server.system_prompt_set(params.system_prompt);
         }
 
         if (params.model_alias == "unknown") {
@@ -154,10 +161,10 @@ void LLM::init(int argc, char ** argv){
 
         /*
         // if a custom chat template is not supplied, we will use the one that comes with the model (if any)
-        if (sparams.chat_template.empty()) {
+        if (params.chat_template.empty()) {
             if (!ctx_server.validate_model_chat_template()) {
                 LOG_ERROR("The chat template that comes with this model is not yet supported, falling back to chatml. This may cause the model to output suboptimal responses", {});
-                sparams.chat_template = "chatml";
+                params.chat_template = "chatml";
             }
         }
 
@@ -169,11 +176,11 @@ void LLM::init(int argc, char ** argv){
             chat.push_back({{"role", "assistant"}, {"content", "Hi there"}});
             chat.push_back({{"role", "user"},      {"content", "How are you?"}});
 
-            const std::string chat_example = format_chat(ctx_server.model, sparams.chat_template, chat);
+            const std::string chat_example = format_chat(ctx_server.model, params.chat_template, chat);
 
             LOG_INFO("chat template", {
                 {"chat_example", chat_example},
-                {"built_in", sparams.chat_template.empty()},
+                {"built_in", params.chat_template.empty()},
             });
         }*/
 
@@ -208,10 +215,10 @@ void handle_error(httplib::Response & res, json error_data){
 
 void LLM::start_server(){
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-    if (sparams.ssl_key_file != "" && sparams.ssl_cert_file != "") {
-        LOG_INFO("Running with SSL", {{"key", sparams.ssl_key_file}, {"cert", sparams.ssl_cert_file}});
+    if (params.ssl_key_file != "" && params.ssl_cert_file != "") {
+        LOG_INFO("Running with SSL", {{"key", params.ssl_key_file}, {"cert", params.ssl_cert_file}});
         svr.reset(
-            new httplib::SSLServer(sparams.ssl_cert_file.c_str(), sparams.ssl_key_file.c_str())
+            new httplib::SSLServer(params.ssl_cert_file.c_str(), params.ssl_key_file.c_str())
         );
     } else {
         LOG_INFO("Running without SSL", {});
@@ -263,23 +270,23 @@ void LLM::start_server(){
     });
 
     // set timeouts and change hostname and port
-    svr->set_read_timeout (sparams.read_timeout);
-    svr->set_write_timeout(sparams.write_timeout);
+    svr->set_read_timeout (params.timeout_read);
+    svr->set_write_timeout(params.timeout_write);
 
-    if (!svr->bind_to_port(sparams.hostname, sparams.port)) {
-        throw std::runtime_error("couldn't bind to server socket: hostname=" + sparams.hostname + " port=" + std::to_string(sparams.port));
+    if (!svr->bind_to_port(params.hostname, params.port)) {
+        throw std::runtime_error("couldn't bind to server socket: hostname=" + params.hostname + " port=" + std::to_string(params.port));
     }
 
     std::unordered_map<std::string, std::string> log_data;
 
-    log_data["hostname"] = sparams.hostname;
-    log_data["port"]     = std::to_string(sparams.port);
+    log_data["hostname"] = params.hostname;
+    log_data["port"]     = std::to_string(params.port);
 /*
-    if (sparams.api_keys.size() == 1) {
-        auto key = sparams.api_keys[0];
+    if (params.api_keys.size() == 1) {
+        auto key = params.api_keys[0];
         log_data["api_key"] = "api_key: ****" + key.substr(std::max((int)(key.length() - 4), 0));
-    } else if (sparams.api_keys.size() > 1) {
-        log_data["api_key"] = "api_key: " + std::to_string(sparams.api_keys.size()) + " keys loaded";
+    } else if (params.api_keys.size() > 1) {
+        log_data["api_key"] = "api_key: " + std::to_string(params.api_keys.size()) + " keys loaded";
     }
 
     state.store(SERVER_STATE_READY);
@@ -303,7 +310,7 @@ void LLM::start_server(){
         };
 
         // If API key is not set, skip validation
-        if (sparams.api_keys.empty()) {
+        if (params.api_keys.empty()) {
             return true;
         }
 
@@ -318,7 +325,7 @@ void LLM::start_server(){
         std::string prefix = "Bearer ";
         if (auth_header.substr(0, prefix.size()) == prefix) {
             std::string received_api_key = auth_header.substr(prefix.size());
-            if (std::find(sparams.api_keys.begin(), sparams.api_keys.end(), received_api_key) != sparams.api_keys.end()) {
+            if (std::find(params.api_keys.begin(), params.api_keys.end(), received_api_key) != params.api_keys.end()) {
                 return true; // API key is valid
             }
         }
@@ -373,9 +380,9 @@ void LLM::start_server(){
     //
 
     // register static assets routes
-    if (!sparams.public_path.empty()) {
+    if (!params.public_path.empty()) {
         // Set the base directory for serving static files
-        svr->set_base_dir(sparams.public_path);
+        svr->set_base_dir(params.public_path);
     }
     // register API routes
     svr->Post("/completion",          handle_completions_post); // legacy
@@ -389,12 +396,12 @@ void LLM::start_server(){
     //
     // Start the server
     //
-    if (sparams.n_threads_http < 1) {
+    if (params.n_threads_http < 1) {
         // +2 threads for monitoring endpoints
-        sparams.n_threads_http = std::max(params.n_parallel + 2, (int32_t) std::thread::hardware_concurrency() - 1);
+        params.n_threads_http = std::max(params.n_parallel + 2, (int32_t) std::thread::hardware_concurrency() - 1);
     }
-    log_data["n_threads_http"] =  std::to_string(sparams.n_threads_http);
-    svr->new_task_queue = [this] { return new httplib::ThreadPool(sparams.n_threads_http); };
+    log_data["n_threads_http"] =  std::to_string(params.n_threads_http);
+    svr->new_task_queue = [this] { return new httplib::ThreadPool(params.n_threads_http); };
 
     // run the HTTP server in a thread - see comment below
     t = std::thread([&]() {
@@ -620,7 +627,7 @@ std::string LLM::handle_slots_action(json data, httplib::Response* res) {
                 return "";
             }
             task.data["filename"] = filename;
-            task.data["filepath"] = sparams.slot_save_path + filename;
+            task.data["filepath"] = params.slot_save_path + filename;
 
             if (action == "save") {
                 task.type = SERVER_TASK_TYPE_SLOT_SAVE;
