@@ -103,6 +103,11 @@ jobs:
         id: checkout
         uses: actions/checkout@v4
 
+      - name: Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install build-essential cmake
+
       - name: Get Variables
         run: |
           echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
@@ -122,10 +127,9 @@ jobs:
       - name: Create missing files
         run: |
           cd llama.cpp
-          cmake -DINPUT=examples/server/public/completion.js -DOUTPUT=examples/server/completion.js.hpp -P scripts/xxd.cmake
-          cmake -DINPUT=examples/server/public/index.html -DOUTPUT=examples/server/index.html.hpp -P scripts/xxd.cmake
-          cmake -DINPUT=examples/server/public/index.js -DOUTPUT=examples/server/index.js.hpp -P scripts/xxd.cmake
-          cmake -DINPUT=examples/server/public/json-schema-to-grammar.mjs -DOUTPUT=examples/server/json-schema-to-grammar.mjs.hpp -P scripts/xxd.cmake
+          for f in examples/server/public/*;do
+            cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
+          done
 
       - name: Prepare CUDA
         if: startsWith(matrix.build, 'cuda')
@@ -137,11 +141,6 @@ jobs:
           cat $RUNNER_TEMP/ggml-cuda.cu | grep -v g_backend |grep -v FLAG_log_disable > ggml-cuda.cu
           rm -r ggml-cuda
           sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG:g' CMakeLists.txt
-
-      - name: Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install build-essential cmake tar p7zip-full opencl-headers
 
       - name: Download OpenCL SDK
         id: get_opencl
@@ -260,10 +259,9 @@ jobs:
       - name: Create missing files
         run: |
           cd llama.cpp
-          cmake -DINPUT=examples/server/public/completion.js -DOUTPUT=examples/server/completion.js.hpp -P scripts/xxd.cmake
-          cmake -DINPUT=examples/server/public/index.html -DOUTPUT=examples/server/index.html.hpp -P scripts/xxd.cmake
-          cmake -DINPUT=examples/server/public/index.js -DOUTPUT=examples/server/index.js.hpp -P scripts/xxd.cmake
-          cmake -DINPUT=examples/server/public/json-schema-to-grammar.mjs -DOUTPUT=examples/server/json-schema-to-grammar.mjs.hpp -P scripts/xxd.cmake
+          for f in examples/server/public/*;do
+            cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
+          done
   
       - name: Dependencies
         id: depends
@@ -322,10 +320,9 @@ jobs:
       - name: Create missing files
         run: |
           cd llama.cpp
-          cmake -DINPUT=examples/server/public/completion.js -DOUTPUT=examples/server/completion.js.hpp -P scripts/xxd.cmake
-          cmake -DINPUT=examples/server/public/index.html -DOUTPUT=examples/server/index.html.hpp -P scripts/xxd.cmake
-          cmake -DINPUT=examples/server/public/index.js -DOUTPUT=examples/server/index.js.hpp -P scripts/xxd.cmake
-          cmake -DINPUT=examples/server/public/json-schema-to-grammar.mjs -DOUTPUT=examples/server/json-schema-to-grammar.mjs.hpp -P scripts/xxd.cmake
+          for f in examples/server/public/*;do
+            cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
+          done
   
       - name: Dependencies
         id: depends
@@ -407,12 +404,11 @@ jobs:
           (Get-Content ggml-opencl.cpp ) -replace 'exit\(1', 'std::terminate(' | Set-Content ggml-opencl.cpp
 
       - name: Create missing files
+        shell: bash
         run: |
-          cd llama.cpp
-          cmake -DINPUT="examples/server/public/completion.js" -DOUTPUT="examples/server/completion.js.hpp" -P "scripts/xxd.cmake"
-          cmake -DINPUT="examples/server/public/index.html" -DOUTPUT="examples/server/index.html.hpp" -P "scripts/xxd.cmake"
-          cmake -DINPUT="examples/server/public/index.js" -DOUTPUT="examples/server/index.js.hpp" -P "scripts/xxd.cmake"
-          cmake -DINPUT="examples/server/public/json-schema-to-grammar.mjs" -DOUTPUT="examples/server/json-schema-to-grammar.mjs.hpp" -P "scripts/xxd.cmake"
+          for f in examples/server/public/*; do
+            cmake -DINPUT=$f -DOUTPUT=$(echo $f | sed -e 's:public/::g').hpp -P scripts/xxd.cmake
+          done
           
       - name: Download OpenCL SDK
         id: get_opencl
@@ -510,10 +506,9 @@ jobs:
       - name: Create missing files
         run: |
           cd llama.cpp
-          cmake -DINPUT="examples/server/public/completion.js" -DOUTPUT="examples/server/completion.js.hpp" -P "scripts/xxd.cmake"
-          cmake -DINPUT="examples/server/public/index.html" -DOUTPUT="examples/server/index.html.hpp" -P "scripts/xxd.cmake"
-          cmake -DINPUT="examples/server/public/index.js" -DOUTPUT="examples/server/index.js.hpp" -P "scripts/xxd.cmake"
-          cmake -DINPUT="examples/server/public/json-schema-to-grammar.mjs" -DOUTPUT="examples/server/json-schema-to-grammar.mjs.hpp" -P "scripts/xxd.cmake"
+          for f in examples/server/public/*;do
+            cmake -DINPUT=$f -DOUTPUT=echo $f|sed -e 's:public/::g'.hpp -P scripts/xxd.cmake
+          done
           
       - name: Prepare CUDA
         run: |
@@ -572,6 +567,11 @@ jobs:
           id: checkout
           uses: actions/checkout@v4
 
+        - name: Dependencies
+          run: |
+            sudo apt-get update
+            sudo apt-get install build-essential cmake
+
         - name: Get Variables
           run: |
             echo "NDK=$ANDROID_NDK" >> $GITHUB_ENV
@@ -590,15 +590,9 @@ jobs:
         - name: Create missing files
           run: |
             cd llama.cpp
-            cmake -DINPUT=examples/server/public/completion.js -DOUTPUT=examples/server/completion.js.hpp -P scripts/xxd.cmake
-            cmake -DINPUT=examples/server/public/index.html -DOUTPUT=examples/server/index.html.hpp -P scripts/xxd.cmake
-            cmake -DINPUT=examples/server/public/index.js -DOUTPUT=examples/server/index.js.hpp -P scripts/xxd.cmake
-            cmake -DINPUT=examples/server/public/json-schema-to-grammar.mjs -DOUTPUT=examples/server/json-schema-to-grammar.mjs.hpp -P scripts/xxd.cmake
-
-        - name: Dependencies
-          run: |
-            sudo apt-get update
-            sudo apt-get install build-essential cmake tar p7zip-full opencl-headers
+            for f in examples/server/public/*;do
+              cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
+            done
 
         - name: Build
           id: cmake_build
