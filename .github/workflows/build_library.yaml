@@ -110,11 +110,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install build-essential cmake
 
-      - name: Dependencies Vulcan
-        if: matrix.build == 'vulkan'
-        run: |
-          sudo apt-get install libvulkan-dev
-
       - name: Get Variables
         run: |
           echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
@@ -137,6 +132,13 @@ jobs:
           for f in examples/server/public/*;do
             cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
           done
+
+      - name: Dependencies Vulcan
+        if: matrix.build == 'vulkan'
+        run: |
+          sudo apt-get install libvulkan-dev
+          mkdir -p llama.cpp/build/libs
+          cp /lib/x86_64-linux-gnu/libvulkan.so.1 llama.cpp/build/libs/
 
       - name: Prepare CUDA
         if: startsWith(matrix.build, 'cuda')
@@ -446,6 +448,9 @@ jobs:
           & "$env:RUNNER_TEMP\VulkanSDK-Installer.exe" --accept-licenses --default-answer --confirm-command install
           Add-Content $env:GITHUB_ENV "VULKAN_SDK=C:\VulkanSDK\${env:VULKAN_VERSION}"
           Add-Content $env:GITHUB_PATH "C:\VulkanSDK\${env:VULKAN_VERSION}\bin"
+          ls -R C:\VulkanSDK\${env:VULKAN_VERSION}
+          mkdir -p llama.cpp\build\libs\Release\
+          cp C:\VulkanSDK\${env:VULKAN_VERSION}\bin\vulkan-1.dll llama.cpp\build\libs\Release\
 
       - name: Build
         id: cmake_build
