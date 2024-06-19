@@ -141,13 +141,9 @@ jobs:
       - name: Prepare CUDA
         if: startsWith(matrix.build, 'cuda')
         run: |
-          cd llama.cpp
-          curl -o $RUNNER_TEMP/ggml-cuda.cu -L "https://github.com/Mozilla-Ocho/llamafile/raw/${{ env.LLAMAFILE_VERSION }}/llama.cpp/ggml-cuda.cu"
-          curl -o tinyblas.h -L "https://github.com/Mozilla-Ocho/llamafile/raw/${{ env.LLAMAFILE_VERSION }}/llamafile/tinyblas.h"
-          curl -o tinyblas.cu -L "https://github.com/Mozilla-Ocho/llamafile/raw/${{ env.LLAMAFILE_VERSION }}/llamafile/tinyblas.cu"
-          cat $RUNNER_TEMP/ggml-cuda.cu | grep -v g_backend |grep -v FLAG_log_disable > ggml-cuda.cu
-          rm -r ggml-cuda
-          sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG:g' CMakeLists.txt
+          cp tinyBLAS/${{ env.LLAMACPP_VERSION }}/* llama.cpp/
+          rm -r llama.cpp/ggml-cuda
+          sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG:g' llama.cpp/CMakeLists.txt
 
       - name: Download OpenCL SDK
         id: get_opencl
@@ -535,13 +531,9 @@ jobs:
           
       - name: Prepare CUDA
         run: |
-          cd llama.cpp
-          curl -o $env:RUNNER_TEMP\ggml-cuda.cu -L "https://github.com/Mozilla-Ocho/llamafile/raw/${env:LLAMAFILE_VERSION}/llama.cpp/ggml-cuda.cu"
-          curl -o tinyblas.h -L "https://github.com/Mozilla-Ocho/llamafile/raw/${env:LLAMAFILE_VERSION}/llamafile/tinyblas.h"
-          curl -o tinyblas.cu -L "https://github.com/Mozilla-Ocho/llamafile/raw/${env:LLAMAFILE_VERSION}/llamafile/tinyblas.cu"
-          findstr /V /C:"g_backend" /C:"FLAG_log_disable" $env:RUNNER_TEMP\ggml-cuda.cu > ggml-cuda.cu
-          del ggml-cuda\*
-          sed -i "s/GGML_USE_CUDA/GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG/g" CMakeLists.txt
+          cp tinyBLAS/${env:LLAMAFILE_VERSION}/* llama.cpp\
+          del llama.cpp\ggml-cuda\*
+          sed -i "s/GGML_USE_CUDA/GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG/g" llama.cpp\CMakeLists.txt
 
       - uses: Jimver/cuda-toolkit@v0.2.11
         id: cuda-toolkit
