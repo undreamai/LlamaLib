@@ -1,0 +1,50 @@
+name: Build library
+
+on:
+  push:
+    tags:
+      - 'test'
+
+env:
+    LLAMACPP_VERSION: b2989
+
+jobs:
+  ubuntu-22-cmake-hip:
+    runs-on: ubuntu-22.04
+    container: rocm/dev-ubuntu-22.04:6.0.2
+
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v3
+
+      - name: Clone llama.cpp
+        run: |
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+            sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+            sed -i 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+            cd ..
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+
+      - name: Dependencies
+        id: depends
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential git cmake rocblas-dev hipblas-dev
+
+      - name: Build with native CMake HIP support
+        id: cmake_build
+        run: |
+          cd llama.cpp
+          cmake -B build -S . -DCMAKE_HIP_COMPILER="$(hipconfig -l)/clang" -DLLAMA_HIPBLAS=ON
+          cmake --build build --config Release -j $(nproc)
+
+      - name: Build with legacy HIP support
+        id: cmake_build_legacy_hip
+        run: |
+          cd llama.cpp
+          cmake -B build2 -S . -DCMAKE_C_COMPILER=hipcc -DCMAKE_CXX_COMPILER=hipcc -DLLAMA_HIPBLAS=ON
+          cmake --build build2 --config Release -j $(nproc)
