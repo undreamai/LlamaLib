@@ -141,6 +141,7 @@ jobs:
           cp tinyBLAS/${{ env.LLAMACPP_VERSION }}/* llama.cpp/
           rm -r llama.cpp/ggml-cuda
           sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG:g' llama.cpp/CMakeLists.txt
+          curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
       - uses: Jimver/cuda-toolkit@v0.2.11
         id: cuda-toolkit
@@ -527,6 +528,7 @@ jobs:
           cp tinyBLAS/${env:LLAMACPP_VERSION}/* llama.cpp\
           del llama.cpp\ggml-cuda\*
           sed -i "s/GGML_USE_CUDA/GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG/g" llama.cpp\CMakeLists.txt
+          curl.exe -o build/licenses/llamafile.LICENSE.txt -L "https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE"
 
       - uses: Jimver/cuda-toolkit@v0.2.11
         id: cuda-toolkit
