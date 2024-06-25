@@ -528,7 +528,6 @@ jobs:
           cp tinyBLAS/${env:LLAMACPP_VERSION}/* llama.cpp\
           del llama.cpp\ggml-cuda\*
           sed -i "s/GGML_USE_CUDA/GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG/g" llama.cpp\CMakeLists.txt
-          curl.exe -o build/licenses/llamafile.LICENSE.txt -L "https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE"
 
       - uses: Jimver/cuda-toolkit@v0.2.11
         id: cuda-toolkit
@@ -552,6 +551,7 @@ jobs:
           del build/libs/Release/undreamai_test.*
           mkdir artifacts
           ls -R build
+          curl.exe -o artifacts\llamafile.LICENSE.txt -L "https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE"
           Copy-Item .\llama.cpp\LICENSE .\artifacts\llama.cpp.LICENSE.txt
           Copy-Item .\build\Release\* .\artifacts\
           Copy-Item .\build\libs\Release\*dll .\artifacts\
