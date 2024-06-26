@@ -614,9 +614,8 @@ std::string LLM::handle_slots_action(json data, httplib::Response* res) {
         std::string action = data["action"];
         if (action == "save" || action == "restore") {
             std::string filepath = data.at("filepath");
-            std::filesystem::path path(filepath);
 
-            task.data["filename"] = path.filename().c_str();
+            task.data["filename"] = filepath.substr(filepath.find_last_of("/\\") + 1);
             task.data["filepath"] = filepath;
 
             if (action == "save") {
