@@ -465,12 +465,19 @@ jobs:
           cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
 
+      - name: Move files to Release folder
+        if: matrix.build == 'arm64'
+        run: |
+          mkdir build/Release build/libs/Release
+          mv build/libs/*exe build/Release/
+          mv build/libs/*dll build/libs/Release
+
       - name: Pack artifacts
         id: pack_artifacts
         run: |
+          ls -R build
           del build/libs/Release/undreamai_test.exe
           mkdir artifacts
-          ls -R build
           Copy-Item .\llama.cpp\LICENSE .\artifacts\llama.cpp.LICENSE.txt
           Copy-Item .\build\Release\* .\artifacts\
           Copy-Item .\build\libs\Release\*dll .\artifacts\
