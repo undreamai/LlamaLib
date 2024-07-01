@@ -1,0 +1,90 @@
+name: Build library
+
+on:
+  push:
+    paths:
+      - .github/workflows/build_library.yaml
+      - CMakeLists.txt
+      - undreamai.h
+      - undreamai.cpp
+    tags:
+      - 'test'
+
+env:
+  LLAMACPP_VERSION: b2989
+  LLAMAFILE_VERSION: 0.8.6
+  CMAKE_COMMON_JOBS: '-DLLAMA_STATIC=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DBUILD_UNDREAMAI_SERVER=ON'
+  CMAKE_COMMON_DIR: -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs
+
+jobs:
+  windows-build:
+    runs-on: windows-2019
+
+    env:
+      CMAKE_COMMON: '-DLLAMA_NATIVE=OFF'
+      VULKAN_VERSION: 1.3.261.1
+    
+    strategy:
+      matrix:
+        include:
+          - build: 'avx2'
+            defines: ''
+
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Get Variables
+        run: |
+          $pattern = "\d+\.\d+\.\d+"
+          $CUDA = [regex]::Match("${{ matrix.build }}", $pattern).Value
+          Add-Content $env:GITHUB_ENV "CUDA=$CUDA"
+
+      - name: Clone llama.cpp
+        run: |
+          git clone https://github.com/ggerganov/llama.cpp llama.cpp
+          cd llama.cpp
+          git checkout ${{ env.LLAMACPP_VERSION }}
+          (Get-Content examples/server/server.cpp ) -replace 'utils.hpp', 'utils_callback.hpp' | Set-Content examples/server/server.cpp
+          (Get-Content examples/server/server.cpp ) -replace 'main\(int argc', 'main_server(int argc' | Set-Content examples/server/server.cpp
+          (Get-Content ggml-vulkan.cpp ) -replace 'exit\(1', 'std::terminate(' | Set-Content ggml-vulkan.cpp
+          cd ..
+          mkdir build
+
+      - name: Create missing files
+        shell: bash
+        run: |
+          cd llama.cpp
+          for f in examples/server/public/*; do
+            cmake -DINPUT=$f -DOUTPUT=$(echo $f | sed -e 's:public/::g').hpp -P scripts/xxd.cmake
+          done
+
+      - name: Build
+        id: cmake_build
+        run: |
+          (Get-Content CMakeLists.txt ) -replace 'LIBRARY undreamai', 'LIBRARY undreamai_windows-${{ matrix.build }}' | Set-Content CMakeLists.txt
+          cd build
+          cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+
+      - name: Pack artifacts
+        id: pack_artifacts
+        run: |
+          mkdir artifacts
+          ls -R build
+          Copy-Item .\llama.cpp\LICENSE .\artifacts\llama.cpp.LICENSE.txt
+          Copy-Item .\build\Release\* .\artifacts\
+          Copy-Item .\build\libs\Release\*dll .\artifacts\
+          $serverPath = ".\build\libs\Release\undreamai_server.exe"
+          if (Test-Path $serverPath) {
+              Copy-Item $serverPath -Destination ".\artifacts\"
+          }
+          cd artifacts
+          7z a ../undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip *
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip
+          name: undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip
