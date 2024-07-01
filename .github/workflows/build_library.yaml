@@ -470,7 +470,7 @@ jobs:
         run: |
           mkdir build/Release
           mkdir build/libs/Release
-          move build/libs/*exe build/Release/
+          move build/libs/*exe build/libs/Release
           move build/libs/*dll build/libs/Release
 
       - name: Pack artifacts
