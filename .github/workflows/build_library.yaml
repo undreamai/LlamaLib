@@ -47,7 +47,7 @@ jobs:
 
   archchecker_windows_build:
     name: Build ArchChecker Windows
-    runs-on: windows-latest
+    runs-on: windows-2019
 
     steps:
       - name: Clone
@@ -386,7 +386,7 @@ jobs:
 ################################ Windows ################################
 
   windows-build:
-    runs-on: windows-latest
+    runs-on: windows-2019
 
     env:
       CMAKE_COMMON: '-DLLAMA_NATIVE=OFF'
@@ -571,7 +571,7 @@ jobs:
           name: undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip
 
   windows-hip:
-    runs-on: windows-latest
+    runs-on: windows-2019
 
     env:
       CMAKE_COMMON: '-DLLAMA_NATIVE=OFF -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs'
