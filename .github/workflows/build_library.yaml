@@ -451,6 +451,12 @@ jobs:
           mkdir .\build\libs\Release
           cp ${env:RUNNER_TEMP}/VulkanRT*\x64\vulkan-1.dll .\build\libs\Release
 
+      - name: Install Ninja
+        id: install_ninja
+        if: matrix.build == 'arm64'
+        run: |
+          choco install ninja
+
       - name: Build
         id: cmake_build
         run: |
