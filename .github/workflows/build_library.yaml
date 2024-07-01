@@ -468,9 +468,10 @@ jobs:
       - name: Move files to Release folder
         if: matrix.build == 'arm64'
         run: |
-          mkdir build/Release build/libs/Release
-          mv build/libs/*exe build/Release/
-          mv build/libs/*dll build/libs/Release
+          mkdir build/Release
+          mkdir build/libs/Release
+          move build/libs/*exe build/Release/
+          move build/libs/*dll build/libs/Release
 
       - name: Pack artifacts
         id: pack_artifacts
