@@ -613,11 +613,22 @@ std::string LLM::handle_slots_action(json data, httplib::Response* res) {
 
         std::string action = data["action"];
         if (action == "save" || action == "restore") {
-            std::string filepath = data.at("filepath");
+            if (data.count("filepath") != 0) {
+                std::string filepath = data.at("filepath");
 
-            task.data["filename"] = filepath.substr(filepath.find_last_of("/\\") + 1);
-            task.data["filepath"] = filepath;
-
+                task.data["filename"] = filepath.substr(filepath.find_last_of("/\\") + 1);
+                task.data["filepath"] = filepath;
+            } else {
+                // deprecated
+                std::string filename = data.at("filename");
+                if (!fs_validate_filename(filename)) {
+                    LOG_ERROR(("Invalid filename: " + filename).c_str(), {});
+                    if(res != nullptr) handle_error(*res, format_error_response("Invalid filename", ERROR_TYPE_INVALID_REQUEST));
+                    return "";
+                }
+                task.data["filename"] = filename;
+                task.data["filepath"] = sparams.slot_save_path + filename;
+            }
             if (action == "save") {
                 task.type = SERVER_TASK_TYPE_SLOT_SAVE;
             } else {
