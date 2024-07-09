@@ -1,1 +1,1 @@
-# playground
+# llama.cpp libraries for UndreamAI
