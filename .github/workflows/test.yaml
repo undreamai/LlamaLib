@@ -71,6 +71,13 @@ jobs:
           name: undreamai-test-llamacpp-macos-arm64-${{ matrix.build }}.zip
           path: undreamai-test-llamacpp-macos-arm64-${{ matrix.build }}.zip
 
+      - name: Test
+        run: |
+          cd build/libs
+          curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
+          ./undreamai_test -m model.gguf -np 1 --log-disable
+          rm model.gguf
+
   macOS-x64-build:
     runs-on: macos-12
 
@@ -139,3 +146,10 @@ jobs:
         with:
           name: undreamai-test-llamacpp-macos-x64-${{ matrix.build }}.zip
           path: undreamai-test-llamacpp-macos-x64-${{ matrix.build }}.zip
+
+      - name: Test
+        run: |
+          cd build/libs
+          curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
+          ./undreamai_test -m model.gguf -np 1 --log-disable
+          rm model.gguf
