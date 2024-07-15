@@ -63,13 +63,13 @@ jobs:
         run: |
           rm build/libs/undreamai_test
           ls -R build
-          zip -j undreamai-${{ github.ref_name }}-llamacpp-macos-arm64-${{ matrix.build }}.zip build/licenses/* build/libs/*
+          zip -j undreamai-test-llamacpp-macos-arm64-${{ matrix.build }}.zip build/licenses/* build/libs/*
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: undreamai-${{ github.ref_name }}-llamacpp-macos-arm64-${{ matrix.build }}.zip
-          path: undreamai-${{ github.ref_name }}-llamacpp-macos-arm64-${{ matrix.build }}.zip
+          name: undreamai-test-llamacpp-macos-arm64-${{ matrix.build }}.zip
+          path: undreamai-test-llamacpp-macos-arm64-${{ matrix.build }}.zip
 
   macOS-x64-build:
     runs-on: macos-12
@@ -132,10 +132,10 @@ jobs:
         run: |
           rm build/libs/undreamai_test
           ls -R build
-          zip -j undreamai-${{ github.ref_name }}-llamacpp-macos-x64-${{ matrix.build }}.zip build/licenses/* build/libs/*
+          zip -j undreamai-test-llamacpp-macos-x64-${{ matrix.build }}.zip build/licenses/* build/libs/*
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: undreamai-${{ github.ref_name }}-llamacpp-macos-x64-${{ matrix.build }}.zip
-          path: undreamai-${{ github.ref_name }}-llamacpp-macos-x64-${{ matrix.build }}.zip
+          name: undreamai-test-llamacpp-macos-x64-${{ matrix.build }}.zip
+          path: undreamai-test-llamacpp-macos-x64-${{ matrix.build }}.zip
