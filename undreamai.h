@@ -44,7 +44,6 @@ class LLM {
 
     private:
         gpt_params params;
-        server_params sparams;
         bool llama_backend_has_init;
         server_context ctx_server;
         std::thread server_thread;
