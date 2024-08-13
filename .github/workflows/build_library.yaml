@@ -118,7 +118,7 @@ jobs:
           git checkout ${{ env.LLAMACPP_VERSION }}
           sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
           sed -i 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
-          sed -i 's:exit(1):std\:\:terminate():g' ggml-vulkan.cpp
+          sed -i 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
           cd ..
           mkdir -p build/licenses build/libs
           cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
@@ -141,7 +141,7 @@ jobs:
         run: |
           cp tinyBLAS/${{ env.LLAMACPP_VERSION }}/* llama.cpp/
           rm -r llama.cpp/ggml-cuda
-          sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG:g' llama.cpp/CMakeLists.txt
+          sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG:g' llama.cpp/ggml/src/CMakeLists.txt
           curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
       - uses: Jimver/cuda-toolkit@v0.2.11
@@ -227,13 +227,13 @@ jobs:
         run: |
             cp tinyBLAS/${{ env.LLAMACPP_VERSION }}/* llama.cpp/
             rm -r llama.cpp/ggml-cuda
-            sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG:g' llama.cpp/CMakeLists.txt
+            sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG:g' llama.cpp/ggml/src/CMakeLists.txt
 
       - name: Build
         id: cmake_build
         run: |
             sed -i "s:LIBRARY undreamai:LIBRARY undreamai_linux-hip:g" CMakeLists.txt
-            sed -i "s:FATAL_ERROR:WARNING:g" llama.cpp/CMakeLists.txt
+            sed -i "s:FATAL_ERROR:WARNING:g" llama.cpp/ggml/src/CMakeLists.txt
             export LD_LIBRARY_PATH=""
             cd build
             cmake .. ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} -DCMAKE_HIP_COMPILER="$(hipconfig -l)/clang" -DLLAMA_HIPBLAS=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=`pwd`/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=`pwd`/libs
@@ -426,7 +426,7 @@ jobs:
           git checkout ${{ env.LLAMACPP_VERSION }}
           (Get-Content examples/server/server.cpp ) -replace 'utils.hpp', 'utils_callback.hpp' | Set-Content examples/server/server.cpp
           (Get-Content examples/server/server.cpp ) -replace 'main\(int argc', 'main_server(int argc' | Set-Content examples/server/server.cpp
-          (Get-Content ggml-vulkan.cpp ) -replace 'exit\(1', 'std::terminate(' | Set-Content ggml-vulkan.cpp
+          (Get-Content ggml-vulkan.cpp ) -replace 'exit\(1', 'std::terminate(' | Set-Content ggml/src/ggml-vulkan.cpp
           cd ..
           mkdir build
 
@@ -642,7 +642,7 @@ jobs:
           $env:HIP_PATH=$(Resolve-Path 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' | split-path | split-path)
           $env:CMAKE_PREFIX_PATH="${env:HIP_PATH}"
           (Get-Content CMakeLists.txt ) -replace 'LIBRARY undreamai', 'LIBRARY undreamai_windows-hip' | Set-Content CMakeLists.txt
-          (Get-Content llama.cpp/CMakeLists.txt ) -replace 'FATAL_ERROR', 'WARNING' | Set-Content llama.cpp/CMakeLists.txt
+          (Get-Content llama.cpp/ggml/src/CMakeLists.txt ) -replace 'FATAL_ERROR', 'WARNING' | Set-Content llama.cpp/ggml/src/CMakeLists.txt
           mkdir build
           cd build
           cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DLLAMA_HIPBLAS=ON ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
