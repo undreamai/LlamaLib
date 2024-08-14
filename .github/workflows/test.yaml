@@ -45,12 +45,12 @@ jobs:
           mkdir -p build/licenses build/libs
           cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
 
-    #   - name: Create missing files
-    #     run: |
-    #       cd llama.cpp
-    #       for f in examples/server/public/*;do
-    #         cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
-    #       done
+      - name: Create missing files
+        run: |
+          cd llama.cpp
+          for f in examples/server/public/*;do
+            cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
+          done
 
       - name: Get number of CPU cores
         uses: SimenB/github-actions-cpu-cores@v2
