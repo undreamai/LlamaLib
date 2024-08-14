@@ -27,13 +27,19 @@ jobs:
         uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
 
-      - name: Setup Alpine Linux
-        uses: jirutka/setup-alpine@v1
-        with:
-          packages: build-base cmake ccache git openssl-dev openssl-libs-static
+    #   - name: Setup Alpine Linux
+    #     uses: jirutka/setup-alpine@v1
+    #     with:
+    #       packages: build-base cmake ccache git openssl-dev openssl-libs-static
+
+      - name: Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install build-essential cmake
 
       - name: CMake
         run: |
+          echo "${env:NUMBER_OF_PROCESSORS}" "${{ steps.cpu-cores.outputs.count }}"
           cmake repo -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXE_LINKER_FLAGS="-static" -DGGML_NATIVE=OFF -DGGML_STATIC=ON -DGGML_OPENMP=OFF -DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=OFF ${{ matrix.ssl_defines }} ${{ matrix.avx_defines }}
           cmake --build build --config Release --target llama-server -j ${{ steps.cpu-cores.outputs.count }}
           strip build/bin/llama-server
