@@ -146,7 +146,7 @@ jobs:
           sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG:g' llama.cpp/ggml/src/CMakeLists.txt
           curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
-      - uses: Jimver/cuda-toolkit@v0.2.11
+      - uses: Jimver/cuda-toolkit@v0.2.15
         id: cuda-toolkit
         if: startsWith(matrix.build, 'cuda')
         with:
@@ -553,7 +553,7 @@ jobs:
           rm -r llama.cpp/ggml/src/ggml-cuda
           sed -i "s/GGML_USE_CUDA/GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG/g" llama.cpp\CMakeLists.txt
 
-      - uses: Jimver/cuda-toolkit@v0.2.11
+      - uses: Jimver/cuda-toolkit@v0.2.15
         id: cuda-toolkit
         with:
           cuda: ${{ env.CUDA }}
