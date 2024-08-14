@@ -1,45 +1,93 @@
-name: build
+name: Build library
 
 on:
   push:
 
+env:
+  LLAMACPP_VERSION: b3580
+  LLAMAFILE_VERSION: 0.8.6
+  CMAKE_COMMON_JOBS: '-DGGML_STATIC=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DBUILD_UNDREAMAI_SERVER=ON'
+  CMAKE_COMMON_DIR: -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs
+
 jobs:
-  server:
+  linux-build:
+    name: Build Artifacts
     runs-on: ubuntu-22.04
+
+    env:
+      CMAKE_COMMON: '-DGGML_NATIVE=OFF -DGGML_OPENMP=OFF -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_EXE_LINKER_FLAGS="-static"'
 
     strategy:
       matrix:
         include:
-          - avx: avx2
-            avx_defines: ''
+          - build: 'avx2'
+            defines: ''
 
     steps:
-      - name: Checkout
+      - name: Clone
+        id: checkout
         uses: actions/checkout@v4
-
-      - name: Checkout llama.cpp
-        uses: actions/checkout@v4
-        with:
-          repository: ggerganov/llama.cpp
-          path: repo
-
-      - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v2
-        id: cpu-cores
-
-    #   - name: Setup Alpine Linux
-    #     uses: jirutka/setup-alpine@v1
-    #     with:
-    #       packages: build-base cmake ccache git openssl-dev openssl-libs-static
 
       - name: Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install build-essential cmake
 
-      - name: CMake
+      - name: Clone llama.cpp
         run: |
-          echo ${env:NUMBER_OF_PROCESSORS} "${{ steps.cpu-cores.outputs.count }}"
-          cmake repo -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXE_LINKER_FLAGS="-static" -DGGML_NATIVE=OFF -DGGML_STATIC=ON -DGGML_OPENMP=OFF -DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=OFF ${{ matrix.ssl_defines }} ${{ matrix.avx_defines }}
-          cmake --build build --config Release --target llama-server -j ${{ steps.cpu-cores.outputs.count }}
+          git clone https://github.com/ggerganov/llama.cpp llama.cpp
+          cd llama.cpp
+          git checkout ${{ env.LLAMACPP_VERSION }}
+        #   sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+        #   sed -i 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+        #   sed -i 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
+        #   cd ..
+        #   mkdir -p build/licenses build/libs
+        #   cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
 
+    #   - name: Create missing files
+    #     run: |
+    #       cd llama.cpp
+    #       for f in examples/server/public/*;do
+    #         cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
+    #       done
+
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v2
+        id: cpu-cores
+
+      - name: Build
+        id: cmake_build
+        run: |
+          cmake ../llama.cpp -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXE_LINKER_FLAGS="-static" -DGGML_NATIVE=OFF -DGGML_STATIC=ON -DGGML_OPENMP=OFF -DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=OFF ${{ matrix.defines }}
+          cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }} -v
+
+    #   - name: Build
+    #     id: cmake_build
+    #     run: |
+    #       sed -i "s:LIBRARY undreamai:LIBRARY undreamai_linux-${{ matrix.build }}:g" CMakeLists.txt
+    #       export LD_LIBRARY_PATH=""
+    #       cd build
+    #       cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+    #       cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS} -v
+
+    #   - name: Test
+    #     id: test
+    #     if: matrix.build == 'avx'
+    #     run: |
+    #       cd build/libs
+    #       curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
+    #       ./undreamai_test -m model.gguf -np 1 --log-disable
+    #       rm model.gguf
+
+    #   - name: Pack artifacts
+    #     id: pack_artifacts
+    #     run: |
+    #       rm build/libs/undreamai_test
+    #       zip -j undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip build/licenses/* build/libs/*
+
+    #   - name: Upload Artifacts
+    #     uses: actions/upload-artifact@v4
+    #     with:
+    #       name: undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip
+    #       path: undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip
