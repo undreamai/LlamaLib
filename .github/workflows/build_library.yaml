@@ -83,15 +83,15 @@ jobs:
       matrix:
         include:
           - build: 'noavx'
-            defines: '-DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF'
+            defines: '-DGGML_AVX=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF'
           - build: 'avx2'
             defines: ''
           - build: 'avx'
-            defines: '-DLLAMA_AVX2=OFF'
+            defines: '-DGGML_AVX2=OFF'
           - build: 'avx512'
-            defines: '-DLLAMA_AVX512=ON'
+            defines: '-DGGML_AVX512=ON'
           - build: 'vulkan'
-            defines: '-DLLAMA_VULKAN=ON'
+            defines: '-DGGML_VULKAN=ON'
           - build: 'cuda-cu11.7.1'
             defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
           - build: 'cuda-cu12.2.0'
@@ -236,7 +236,7 @@ jobs:
             sed -i "s:FATAL_ERROR:WARNING:g" llama.cpp/ggml/src/CMakeLists.txt
             export LD_LIBRARY_PATH=""
             cd build
-            cmake .. ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} -DCMAKE_HIP_COMPILER="$(hipconfig -l)/clang" -DLLAMA_HIPBLAS=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=`pwd`/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=`pwd`/libs
+            cmake .. ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} -DCMAKE_HIP_COMPILER="$(hipconfig -l)/clang" -DGGML_HIPBLAS=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=`pwd`/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=`pwd`/libs
             cmake --build . --config Release -j $(nproc)
 
       - name: Pack artifacts
@@ -260,7 +260,7 @@ jobs:
       matrix:
         include:
           - build: 'no_acc'
-            defines: '-DLLAMA_ACCELERATE=OFF'
+            defines: '-DGGML_ACCELERATE=OFF'
           - build: 'acc'
             defines: ''
 
@@ -321,7 +321,7 @@ jobs:
       matrix:
         include:
           - build: 'no_acc'
-            defines: '-DLLAMA_ACCELERATE=OFF'
+            defines: '-DGGML_ACCELERATE=OFF'
           - build: 'acc'
             defines: ''
 
@@ -396,15 +396,15 @@ jobs:
       matrix:
         include:
           - build: 'noavx'
-            defines: '-DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF'
+            defines: '-DGGML_AVX=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF'
           - build: 'avx2'
             defines: ''
           - build: 'avx'
-            defines: '-DLLAMA_AVX2=OFF'
+            defines: '-DGGML_AVX2=OFF'
           - build: 'avx512'
-            defines: '-DLLAMA_AVX512=ON'
+            defines: '-DGGML_AVX512=ON'
           - build: 'vulkan'
-            defines: '-DLLAMA_VULKAN=ON'
+            defines: '-DGGML_VULKAN=ON'
           - build: 'arm64'
             defines: '-G Ninja -D CMAKE_TOOLCHAIN_FILE=../llama.cpp/cmake/arm64-windows-llvm.cmake'
 
@@ -645,7 +645,7 @@ jobs:
           (Get-Content llama.cpp/ggml/src/CMakeLists.txt ) -replace 'FATAL_ERROR', 'WARNING' | Set-Content llama.cpp/ggml/src/CMakeLists.txt
           mkdir build
           cd build
-          cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DLLAMA_HIPBLAS=ON ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+          cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DGGML_HIPBLAS=ON ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
 
       - name: Pack artifacts
