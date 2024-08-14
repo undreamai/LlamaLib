@@ -7,7 +7,7 @@ if(DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
 endif()
 
 if (NOT WIN32)
-    set(STATIC_FLAGS "-fPIC -static -static-libgcc -static-libstdc++")
+    set(STATIC_FLAGS "-fPIC -static")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${STATIC_FLAGS}")
     set_target_properties(common PROPERTIES COMPILE_FLAGS ${STATIC_FLAGS})
     set_target_properties(ggml PROPERTIES COMPILE_FLAGS ${STATIC_FLAGS})
