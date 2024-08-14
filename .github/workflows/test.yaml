@@ -60,7 +60,7 @@ jobs:
         id: cmake_build
         run: |
           cd build
-          cmake ../llama.cpp -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXE_LINKER_FLAGS="-static" -DGGML_NATIVE=OFF -DGGML_STATIC=ON -DGGML_OPENMP=OFF -DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=OFF ${{ matrix.defines }}
+          cmake .. -DBUILD_UNDREAMAI_SERVER=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXE_LINKER_FLAGS="-static" -DGGML_NATIVE=OFF -DGGML_STATIC=ON -DGGML_OPENMP=OFF -DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=OFF ${{ matrix.defines }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }} -v
 
     #   - name: Build
