@@ -103,7 +103,7 @@ jobs:
           export LD_LIBRARY_PATH=""
           cd build
           cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
-          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS} -v
 
       - name: Test
         id: test
