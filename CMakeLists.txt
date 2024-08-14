@@ -18,7 +18,7 @@ set(LIBRARY undreamai)
 add_library(${LIBRARY} SHARED stringwrapper.cpp utils_callback.hpp undreamai.cpp)
 install(TARGETS ${LIBRARY} LIBRARY)
 target_include_directories(${LIBRARY} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} llama.cpp/examples/server)
-target_link_libraries(${LIBRARY} PRIVATE common ggml llama)
+target_link_libraries(${LIBRARY} PRIVATE common ${CMAKE_THREAD_LIBS_INIT})
 target_compile_features(${LIBRARY} PRIVATE cxx_std_11)
 add_compile_definitions(${LIBRARY} PRIVATE UNDREAMAI_EXPORTS)
 
