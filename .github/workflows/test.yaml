@@ -77,12 +77,11 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts
         run: |
-          ls -R build
           rm build/libs/undreamai_test
-          zip -j undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip build/licenses/* build/libs/*
+          zip -j undreamai-test-llamacpp-linux-${{ matrix.build }}.zip build/licenses/* build/libs/*
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip
-          path: undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip
+          name: undreamai-test-llamacpp-linux-${{ matrix.build }}.zip
+          path: undreamai-test-llamacpp-linux-${{ matrix.build }}.zip
