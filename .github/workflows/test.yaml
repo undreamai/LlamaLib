@@ -38,12 +38,12 @@ jobs:
           git clone https://github.com/ggerganov/llama.cpp llama.cpp
           cd llama.cpp
           git checkout ${{ env.LLAMACPP_VERSION }}
-        #   sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
-        #   sed -i 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
-        #   sed -i 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
-        #   cd ..
-        #   mkdir -p build/licenses build/libs
-        #   cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+          #   sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+          #   sed -i 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+          #   sed -i 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
+          cd ..
+          mkdir -p build/licenses build/libs
+          cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
 
     #   - name: Create missing files
     #     run: |
@@ -59,6 +59,7 @@ jobs:
       - name: Build
         id: cmake_build
         run: |
+          cd build
           cmake ../llama.cpp -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXE_LINKER_FLAGS="-static" -DGGML_NATIVE=OFF -DGGML_STATIC=ON -DGGML_OPENMP=OFF -DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=OFF ${{ matrix.defines }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }} -v
 
