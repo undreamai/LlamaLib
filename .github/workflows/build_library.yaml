@@ -36,7 +36,7 @@ jobs:
           mkdir archchecker/build
           cd archchecker/build
           cmake ..
-          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          cmake --build . --config Release -j $(nproc)
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -62,7 +62,7 @@ jobs:
           mkdir archchecker/build
           cd archchecker/build
           cmake ..
-          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          cmake --build . --config Release -j $(nproc)
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -164,7 +164,7 @@ jobs:
           export LD_LIBRARY_PATH=""
           cd build
           cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
-          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          cmake --build . --config Release -j $(nproc)
 
       - name: Test
         id: test
@@ -457,13 +457,17 @@ jobs:
         run: |
           choco install ninja
 
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v2
+        id: cpu-cores
+
       - name: Build
         id: cmake_build
         run: |
           (Get-Content CMakeLists.txt ) -replace 'LIBRARY undreamai', 'LIBRARY undreamai_windows-${{ matrix.build }}' | Set-Content CMakeLists.txt
           cd build
           cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
-          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
       - name: Move files to Release folder
         if: matrix.build == 'arm64'
@@ -554,6 +558,10 @@ jobs:
           method: 'network'
           sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust", "visual_studio_integration"]'
 
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v2
+        id: cpu-cores
+
       - name: Build
         id: cmake_build
         run: |
@@ -561,7 +569,7 @@ jobs:
           mkdir build
           cd build
           cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
-          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
       - name: Pack artifacts
         id: pack_artifacts
@@ -636,6 +644,10 @@ jobs:
         run: |
           & 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' --version
 
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v2
+        id: cpu-cores
+
       - name: Build
         id: cmake_build
         run: |
@@ -646,7 +658,7 @@ jobs:
           mkdir build
           cd build
           cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DGGML_HIPBLAS=ON ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
-          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
       - name: Pack artifacts
         id: pack_artifacts
@@ -709,7 +721,7 @@ jobs:
             export LD_LIBRARY_PATH=""
             cd build
             cmake .. -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-23 -DCMAKE_C_FLAGS=-march=armv8.4a+dotprod ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
-            cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+            cmake --build . --config Release -j $(nproc)
 
         - name: Pack artifacts
           id: pack_artifacts
