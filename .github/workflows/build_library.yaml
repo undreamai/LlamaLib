@@ -259,10 +259,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - build: 'no_acc'
-            defines: '-DGGML_ACCELERATE=OFF'
           - build: 'acc'
             defines: ''
+          - build: 'no_acc'
+            defines: '-DGGML_ACCELERATE=OFF -DGGML_BLAS=OFF'
 
     steps:
       - name: Clone
@@ -320,10 +320,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - build: 'no_acc'
-            defines: '-DGGML_ACCELERATE=OFF'
           - build: 'acc'
             defines: ''
+          - build: 'no_acc'
+            defines: '-DGGML_ACCELERATE=OFF -DGGML_BLAS=OFF'
 
     steps:
       - name: Clone
