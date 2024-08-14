@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     env:
-      CMAKE_COMMON: '-DGGML_NATIVE=OFF -DGGML_OPENMP=OFF -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_EXE_LINKER_FLAGS="-static"'
+      CMAKE_COMMON: '-DGGML_NATIVE=OFF -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DBUILD_SHARED_LIBS=OFF'
 
     strategy:
       matrix:
@@ -59,36 +59,29 @@ jobs:
       - name: Build
         id: cmake_build
         run: |
+          sed -i "s:LIBRARY undreamai:LIBRARY undreamai_linux-${{ matrix.build }}:g" CMakeLists.txt
+          export LD_LIBRARY_PATH=""
           cd build
-          cmake .. -DBUILD_UNDREAMAI_SERVER=ON -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_STATIC=ON ${{ matrix.defines }}
+          cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }} -v
 
-    #   - name: Build
-    #     id: cmake_build
-    #     run: |
-    #       sed -i "s:LIBRARY undreamai:LIBRARY undreamai_linux-${{ matrix.build }}:g" CMakeLists.txt
-    #       export LD_LIBRARY_PATH=""
-    #       cd build
-    #       cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
-    #       cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS} -v
+      - name: Test
+        id: test
+        if: matrix.build == 'avx'
+        run: |
+          cd build/libs
+          curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
+          ./undreamai_test -m model.gguf -np 1 --log-disable
+          rm model.gguf
 
-    #   - name: Test
-    #     id: test
-    #     if: matrix.build == 'avx'
-    #     run: |
-    #       cd build/libs
-    #       curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
-    #       ./undreamai_test -m model.gguf -np 1 --log-disable
-    #       rm model.gguf
+      - name: Pack artifacts
+        id: pack_artifacts
+        run: |
+          rm build/libs/undreamai_test
+          zip -j undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip build/licenses/* build/libs/*
 
-    #   - name: Pack artifacts
-    #     id: pack_artifacts
-    #     run: |
-    #       rm build/libs/undreamai_test
-    #       zip -j undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip build/licenses/* build/libs/*
-
-    #   - name: Upload Artifacts
-    #     uses: actions/upload-artifact@v4
-    #     with:
-    #       name: undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip
-    #       path: undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip
+          path: undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip
