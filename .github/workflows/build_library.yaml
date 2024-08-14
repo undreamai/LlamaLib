@@ -72,7 +72,7 @@ jobs:
   ################################ Linux ################################
 
   linux-build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
 
     env:
       CMAKE_COMMON: '-DGGML_NATIVE=OFF -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DBUILD_SHARED_LIBS=OFF'
