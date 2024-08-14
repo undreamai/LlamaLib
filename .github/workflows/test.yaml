@@ -12,10 +12,10 @@ env:
 jobs:
   linux-build:
     name: Build Artifacts
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     env:
-      CMAKE_COMMON: '-DGGML_NATIVE=OFF -DGGML_OPENMP=OFF -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_EXE_LINKER_FLAGS="-static" -DBUILD_SHARED_LIBS=OFF'
+      CMAKE_COMMON: '-DGGML_NATIVE=OFF -DGGML_OPENMP=OFF -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_EXE_LINKER_FLAGS="-static"'
 
     strategy:
       matrix:
@@ -106,7 +106,7 @@ jobs:
 
       - name: Test
         id: test
-        # if: matrix.build == 'avx'
+        if: matrix.build == 'avx'
         run: |
           cd build/libs
           curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
