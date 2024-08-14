@@ -192,7 +192,7 @@ jobs:
     container: rocm/dev-ubuntu-22.04:6.0.2
 
     env:
-        CMAKE_COMMON: '-DGGML_NATIVE=OFF -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON'
+        CMAKE_COMMON: '-DGGML_NATIVE=OFF -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DBUILD_SHARED_LIBS=OFF'
 
     steps:
       - name: Clone
@@ -236,7 +236,7 @@ jobs:
             sed -i "s:FATAL_ERROR:WARNING:g" llama.cpp/ggml/src/CMakeLists.txt
             export LD_LIBRARY_PATH=""
             cd build
-            cmake .. ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} -DCMAKE_HIP_COMPILER="$(hipconfig -l)/clang" -DGGML_HIPBLAS=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=`pwd`/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=`pwd`/libs
+            cmake .. ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} -DCMAKE_HIP_COMPILER="$(hipconfig -l)/clang" -DGGML_HIPBLAS=ON  ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j $(nproc)
 
       - name: Pack artifacts
