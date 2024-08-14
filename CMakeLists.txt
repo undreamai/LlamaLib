@@ -9,7 +9,7 @@ endif()
 if (NOT WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
     set_target_properties(common PROPERTIES COMPILE_FLAGS "-fPIC")
-    set_target_properties(ggml PROPERTIES COMPILE_FLAGS "-fPIC")
+    set_target_properties(ggml PROPERTIES COMPILE_FLAGS "-fPIC -static -static-libgcc -static-libstdc++")
     set_target_properties(llama PROPERTIES COMPILE_FLAGS "-fPIC")
 endif()
 
