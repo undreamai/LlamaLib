@@ -56,7 +56,6 @@ jobs:
           git checkout ${{ env.LLAMACPP_VERSION }}
           sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
           sed -i 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
-          sed -i 's:add_link_options(-static):add_link_options(-static -static-libgcc -static-libstdc++):g' ggml/src/CMakeLists.txt
           sed -i 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
           cd ..
           mkdir -p build/licenses build/libs
