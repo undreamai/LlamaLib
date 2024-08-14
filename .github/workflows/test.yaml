@@ -1,0 +1,83 @@
+name: Build library
+
+on:
+  push:
+
+env:
+  LLAMACPP_VERSION: b3580
+  LLAMAFILE_VERSION: 0.8.6
+  CMAKE_COMMON_JOBS: '-DGGML_STATIC=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DBUILD_UNDREAMAI_SERVER=ON'
+  CMAKE_COMMON_DIR: -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs
+
+jobs:
+  linux-build:
+    name: Build Artifacts
+    runs-on: ubuntu-22.04
+
+    env:
+      CMAKE_COMMON: '-DGGML_NATIVE=OFF -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DBUILD_SHARED_LIBS=OFF'
+
+    strategy:
+      matrix:
+        include:
+          - build: 'avx2'
+            defines: ''
+
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install build-essential cmake
+
+      - name: Clone llama.cpp
+        run: |
+          git clone https://github.com/ggerganov/llama.cpp llama.cpp
+          cd llama.cpp
+          git checkout ${{ env.LLAMACPP_VERSION }}
+          sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+          sed -i 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+          sed -i 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
+          cd ..
+          mkdir -p build/licenses build/libs
+          cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+
+      - name: Create missing files
+        run: |
+          cd llama.cpp
+          for f in examples/server/public/*;do
+            cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
+          done
+
+      - name: Build
+        id: cmake_build
+        run: |
+          sed -i "s:LIBRARY undreamai:LIBRARY undreamai_linux-${{ matrix.build }}:g" CMakeLists.txt
+          export LD_LIBRARY_PATH=""
+          cd build
+          cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+          cmake --build . --config Release -j ${{ env.NUMBER_OF_PROCESSORS }} -v
+
+      - name: Test
+        id: test
+        if: matrix.build == 'avx'
+        run: |
+          cd build/libs
+          curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
+          ./undreamai_test -m model.gguf -np 1 --log-disable
+          rm model.gguf
+
+      - name: Pack artifacts
+        id: pack_artifacts
+        run: |
+          rm build/libs/undreamai_test
+          zip -j undreamai-test-llamacpp-linux-${{ matrix.build }}.zip build/licenses/* build/libs/*
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: undreamai-test-llamacpp-linux-${{ matrix.build }}.zip
+          path: undreamai-test-llamacpp-linux-${{ matrix.build }}.zip
