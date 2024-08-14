@@ -73,7 +73,6 @@ jobs:
   ################################ Linux ################################
 
   linux-build:
-    name: Build Artifacts
     runs-on: ubuntu-22.04
 
     env:
@@ -90,8 +89,8 @@ jobs:
             defines: '-DGGML_AVX2=OFF'
           - build: 'avx512'
             defines: '-DGGML_AVX512=ON'
-          # - build: 'vulkan'
-          #   defines: '-DGGML_VULKAN=ON'
+          - build: 'vulkan'
+            defines: '-DGGML_VULKAN=ON'
           - build: 'cuda-cu11.7.1'
             defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
           - build: 'cuda-cu12.2.0'
@@ -133,7 +132,10 @@ jobs:
       - name: Dependencies Vulcan
         if: matrix.build == 'vulkan'
         run: |
-          sudo apt-get install libvulkan-dev
+          wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list https://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
+          sudo apt-get update -y
+          sudo apt-get install -y build-essential vulkan-sdk
           cp /lib/x86_64-linux-gnu/libvulkan.so.1 build/libs/
 
       - name: Prepare CUDA
