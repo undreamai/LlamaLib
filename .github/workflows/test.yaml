@@ -52,10 +52,6 @@ jobs:
             cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
           done
 
-      - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v2
-        id: cpu-cores
-
       - name: Build
         id: cmake_build
         run: |
@@ -63,7 +59,7 @@ jobs:
           export LD_LIBRARY_PATH=""
           cd build
           cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
-          cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }} -v
+          cmake --build . --config Release -j ${{ env.NUMBER_OF_PROCESSORS }} -v
 
       - name: Test
         id: test
