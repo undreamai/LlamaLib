@@ -158,7 +158,7 @@ jobs:
             cp tinyBLAS/${{ env.LLAMACPP_VERSION }}/* llama.cpp/ggml/src/
             rm -r llama.cpp/ggml/src/ggml-cuda
             sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
-            curl -o llama.cpp/build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
         - id: setup_cuda_linux
           if: startsWith(matrix.build, 'cuda')
@@ -278,7 +278,7 @@ jobs:
             cp tinyBLAS/${{ env.LLAMACPP_VERSION }}/* llama.cpp/ggml/src/
             rm -r llama.cpp/ggml/src/ggml-cuda
             sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
-            curl -o llama.cpp/build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
 
         - id: set_build_params_hip_linux
@@ -578,7 +578,7 @@ jobs:
             cp tinyBLAS/${{ env.LLAMACPP_VERSION }}/* llama.cpp/ggml/src/
             rm -r llama.cpp/ggml/src/ggml-cuda
             sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
-            curl -o llama.cpp/build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
         - id: setup_cuda_windows
           if: startsWith(matrix.build, 'cuda')
@@ -689,7 +689,7 @@ jobs:
             cp tinyBLAS/${{ env.LLAMACPP_VERSION }}/* llama.cpp/ggml/src/
             rm -r llama.cpp/ggml/src/ggml-cuda
             sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
-            curl -o llama.cpp/build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
         - id: setup_hip_windows
           name: Install
@@ -803,8 +803,8 @@ jobs:
             sed -i "s:LIBRARY undreamai:LIBRARY undreamai_android:g" CMakeLists.txt
             export LD_LIBRARY_PATH=""
             cd build
-            export NDK=$ANDROID_NDK
-            cmake .. -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-23 -DCMAKE_C_FLAGS=-march=armv8.4a+dotprod ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+            echo "NDK=$ANDROID_NDK" >> $GITHUB_ENV
+            cmake .. -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-23 -DCMAKE_C_FLAGS=-march=armv8.4a+dotprod ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j $(nproc)
 
 
