@@ -18150,6 +18150,8 @@ DECL_FATTN_WMMA_F16_CASE(256, 8, half);
 
 #endif // GGML_MINIMIZE_CODE_SIZE
 
+#ifndef GGML_NO_IQUANTS
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // ROLLUP template-instances/mmq-instance-iq1_s.cu
@@ -18237,6 +18239,8 @@ DECL_MMQ_CASE(GGML_TYPE_IQ4_NL);
 
 
 DECL_MMQ_CASE(GGML_TYPE_IQ4_XS);
+
+#endif // GGML_NO_IQUANTS
 
 ////////////////////////////////////////////////////////////////////////////////
 //
