@@ -3,12 +3,14 @@ name: Build library
 on:
   push:
     paths:
-      - .github/workflows/build_library.yaml
-      - CMakeLists.txt
-      - undreamai.h
-      - undreamai.cpp
-    tags:
-      - 'v*'
+      - .github/workflows/build_library_test.yaml
+    # paths:
+    #   - .github/workflows/build_library.yaml
+    #   - CMakeLists.txt
+    #   - undreamai.h
+    #   - undreamai.cpp
+    # tags:
+    #   - 'v*'
 
 env:
   LLAMACPP_VERSION: b3580
@@ -22,52 +24,64 @@ jobs:
     name: Build ArchChecker Linux
     runs-on: ubuntu-latest
 
+    env:
+        UPLOAD_NAME: linux-archchecker
+        UPLOAD_PATH: archchecker/build/libarchchecker.so
+
     steps:
-      - name: Clone
-        id: checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
+        - id: checkout_recursive
+          name: Clone
+          uses: actions/checkout@v4
+          with:
+            submodules: recursive
 
-      - name: Build
-        id: build
-        run: |
-          mkdir archchecker/build
-          cd archchecker/build
-          cmake ..
-          cmake --build . --config Release -j $(nproc)
+        - id: build_archchecker
+          name: Build
+          run: |
+            mkdir archchecker/build
+            cd archchecker/build
+            cmake ..
+            cmake --build . --config Release -j $(nproc)
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux-archchecker
-          path: archchecker/build/libarchchecker.so
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_PATH }}
 
 
   archchecker_windows_build:
     name: Build ArchChecker Windows
     runs-on: windows-2019
 
+    env:
+        UPLOAD_NAME: windows-archchecker
+        UPLOAD_PATH: archchecker/build/Release/archchecker.dll
+
     steps:
-      - name: Clone
-        id: checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
+        - id: checkout_recursive
+          name: Clone
+          uses: actions/checkout@v4
+          with:
+            submodules: recursive
 
-      - name: Build
-        id: build
-        run: |
-          mkdir archchecker/build
-          cd archchecker/build
-          cmake ..
-          cmake --build . --config Release -j $(nproc)
+        - id: build_archchecker
+          name: Build
+          run: |
+            mkdir archchecker/build
+            cd archchecker/build
+            cmake ..
+            cmake --build . --config Release -j $(nproc)
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-archchecker
-          path: archchecker/build/Release/archchecker.dll
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_PATH }}
+
+
 
   ################################ Linux ################################
 
@@ -76,6 +90,7 @@ jobs:
 
     env:
       CMAKE_COMMON: '-DGGML_NATIVE=OFF -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON'
+      PLATFORM: linux
 
     strategy:
       matrix:
@@ -96,97 +111,121 @@ jobs:
             defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
             
     steps:
-      - name: Clone
-        id: checkout
-        uses: actions/checkout@v4
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
 
-      - name: Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install build-essential cmake
+        - id: setup_libs_linux
+          name: Dependencies
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y build-essential cmake zip
 
-      - name: Get Variables
-        run: |
-          echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
+        - id: setup_llama_cpp_linux
+          name: Clone llama.cpp
+          run: |
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+        
+            sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+            sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+            sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
+        
+            for f in examples/server/public/*;do
+              cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
+            done
+        
+            cd ..
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
 
-      - name: Clone llama.cpp
-        run: |
-          git clone https://github.com/ggerganov/llama.cpp llama.cpp
-          cd llama.cpp
-          git checkout ${{ env.LLAMACPP_VERSION }}
-          sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
-          sed -i 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
-          sed -i 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
-          cd ..
-          mkdir -p build/licenses build/libs
-          cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+        - id: setup_vulcan_linux
+          if: matrix.build == 'vulkan'
+          name: Dependencies Vulcan
+          run: |
+            wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+            sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list https://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
+            sudo apt-get update -y
+            sudo apt-get install -y build-essential vulkan-sdk
+            cp /lib/x86_64-linux-gnu/libvulkan.so.1 build/libs/
 
-      - name: Create missing files
-        run: |
-          cd llama.cpp
-          for f in examples/server/public/*;do
-            cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
-          done
+        - id: set_cuda_var_linux
+          if: startsWith(matrix.build, 'cuda')
+          name: Set CUDA variable
+          run: |
+            echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
 
-      - name: Dependencies Vulcan
-        if: matrix.build == 'vulkan'
-        run: |
-          wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
-          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list https://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
-          sudo apt-get update -y
-          sudo apt-get install -y build-essential vulkan-sdk
-          cp /lib/x86_64-linux-gnu/libvulkan.so.1 build/libs/
+        - id: prepare_cuda
+          if: startsWith(matrix.build, 'cuda') || matrix.build == 'hip'
+          name: Prepare CUDA
+          run: |
+            cp tinyBLAS/${{ env.LLAMACPP_VERSION }}/* llama.cpp/ggml/src/
+            rm -r llama.cpp/ggml/src/ggml-cuda
+            sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
+            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
-      - name: Prepare CUDA
-        if: startsWith(matrix.build, 'cuda')
-        run: |
-          cp tinyBLAS/${{ env.LLAMACPP_VERSION }}/* llama.cpp/ggml/src/
-          rm -r llama.cpp/ggml/src/ggml-cuda
-          sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
-          curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+        - id: setup_cuda_linux
+          if: startsWith(matrix.build, 'cuda')
+          uses: Jimver/cuda-toolkit@v0.2.15
+          with:
+            cuda: ${{ env.CUDA }}
+            linux-local-args: '["--toolkit"]'
+            method: network
 
-      - uses: Jimver/cuda-toolkit@v0.2.15
-        id: cuda-toolkit
-        if: startsWith(matrix.build, 'cuda')
-        with:
-          cuda: ${{ env.CUDA }}
-          method: 'network'
-          linux-local-args: '["--toolkit"]'
+        - id: link_cuda_linux
+          if: startsWith(matrix.build, 'cuda')
+          name: Link Cuda
+          run: |
+            ln -s ${{ env.CUDA_PATH }} ${{ github.workspace }}/build/cuda
 
-      - name: Link Cuda
-        if: startsWith(matrix.build, 'cuda')
-        run: |
-          ln -s ${{ env.CUDA_PATH }} ${{ github.workspace }}/build/cuda
 
-      - name: Build
-        id: cmake_build
-        run: |
-          sed -i "s:LIBRARY undreamai:LIBRARY undreamai_linux-${{ matrix.build }}:g" CMakeLists.txt
-          export LD_LIBRARY_PATH=""
-          cd build
-          cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
-          cmake --build . --config Release -j $(nproc)
+        - id: set_build_params_linux
+          name: Set build parameters
+          run: |
+            echo "BUILD_PARAMS=${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}" >> $GITHUB_ENV
 
-      - name: Test
-        id: test
-        if: matrix.build == 'avx'
-        run: |
-          cd build/libs
-          curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
-          ./undreamai_test -m model.gguf -np 1 --log-disable
-          rm model.gguf
+        - id: cmake_build_linux
+          name: Build
+          run: |
+            sed -i "s:LIBRARY undreamai:LIBRARY undreamai_${{ env.PLATFORM }}-${{ matrix.build }}:g" CMakeLists.txt
+            export LD_LIBRARY_PATH=""
+            cd build
+            cmake .. ${{ env.BUILD_PARAMS }}
+            cmake --build . --config Release -j $(nproc)
 
-      - name: Pack artifacts
-        id: pack_artifacts
-        run: |
-          rm build/libs/undreamai_test
-          zip -j undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip build/licenses/* build/libs/*
+        - id: test_build_unix
+          if: matrix.build == 'avx'
+          name: Test
+          run: |
+            cd build/libs
+            curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
+            ./undreamai_test -m model.gguf -np 1 --log-disable
+            rm model.gguf
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip
-          path: undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip
+
+        - id: set_upload_name_unix
+          name: Set upload name
+          run: |
+            NAME=undreamai-${{ github.ref_name }}-llamacpp-${{ env.PLATFORM }}
+            if [ "${{ matrix.build }}" != "" ];then NAME=$NAME-${{ matrix.build }}; fi
+            NAME=$NAME.zip
+            echo "UPLOAD_NAME=$NAME" >> $GITHUB_ENV
+            echo "UPLOAD_PATH=$NAME" >> $GITHUB_ENV
+
+        - id: pack_artifacts_unix
+          name: Pack artifacts
+          run: |
+            rm build/libs/undreamai_test
+            zip -j ${{ env.UPLOAD_NAME }} build/licenses/* build/libs/*
+
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_PATH }}
+
 
   linux-hip:
     runs-on: ubuntu-22.04
@@ -194,70 +233,111 @@ jobs:
 
     env:
         CMAKE_COMMON: '-DGGML_NATIVE=OFF -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON'
+        PLATFORM: linux
+
+    strategy:
+      matrix:
+        include:
+          - build: 'hip'
 
     steps:
-      - name: Clone
-        id: checkout
-        uses: actions/checkout@v4
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
 
-      - name: Dependencies
-        id: depends
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential git cmake rocblas-dev hipblas-dev zip
+        - id: setup_libs_linux
+          name: Dependencies
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y build-essential cmake zip
 
-      - name: Clone llama.cpp
-        run: |
+        - id: setup_hip_linux
+          name: Dependencies
+          run: |
+            sudo apt-get install -y git rocblas-dev hipblas-dev
+
+        - id: setup_llama_cpp_linux
+          name: Clone llama.cpp
+          run: |
             git clone https://github.com/ggerganov/llama.cpp llama.cpp
             cd llama.cpp
             git checkout ${{ env.LLAMACPP_VERSION }}
-            sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
-            sed -i 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+        
+            sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+            sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+            sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
+        
+            for f in examples/server/public/*;do
+              cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
+            done
+        
             cd ..
             mkdir -p build/licenses build/libs
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
 
-      - name: Create missing files
-        run: |
-            cd llama.cpp
-            for f in examples/server/public/*;do
-                cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
-            done
+        - id: set_cuda_var_linux
+          if: startsWith(matrix.build, 'cuda')
+          name: Set CUDA variable
+          run: |
+            echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
 
-      - name: Prepare CUDA
-        run: |
+        - id: prepare_cuda
+          if: startsWith(matrix.build, 'cuda') || matrix.build == 'hip'
+          name: Prepare CUDA
+          run: |
             cp tinyBLAS/${{ env.LLAMACPP_VERSION }}/* llama.cpp/ggml/src/
             rm -r llama.cpp/ggml/src/ggml-cuda
             sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
             curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
-      - name: Build
-        id: cmake_build
-        run: |
-            sed -i "s:LIBRARY undreamai:LIBRARY undreamai_linux-hip:g" CMakeLists.txt
+
+        - id: set_build_params_hip_linux
+          name: Set build parameters
+          run: |
             sed -i "s:FATAL_ERROR:WARNING:g" llama.cpp/ggml/src/CMakeLists.txt
+            echo "BUILD_PARAMS=${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} -DCMAKE_HIP_COMPILER="$(hipconfig -l)/clang" -DGGML_HIPBLAS=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=`pwd`/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=`pwd`/build/libs" >> $GITHUB_ENV
+
+        - id: cmake_build_linux
+          name: Build
+          run: |
+            sed -i "s:LIBRARY undreamai:LIBRARY undreamai_${{ env.PLATFORM }}-${{ matrix.build }}:g" CMakeLists.txt
             export LD_LIBRARY_PATH=""
             cd build
-            cmake .. ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} -DCMAKE_HIP_COMPILER="$(hipconfig -l)/clang" -DGGML_HIPBLAS=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=`pwd`/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=`pwd`/libs
+            cmake .. ${{ env.BUILD_PARAMS }}
             cmake --build . --config Release -j $(nproc)
 
-      - name: Pack artifacts
-        id: pack_artifacts
-        run: |
-          rm build/libs/undreamai_test
-          zip -j undreamai-${{ github.ref_name }}-llamacpp-linux-hip.zip build/licenses/* build/libs/*
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: undreamai-${{ github.ref_name }}-llamacpp-linux-hip.zip
-          path: undreamai-${{ github.ref_name }}-llamacpp-linux-hip.zip
+        - id: set_upload_name_unix
+          name: Set upload name
+          run: |
+            NAME=undreamai-${{ github.ref_name }}-llamacpp-${{ env.PLATFORM }}
+            if [ "${{ matrix.build }}" != "" ];then NAME=$NAME-${{ matrix.build }}; fi
+            NAME=$NAME.zip
+            echo "UPLOAD_NAME=$NAME" >> $GITHUB_ENV
+            echo "UPLOAD_PATH=$NAME" >> $GITHUB_ENV
+
+        - id: pack_artifacts_unix
+          name: Pack artifacts
+          run: |
+            rm build/libs/undreamai_test
+            zip -j ${{ env.UPLOAD_NAME }} build/licenses/* build/libs/*
+
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_PATH }}
+
 
 ################################ macOS ################################
 
   macOS-arm64-build:
     runs-on: macos-14
 
+    env:
+        PLATFORM: macos-arm64
+
     strategy:
       matrix:
         include:
@@ -267,58 +347,79 @@ jobs:
             defines: '-DGGML_ACCELERATE=OFF -DGGML_BLAS=OFF'
 
     steps:
-      - name: Clone
-        id: checkout
-        uses: actions/checkout@v4
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
 
-      - name: Clone llama.cpp
-        run: |
-          git clone https://github.com/ggerganov/llama.cpp llama.cpp
-          cd llama.cpp
-          git checkout ${{ env.LLAMACPP_VERSION }}
-          sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
-          sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
-          cd ..
-          mkdir -p build/licenses build/libs
-          cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+        - continue-on-error: true
+          id: setup_libs_macos
+          name: Dependencies
+          run: |
+            brew update
 
-      - name: Create missing files
-        run: |
-          cd llama.cpp
-          for f in examples/server/public/*;do
-            cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
-          done
-  
-      - name: Dependencies
-        id: depends
-        continue-on-error: true
-        run: |
-          brew update
+        - id: setup_llama_cpp_linux
+          name: Clone llama.cpp
+          run: |
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+        
+            sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+            sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+            sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
+        
+            for f in examples/server/public/*;do
+              cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
+            done
+        
+            cd ..
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
 
-      - name: Build
-        id: cmake_build
-        run: |
-          sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_macos-arm64-${{ matrix.build }}:g" CMakeLists.txt
-          cd build
-          cmake -DLLAMA_FATAL_WARNINGS=ON -DGGML_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }} ..
-          cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
 
-      - name: Pack artifacts
-        id: pack_artifacts
-        run: |
-          rm build/libs/undreamai_test
-          ls -R build
-          zip -j undreamai-${{ github.ref_name }}-llamacpp-macos-arm64-${{ matrix.build }}.zip build/licenses/* build/libs/*
+        - id: set_build_params_macos_arm64
+          name: Set build parameters
+          run: |
+            echo "BUILD_PARAMS=-DLLAMA_FATAL_WARNINGS=ON -DGGML_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}" >> $GITHUB_ENV
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: undreamai-${{ github.ref_name }}-llamacpp-macos-arm64-${{ matrix.build }}.zip
-          path: undreamai-${{ github.ref_name }}-llamacpp-macos-arm64-${{ matrix.build }}.zip
+        - id: cmake_build_macos
+          name: Build
+          run: |
+            sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_${{ env.PLATFORM }}-${{ matrix.build }}:g" CMakeLists.txt
+            cd build
+            cmake .. ${{ env.BUILD_PARAMS }}
+            cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
+
+
+        - id: set_upload_name_unix
+          name: Set upload name
+          run: |
+            NAME=undreamai-${{ github.ref_name }}-llamacpp-${{ env.PLATFORM }}
+            if [ "${{ matrix.build }}" != "" ];then NAME=$NAME-${{ matrix.build }}; fi
+            NAME=$NAME.zip
+            echo "UPLOAD_NAME=$NAME" >> $GITHUB_ENV
+            echo "UPLOAD_PATH=$NAME" >> $GITHUB_ENV
+
+        - id: pack_artifacts_unix
+          name: Pack artifacts
+          run: |
+            rm build/libs/undreamai_test
+            zip -j ${{ env.UPLOAD_NAME }} build/licenses/* build/libs/*
+
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_PATH }}
+
 
   macOS-x64-build:
     runs-on: macos-12
 
+    env:
+        PLATFORM: macos-x64
+
     strategy:
       matrix:
         include:
@@ -328,62 +429,82 @@ jobs:
             defines: '-DGGML_ACCELERATE=OFF -DGGML_BLAS=OFF'
 
     steps:
-      - name: Clone
-        id: checkout
-        uses: actions/checkout@v4
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
 
-      - name: Clone llama.cpp
-        run: |
-          git clone https://github.com/ggerganov/llama.cpp llama.cpp
-          cd llama.cpp
-          git checkout ${{ env.LLAMACPP_VERSION }}
-          sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
-          sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
-          cd ..
-          mkdir -p build/licenses build/libs
-          cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+        - continue-on-error: true
+          id: setup_libs_macos
+          name: Dependencies
+          run: |
+            brew update
 
-      - name: Create missing files
-        run: |
-          cd llama.cpp
-          for f in examples/server/public/*;do
-            cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
-          done
-  
-      - name: Dependencies
-        id: depends
-        continue-on-error: true
-        run: |
-          brew update
+        - id: setup_llama_cpp_linux
+          name: Clone llama.cpp
+          run: |
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+        
+            sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+            sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+            sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
+        
+            for f in examples/server/public/*;do
+              cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
+            done
+        
+            cd ..
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
 
-      - name: Build
-        id: cmake_build
-        run: |
-          sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_macos-x64-${{ matrix.build }}:g" CMakeLists.txt
-          cd build
-          cmake -DLLAMA_FATAL_WARNINGS=ON -DGGML_METAL=OFF -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }} ..
-          cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
 
-      - name: Test
-        id: test
-        run: |
-          cd build/libs
-          curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
-          ./undreamai_test -m model.gguf -np 1 --log-disable
-          rm model.gguf
+        - id: set_build_params_macos_x64
+          name: Set build parameters
+          run: |
+            echo "BUILD_PARAMS=-DLLAMA_FATAL_WARNINGS=ON -DGGML_METAL=OFF -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}" >> $GITHUB_ENV
 
-      - name: Pack artifacts
-        id: pack_artifacts
-        run: |
-          rm build/libs/undreamai_test
-          ls -R build
-          zip -j undreamai-${{ github.ref_name }}-llamacpp-macos-x64-${{ matrix.build }}.zip build/licenses/* build/libs/*
+        - id: cmake_build_macos
+          name: Build
+          run: |
+            sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_${{ env.PLATFORM }}-${{ matrix.build }}:g" CMakeLists.txt
+            cd build
+            cmake .. ${{ env.BUILD_PARAMS }}
+            cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: undreamai-${{ github.ref_name }}-llamacpp-macos-x64-${{ matrix.build }}.zip
-          path: undreamai-${{ github.ref_name }}-llamacpp-macos-x64-${{ matrix.build }}.zip
+        - id: test_build_unix
+          if: matrix.build == 'avx'
+          name: Test
+          run: |
+            cd build/libs
+            curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
+            ./undreamai_test -m model.gguf -np 1 --log-disable
+            rm model.gguf
+
+
+        - id: set_upload_name_unix
+          name: Set upload name
+          run: |
+            NAME=undreamai-${{ github.ref_name }}-llamacpp-${{ env.PLATFORM }}
+            if [ "${{ matrix.build }}" != "" ];then NAME=$NAME-${{ matrix.build }}; fi
+            NAME=$NAME.zip
+            echo "UPLOAD_NAME=$NAME" >> $GITHUB_ENV
+            echo "UPLOAD_PATH=$NAME" >> $GITHUB_ENV
+
+        - id: pack_artifacts_unix
+          name: Pack artifacts
+          run: |
+            rm build/libs/undreamai_test
+            zip -j ${{ env.UPLOAD_NAME }} build/licenses/* build/libs/*
+
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_PATH }}
+
+
 
 ################################ Windows ################################
 
@@ -393,7 +514,8 @@ jobs:
     env:
       CMAKE_COMMON: '-DGGML_NATIVE=OFF'
       VULKAN_VERSION: 1.3.261.1
-    
+      PLATFORM: windows
+
     strategy:
       matrix:
         include:
@@ -409,334 +531,344 @@ jobs:
             defines: '-DGGML_VULKAN=ON'
           - build: 'arm64'
             defines: '-G Ninja -D CMAKE_TOOLCHAIN_FILE=../llama.cpp/cmake/arm64-windows-llvm.cmake'
-
-    steps:
-      - name: Clone
-        id: checkout
-        uses: actions/checkout@v4
-
-      - name: Get Variables
-        run: |
-          $pattern = "\d+\.\d+\.\d+"
-          $CUDA = [regex]::Match("${{ matrix.build }}", $pattern).Value
-          Add-Content $env:GITHUB_ENV "CUDA=$CUDA"
-
-      - name: Clone llama.cpp
-        run: |
-          git clone https://github.com/ggerganov/llama.cpp llama.cpp
-          cd llama.cpp
-          git checkout ${{ env.LLAMACPP_VERSION }}
-          (Get-Content examples/server/server.cpp ) -replace 'utils.hpp', 'utils_callback.hpp' | Set-Content examples/server/server.cpp
-          (Get-Content examples/server/server.cpp ) -replace 'main\(int argc', 'main_server(int argc' | Set-Content examples/server/server.cpp
-          (Get-Content ggml/src/ggml-vulkan.cpp ) -replace 'exit\(1', 'std::terminate(' | Set-Content ggml/src/ggml-vulkan.cpp
-          cd ..
-          mkdir build
-
-      - name: Create missing files
-        shell: bash
-        run: |
-          cd llama.cpp
-          for f in examples/server/public/*; do
-            cmake -DINPUT=$f -DOUTPUT=$(echo $f | sed -e 's:public/::g').hpp -P scripts/xxd.cmake
-          done
-
-      - name: Install Vulkan SDK
-        id: get_vulkan
-        if: matrix.build == 'vulkan'
-        run: |
-          curl.exe -o $env:RUNNER_TEMP/VulkanSDK-Installer.exe -L "https://sdk.lunarg.com/sdk/download/${env:VULKAN_VERSION}/windows/VulkanSDK-${env:VULKAN_VERSION}-Installer.exe"
-          & "$env:RUNNER_TEMP\VulkanSDK-Installer.exe" --accept-licenses --default-answer --confirm-command install
-          Add-Content $env:GITHUB_ENV "VULKAN_SDK=C:\VulkanSDK\${env:VULKAN_VERSION}"
-          Add-Content $env:GITHUB_PATH "C:\VulkanSDK\${env:VULKAN_VERSION}\bin"
-          curl.exe -o $env:RUNNER_TEMP/VulkanRT-Components.zip -L "https://sdk.lunarg.com/sdk/download/1.3.283.0/windows/VulkanRT-1.3.283.0-Components.zip"
-          7z x "-o${env:RUNNER_TEMP}" $env:RUNNER_TEMP/VulkanRT-Components.zip
-          mkdir .\build\libs\Release
-          cp ${env:RUNNER_TEMP}/VulkanRT*\x64\vulkan-1.dll .\build\libs\Release
-
-      - name: Install Ninja
-        id: install_ninja
-        if: matrix.build == 'arm64'
-        run: |
-          choco install ninja
-
-      - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v2
-        id: cpu-cores
-
-      - name: Build
-        id: cmake_build
-        run: |
-          (Get-Content CMakeLists.txt ) -replace 'LIBRARY undreamai', 'LIBRARY undreamai_windows-${{ matrix.build }}' | Set-Content CMakeLists.txt
-          cd build
-          cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
-          cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
-
-      - name: Move files to Release folder
-        if: matrix.build == 'arm64'
-        run: |
-          mkdir build/Release
-          mkdir build/libs/Release
-          move build/libs/*exe build/libs/Release
-          move build/libs/*dll build/libs/Release
-          move build/libs/*exp build/libs/Release
-          move build/libs/*lib build/libs/Release
-
-      - name: Pack artifacts
-        id: pack_artifacts
-        run: |
-          ls -R build
-          del build/libs/Release/undreamai_test.exe
-          mkdir artifacts
-          Copy-Item .\llama.cpp\LICENSE .\artifacts\llama.cpp.LICENSE.txt
-          Copy-Item .\build\Release\* .\artifacts\
-          Copy-Item .\build\libs\Release\*dll .\artifacts\
-          $serverPath = ".\build\libs\Release\undreamai_server.exe"
-          if (Test-Path $serverPath) {
-              Copy-Item $serverPath -Destination ".\artifacts\"
-          }
-          cd artifacts
-          7z a ../undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip *
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          path: undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip
-          name: undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip
-
-
-  windows-cuda-build:
-    runs-on: windows-2019
-
-    env:
-      CMAKE_COMMON: '-DGGML_NATIVE=OFF'
-    
-    strategy:
-      matrix:
-        include:
           - build: 'cuda-cu11.7.1'
             defines: '-DGGML_CUDA=ON'
           - build: 'cuda-cu12.2.0'
             defines: '-DGGML_CUDA=ON'
 
     steps:
-      - name: Clone
-        id: checkout
-        uses: actions/checkout@v4
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
 
-      - name: Get Variables
-        run: |
-          $pattern = "\d+\.\d+\.\d+"
-          $CUDA = [regex]::Match("${{ matrix.build }}", $pattern).Value
-          Add-Content $env:GITHUB_ENV "CUDA=$CUDA"
+        - id: setup_llama_cpp_windows
+          name: Clone llama.cpp
+          run: |
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+            (Get-Content examples/server/server.cpp ) -replace 'utils.hpp', 'utils_callback.hpp' | Set-Content examples/server/server.cpp
+            (Get-Content examples/server/server.cpp ) -replace 'main\(int argc', 'main_server(int argc' | Set-Content examples/server/server.cpp
+            (Get-Content ggml/src/ggml-vulkan.cpp ) -replace 'exit\(1', 'std::terminate(' | Set-Content ggml/src/ggml-vulkan.cpp
+        
+            Get-ChildItem examples/server/public/* | ForEach-Object {
+              $f = $_.FullName
+              $output = $f -replace "public\\", ""
+              echo "cmake -DINPUT=$f -DOUTPUT=$output.hpp -P scripts/xxd.cmake"
+              cmake -DINPUT="$f" -DOUTPUT="$output.hpp" -P "scripts/xxd.cmake"
+            }
+        
+            cd ..
+            mkdir -p build/licenses/
 
-      - name: Clone llama.cpp
-        run: |
-          git clone https://github.com/ggerganov/llama.cpp llama.cpp
-          cd llama.cpp
-          git checkout ${{ env.LLAMACPP_VERSION }}
-          (Get-Content examples/server/server.cpp ) -replace 'utils.hpp', 'utils_callback.hpp' | Set-Content examples/server/server.cpp
-          (Get-Content examples/server/server.cpp ) -replace 'main\(int argc', 'main_server(int argc' | Set-Content examples/server/server.cpp
+        - id: setup_vulcan_windows
+          if: matrix.build == 'vulkan'
+          name: Install Vulkan SDK
+          run: |
+            curl.exe -o $env:RUNNER_TEMP/VulkanSDK-Installer.exe -L "https://sdk.lunarg.com/sdk/download/${env:VULKAN_VERSION}/windows/VulkanSDK-${env:VULKAN_VERSION}-Installer.exe"
+            & "$env:RUNNER_TEMP\VulkanSDK-Installer.exe" --accept-licenses --default-answer --confirm-command install
+            Add-Content $env:GITHUB_ENV "VULKAN_SDK=C:\VulkanSDK\${env:VULKAN_VERSION}"
+            Add-Content $env:GITHUB_PATH "C:\VulkanSDK\${env:VULKAN_VERSION}\bin"
+            curl.exe -o $env:RUNNER_TEMP/VulkanRT-Components.zip -L "https://sdk.lunarg.com/sdk/download/1.3.283.0/windows/VulkanRT-1.3.283.0-Components.zip"
+            7z x "-o${env:RUNNER_TEMP}" $env:RUNNER_TEMP/VulkanRT-Components.zip
+            mkdir .\build\libs\Release
+            cp ${env:RUNNER_TEMP}/VulkanRT*\x64\vulkan-1.dll .\build\libs\Release
 
-      - name: Create missing files
-        run: |
-          cd llama.cpp
-          Get-ChildItem examples/server/public/* | ForEach-Object {
-            $f = $_.FullName
-            $output = $f -replace "public\\", ""
-            echo "cmake -DINPUT=$f -DOUTPUT=$output.hpp -P scripts/xxd.cmake"
-            cmake -DINPUT="$f" -DOUTPUT="$output.hpp" -P "scripts/xxd.cmake"
-          }
-          
-      - name: Prepare CUDA
-        run: |
-          cp tinyBLAS/${env:LLAMACPP_VERSION}/* llama.cpp\ggml\src\
-          rm -r llama.cpp/ggml/src/ggml-cuda
-          sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
+        - id: setup_ninja_windows
+          if: matrix.build == 'arm64'
+          name: Install Ninja
+          run: |
+            choco install ninja
 
-      - uses: Jimver/cuda-toolkit@v0.2.15
-        id: cuda-toolkit
-        with:
-          cuda: ${{ env.CUDA }}
-          method: 'network'
-          sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust", "visual_studio_integration"]'
+        - id: set_cuda_var_windows
+          if: startsWith(matrix.build, 'cuda')
+          name: Set CUDA variable
+          run: |
+            $pattern = "\d+\.\d+\.\d+"
+            $CUDA = [regex]::Match("${{ matrix.build }}", $pattern).Value
+            Add-Content $env:GITHUB_ENV "CUDA=$CUDA"
 
-      - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v2
-        id: cpu-cores
+        - id: prepare_cuda
+          if: startsWith(matrix.build, 'cuda') || matrix.build == 'hip'
+          name: Prepare CUDA
+          run: |
+            cp tinyBLAS/${{ env.LLAMACPP_VERSION }}/* llama.cpp/ggml/src/
+            rm -r llama.cpp/ggml/src/ggml-cuda
+            sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
+            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
-      - name: Build
-        id: cmake_build
-        run: |
-          (Get-Content CMakeLists.txt ) -replace 'LIBRARY undreamai', 'LIBRARY undreamai_windows-${{ matrix.build }}' | Set-Content CMakeLists.txt
-          mkdir build
-          cd build
-          cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
-          cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
+        - id: setup_cuda_windows
+          if: startsWith(matrix.build, 'cuda')
+          uses: Jimver/cuda-toolkit@v0.2.15
+          with:
+            cuda: ${{ env.CUDA }}
+            method: network
+            sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust", "visual_studio_integration"]'
 
-      - name: Pack artifacts
-        id: pack_artifacts
-        run: |
-          del build/libs/Release/undreamai_test.*
-          mkdir artifacts
-          ls -R build
-          curl.exe -o artifacts\llamafile.LICENSE.txt -L "https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE"
-          Copy-Item .\llama.cpp\LICENSE .\artifacts\llama.cpp.LICENSE.txt
-          Copy-Item .\build\Release\* .\artifacts\
-          Copy-Item .\build\libs\Release\*dll .\artifacts\
-          $serverPath = ".\build\libs\Release\undreamai_server.exe"
-          if (Test-Path $serverPath) {
-              Copy-Item $serverPath -Destination ".\artifacts\"
-          }
-          cd artifacts
-          7z a ../undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip *
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          path: undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip
-          name: undreamai-${{ github.ref_name }}-llamacpp-windows-${{ matrix.build }}.zip
+        - id: get_cpu_cores
+          name: Get number of CPU cores
+          uses: SimenB/github-actions-cpu-cores@v2
+
+        - id: cmake_build_windows
+          name: Build
+          run: |
+            (Get-Content CMakeLists.txt ) -replace 'LIBRARY undreamai', 'LIBRARY undreamai_windows-${{ matrix.build }}' | Set-Content CMakeLists.txt
+            cd build
+            cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+            cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
+
+
+        - id: move_files_windows
+          if: matrix.build == 'arm64' || matrix.build == 'hip'
+          name: Move files to Release folder
+          run: |
+            mkdir build/Release
+            mkdir build/libs/Release
+            move build/libs/*exe build/libs/Release
+            move build/libs/*dll build/libs/Release
+            move build/libs/*exp build/libs/Release
+            move build/libs/*lib build/libs/Release
+
+        - id: set_upload_name_windows
+          name: Set upload name
+          run: |
+            $NAME = "undreamai-${{ github.ref_name }}-llamacpp-${{ env.PLATFORM }}-${{ matrix.build }}.zip"
+            Add-Content $env:GITHUB_ENV "UPLOAD_NAME=$NAME"
+            Add-Content $env:GITHUB_ENV "UPLOAD_PATH=$NAME"
+
+        - id: pack_artifacts_windows
+          name: Pack artifacts
+          run: |
+            ls -R build
+            del build/libs/Release/undreamai_test.exe
+            mkdir artifacts
+            Copy-Item .\build\licenses\* .\artifacts\
+            Copy-Item .\build\Release\* .\artifacts\
+            Copy-Item .\build\libs\Release\*dll .\artifacts\
+            $serverPath = ".\build\libs\Release\undreamai_server.exe"
+            if (Test-Path $serverPath) {
+                Copy-Item $serverPath -Destination ".\artifacts\"
+            }
+            cd artifacts
+            7z a ../${{ env.UPLOAD_NAME }} *
+
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_PATH }}
+
 
   windows-hip:
     runs-on: windows-2019
 
     env:
       CMAKE_COMMON: '-DGGML_NATIVE=OFF -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs'
+      PLATFORM: windows
+    
+    strategy:
+      matrix:
+        include:
+          - build: 'hip'
 
     steps:
-      - name: Clone
-        id: checkout
-        uses: actions/checkout@v4
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
 
-      - name: Clone llama.cpp
-        run: |
-          git clone https://github.com/ggerganov/llama.cpp llama.cpp
-          cd llama.cpp
-          git checkout ${{ env.LLAMACPP_VERSION }}
-          (Get-Content examples/server/server.cpp ) -replace 'utils.hpp', 'utils_callback.hpp' | Set-Content examples/server/server.cpp
-          (Get-Content examples/server/server.cpp ) -replace 'main\(int argc', 'main_server(int argc' | Set-Content examples/server/server.cpp
+        - id: setup_llama_cpp_windows
+          name: Clone llama.cpp
+          run: |
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+            (Get-Content examples/server/server.cpp ) -replace 'utils.hpp', 'utils_callback.hpp' | Set-Content examples/server/server.cpp
+            (Get-Content examples/server/server.cpp ) -replace 'main\(int argc', 'main_server(int argc' | Set-Content examples/server/server.cpp
+            (Get-Content ggml/src/ggml-vulkan.cpp ) -replace 'exit\(1', 'std::terminate(' | Set-Content ggml/src/ggml-vulkan.cpp
+        
+            Get-ChildItem examples/server/public/* | ForEach-Object {
+              $f = $_.FullName
+              $output = $f -replace "public\\", ""
+              echo "cmake -DINPUT=$f -DOUTPUT=$output.hpp -P scripts/xxd.cmake"
+              cmake -DINPUT="$f" -DOUTPUT="$output.hpp" -P "scripts/xxd.cmake"
+            }
+        
+            cd ..
+            mkdir -p build/licenses/
 
-      - name: Create missing files
-        run: |
-          cd llama.cpp
-          Get-ChildItem examples/server/public/* | ForEach-Object {
-            $f = $_.FullName
-            $output = $f -replace "public\\", ""
-            echo "cmake -DINPUT=$f -DOUTPUT=$output.hpp -P scripts/xxd.cmake"
-            cmake -DINPUT="$f" -DOUTPUT="$output.hpp" -P "scripts/xxd.cmake"
-          }
-          
-      - name: Prepare CUDA
-        run: |
-          cp tinyBLAS/${env:LLAMACPP_VERSION}/* llama.cpp\ggml\src\
-          rm -r llama.cpp/ggml/src/ggml-cuda
-          sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
+        - id: set_cuda_var_windows
+          if: startsWith(matrix.build, 'cuda')
+          name: Set CUDA variable
+          run: |
+            $pattern = "\d+\.\d+\.\d+"
+            $CUDA = [regex]::Match("${{ matrix.build }}", $pattern).Value
+            Add-Content $env:GITHUB_ENV "CUDA=$CUDA"
 
-      - name: Install
-        id: depends
-        run: |
-          $ErrorActionPreference = "Stop"
-          write-host "Downloading AMD HIP SDK Installer"
-          Invoke-WebRequest -Uri "https://download.amd.com/developer/eula/rocm-hub/AMD-Software-PRO-Edition-23.Q4-WinSvr2022-For-HIP.exe" -OutFile "${env:RUNNER_TEMP}\rocm-install.exe"
-          write-host "Installing AMD HIP SDK"
-          Start-Process "${env:RUNNER_TEMP}\rocm-install.exe" -ArgumentList '-install' -NoNewWindow -Wait
-          write-host "Completed AMD HIP SDK installation"
+        - id: prepare_cuda
+          if: startsWith(matrix.build, 'cuda') || matrix.build == 'hip'
+          name: Prepare CUDA
+          run: |
+            cp tinyBLAS/${{ env.LLAMACPP_VERSION }}/* llama.cpp/ggml/src/
+            rm -r llama.cpp/ggml/src/ggml-cuda
+            sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
+            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
-      - name: Verify ROCm
-        id: verify
-        run: |
-          & 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' --version
+        - id: setup_hip_windows
+          name: Install
+          run: |
+            $ErrorActionPreference = "Stop"
+            write-host "Downloading AMD HIP SDK Installer"
+            Invoke-WebRequest -Uri "https://download.amd.com/developer/eula/rocm-hub/AMD-Software-PRO-Edition-23.Q4-WinSvr2022-For-HIP.exe" -OutFile "${env:RUNNER_TEMP}\rocm-install.exe"
+            write-host "Installing AMD HIP SDK"
+            Start-Process "${env:RUNNER_TEMP}\rocm-install.exe" -ArgumentList '-install' -NoNewWindow -Wait
+            write-host "Completed AMD HIP SDK installation"
+            & 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' --version
 
-      - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v2
-        id: cpu-cores
 
-      - name: Build
-        id: cmake_build
-        run: |
-          $env:HIP_PATH=$(Resolve-Path 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' | split-path | split-path)
-          $env:CMAKE_PREFIX_PATH="${env:HIP_PATH}"
-          (Get-Content CMakeLists.txt ) -replace 'LIBRARY undreamai', 'LIBRARY undreamai_windows-hip' | Set-Content CMakeLists.txt
-          (Get-Content llama.cpp/ggml/src/CMakeLists.txt ) -replace 'FATAL_ERROR', 'WARNING' | Set-Content llama.cpp/ggml/src/CMakeLists.txt
-          mkdir build
-          cd build
-          cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DGGML_HIPBLAS=ON ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
-          cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
+        - id: get_cpu_cores
+          name: Get number of CPU cores
+          uses: SimenB/github-actions-cpu-cores@v2
 
-      - name: Pack artifacts
-        id: pack_artifacts
-        run: |
-          ls -R build
-          del build/libs/undreamai_test.*
-          mkdir artifacts
-          curl.exe -o artifacts\llamafile.LICENSE.txt -L "https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE"
-          Copy-Item .\llama.cpp\LICENSE .\artifacts\llama.cpp.LICENSE.txt
-          Copy-Item .\build\libs\* .\artifacts\
-          cd artifacts
-          7z a ../undreamai-${{ github.ref_name }}-llamacpp-windows-hip.zip *
+        - id: cmake_build_hip_windows
+          name: Build
+          run: |
+            $env:HIP_PATH=$(Resolve-Path 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' | split-path | split-path)
+            $env:CMAKE_PREFIX_PATH="${env:HIP_PATH}"
+            (Get-Content CMakeLists.txt ) -replace 'LIBRARY undreamai', 'LIBRARY undreamai_windows-hip' | Set-Content CMakeLists.txt
+            (Get-Content llama.cpp/ggml/src/CMakeLists.txt ) -replace 'FATAL_ERROR', 'WARNING' | Set-Content llama.cpp/ggml/src/CMakeLists.txt
+            cd build
+            cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DGGML_HIPBLAS=ON ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+            cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          path: undreamai-${{ github.ref_name }}-llamacpp-windows-hip.zip
-          name: undreamai-${{ github.ref_name }}-llamacpp-windows-hip.zip
+
+        - id: move_files_windows
+          if: matrix.build == 'arm64' || matrix.build == 'hip'
+          name: Move files to Release folder
+          run: |
+            mkdir build/Release
+            mkdir build/libs/Release
+            move build/libs/*exe build/libs/Release
+            move build/libs/*dll build/libs/Release
+            move build/libs/*exp build/libs/Release
+            move build/libs/*lib build/libs/Release
+
+        - id: set_upload_name_windows
+          name: Set upload name
+          run: |
+            $NAME = "undreamai-${{ github.ref_name }}-llamacpp-${{ env.PLATFORM }}-${{ matrix.build }}.zip"
+            Add-Content $env:GITHUB_ENV "UPLOAD_NAME=$NAME"
+            Add-Content $env:GITHUB_ENV "UPLOAD_PATH=$NAME"
+
+        - id: pack_artifacts_windows
+          name: Pack artifacts
+          run: |
+            ls -R build
+            del build/libs/Release/undreamai_test.exe
+            mkdir artifacts
+            Copy-Item .\build\licenses\* .\artifacts\
+            Copy-Item .\build\Release\* .\artifacts\
+            Copy-Item .\build\libs\Release\*dll .\artifacts\
+            $serverPath = ".\build\libs\Release\undreamai_server.exe"
+            if (Test-Path $serverPath) {
+                Copy-Item $serverPath -Destination ".\artifacts\"
+            }
+            cd artifacts
+            7z a ../${{ env.UPLOAD_NAME }} *
+
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_PATH }}
 
 
 ################################ Android ################################
 
   android-build:
     runs-on: ubuntu-22.04
+
+    env:
+      CMAKE_COMMON: '-DGGML_NATIVE=OFF'
+      VULKAN_VERSION: 1.3.261.1
+      PLATFORM: android
+
+    strategy:
+      matrix:
+        include:
+          - build: 'android'
+
     steps:
-        - name: Clone
-          id: checkout
+        - id: checkout
+          name: Clone
           uses: actions/checkout@v4
 
-        - name: Dependencies
+        - id: setup_libs_linux
+          name: Dependencies
           run: |
             sudo apt-get update
-            sudo apt-get install build-essential cmake
+            sudo apt-get install -y build-essential cmake zip
 
-        - name: Get Variables
-          run: |
-            echo "NDK=$ANDROID_NDK" >> $GITHUB_ENV
-
-        - name: Clone llama.cpp
+        - id: setup_llama_cpp_linux
+          name: Clone llama.cpp
           run: |
             git clone https://github.com/ggerganov/llama.cpp llama.cpp
             cd llama.cpp
             git checkout ${{ env.LLAMACPP_VERSION }}
-            sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
-            sed -i 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+        
+            sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+            sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+            sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
+        
+            for f in examples/server/public/*;do
+              cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
+            done
+        
             cd ..
             mkdir -p build/licenses build/libs
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
 
-        - name: Create missing files
-          run: |
-            cd llama.cpp
-            for f in examples/server/public/*;do
-              cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
-            done
 
-        - name: Build
-          id: cmake_build
+        - id: cmake_build_android
+          name: Build
           run: |
             sed -i "s:LIBRARY undreamai:LIBRARY undreamai_android:g" CMakeLists.txt
             export LD_LIBRARY_PATH=""
             cd build
-            cmake .. -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-23 -DCMAKE_C_FLAGS=-march=armv8.4a+dotprod ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+            echo "NDK=$ANDROID_NDK" >> $GITHUB_ENV
+            cmake .. -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-23 -DCMAKE_C_FLAGS=-march=armv8.4a+dotprod ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j $(nproc)
 
-        - name: Pack artifacts
-          id: pack_artifacts
-          run: |
-            rm build/libs/undreamai_test build/libs/undreamai_server
-            zip -j undreamai-${{ github.ref_name }}-llamacpp-android.zip build/licenses/* build/libs/*
 
-        - name: Upload Artifacts
+        - id: set_upload_name_unix
+          name: Set upload name
+          run: |
+            NAME=undreamai-${{ github.ref_name }}-llamacpp-${{ env.PLATFORM }}
+            if [ "${{ matrix.build }}" != "" ];then NAME=$NAME-${{ matrix.build }}; fi
+            NAME=$NAME.zip
+            echo "UPLOAD_NAME=$NAME" >> $GITHUB_ENV
+            echo "UPLOAD_PATH=$NAME" >> $GITHUB_ENV
+
+        - id: remove_server
+          name: Delete server
+          run: |
+            rm build/libs/undreamai_server
+
+        - id: pack_artifacts_unix
+          name: Pack artifacts
+          run: |
+            rm build/libs/undreamai_test
+            zip -j ${{ env.UPLOAD_NAME }} build/licenses/* build/libs/*
+
+        - id: upload
+          name: Upload Artifacts
           uses: actions/upload-artifact@v4
           with:
-            name: undreamai-${{ github.ref_name }}-llamacpp-android.zip
-            path: undreamai-${{ github.ref_name }}-llamacpp-android.zip
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_PATH }}
+
 
 ################################ Release ################################
 
@@ -751,40 +883,44 @@ jobs:
       - macOS-arm64-build
       - macOS-x64-build
       - windows-build
-      - windows-cuda-build
       - windows-hip
       - android-build
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
 
-      - name: Download Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
+        - id: download_artifacts
+          name: Download Artifacts
+          uses: actions/download-artifact@v4
+          with:
+            path: artifacts
 
-      - name: Merge artifacts
-        run: |
-          cd artifacts
-          ls -R
-          PREFIX=undreamai-${{ github.ref_name }}-llamacpp
+        - id: merge_artifacts
+          name: Merge artifacts
+          run: |
+            cd artifacts
+            ls -R
+            PREFIX=undreamai-${{ github.ref_name }}-llamacpp
+        
+            for d in `ls | grep $PREFIX`;do
+              cd $d; unzip $d; rm $d; cd ..;
+              new_name=`echo $d | sed -e "s:$PREFIX-::g" | sed -e 's:.zip::g'`
+              mv $d $new_name;
+              echo $new_name >> bundle
+            done
+        
+            servers=`find . -name undreamai_server*`
+            if [ "$servers" != "" ];then
+              zip -r undreamai-${{ github.ref_name }}-server.zip $servers
+              rm $servers
+            fi
+            zip -r $PREFIX.zip `cat bundle` linux-archchecker windows-archchecker
 
-          for d in `ls | grep $PREFIX`;do
-            cd $d; unzip $d; rm $d; cd ..;
-            new_name=`echo $d | sed -e "s:$PREFIX-::g" | sed -e 's:.zip::g'`
-            mv $d $new_name;
-            echo $new_name >> bundle
-          done
+        - id: release
+          name: Release
+          uses: softprops/action-gh-release@v2
+          with:
+            files: artifacts/*.zip
+            name: Release ${{ github.ref_name }}
 
-          servers=`find . -name undreamai_server*`
-          if [ "$servers" != "" ];then
-            zip -r undreamai-${{ github.ref_name }}-server.zip $servers
-            rm $servers
-          fi
-          zip -r $PREFIX.zip `cat bundle` linux-archchecker windows-archchecker
-
-      - name: Release
-        uses: softprops/action-gh-release@v2
-        with:
-          name: "Release ${{ github.ref_name }}"
-          files: "artifacts/*.zip"

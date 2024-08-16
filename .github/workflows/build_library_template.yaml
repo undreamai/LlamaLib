@@ -1,0 +1,299 @@
+name: Build library
+
+on:
+  push:
+    paths:
+      - .github/workflows/build_library_test.yaml
+    # paths:
+    #   - .github/workflows/build_library.yaml
+    #   - CMakeLists.txt
+    #   - undreamai.h
+    #   - undreamai.cpp
+    # tags:
+    #   - 'v*'
+
+env:
+  LLAMACPP_VERSION: b3580
+  CMAKE_COMMON_JOBS: '-DGGML_STATIC=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DBUILD_UNDREAMAI_SERVER=ON -DBUILD_SHARED_LIBS=OFF'
+  CMAKE_COMMON_DIR: -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs
+
+jobs:
+  ################################ ArchChecker ################################
+
+  archchecker_linux_build:
+    name: Build ArchChecker Linux
+    runs-on: ubuntu-latest
+
+    env:
+        UPLOAD_NAME: linux-archchecker
+        UPLOAD_PATH: archchecker/build/libarchchecker.so
+
+    steps:
+        @@checkout_recursive@@
+        @@build_archchecker@@
+        @@upload@@
+
+  archchecker_windows_build:
+    name: Build ArchChecker Windows
+    runs-on: windows-2019
+
+    env:
+        UPLOAD_NAME: windows-archchecker
+        UPLOAD_PATH: archchecker/build/Release/archchecker.dll
+
+    steps:
+        @@checkout_recursive@@
+        @@build_archchecker@@
+        @@upload@@
+
+
+  ################################ Linux ################################
+
+  linux-build:
+    runs-on: ubuntu-22.04
+
+    env:
+      CMAKE_COMMON: '-DGGML_NATIVE=OFF -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON'
+      PLATFORM: linux
+
+    strategy:
+      matrix:
+        include:
+          - build: 'noavx'
+            defines: '-DGGML_AVX=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF'
+          - build: 'avx2'
+            defines: ''
+          - build: 'avx'
+            defines: '-DGGML_AVX2=OFF'
+          - build: 'avx512'
+            defines: '-DGGML_AVX512=ON'
+          - build: 'vulkan'
+            defines: '-DGGML_VULKAN=ON'
+          - build: 'cuda-cu11.7.1'
+            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
+          - build: 'cuda-cu12.2.0'
+            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
+            
+    steps:
+        @@checkout@@
+        @@setup_libs_linux@@
+        @@setup_llama_cpp_linux@@
+        @@setup_vulcan_linux@@
+        @@set_cuda_var_linux@@
+        @@prepare_cuda@@
+        @@setup_cuda_linux@@
+        @@link_cuda_linux@@
+
+        @@set_build_params_linux@@
+        @@cmake_build_linux@@
+        @@test_build_unix@@
+
+        @@set_upload_name_unix@@
+        @@pack_artifacts_unix@@
+        @@upload@@
+
+  linux-hip:
+    runs-on: ubuntu-22.04
+    container: rocm/dev-ubuntu-22.04:6.0.2
+
+    env:
+        CMAKE_COMMON: '-DGGML_NATIVE=OFF -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON'
+        PLATFORM: linux
+
+    strategy:
+      matrix:
+        include:
+          - build: 'hip'
+
+    steps:
+        @@checkout@@
+        @@setup_libs_linux@@
+        @@setup_hip_linux@@
+        @@setup_llama_cpp_linux@@
+        @@set_cuda_var_linux@@
+        @@prepare_cuda@@
+
+        @@set_build_params_hip_linux@@
+        @@cmake_build_linux@@
+
+        @@set_upload_name_unix@@
+        @@pack_artifacts_unix@@
+        @@upload@@
+
+################################ macOS ################################
+
+  macOS-arm64-build:
+    runs-on: macos-14
+
+    env:
+        PLATFORM: macos-arm64
+
+    strategy:
+      matrix:
+        include:
+          - build: 'acc'
+            defines: ''
+          - build: 'no_acc'
+            defines: '-DGGML_ACCELERATE=OFF -DGGML_BLAS=OFF'
+
+    steps:
+        @@checkout@@
+        @@setup_libs_macos@@
+        @@setup_llama_cpp_linux@@
+
+        @@set_build_params_macos_arm64@@
+        @@cmake_build_macos@@
+
+        @@set_upload_name_unix@@
+        @@pack_artifacts_unix@@
+        @@upload@@
+
+  macOS-x64-build:
+    runs-on: macos-12
+
+    env:
+        PLATFORM: macos-x64
+
+    strategy:
+      matrix:
+        include:
+          - build: 'acc'
+            defines: ''
+          - build: 'no_acc'
+            defines: '-DGGML_ACCELERATE=OFF -DGGML_BLAS=OFF'
+
+    steps:
+        @@checkout@@
+        @@setup_libs_macos@@
+        @@setup_llama_cpp_linux@@
+
+        @@set_build_params_macos_x64@@
+        @@cmake_build_macos@@
+        @@test_build_unix@@
+
+        @@set_upload_name_unix@@
+        @@pack_artifacts_unix@@
+        @@upload@@
+
+
+################################ Windows ################################
+
+  windows-build:
+    runs-on: windows-2019
+
+    env:
+      CMAKE_COMMON: '-DGGML_NATIVE=OFF'
+      VULKAN_VERSION: 1.3.261.1
+      PLATFORM: windows
+
+    strategy:
+      matrix:
+        include:
+          - build: 'noavx'
+            defines: '-DGGML_AVX=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF'
+          - build: 'avx2'
+            defines: ''
+          - build: 'avx'
+            defines: '-DGGML_AVX2=OFF'
+          - build: 'avx512'
+            defines: '-DGGML_AVX512=ON'
+          - build: 'vulkan'
+            defines: '-DGGML_VULKAN=ON'
+          - build: 'arm64'
+            defines: '-G Ninja -D CMAKE_TOOLCHAIN_FILE=../llama.cpp/cmake/arm64-windows-llvm.cmake'
+          - build: 'cuda-cu11.7.1'
+            defines: '-DGGML_CUDA=ON'
+          - build: 'cuda-cu12.2.0'
+            defines: '-DGGML_CUDA=ON'
+
+    steps:
+        @@checkout@@
+        @@setup_llama_cpp_windows@@
+        @@setup_vulcan_windows@@
+        @@setup_ninja_windows@@
+        @@set_cuda_var_windows@@
+        @@prepare_cuda@@
+        @@setup_cuda_windows@@
+
+        @@get_cpu_cores@@
+        @@cmake_build_windows@@
+
+        @@move_files_windows@@
+        @@set_upload_name_windows@@
+        @@pack_artifacts_windows@@
+        @@upload@@
+
+  windows-hip:
+    runs-on: windows-2019
+
+    env:
+      CMAKE_COMMON: '-DGGML_NATIVE=OFF -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs'
+      PLATFORM: windows
+    
+    strategy:
+      matrix:
+        include:
+          - build: 'hip'
+
+    steps:
+        @@checkout@@
+        @@setup_llama_cpp_windows@@
+        @@set_cuda_var_windows@@
+        @@prepare_cuda@@
+        @@setup_hip_windows@@
+
+        @@get_cpu_cores@@
+        @@cmake_build_hip_windows@@
+
+        @@move_files_windows@@
+        @@set_upload_name_windows@@
+        @@pack_artifacts_windows@@
+        @@upload@@
+
+################################ Android ################################
+
+  android-build:
+    runs-on: ubuntu-22.04
+
+    env:
+      CMAKE_COMMON: '-DGGML_NATIVE=OFF'
+      VULKAN_VERSION: 1.3.261.1
+      PLATFORM: android
+
+    strategy:
+      matrix:
+        include:
+          - build: 'android'
+
+    steps:
+        @@checkout@@
+        @@setup_libs_linux@@
+        @@setup_llama_cpp_linux@@
+
+        @@cmake_build_android@@
+
+        @@set_upload_name_unix@@
+        @@remove_server@@
+        @@pack_artifacts_unix@@
+        @@upload@@
+
+################################ Release ################################
+
+  create_release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs:
+      - archchecker_linux_build
+      - archchecker_windows_build
+      - linux-build
+      - linux-hip
+      - macOS-arm64-build
+      - macOS-x64-build
+      - windows-build
+      - windows-hip
+      - android-build
+    steps:
+        @@checkout@@
+        @@download_artifacts@@
+        @@merge_artifacts@@
+        @@release@@
