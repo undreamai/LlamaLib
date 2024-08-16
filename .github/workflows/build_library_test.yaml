@@ -119,7 +119,7 @@ jobs:
           name: Dependencies
           run: |
             sudo apt-get update
-            sudo apt-get install build-essential cmake zip
+            sudo apt-get install build-essential cmake
 
         - id: setup_llama_cpp_linux
           name: Clone llama.cpp
@@ -128,9 +128,9 @@ jobs:
             cd llama.cpp
             git checkout ${{ env.LLAMACPP_VERSION }}
         
-            sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
-            sed -i 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
-            sed -i 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
+            sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+            sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+            sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
         
             for f in examples/server/public/*;do
               cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
@@ -244,7 +244,7 @@ jobs:
           name: Dependencies
           run: |
             sudo apt-get update
-            sudo apt-get install build-essential cmake zip
+            sudo apt-get install build-essential cmake
 
         - id: setup_llama_cpp_linux
           name: Clone llama.cpp
@@ -253,9 +253,9 @@ jobs:
             cd llama.cpp
             git checkout ${{ env.LLAMACPP_VERSION }}
         
-            sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
-            sed -i 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
-            sed -i 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
+            sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+            sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+            sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
         
             for f in examples/server/public/*;do
               cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
@@ -268,7 +268,7 @@ jobs:
         - id: setup_hip_linux
           name: Dependencies
           run: |
-            sudo apt-get install -y git rocblas-dev hipblas-dev
+            sudo apt-get install -y zip git rocblas-dev hipblas-dev
 
         - id: prepare_cuda_linux
           if: startsWith(matrix.build, 'cuda')
@@ -354,9 +354,9 @@ jobs:
             cd llama.cpp
             git checkout ${{ env.LLAMACPP_VERSION }}
         
-            sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
-            sed -i 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
-            sed -i 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
+            sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+            sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+            sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
         
             for f in examples/server/public/*;do
               cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
@@ -436,9 +436,9 @@ jobs:
             cd llama.cpp
             git checkout ${{ env.LLAMACPP_VERSION }}
         
-            sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
-            sed -i 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
-            sed -i 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
+            sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+            sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+            sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
         
             for f in examples/server/public/*;do
               cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
@@ -538,9 +538,9 @@ jobs:
             cd llama.cpp
             git checkout ${{ env.LLAMACPP_VERSION }}
         
-            sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
-            sed -i 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
-            sed -i 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
+            sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+            sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+            sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
         
             for f in examples/server/public/*;do
               cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
@@ -667,9 +667,9 @@ jobs:
             cd llama.cpp
             git checkout ${{ env.LLAMACPP_VERSION }}
         
-            sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
-            sed -i 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
-            sed -i 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
+            sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+            sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+            sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
         
             for f in examples/server/public/*;do
               cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
@@ -773,7 +773,7 @@ jobs:
           name: Dependencies
           run: |
             sudo apt-get update
-            sudo apt-get install build-essential cmake zip
+            sudo apt-get install build-essential cmake
 
         - id: setup_llama_cpp_linux
           name: Clone llama.cpp
@@ -782,9 +782,9 @@ jobs:
             cd llama.cpp
             git checkout ${{ env.LLAMACPP_VERSION }}
         
-            sed -i 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
-            sed -i 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
-            sed -i 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
+            sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+            sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+            sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
         
             for f in examples/server/public/*;do
               cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
