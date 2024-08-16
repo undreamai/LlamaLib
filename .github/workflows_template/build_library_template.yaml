@@ -225,7 +225,7 @@ jobs:
         @@prepare_cuda@@
         @@setup_cuda_windows@@
 
-        @@get_cpu_cores@@
+        @@cpu-cores@@
         @@cmake_build_windows@@
 
         @@move_files_windows@@
@@ -252,7 +252,7 @@ jobs:
         @@prepare_cuda@@
         @@setup_hip_windows@@
 
-        @@get_cpu_cores@@
+        @@cpu-cores@@
         @@cmake_build_hip_windows@@
 
         @@move_files_windows@@

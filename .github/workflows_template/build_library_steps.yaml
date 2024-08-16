@@ -228,7 +228,7 @@ jobs:
           choco install ninja
 
       - name: Get number of CPU cores
-        id: get_cpu_cores
+        id: cpu-cores
         uses: SimenB/github-actions-cpu-cores@v2
 
       - name: Build

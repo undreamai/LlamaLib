@@ -616,7 +616,7 @@ jobs:
             sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust", "visual_studio_integration"]'
 
 
-        - id: get_cpu_cores
+        - id: cpu-cores
           name: Get number of CPU cores
           uses: SimenB/github-actions-cpu-cores@v2
 
@@ -737,7 +737,7 @@ jobs:
             & 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' --version
 
 
-        - id: get_cpu_cores
+        - id: cpu-cores
           name: Get number of CPU cores
           uses: SimenB/github-actions-cpu-cores@v2
 
