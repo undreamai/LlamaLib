@@ -11730,6 +11730,8 @@ extern DECL_MMQ_CASE(GGML_TYPE_Q3_K);
 extern DECL_MMQ_CASE(GGML_TYPE_Q4_K);
 extern DECL_MMQ_CASE(GGML_TYPE_Q5_K);
 extern DECL_MMQ_CASE(GGML_TYPE_Q6_K);
+
+#ifndef GGML_NO_IQUANTS
 extern DECL_MMQ_CASE(GGML_TYPE_IQ2_XXS);
 extern DECL_MMQ_CASE(GGML_TYPE_IQ2_XS);
 extern DECL_MMQ_CASE(GGML_TYPE_IQ2_S);
@@ -11738,6 +11740,7 @@ extern DECL_MMQ_CASE(GGML_TYPE_IQ3_S);
 extern DECL_MMQ_CASE(GGML_TYPE_IQ1_S);
 extern DECL_MMQ_CASE(GGML_TYPE_IQ4_NL);
 extern DECL_MMQ_CASE(GGML_TYPE_IQ4_XS);
+#endif
 
 // -------------------------------------------------------------------------------------------------------------------------
 
@@ -11808,6 +11811,7 @@ void ggml_cuda_op_mul_mat_q(
         case GGML_TYPE_Q6_K:
             mul_mat_q_case<GGML_TYPE_Q6_K>(ctx, args, stream);
             break;
+#ifndef GGML_NO_IQUANTS
         case GGML_TYPE_IQ2_XXS:
             mul_mat_q_case<GGML_TYPE_IQ2_XXS>(ctx, args, stream);
             break;
@@ -11832,6 +11836,7 @@ void ggml_cuda_op_mul_mat_q(
         case GGML_TYPE_IQ4_NL:
             mul_mat_q_case<GGML_TYPE_IQ4_NL>(ctx, args, stream);
             break;
+#endif
         default:
             GGML_ABORT("fatal error");
             break;
