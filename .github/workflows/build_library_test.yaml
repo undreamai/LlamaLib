@@ -633,7 +633,7 @@ jobs:
         - id: set_upload_name_windows
           name: Set upload name
           run: |
-            $NAME = undreamai-TODO-llamacpp-${{ env.PLATFORM }}-${{ matrix.build }}.zip
+            $NAME = "undreamai-TODO-llamacpp-${{ env.PLATFORM }}-${{ matrix.build }}.zip"
             Add-Content $env:GITHUB_ENV "UPLOAD_NAME=$NAME"
             Add-Content $env:GITHUB_ENV "UPLOAD_PATH=$NAME"
 
@@ -746,7 +746,7 @@ jobs:
         - id: set_upload_name_windows
           name: Set upload name
           run: |
-            $NAME = undreamai-TODO-llamacpp-${{ env.PLATFORM }}-${{ matrix.build }}.zip
+            $NAME = "undreamai-TODO-llamacpp-${{ env.PLATFORM }}-${{ matrix.build }}.zip"
             Add-Content $env:GITHUB_ENV "UPLOAD_NAME=$NAME"
             Add-Content $env:GITHUB_ENV "UPLOAD_PATH=$NAME"
 
