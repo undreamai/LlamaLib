@@ -1,0 +1,76 @@
+name: Build library
+
+on:
+  push:
+    paths:
+      - .github/workflows/build_library_test.yaml
+
+env:
+  LLAMACPP_VERSION: b3580
+  CMAKE_COMMON_JOBS: '-DGGML_STATIC=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DBUILD_UNDREAMAI_SERVER=ON -DBUILD_SHARED_LIBS=OFF'
+  CMAKE_COMMON_DIR: -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs
+
+jobs:
+  ################################ ArchChecker ################################
+
+  archchecker_linux_build:
+    name: Build ArchChecker Linux
+    runs-on: ubuntu-latest
+
+    env:
+        UPLOAD_NAME: linux-archchecker
+        UPLOAD_PATH: archchecker/build/libarchchecker.so
+
+    steps:
+        - id: checkout_recursive
+          name: Clone
+          uses: actions/checkout@v4
+          with:
+            submodules: recursive
+
+        - id: build_archchecker
+          name: Build
+          run: |
+            mkdir archchecker/build
+            cd archchecker/build
+            cmake ..
+            cmake --build . --config Release -j $(nproc)
+
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_PATH }}
+
+
+  archchecker_windows_build:
+    name: Build ArchChecker Windows
+    runs-on: windows-2019
+
+    env:
+        UPLOAD_NAME: windows-archchecker
+        UPLOAD_PATH: archchecker/build/Release/archchecker.dll
+
+    steps:
+        - id: checkout_recursive
+          name: Clone
+          uses: actions/checkout@v4
+          with:
+            submodules: recursive
+
+        - id: build_archchecker
+          name: Build
+          run: |
+            mkdir archchecker/build
+            cd archchecker/build
+            cmake ..
+            cmake --build . --config Release -j $(nproc)
+
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_PATH }}
+

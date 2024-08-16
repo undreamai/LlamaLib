@@ -2,6 +2,8 @@ name: Build library
 
 on:
   push:
+    paths:
+      - .github/workflows/test.yaml
 
 env:
   LLAMACPP_VERSION: b3580
