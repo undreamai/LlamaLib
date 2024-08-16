@@ -105,7 +105,13 @@ jobs:
             defines: '-DGGML_VULKAN=ON'
           - build: 'cuda-cu11.7.1'
             defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
+            minimise: 'GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS'
           - build: 'cuda-cu12.2.0'
+            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
+            minimise: 'GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS'
+          - build: 'cuda-cu11.7.1-full'
+            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
+          - build: 'cuda-cu12.2.0-full'
             defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
             
     steps:
@@ -160,7 +166,7 @@ jobs:
           run: |
             cp tinyBLAS/* llama.cpp/ggml/src/
             rm -r llama.cpp/ggml/src/ggml-cuda
-            sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
+            sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG ${{ matrix.minimise }}:g' llama.cpp/ggml/src/CMakeLists.txt
             curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
         - id: setup_cuda_linux
@@ -285,7 +291,7 @@ jobs:
           run: |
             cp tinyBLAS/* llama.cpp/ggml/src/
             rm -r llama.cpp/ggml/src/ggml-cuda
-            sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
+            sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG ${{ matrix.minimise }}:g' llama.cpp/ggml/src/CMakeLists.txt
             curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
 
@@ -531,7 +537,13 @@ jobs:
             defines: '-G Ninja -D CMAKE_TOOLCHAIN_FILE=../llama.cpp/cmake/arm64-windows-llvm.cmake'
           - build: 'cuda-cu11.7.1'
             defines: '-DGGML_CUDA=ON'
+            minimise: 'GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS'
           - build: 'cuda-cu12.2.0'
+            defines: '-DGGML_CUDA=ON'
+            minimise: 'GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS'
+          - build: 'cuda-cu11.7.1-full'
+            defines: '-DGGML_CUDA=ON'
+          - build: 'cuda-cu12.2.0-full'
             defines: '-DGGML_CUDA=ON'
 
     steps:
@@ -592,7 +604,7 @@ jobs:
           run: |
             cp tinyBLAS/* llama.cpp/ggml/src/
             rm -r llama.cpp/ggml/src/ggml-cuda
-            sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
+            sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG ${{ matrix.minimise }}:g' llama.cpp/ggml/src/CMakeLists.txt
             curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
         - id: setup_cuda_windows
@@ -710,7 +722,7 @@ jobs:
           run: |
             cp tinyBLAS/* llama.cpp/ggml/src/
             rm -r llama.cpp/ggml/src/ggml-cuda
-            sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
+            sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG ${{ matrix.minimise }}:g' llama.cpp/ggml/src/CMakeLists.txt
             curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
         - id: setup_hip_windows
@@ -913,7 +925,9 @@ jobs:
               zip -r undreamai-${{ github.ref_name }}-server.zip $servers
               rm $servers
             fi
-            zip -r $PREFIX.zip `cat bundle` linux-archchecker windows-archchecker
+        
+            zip -r $PREFIX.zip `cat bundle | grep -v full` linux-archchecker windows-archchecker
+            zip -r $PREFIX-full.zip `cat bundle | grep full`
 
         - id: release
           name: Release

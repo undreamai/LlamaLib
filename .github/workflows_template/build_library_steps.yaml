@@ -347,7 +347,9 @@ jobs:
             zip -r undreamai-${{ github.ref_name }}-server.zip $servers
             rm $servers
           fi
-          zip -r $PREFIX.zip `cat bundle` linux-archchecker windows-archchecker
+
+          zip -r $PREFIX.zip `cat bundle | grep -v full` linux-archchecker windows-archchecker
+          zip -r $PREFIX-full.zip `cat bundle | grep full`
 
       - name: Release
         id: release
