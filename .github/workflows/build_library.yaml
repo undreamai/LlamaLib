@@ -3,14 +3,12 @@ name: Build library
 on:
   push:
     paths:
-      - .github/workflows/build_library_test.yaml
-    # paths:
-    #   - .github/workflows/build_library.yaml
-    #   - CMakeLists.txt
-    #   - undreamai.h
-    #   - undreamai.cpp
-    # tags:
-    #   - 'v*'
+      - .github/workflows/build_library.yaml
+      - CMakeLists.txt
+      - undreamai.h
+      - undreamai.cpp
+    tags:
+      - 'v*'
 
 env:
   LLAMACPP_VERSION: b3580
@@ -160,7 +158,7 @@ jobs:
           if: startsWith(matrix.build, 'cuda') || matrix.build == 'hip'
           name: Prepare CUDA
           run: |
-            cp tinyBLAS/${{ env.LLAMACPP_VERSION }}/* llama.cpp/ggml/src/
+            cp tinyBLAS/* llama.cpp/ggml/src/
             rm -r llama.cpp/ggml/src/ggml-cuda
             sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
             curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
@@ -285,7 +283,7 @@ jobs:
           if: startsWith(matrix.build, 'cuda') || matrix.build == 'hip'
           name: Prepare CUDA
           run: |
-            cp tinyBLAS/${{ env.LLAMACPP_VERSION }}/* llama.cpp/ggml/src/
+            cp tinyBLAS/* llama.cpp/ggml/src/
             rm -r llama.cpp/ggml/src/ggml-cuda
             sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
             curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
@@ -592,7 +590,7 @@ jobs:
           if: startsWith(matrix.build, 'cuda') || matrix.build == 'hip'
           name: Prepare CUDA
           run: |
-            cp tinyBLAS/${{ env.LLAMACPP_VERSION }}/* llama.cpp/ggml/src/
+            cp tinyBLAS/* llama.cpp/ggml/src/
             rm -r llama.cpp/ggml/src/ggml-cuda
             sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
             curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
@@ -710,7 +708,7 @@ jobs:
           if: startsWith(matrix.build, 'cuda') || matrix.build == 'hip'
           name: Prepare CUDA
           run: |
-            cp tinyBLAS/${{ env.LLAMACPP_VERSION }}/* llama.cpp/ggml/src/
+            cp tinyBLAS/* llama.cpp/ggml/src/
             rm -r llama.cpp/ggml/src/ggml-cuda
             sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
             curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE

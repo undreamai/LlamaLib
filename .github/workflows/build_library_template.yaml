@@ -3,14 +3,12 @@ name: Build library
 on:
   push:
     paths:
-      - .github/workflows/build_library_test.yaml
-    # paths:
-    #   - .github/workflows/build_library.yaml
-    #   - CMakeLists.txt
-    #   - undreamai.h
-    #   - undreamai.cpp
-    # tags:
-    #   - 'v*'
+      - .github/workflows/build_library.yaml
+      - CMakeLists.txt
+      - undreamai.h
+      - undreamai.cpp
+    tags:
+      - 'v*'
 
 env:
   LLAMACPP_VERSION: b3580
