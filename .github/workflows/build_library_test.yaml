@@ -246,6 +246,11 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y build-essential cmake zip
 
+        - id: setup_hip_linux
+          name: Dependencies
+          run: |
+            sudo apt-get install -y git rocblas-dev hipblas-dev
+
         - id: setup_llama_cpp_linux
           name: Clone llama.cpp
           run: |
@@ -264,11 +269,6 @@ jobs:
             cd ..
             mkdir -p build/licenses build/libs
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
-
-        - id: setup_hip_linux
-          name: Dependencies
-          run: |
-            sudo apt-get install -y git rocblas-dev hipblas-dev
 
         - id: prepare_cuda_linux
           if: startsWith(matrix.build, 'cuda')
@@ -549,7 +549,7 @@ jobs:
             }
         
             cd ..
-            mkdir build
+            mkdir -p build/licenses/
 
         - id: setup_vulcan_windows
           if: matrix.build == 'vulkan'
@@ -679,7 +679,7 @@ jobs:
             }
         
             cd ..
-            mkdir build
+            mkdir -p build/licenses/
 
         - id: prepare_cuda_linux
           if: startsWith(matrix.build, 'cuda')
