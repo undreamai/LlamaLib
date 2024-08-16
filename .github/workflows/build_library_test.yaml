@@ -820,7 +820,7 @@ jobs:
         - id: remove_server
           name: Delete server
           run: |
-            build/libs/undreamai_server
+            rm build/libs/undreamai_server
 
         - id: pack_artifacts_unix
           name: Pack artifacts
