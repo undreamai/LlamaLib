@@ -91,7 +91,7 @@ jobs:
         run: |
           cp tinyBLAS/* llama.cpp/ggml/src/
           rm -r llama.cpp/ggml/src/ggml-cuda
-          sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
+          sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG ${{ matrix.minimise }}:g' llama.cpp/ggml/src/CMakeLists.txt
           curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
       - uses: Jimver/cuda-toolkit@v0.2.15
