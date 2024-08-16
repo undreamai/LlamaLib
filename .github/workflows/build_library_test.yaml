@@ -619,8 +619,8 @@ jobs:
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
 
-        - id: move_files_arm64_windows
-          if: matrix.build == 'arm64'
+        - id: move_files_windows
+          if: matrix.build == 'arm64' || matrix.build == 'hip'
           name: Move files to Release folder
           run: |
             mkdir build/Release
@@ -742,6 +742,17 @@ jobs:
             cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DGGML_HIPBLAS=ON ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
+
+        - id: move_files_windows
+          if: matrix.build == 'arm64' || matrix.build == 'hip'
+          name: Move files to Release folder
+          run: |
+            mkdir build/Release
+            mkdir build/libs/Release
+            move build/libs/*exe build/libs/Release
+            move build/libs/*dll build/libs/Release
+            move build/libs/*exp build/libs/Release
+            move build/libs/*lib build/libs/Release
 
         - id: set_upload_name_windows
           name: Set upload name
