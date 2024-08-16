@@ -199,7 +199,7 @@ jobs:
         - id: set_upload_name_linux
           name: Set upload name
           run: |
-            echo "UPLOAD_NAME=undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip" >> $GITHUB_ENV
+            echo "UPLOAD_NAME=undreamai-TODO-llamacpp-linux-${{ matrix.build }}.zip" >> $GITHUB_ENV
             echo "UPLOAD_PATH=$UPLOAD_NAME" >> $GITHUB_ENV
 
         - id: pack_artifacts_linux
@@ -281,7 +281,7 @@ jobs:
         - id: set_upload_name_linux
           name: Set upload name
           run: |
-            echo "UPLOAD_NAME=undreamai-${{ github.ref_name }}-llamacpp-linux-${{ matrix.build }}.zip" >> $GITHUB_ENV
+            echo "UPLOAD_NAME=undreamai-TODO-llamacpp-linux-${{ matrix.build }}.zip" >> $GITHUB_ENV
             echo "UPLOAD_PATH=$UPLOAD_NAME" >> $GITHUB_ENV
 
         - id: pack_artifacts_linux
