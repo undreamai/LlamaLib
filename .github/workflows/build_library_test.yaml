@@ -119,7 +119,7 @@ jobs:
           name: Dependencies
           run: |
             sudo apt-get update
-            sudo apt-get install build-essential cmake
+            sudo apt-get install -y build-essential cmake zip
 
         - id: setup_llama_cpp_linux
           name: Clone llama.cpp
@@ -158,7 +158,7 @@ jobs:
             cp tinyBLAS/${{ env.LLAMACPP_VERSION }}/* llama.cpp/ggml/src/
             rm -r llama.cpp/ggml/src/ggml-cuda
             sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
-            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+            curl -o llama.cpp/build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
         - id: setup_cuda_linux
           if: startsWith(matrix.build, 'cuda')
@@ -244,7 +244,7 @@ jobs:
           name: Dependencies
           run: |
             sudo apt-get update
-            sudo apt-get install build-essential cmake
+            sudo apt-get install -y build-essential cmake zip
 
         - id: setup_llama_cpp_linux
           name: Clone llama.cpp
@@ -268,7 +268,7 @@ jobs:
         - id: setup_hip_linux
           name: Dependencies
           run: |
-            sudo apt-get install -y zip git rocblas-dev hipblas-dev
+            sudo apt-get install -y git rocblas-dev hipblas-dev
 
         - id: prepare_cuda_linux
           if: startsWith(matrix.build, 'cuda')
@@ -278,7 +278,7 @@ jobs:
             cp tinyBLAS/${{ env.LLAMACPP_VERSION }}/* llama.cpp/ggml/src/
             rm -r llama.cpp/ggml/src/ggml-cuda
             sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
-            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+            curl -o llama.cpp/build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
 
         - id: set_build_params_hip_linux
@@ -578,7 +578,7 @@ jobs:
             cp tinyBLAS/${{ env.LLAMACPP_VERSION }}/* llama.cpp/ggml/src/
             rm -r llama.cpp/ggml/src/ggml-cuda
             sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
-            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+            curl -o llama.cpp/build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
         - id: setup_cuda_windows
           if: startsWith(matrix.build, 'cuda')
@@ -689,7 +689,7 @@ jobs:
             cp tinyBLAS/${{ env.LLAMACPP_VERSION }}/* llama.cpp/ggml/src/
             rm -r llama.cpp/ggml/src/ggml-cuda
             sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE:g' llama.cpp/ggml/src/CMakeLists.txt
-            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+            curl -o llama.cpp/build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
         - id: setup_hip_windows
           name: Install
@@ -775,7 +775,7 @@ jobs:
           name: Dependencies
           run: |
             sudo apt-get update
-            sudo apt-get install build-essential cmake
+            sudo apt-get install -y build-essential cmake zip
 
         - id: setup_llama_cpp_linux
           name: Clone llama.cpp
@@ -836,7 +836,6 @@ jobs:
             path: ${{ env.UPLOAD_PATH }}
 
 
-
 ################################ Release ################################
 
   create_release:
@@ -853,36 +852,41 @@ jobs:
       - windows-hip
       - android-build
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
 
-      - name: Download Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
+        - id: download_artifacts
+          name: Download Artifacts
+          uses: actions/download-artifact@v4
+          with:
+            path: artifacts
 
-      - name: Merge artifacts
-        run: |
-          cd artifacts
-          ls -R
-          PREFIX=undreamai-${{ github.ref_name }}-llamacpp
+        - id: merge_artifacts
+          name: Merge artifacts
+          run: |
+            cd artifacts
+            ls -R
+            PREFIX=undreamai-${{ github.ref_name }}-llamacpp
+        
+            for d in `ls | grep $PREFIX`;do
+              cd $d; unzip $d; rm $d; cd ..;
+              new_name=`echo $d | sed -e "s:$PREFIX-::g" | sed -e 's:.zip::g'`
+              mv $d $new_name;
+              echo $new_name >> bundle
+            done
+        
+            servers=`find . -name undreamai_server*`
+            if [ "$servers" != "" ];then
+              zip -r undreamai-${{ github.ref_name }}-server.zip $servers
+              rm $servers
+            fi
+            zip -r $PREFIX.zip `cat bundle` linux-archchecker windows-archchecker
 
-          for d in `ls | grep $PREFIX`;do
-            cd $d; unzip $d; rm $d; cd ..;
-            new_name=`echo $d | sed -e "s:$PREFIX-::g" | sed -e 's:.zip::g'`
-            mv $d $new_name;
-            echo $new_name >> bundle
-          done
+        - id: release
+          name: Release
+          uses: softprops/action-gh-release@v2
+          with:
+            files: artifacts/*.zip
+            name: Release ${{ github.ref_name }}
 
-          servers=`find . -name undreamai_server*`
-          if [ "$servers" != "" ];then
-            zip -r undreamai-${{ github.ref_name }}-server.zip $servers
-            rm $servers
-          fi
-          zip -r $PREFIX.zip `cat bundle` linux-archchecker windows-archchecker
-
-      - name: Release
-        uses: softprops/action-gh-release@v2
-        with:
-          name: "Release ${{ github.ref_name }}"
-          files: "artifacts/*.zip"
