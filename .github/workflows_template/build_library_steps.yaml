@@ -1,6 +1,8 @@
 ################################ Prefix for error highlighting ################################
 on:
   push:
+    tags:
+      - 'lala'
 jobs:
   lala:
     runs-on: lala

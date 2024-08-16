@@ -67,5 +67,5 @@ if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
     yaml_file = os.path.join(script_dir, 'build_library_steps.yaml')
     template_file = os.path.join(script_dir, 'build_library_template.yaml')
-    output_file = os.path.join(script_dir, 'build_library.yaml')
+    output_file = os.path.join(script_dir, '..', 'workflows', 'build_library.yaml')
     main(yaml_file, template_file, output_file)
