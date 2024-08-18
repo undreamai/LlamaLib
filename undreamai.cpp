@@ -428,7 +428,6 @@ void LLM::start_server(){
     // run the HTTP server in a thread - see comment below
     t = std::thread([&]() {
         if (!svr->listen_after_bind()) {
-            state.store(SERVER_STATE_ERROR);
             return 1;
         }
 
