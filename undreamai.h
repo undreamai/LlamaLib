@@ -31,6 +31,9 @@ class LLM {
         std::string handle_template();
         std::string handle_tokenize(json body);
         std::string handle_detokenize(json body);
+        std::string handle_embeddings (json data, httplib::Response* res=nullptr);
+        std::string handle_lora_adapters_apply (json data, httplib::Response* res=nullptr);
+        std::string handle_lora_adapters_list ();
         std::string handle_completions(json data, StringWrapper* stringWrapper=nullptr, httplib::Response* res=nullptr);
         std::string handle_slots_action(json data, httplib::Response* res=nullptr);
         void handle_cancel_action(int id_slot);
@@ -85,6 +88,9 @@ extern "C" {
     UNDREAMAI_API const void LLM_SetTemplate(LLM* llm, const char* chatTemplate);
     UNDREAMAI_API const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
     UNDREAMAI_API const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
+    UNDREAMAI_API const void LLM_Embeddings(LLM* llm, const char* json_data, StringWrapper* wrapper);
+    UNDREAMAI_API const void LLM_Lora(LLM* llm, const char* json_data, StringWrapper* wrapper);
+    UNDREAMAI_API const void LLM_Lora_List(LLM* llm, StringWrapper* wrapper);
     UNDREAMAI_API const void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper);
     UNDREAMAI_API const void LLM_Slot(LLM* llm, const char* json_data, StringWrapper* wrapper);
     UNDREAMAI_API const void LLM_Cancel(LLM* llm, int id_slot);

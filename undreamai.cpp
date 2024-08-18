@@ -375,6 +375,18 @@ void LLM::start_server(){
         return res.set_content(handle_detokenize(handle_post(req, res)), "application/json; charset=utf-8");
     };
 
+    const auto handle_embeddings_post = [this](const httplib::Request & req, httplib::Response & res) {
+        return res.set_content(handle_embeddings(handle_post(req, res), &res), "application/json; charset=utf-8");
+    };
+
+    const auto handle_lora_adapters_list_post = [this](const httplib::Request & req, httplib::Response & res) {
+        return res.set_content(handle_lora_adapters_list(), "application/json; charset=utf-8");
+    };
+
+    const auto handle_lora_adapters_apply_post = [this](const httplib::Request & req, httplib::Response & res) {
+        return res.set_content(handle_lora_adapters_apply(handle_post(req, res), &res), "application/json; charset=utf-8");
+    };
+
     const auto handle_slots_action_post = [this](const httplib::Request & req, httplib::Response & res) {
         return res.set_content(handle_slots_action(handle_post(req, res), &res), "application/json; charset=utf-8");
     };
@@ -395,6 +407,12 @@ void LLM::start_server(){
     svr->Post("/template",            handle_template_post);
     svr->Post("/tokenize",            handle_tokenize_post);
     svr->Post("/detokenize",          handle_detokenize_post);
+    svr->Post("/embedding",           handle_embeddings_post); // legacy
+    svr->Post("/embeddings",          handle_embeddings_post);
+    svr->Post("/v1/embeddings",       handle_embeddings_post);
+    svr->Get ("/lora-adapters",       handle_lora_adapters_list_post);
+    svr->Post ("/lora-adapters-list",  handle_lora_adapters_list_post);
+    svr->Post("/lora-adapters",       handle_lora_adapters_apply_post);
     svr->Post("/slots",               handle_slots_action_post);
 
     //
@@ -509,6 +527,102 @@ std::string LLM::handle_detokenize(json body) {
         handle_exception();
     }
     return "";
+}
+
+std::string LLM::handle_embeddings(json body, httplib::Response* res) {
+    bool is_openai = false;
+
+    // an input prompt can be a string or a list of tokens (integer)
+    json prompt;
+    if (body.count("input") != 0) {
+        is_openai = true;
+        prompt = body.at("input");
+    } else if (body.count("content") != 0) {
+        // with "content", we only support single prompt
+        prompt = std::vector<std::string>{body.at("content")};
+    } else {
+        std::string error = "\"input\" or \"content\" must be provided";
+        LOG_ERROR(error.c_str(), {});
+        if(res != nullptr) handle_error(*res, format_error_response(error, ERROR_TYPE_INVALID_REQUEST));
+        return "";
+    }
+
+    // create and queue the task
+    json responses;
+    {
+        const int id_task = ctx_server.queue_tasks.get_new_id();
+        ctx_server.queue_results.add_waiting_task_id(id_task);
+        ctx_server.request_completion(id_task, -1, {{"prompt", prompt}}, false, true);
+
+        // get the result
+        server_task_result result = ctx_server.queue_results.recv(id_task);
+        ctx_server.queue_results.remove_waiting_task_id(id_task);
+        if (!result.error) {
+            if (result.data.count("results")) {
+                // result for multi-task
+                responses = result.data.at("results");
+            } else {
+                // result for single task
+                responses = std::vector<json>{result.data};
+            }
+        } else {
+            // error received, ignore everything else
+            if(res != nullptr) handle_error(*res, result.data);
+            return "";
+        }
+    }
+
+    // write JSON response
+    json root = is_openai
+        ? format_embeddings_response_oaicompat(body, responses)
+        : responses[0];
+    return root.dump();
+};
+
+std::string LLM::handle_lora_adapters_apply(json body, httplib::Response* res) {
+    int max_idx = ctx_server.lora_adapters.size();
+
+    // clear existing value
+    for (auto & la : ctx_server.lora_adapters) {
+        la.scale = 0.0f;
+    }
+
+    // set value
+    for (auto entry : body) {
+        int id      = entry.at("id");
+        float scale = entry.at("scale");
+        if (0 <= id && id < max_idx) {
+            ctx_server.lora_adapters[id].scale = scale;
+        } else {
+            std::string error = "invalid adapter id";
+            LOG_ERROR(error.c_str(), {});
+            if(res != nullptr) handle_error(*res, format_error_response(error, ERROR_TYPE_INVALID_REQUEST));
+            return "";
+        }
+    }
+
+    server_task task;
+    task.type = SERVER_TASK_TYPE_SET_LORA;
+    const int id_task = ctx_server.queue_tasks.post(task);
+    ctx_server.queue_results.add_waiting_task_id(id_task);
+
+    server_task_result result = ctx_server.queue_results.recv(id_task);
+    ctx_server.queue_results.remove_waiting_task_id(id_task);
+
+    return result.data.dump();
+};
+
+std::string LLM::handle_lora_adapters_list(){
+    json result = json::array();
+    for (size_t i = 0; i < ctx_server.lora_adapters.size(); ++i) {
+        auto & la = ctx_server.lora_adapters[i];
+        result.push_back({
+            {"id", i},
+            {"path", la.path},
+            {"scale", la.scale},
+        });
+    }
+    return result.dump();
 }
 
 std::string LLM::handle_completions_non_streaming(int id_task, httplib::Response* res) {
@@ -756,6 +870,21 @@ const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper)
 
 const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper){
     wrapper->SetContent(llm->handle_detokenize(json::parse(json_data)));
+}
+
+const void LLM_Embeddings(LLM* llm, const char* json_data, StringWrapper* wrapper){
+    std::string result = llm->handle_embeddings(json::parse(json_data));
+    wrapper->SetContent(result);
+}
+
+const void LLM_Lora(LLM* llm, const char* json_data, StringWrapper* wrapper) {
+    std::string result = llm->handle_lora_adapters_apply(json::parse(json_data));
+    wrapper->SetContent(result);
+}
+
+const void LLM_Lora_List(LLM* llm, StringWrapper* wrapper) {
+    std::string result = llm->handle_lora_adapters_list();
+    wrapper->SetContent(result);
 }
 
 const void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper){
