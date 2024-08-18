@@ -213,7 +213,7 @@ const json handle_post(const httplib::Request & req, httplib::Response & res) {
 
 void handle_error(httplib::Response & res, json error_data){
     json final_response {{"error", error_data}};
-    res.set_content(final_response.dump(), "application/json; charset=utf-8");
+    res.set_content(final_response.dump(), MIMETYPE_JSON);
     res.status = json_value(error_data, "code", 500);
 }
 
@@ -242,7 +242,7 @@ void LLM::start_server(){
         res.set_header("Access-Control-Allow-Credentials", "true");
         res.set_header("Access-Control-Allow-Methods",     "POST");
         res.set_header("Access-Control-Allow-Headers",     "*");
-        return res.set_content("", "application/json; charset=utf-8");
+        return res.set_content("", "text/html");
     });
 
     svr->set_logger(log_server_request);
@@ -359,7 +359,7 @@ void LLM::start_server(){
 
     const auto handle_template_post = [this](const httplib::Request & req, httplib::Response & res) {
         handle_post(req, res);
-        return res.set_content(handle_template(), "application/json; charset=utf-8");
+        return res.set_content(handle_template(), MIMETYPE_JSON);
     };
 
     const auto handle_completions_post = [this, &res_error](const httplib::Request & req, httplib::Response & res) {
@@ -368,27 +368,27 @@ void LLM::start_server(){
     };
 
     const auto handle_tokenize_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return res.set_content(handle_tokenize(handle_post(req, res)), "application/json; charset=utf-8");
+        return res.set_content(handle_tokenize(handle_post(req, res)), MIMETYPE_JSON);
     };
 
     const auto handle_detokenize_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return res.set_content(handle_detokenize(handle_post(req, res)), "application/json; charset=utf-8");
+        return res.set_content(handle_detokenize(handle_post(req, res)), MIMETYPE_JSON);
     };
 
     const auto handle_embeddings_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return res.set_content(handle_embeddings(handle_post(req, res), &res), "application/json; charset=utf-8");
+        return res.set_content(handle_embeddings(handle_post(req, res), &res), MIMETYPE_JSON);
     };
 
     const auto handle_lora_adapters_list_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return res.set_content(handle_lora_adapters_list(), "application/json; charset=utf-8");
+        return res.set_content(handle_lora_adapters_list(), MIMETYPE_JSON);
     };
 
     const auto handle_lora_adapters_apply_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return res.set_content(handle_lora_adapters_apply(handle_post(req, res), &res), "application/json; charset=utf-8");
+        return res.set_content(handle_lora_adapters_apply(handle_post(req, res), &res), MIMETYPE_JSON);
     };
 
     const auto handle_slots_action_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return res.set_content(handle_slots_action(handle_post(req, res), &res), "application/json; charset=utf-8");
+        return res.set_content(handle_slots_action(handle_post(req, res), &res), MIMETYPE_JSON);
     };
 
     //
@@ -411,7 +411,7 @@ void LLM::start_server(){
     svr->Post("/embeddings",          handle_embeddings_post);
     svr->Post("/v1/embeddings",       handle_embeddings_post);
     svr->Get ("/lora-adapters",       handle_lora_adapters_list_post);
-    svr->Post ("/lora-adapters-list",  handle_lora_adapters_list_post);
+    svr->Post("/lora-adapters-list",  handle_lora_adapters_list_post);
     svr->Post("/lora-adapters",       handle_lora_adapters_apply_post);
     svr->Post("/slots",               handle_slots_action_post);
 
@@ -434,6 +434,7 @@ void LLM::start_server(){
 
         return 0;
     });
+    svr->wait_until_ready();
 
     LOG_INFO("HTTP server listening", log_data);
 }
@@ -630,7 +631,7 @@ std::string LLM::handle_completions_non_streaming(int id_task, httplib::Response
     server_task_result result = ctx_server.queue_results.recv(id_task);
     if (!result.error && result.stop) {
         result_data = result.data.dump(-1, ' ', false, json::error_handler_t::replace);
-        if(res != nullptr) res->set_content(result_data, "application/json; charset=utf-8");
+        if(res != nullptr) res->set_content(result_data, MIMETYPE_JSON);
     } else {
         LOG_ERROR("Error processing handle_completions_non_streaming request", {});
         if(res != nullptr) handle_error(*res, result.data);
