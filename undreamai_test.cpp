@@ -98,6 +98,17 @@ int main(int argc, char ** argv) {
     reply_data = json::parse(reply);
     ASSERT(reply_data.count("content") > 0);
 
+    data["content"] = prompt;
+    LLM_Embeddings(llm, data.dump().c_str(), stringWrapper);
+    reply = GetFromStringWrapper(stringWrapper);
+    reply_data = json::parse(reply);
+    ASSERT(reply_data["embedding"].size() == 2560);
+
+    LLM_Lora_List(llm, stringWrapper);
+    reply = GetFromStringWrapper(stringWrapper);
+    reply_data = json::parse(reply);
+    ASSERT(reply_data.size() == 0);
+
     LLM_Cancel(llm, id_slot);
 
     /*
