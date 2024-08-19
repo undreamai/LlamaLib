@@ -877,7 +877,7 @@ const void LLM_Embeddings(LLM* llm, const char* json_data, StringWrapper* wrappe
     wrapper->SetContent(result);
 }
 
-const void LLM_Lora(LLM* llm, const char* json_data, StringWrapper* wrapper) {
+const void LLM_Lora_Weight(LLM* llm, const char* json_data, StringWrapper* wrapper) {
     std::string result = llm->handle_lora_adapters_apply(json::parse(json_data));
     wrapper->SetContent(result);
 }
