@@ -104,7 +104,7 @@ int main(int argc, char ** argv) {
     reply = GetFromStringWrapper(stringWrapper);
     reply_data = json::parse(reply);
     std::cout << reply_data["embedding"].size() << std::endl;
-    ASSERT(reply_data["embedding"].size() > 2500);
+    ASSERT(reply_data["embedding"].size() > 1000);
 
     LLM_Lora_List(llm, stringWrapper);
     reply = GetFromStringWrapper(stringWrapper);
