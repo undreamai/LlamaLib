@@ -1,0 +1,88 @@
+name: Build library
+
+on:
+  push:
+
+env:
+  LLAMACPP_VERSION: b3600
+  CMAKE_COMMON_JOBS: '-DGGML_STATIC=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DBUILD_UNDREAMAI_SERVER=ON -DBUILD_SHARED_LIBS=OFF'
+  CMAKE_COMMON_DIR: -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs
+
+jobs:
+  android-build:
+    runs-on: ubuntu-22.04
+
+    env:
+      CMAKE_COMMON: '-DGGML_NATIVE=OFF -DGGML_OPENMP=OFF'
+      VULKAN_VERSION: 1.3.261.1
+      PLATFORM: android
+
+    steps:
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
+
+        - id: setup_libs_linux
+          name: Dependencies
+          run: |
+            ls /usr/local/lib/android/sdk/ndk/
+            sudo apt-get update
+            sudo apt-get install -y build-essential cmake zip
+
+        - id: setup_llama_cpp_linux
+          name: Clone llama.cpp
+          run: |
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+        
+            sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+            sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+            sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
+        
+            for f in examples/server/public/*;do
+              cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
+            done
+        
+            cd ..
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+
+
+        - id: cmake_build_android
+          name: Build
+          run: |
+            sed -i "s:LIBRARY undreamai:LIBRARY undreamai_android:g" CMakeLists.txt
+            export LD_LIBRARY_PATH=""
+            cd build
+            echo "NDK=$ANDROID_NDK" >> $GITHUB_ENV
+            cmake .. -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-23 -DCMAKE_C_FLAGS=-march=armv8.4a+dotprod ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+            cmake --build . --config Release -j $(nproc)
+
+
+        - id: set_upload_name_unix
+          name: Set upload name
+          run: |
+            NAME=undreamai-${{ github.ref_name }}-llamacpp-${{ env.PLATFORM }}
+            if [ "${{ matrix.build }}" != "" ];then NAME=$NAME-${{ matrix.build }}; fi
+            NAME=$NAME.zip
+            echo "UPLOAD_NAME=$NAME" >> $GITHUB_ENV
+            echo "UPLOAD_PATH=$NAME" >> $GITHUB_ENV
+
+        - id: remove_server
+          name: Delete server
+          run: |
+            rm build/libs/undreamai_server
+
+        - id: pack_artifacts_unix
+          name: Pack artifacts
+          run: |
+            rm build/libs/undreamai_test
+            zip -j ${{ env.UPLOAD_NAME }} build/licenses/* build/libs/*
+
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_PATH }}
