@@ -835,6 +835,11 @@ jobs:
             mkdir -p build/licenses build/libs
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
 
+        - id: set_ndk_var_linux
+          name: Set NDK variable
+          run: |
+            echo "NDK=`ls -d /usr/local/lib/android/sdk/ndk/26.*`" >> $GITHUB_ENV
+
 
         - id: cmake_build_android
           name: Build
@@ -842,8 +847,7 @@ jobs:
             sed -i "s:LIBRARY undreamai:LIBRARY undreamai_android:g" CMakeLists.txt
             export LD_LIBRARY_PATH=""
             cd build
-            echo "NDK=$ANDROID_NDK" >> $GITHUB_ENV
-            cmake .. -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-23 -DCMAKE_C_FLAGS=-march=armv8.4a+dotprod ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+            cmake .. -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-23 -DCMAKE_C_FLAGS=-march=armv8.4a+dotprod ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j $(nproc)
 
 

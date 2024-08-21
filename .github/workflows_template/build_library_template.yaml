@@ -266,7 +266,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     env:
-      CMAKE_COMMON: '-DGGML_NATIVE=OFF'
+      CMAKE_COMMON: '-DGGML_NATIVE=OFF -DGGML_OPENMP=OFF'
       VULKAN_VERSION: 1.3.261.1
       PLATFORM: android
 
@@ -274,6 +274,7 @@ jobs:
         @@checkout@@
         @@setup_libs_linux@@
         @@setup_llama_cpp_linux@@
+        @@set_ndk_var_linux@@
 
         @@cmake_build_android@@
 
