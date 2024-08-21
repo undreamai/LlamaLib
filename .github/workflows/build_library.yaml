@@ -801,7 +801,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     env:
-      CMAKE_COMMON: '-DGGML_NATIVE=OFF'
+      CMAKE_COMMON: '-DGGML_NATIVE=OFF -DGGML_OPENMP=OFF'
       VULKAN_VERSION: 1.3.261.1
       PLATFORM: android
 
@@ -843,7 +843,7 @@ jobs:
             export LD_LIBRARY_PATH=""
             cd build
             echo "NDK=$ANDROID_NDK" >> $GITHUB_ENV
-            cmake .. -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-23 -DCMAKE_C_FLAGS=-march=armv8.4a+dotprod ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+            cmake .. -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-23 -DCMAKE_C_FLAGS=-march=armv8.4a+dotprod ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j $(nproc)
 
 
