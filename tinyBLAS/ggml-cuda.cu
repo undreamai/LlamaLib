@@ -273,27 +273,6 @@ static void ggml_cuda_print(const char *fmt, ...) {
     }
 }
 
-GGML_NORETURN
-void ggml_abort(const char * file, int line, const char * fmt, ...) {
-    int len;
-    va_list va;
-    char buf[GGML_CUDA_PRINT_BUFSIZ];
-    va_start(va, fmt);
-    len = vsnprintf(buf, GGML_CUDA_PRINT_BUFSIZ, fmt, va);
-    va_end(va);
-    if (len < 0)
-        len = strnlen(buf, GGML_CUDA_PRINT_BUFSIZ);
-    if (len >= GGML_CUDA_PRINT_BUFSIZ) {
-        len = GGML_CUDA_PRINT_BUFSIZ;
-        buf[len - 4] = '.';
-        buf[len - 3] = '.';
-        buf[len - 2] = '.';
-        buf[len - 1] = '\n';
-    }
-    ggml_cuda_print("%s:%d: ", file, line);
-    exit_(1);
-}
-
 #ifdef GGML_USE_TINYBLAS
 #define BLAS_NAME "tinyBLAS"
 #else
