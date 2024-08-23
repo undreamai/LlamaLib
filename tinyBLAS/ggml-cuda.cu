@@ -17122,6 +17122,8 @@ GGML_CALL static ggml_backend_t ggml_backend_reg_cuda_init(const char * params, 
     GGML_UNUSED(params);
 }
 
+extern "C" GGML_CALL int ggml_backend_cuda_reg_devices();
+
 GGML_CALL int ggml_backend_cuda_reg_devices() {
     int device_count = ggml_backend_cuda_get_device_count();
     //int device_count = 1; // DEBUG: some tools require delaying CUDA initialization
