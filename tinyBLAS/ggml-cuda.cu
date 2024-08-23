@@ -237,7 +237,7 @@
 #include "ggml-backend-impl.h"
 
 
-[[noreturn]]
+GGML_NORETURN
 static void exit_(int rc) {
 #define exit exit_
 #if defined(__GNUC__) || defined(__llvm__)
@@ -273,6 +273,27 @@ static void ggml_cuda_print(const char *fmt, ...) {
     }
 }
 
+GGML_NORETURN
+void ggml_abort(const char * file, int line, const char * fmt, ...) {
+    int len;
+    va_list va;
+    char buf[GGML_CUDA_PRINT_BUFSIZ];
+    va_start(va, fmt);
+    len = vsnprintf(buf, GGML_CUDA_PRINT_BUFSIZ, fmt, va);
+    va_end(va);
+    if (len < 0)
+        len = strnlen(buf, GGML_CUDA_PRINT_BUFSIZ);
+    if (len >= GGML_CUDA_PRINT_BUFSIZ) {
+        len = GGML_CUDA_PRINT_BUFSIZ;
+        buf[len - 4] = '.';
+        buf[len - 3] = '.';
+        buf[len - 2] = '.';
+        buf[len - 1] = '\n';
+    }
+    ggml_cuda_print("%s:%d: ", file, line);
+    exit_(1);
+}
+
 #ifdef GGML_USE_TINYBLAS
 #define BLAS_NAME "tinyBLAS"
 #else
@@ -286,8 +307,15 @@ static void ggml_cuda_print(const char *fmt, ...) {
 // - 13B quantum model: +200-400 MB
 //
 // [jart] https://github.com/Mozilla-Ocho/llamafile/issues/403#issuecomment-2103687594
+//
+// TODO(jart): oops looks like we can't use this anymore, because my
+//             five year old NVIDIA GeForce RTX 2080 Ti card stopped
+//             working with "ggml-cuda.cu:11460: ERROR: CUDA kernel
+//             mul_mat_q has no device code compatible with CUDA arch
+//             700. ggml-cuda.cu was compiled for: 600,700,800,900"!
+//
 #ifdef GGML_USE_TINYBLAS
-#define GGML_CUDA_FORCE_MMQ // [jart] want this
+// #define GGML_CUDA_FORCE_MMQ // [jart] want this
 #endif
 
 GGML_CALL bool ggml_cuda_link(const struct ggml_backend_api *backend_api) {
@@ -328,7 +356,7 @@ GGML_CALL bool ggml_cuda_link(const struct ggml_backend_api *backend_api) {
 
 #define GGML_CUDA_MAX_STREAMS 8
 
-[[noreturn]]
+GGML_NORETURN
 void ggml_cuda_error(const char * stmt, const char * func, const char * file, int line, const char * msg);
 
 #define CUDA_CHECK_GEN(err, success, error_fn)                                      \
@@ -541,7 +569,7 @@ static constexpr bool int8_mma_available(const int cc) {
     return cc < CC_OFFSET_AMD && cc >= CC_TURING;
 }
 
-[[noreturn]]
+GGML_NORETURN
 static __device__ void no_device_code(
     const char * file_name, const int line, const char * function_name, const int arch, const char * arch_list) {
 
@@ -11740,7 +11768,7 @@ extern DECL_MMQ_CASE(GGML_TYPE_IQ3_S);
 extern DECL_MMQ_CASE(GGML_TYPE_IQ1_S);
 extern DECL_MMQ_CASE(GGML_TYPE_IQ4_NL);
 extern DECL_MMQ_CASE(GGML_TYPE_IQ4_XS);
-#endif
+#endif // GGML_NO_IQUANTS
 
 // -------------------------------------------------------------------------------------------------------------------------
 
@@ -11836,7 +11864,7 @@ void ggml_cuda_op_mul_mat_q(
         case GGML_TYPE_IQ4_NL:
             mul_mat_q_case<GGML_TYPE_IQ4_NL>(ctx, args, stream);
             break;
-#endif
+#endif // GGML_NO_IQUANTS
         default:
             GGML_ABORT("fatal error");
             break;
@@ -14122,7 +14150,7 @@ static void ggml_cuda_log(enum ggml_log_level level, const char * format, ...) {
     }
 }
 
-[[noreturn]]
+GGML_NORETURN
 void ggml_cuda_error(const char * stmt, const char * func, const char * file, int line, const char * msg) {
     int id = -1; // in case cudaGetDevice fails
     cudaGetDevice(&id);
@@ -17114,8 +17142,6 @@ GGML_CALL static ggml_backend_t ggml_backend_reg_cuda_init(const char * params, 
 
     GGML_UNUSED(params);
 }
-
-extern "C" GGML_CALL int ggml_backend_cuda_reg_devices();
 
 GGML_CALL int ggml_backend_cuda_reg_devices() {
     int device_count = ggml_backend_cuda_get_device_count();
