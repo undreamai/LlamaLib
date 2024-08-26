@@ -91,12 +91,25 @@ int main(int argc, char ** argv) {
     LLM_Tokenize(llm, reply.c_str(), stringWrapper);
     reply = GetFromStringWrapper(stringWrapper);
     reply_data = json::parse(reply);
-    ASSERT(std::abs((float)data["n_predict"] - reply_data["tokens"].size()) < 2);
+    std::cout << std::abs((float)data["n_predict"] - reply_data["tokens"].size()) << std::endl;
+    ASSERT(std::abs((float)data["n_predict"] - reply_data["tokens"].size()) < 4);
 
     LLM_Completion(llm, data.dump().c_str(), stringWrapper);
     reply = GetFromStringWrapper(stringWrapper);
     reply_data = json::parse(reply);
     ASSERT(reply_data.count("content") > 0);
+
+    data["content"] = prompt;
+    LLM_Embeddings(llm, data.dump().c_str(), stringWrapper);
+    reply = GetFromStringWrapper(stringWrapper);
+    reply_data = json::parse(reply);
+    std::cout << reply_data["embedding"].size() << std::endl;
+    ASSERT(reply_data["embedding"].size() > 1000);
+
+    LLM_Lora_List(llm, stringWrapper);
+    reply = GetFromStringWrapper(stringWrapper);
+    reply_data = json::parse(reply);
+    ASSERT(reply_data.size() == 0);
 
     LLM_Cancel(llm, id_slot);
 

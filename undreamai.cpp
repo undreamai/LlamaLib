@@ -116,10 +116,20 @@ void LLM::init(int argc, char ** argv){
     try{
         ctx_server.batch = { 0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, 0, 0, 0, };
 
-        server_params_parse(argc, argv, sparams, params);
+        if (!gpt_params_parse(argc, argv, params)) {
+            gpt_params_print_usage(argc, argv, params);
+            throw std::runtime_error("Invalid parameters!");
+        }
 
-        if (!sparams.system_prompt.empty()) {
-            ctx_server.system_prompt_set(sparams.system_prompt);
+        // parse arguments from environment variables
+        gpt_params_parse_from_env(params);
+
+        // TODO: not great to use extern vars
+        server_log_json = params.log_json;
+        server_verbose = params.verbosity > 0;
+
+        if (!params.system_prompt.empty()) {
+            ctx_server.system_prompt_set(params.system_prompt);
         }
 
         if (params.model_alias == "unknown") {
@@ -141,6 +151,10 @@ void LLM::init(int argc, char ** argv){
             {"total_threads",   std::thread::hardware_concurrency()},
             {"system_info",     llama_print_system_info()},
         });
+
+        // Necessary similarity of prompt for slot selection
+        ctx_server.slot_prompt_similarity = params.slot_prompt_similarity;
+
         // load the model
         if (!ctx_server.load_model(params)) {
             throw std::runtime_error("Error loading the model!");
@@ -154,10 +168,10 @@ void LLM::init(int argc, char ** argv){
 
         /*
         // if a custom chat template is not supplied, we will use the one that comes with the model (if any)
-        if (sparams.chat_template.empty()) {
+        if (params.chat_template.empty()) {
             if (!ctx_server.validate_model_chat_template()) {
                 LOG_ERROR("The chat template that comes with this model is not yet supported, falling back to chatml. This may cause the model to output suboptimal responses", {});
-                sparams.chat_template = "chatml";
+                params.chat_template = "chatml";
             }
         }
 
@@ -169,11 +183,11 @@ void LLM::init(int argc, char ** argv){
             chat.push_back({{"role", "assistant"}, {"content", "Hi there"}});
             chat.push_back({{"role", "user"},      {"content", "How are you?"}});
 
-            const std::string chat_example = format_chat(ctx_server.model, sparams.chat_template, chat);
+            const std::string chat_example = format_chat(ctx_server.model, params.chat_template, chat);
 
             LOG_INFO("chat template", {
                 {"chat_example", chat_example},
-                {"built_in", sparams.chat_template.empty()},
+                {"built_in", params.chat_template.empty()},
             });
         }*/
 
@@ -202,16 +216,16 @@ const json handle_post(const httplib::Request & req, httplib::Response & res) {
 
 void handle_error(httplib::Response & res, json error_data){
     json final_response {{"error", error_data}};
-    res.set_content(final_response.dump(), "application/json; charset=utf-8");
+    res.set_content(final_response.dump(), MIMETYPE_JSON);
     res.status = json_value(error_data, "code", 500);
 }
 
 void LLM::start_server(){
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-    if (sparams.ssl_key_file != "" && sparams.ssl_cert_file != "") {
-        LOG_INFO("Running with SSL", {{"key", sparams.ssl_key_file}, {"cert", sparams.ssl_cert_file}});
+    if (params.ssl_key_file != "" && params.ssl_cert_file != "") {
+        LOG_INFO("Running with SSL", {{"key", params.ssl_key_file}, {"cert", params.ssl_cert_file}});
         svr.reset(
-            new httplib::SSLServer(sparams.ssl_cert_file.c_str(), sparams.ssl_key_file.c_str())
+            new httplib::SSLServer(params.ssl_cert_file.c_str(), params.ssl_key_file.c_str())
         );
     } else {
         LOG_INFO("Running without SSL", {});
@@ -231,7 +245,7 @@ void LLM::start_server(){
         res.set_header("Access-Control-Allow-Credentials", "true");
         res.set_header("Access-Control-Allow-Methods",     "POST");
         res.set_header("Access-Control-Allow-Headers",     "*");
-        return res.set_content("", "application/json; charset=utf-8");
+        return res.set_content("", "text/html");
     });
 
     svr->set_logger(log_server_request);
@@ -263,23 +277,23 @@ void LLM::start_server(){
     });
 
     // set timeouts and change hostname and port
-    svr->set_read_timeout (sparams.read_timeout);
-    svr->set_write_timeout(sparams.write_timeout);
+    svr->set_read_timeout (params.timeout_read);
+    svr->set_write_timeout(params.timeout_write);
 
-    if (!svr->bind_to_port(sparams.hostname, sparams.port)) {
-        throw std::runtime_error("couldn't bind to server socket: hostname=" + sparams.hostname + " port=" + std::to_string(sparams.port));
+    if (!svr->bind_to_port(params.hostname, params.port)) {
+        throw std::runtime_error("couldn't bind to server socket: hostname=" + params.hostname + " port=" + std::to_string(params.port));
     }
 
     std::unordered_map<std::string, std::string> log_data;
 
-    log_data["hostname"] = sparams.hostname;
-    log_data["port"]     = std::to_string(sparams.port);
+    log_data["hostname"] = params.hostname;
+    log_data["port"]     = std::to_string(params.port);
 /*
-    if (sparams.api_keys.size() == 1) {
-        auto key = sparams.api_keys[0];
+    if (params.api_keys.size() == 1) {
+        auto key = params.api_keys[0];
         log_data["api_key"] = "api_key: ****" + key.substr(std::max((int)(key.length() - 4), 0));
-    } else if (sparams.api_keys.size() > 1) {
-        log_data["api_key"] = "api_key: " + std::to_string(sparams.api_keys.size()) + " keys loaded";
+    } else if (params.api_keys.size() > 1) {
+        log_data["api_key"] = "api_key: " + std::to_string(params.api_keys.size()) + " keys loaded";
     }
 
     state.store(SERVER_STATE_READY);
@@ -303,7 +317,7 @@ void LLM::start_server(){
         };
 
         // If API key is not set, skip validation
-        if (sparams.api_keys.empty()) {
+        if (params.api_keys.empty()) {
             return true;
         }
 
@@ -318,7 +332,7 @@ void LLM::start_server(){
         std::string prefix = "Bearer ";
         if (auth_header.substr(0, prefix.size()) == prefix) {
             std::string received_api_key = auth_header.substr(prefix.size());
-            if (std::find(sparams.api_keys.begin(), sparams.api_keys.end(), received_api_key) != sparams.api_keys.end()) {
+            if (std::find(params.api_keys.begin(), params.api_keys.end(), received_api_key) != params.api_keys.end()) {
                 return true; // API key is valid
             }
         }
@@ -348,7 +362,7 @@ void LLM::start_server(){
 
     const auto handle_template_post = [this](const httplib::Request & req, httplib::Response & res) {
         handle_post(req, res);
-        return res.set_content(handle_template(), "application/json; charset=utf-8");
+        return res.set_content(handle_template(), MIMETYPE_JSON);
     };
 
     const auto handle_completions_post = [this, &res_error](const httplib::Request & req, httplib::Response & res) {
@@ -357,15 +371,27 @@ void LLM::start_server(){
     };
 
     const auto handle_tokenize_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return res.set_content(handle_tokenize(handle_post(req, res)), "application/json; charset=utf-8");
+        return res.set_content(handle_tokenize(handle_post(req, res)), MIMETYPE_JSON);
     };
 
     const auto handle_detokenize_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return res.set_content(handle_detokenize(handle_post(req, res)), "application/json; charset=utf-8");
+        return res.set_content(handle_detokenize(handle_post(req, res)), MIMETYPE_JSON);
+    };
+
+    const auto handle_embeddings_post = [this](const httplib::Request & req, httplib::Response & res) {
+        return res.set_content(handle_embeddings(handle_post(req, res), &res), MIMETYPE_JSON);
+    };
+
+    const auto handle_lora_adapters_list_post = [this](const httplib::Request & req, httplib::Response & res) {
+        return res.set_content(handle_lora_adapters_list(), MIMETYPE_JSON);
+    };
+
+    const auto handle_lora_adapters_apply_post = [this](const httplib::Request & req, httplib::Response & res) {
+        return res.set_content(handle_lora_adapters_apply(handle_post(req, res), &res), MIMETYPE_JSON);
     };
 
     const auto handle_slots_action_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return res.set_content(handle_slots_action(handle_post(req, res), &res), "application/json; charset=utf-8");
+        return res.set_content(handle_slots_action(handle_post(req, res), &res), MIMETYPE_JSON);
     };
 
     //
@@ -373,9 +399,9 @@ void LLM::start_server(){
     //
 
     // register static assets routes
-    if (!sparams.public_path.empty()) {
+    if (!params.public_path.empty()) {
         // Set the base directory for serving static files
-        svr->set_base_dir(sparams.public_path);
+        svr->set_base_dir(params.public_path);
     }
     // register API routes
     svr->Post("/completion",          handle_completions_post); // legacy
@@ -384,27 +410,33 @@ void LLM::start_server(){
     svr->Post("/template",            handle_template_post);
     svr->Post("/tokenize",            handle_tokenize_post);
     svr->Post("/detokenize",          handle_detokenize_post);
+    svr->Post("/embedding",           handle_embeddings_post); // legacy
+    svr->Post("/embeddings",          handle_embeddings_post);
+    svr->Post("/v1/embeddings",       handle_embeddings_post);
+    svr->Get ("/lora-adapters",       handle_lora_adapters_list_post);
+    svr->Post("/lora-adapters-list",  handle_lora_adapters_list_post);
+    svr->Post("/lora-adapters",       handle_lora_adapters_apply_post);
     svr->Post("/slots",               handle_slots_action_post);
 
     //
     // Start the server
     //
-    if (sparams.n_threads_http < 1) {
+    if (params.n_threads_http < 1) {
         // +2 threads for monitoring endpoints
-        sparams.n_threads_http = std::max(params.n_parallel + 2, (int32_t) std::thread::hardware_concurrency() - 1);
+        params.n_threads_http = std::max(params.n_parallel + 2, (int32_t) std::thread::hardware_concurrency() - 1);
     }
-    log_data["n_threads_http"] =  std::to_string(sparams.n_threads_http);
-    svr->new_task_queue = [this] { return new httplib::ThreadPool(sparams.n_threads_http); };
+    log_data["n_threads_http"] =  std::to_string(params.n_threads_http);
+    svr->new_task_queue = [this] { return new httplib::ThreadPool(params.n_threads_http); };
 
     // run the HTTP server in a thread - see comment below
     t = std::thread([&]() {
         if (!svr->listen_after_bind()) {
-            state.store(SERVER_STATE_ERROR);
             return 1;
         }
 
         return 0;
     });
+    svr->wait_until_ready();
 
     LOG_INFO("HTTP server listening", log_data);
 }
@@ -500,12 +532,108 @@ std::string LLM::handle_detokenize(json body) {
     return "";
 }
 
+std::string LLM::handle_embeddings(json body, httplib::Response* res) {
+    bool is_openai = false;
+
+    // an input prompt can be a string or a list of tokens (integer)
+    json prompt;
+    if (body.count("input") != 0) {
+        is_openai = true;
+        prompt = body.at("input");
+    } else if (body.count("content") != 0) {
+        // with "content", we only support single prompt
+        prompt = std::vector<std::string>{body.at("content")};
+    } else {
+        std::string error = "\"input\" or \"content\" must be provided";
+        LOG_ERROR(error.c_str(), {});
+        if(res != nullptr) handle_error(*res, format_error_response(error, ERROR_TYPE_INVALID_REQUEST));
+        return "";
+    }
+
+    // create and queue the task
+    json responses;
+    {
+        const int id_task = ctx_server.queue_tasks.get_new_id();
+        ctx_server.queue_results.add_waiting_task_id(id_task);
+        ctx_server.request_completion(id_task, -1, {{"prompt", prompt}}, false, true);
+
+        // get the result
+        server_task_result result = ctx_server.queue_results.recv(id_task);
+        ctx_server.queue_results.remove_waiting_task_id(id_task);
+        if (!result.error) {
+            if (result.data.count("results")) {
+                // result for multi-task
+                responses = result.data.at("results");
+            } else {
+                // result for single task
+                responses = std::vector<json>{result.data};
+            }
+        } else {
+            // error received, ignore everything else
+            if(res != nullptr) handle_error(*res, result.data);
+            return "";
+        }
+    }
+
+    // write JSON response
+    json root = is_openai
+        ? format_embeddings_response_oaicompat(body, responses)
+        : responses[0];
+    return root.dump();
+};
+
+std::string LLM::handle_lora_adapters_apply(json body, httplib::Response* res) {
+    int max_idx = ctx_server.lora_adapters.size();
+
+    // clear existing value
+    for (auto & la : ctx_server.lora_adapters) {
+        la.scale = 0.0f;
+    }
+
+    // set value
+    for (auto entry : body) {
+        int id      = entry.at("id");
+        float scale = entry.at("scale");
+        if (0 <= id && id < max_idx) {
+            ctx_server.lora_adapters[id].scale = scale;
+        } else {
+            std::string error = "invalid adapter id";
+            LOG_ERROR(error.c_str(), {});
+            if(res != nullptr) handle_error(*res, format_error_response(error, ERROR_TYPE_INVALID_REQUEST));
+            return "";
+        }
+    }
+
+    server_task task;
+    task.type = SERVER_TASK_TYPE_SET_LORA;
+    const int id_task = ctx_server.queue_tasks.post(task);
+    ctx_server.queue_results.add_waiting_task_id(id_task);
+
+    server_task_result result = ctx_server.queue_results.recv(id_task);
+    ctx_server.queue_results.remove_waiting_task_id(id_task);
+
+    return result.data.dump();
+};
+
+std::string LLM::handle_lora_adapters_list(){
+    json result = json::array();
+    for (size_t i = 0; i < ctx_server.lora_adapters.size(); ++i) {
+        auto & la = ctx_server.lora_adapters[i];
+        result.push_back({
+            {"id", i},
+            {"path", la.path},
+            {"scale", la.scale},
+        });
+    }
+    return result.dump();
+}
+
 std::string LLM::handle_completions_non_streaming(int id_task, httplib::Response* res) {
     std::string result_data = "";
     server_task_result result = ctx_server.queue_results.recv(id_task);
     if (!result.error && result.stop) {
         result_data = result.data.dump(-1, ' ', false, json::error_handler_t::replace);
-        if(res != nullptr) res->set_content(result_data, "application/json; charset=utf-8");
+        if(res != nullptr) res->set_content(result_data, MIMETYPE_JSON);
     } else {
         LOG_ERROR("Error processing handle_completions_non_streaming request", {});
         if(res != nullptr) handle_error(*res, result.data);
@@ -627,7 +755,7 @@ std::string LLM::handle_slots_action(json data, httplib::Response* res) {
                     return "";
                 }
                 task.data["filename"] = filename;
-                task.data["filepath"] = sparams.slot_save_path + filename;
+                task.data["filepath"] = params.slot_save_path + filename;
             }
             if (action == "save") {
                 task.type = SERVER_TASK_TYPE_SLOT_SAVE;
@@ -745,6 +873,21 @@ const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper)
 
 const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper){
     wrapper->SetContent(llm->handle_detokenize(json::parse(json_data)));
+}
+
+const void LLM_Embeddings(LLM* llm, const char* json_data, StringWrapper* wrapper){
+    std::string result = llm->handle_embeddings(json::parse(json_data));
+    wrapper->SetContent(result);
+}
+
+const void LLM_Lora_Weight(LLM* llm, const char* json_data, StringWrapper* wrapper) {
+    std::string result = llm->handle_lora_adapters_apply(json::parse(json_data));
+    wrapper->SetContent(result);
+}
+
+const void LLM_Lora_List(LLM* llm, StringWrapper* wrapper) {
+    std::string result = llm->handle_lora_adapters_list();
+    wrapper->SetContent(result);
 }
 
 const void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper){
