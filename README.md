@@ -3,6 +3,7 @@
 LLMUnity server CLI startup guide (Linux):
 
 1) Make a directory for your server
+
 2) Within the directory, download the undreamai llamacpp and undreamai server binaries
 
 wget https://github.com/undreamai/LlamaLib/releases/download/v1.1.10/undreamai-v1.1.10-llamacpp.zip
@@ -25,4 +26,4 @@ Quickstart
 
 A good default template is 'llama3 chat'
 
-6) Once your server is running from the CLI, you can now connect to it within your unity project, simply go to your LLMCharacters, flick the remote option and specify your server's IP and port
+6) Once your server is running from the CLI, you can now connect to it within your unity project, simply go to your LLMCharacters game object, flick the remote option and specify your server's IP and port
