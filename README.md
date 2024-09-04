@@ -25,7 +25,9 @@ Quickstart
 .\undreamai_server.exe -m {model gguf location} -ngl {GPU Layers} --port {Port to listen on} --template {chat template}
 
 A good default template is 'chatml'
-You can print a list of chat templates supported by LLMUnity with the following command in Unity, they are also visible in the LLM gameobject from the samples:
+You can print a list of chat templates supported by LLMUnity with the following command in Unity:
 Debug.Log(ChatTemplate.templates.Keys);
+
+They are also visible in the LLM gameobject from the samples
 
 6) Once your server is running from the CLI, you can now connect to it within your unity project, simply go to your LLMCharacters game object, flick the remote option and specify your server's IP and port
