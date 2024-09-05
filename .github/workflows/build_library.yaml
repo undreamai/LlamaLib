@@ -199,7 +199,8 @@ jobs:
             cmake --build . --config Release -j $(nproc)
 
         - id: test_build_unix
-          if: matrix.build == 'avx'
+          if: matrix.build == 'noavx' || matrix.build == 'avx' || matrix.build == 'avx2' ||
+            matrix.build == 'acc' || matrix.build == 'no_acc'
           name: Test
           run: |
             cd build/libs
@@ -477,7 +478,8 @@ jobs:
             cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
 
         - id: test_build_unix
-          if: matrix.build == 'avx'
+          if: matrix.build == 'noavx' || matrix.build == 'avx' || matrix.build == 'avx2' ||
+            matrix.build == 'acc' || matrix.build == 'no_acc'
           name: Test
           run: |
             cd build/libs
