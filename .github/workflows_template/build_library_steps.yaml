@@ -60,6 +60,8 @@ jobs:
           sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
           sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
           sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
+          sed -i.bak 's:abort():raise(SIGSEGV):g' ggml/src/ggml.c
+          sed -i.bak 's:GGML_NORETURN GGML_ATTRIBUTE_FORMAT://GGML_NORETURN GGML_ATTRIBUTE_FORMAT:g' ggml/include/ggml.h
 
           for f in examples/server/public/*;do
             cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
@@ -189,6 +191,8 @@ jobs:
           (Get-Content examples/server/server.cpp ) -replace 'utils.hpp', 'utils_callback.hpp' | Set-Content examples/server/server.cpp
           (Get-Content examples/server/server.cpp ) -replace 'main\(int argc', 'main_server(int argc' | Set-Content examples/server/server.cpp
           (Get-Content ggml/src/ggml-vulkan.cpp ) -replace 'exit\(1', 'std::terminate(' | Set-Content ggml/src/ggml-vulkan.cpp
+          (Get-Content ggml/src/ggml.c ) -replace 'abort\(\)', 'raise(SIGSEGV)' | Set-Content ggml/src/ggml.c
+          (Get-Content ggml/include/ggml.h ) -replace 'GGML_NORETURN GGML_ATTRIBUTE_FORMAT', '//GGML_NORETURN GGML_ATTRIBUTE_FORMAT' | Set-Content ggml/include/ggml.h
 
           Get-ChildItem examples/server/public/* | ForEach-Object {
             $f = $_.FullName
