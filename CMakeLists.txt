@@ -12,6 +12,7 @@ if (NOT WIN32)
     set_target_properties(common PROPERTIES COMPILE_FLAGS ${STATIC_FLAGS})
     set_target_properties(ggml PROPERTIES COMPILE_FLAGS ${STATIC_FLAGS})
     set_target_properties(llama PROPERTIES COMPILE_FLAGS ${STATIC_FLAGS})
+    target_compile_options(ggml PRIVATE -Wno-return-type -Wno-sometimes-uninitialized)
 endif()
 
 set(LIBRARY undreamai)
