@@ -5,12 +5,10 @@
 #undef LOG_ERROR
 #undef LOG_WARNING
 #undef LOG_INFO
-#undef GGML_ABORT
 
 #define LOG_ERROR(  MSG, ...) server_log_callback("ERR",  __func__, __LINE__, MSG, __VA_ARGS__)
 #define LOG_WARNING(MSG, ...) server_log_callback("WARN", __func__, __LINE__, MSG, __VA_ARGS__)
 #define LOG_INFO(   MSG, ...) server_log_callback("INFO", __func__, __LINE__, MSG, __VA_ARGS__)
-#define GGML_ABORT(...) ggml_terminate(__FILE__, __LINE__, __VA_ARGS__)
 
 StringWrapper* logStringWrapper;
 
@@ -57,14 +55,4 @@ static inline void server_log_callback(const char * level, const char * function
     }
     if(logStringWrapper != nullptr) logStringWrapper->AddContent(str+"\n");
     fflush(stdout);
-}
-
-void ggml_terminate(const char * file, int line, const char * fmt, ...) {
-    fflush(stdout);
-    char buf[1024];
-    snprintf(buf, 1024, "%s:%d: ", file, line);
-    std::cout<<buf<<std::endl;
-    if(logStringWrapper != nullptr) logStringWrapper->AddContent(std::string(buf));
-    fflush(stdout);
-    std::terminate();
 }
