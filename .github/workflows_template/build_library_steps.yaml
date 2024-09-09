@@ -256,7 +256,7 @@ jobs:
 
       - name: Move files to Release folder
         id: move_files_windows
-        if: matrix.build == 'arm64' || matrix.build == 'hip'
+        if: matrix.build == 'arm64' || startsWith(matrix.build, 'hip')
         run: |
           mkdir build/Release
           mkdir build/libs/Release
