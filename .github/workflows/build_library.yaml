@@ -163,7 +163,7 @@ jobs:
             echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
 
         - id: prepare_cuda
-          if: startsWith(matrix.build, 'cuda') || matrix.build == 'hip'
+          if: startsWith(matrix.build, 'cuda') || startsWith(matrix.build, 'hip')
           name: Prepare CUDA
           run: |
             cp tinyBLAS/* llama.cpp/ggml/src/
@@ -246,6 +246,9 @@ jobs:
       matrix:
         include:
           - build: 'hip'
+            minimise: 'GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS'
+          - build: 'hip-full'
+            minimise: ''
 
     steps:
         - id: checkout
@@ -291,7 +294,7 @@ jobs:
             echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
 
         - id: prepare_cuda
-          if: startsWith(matrix.build, 'cuda') || matrix.build == 'hip'
+          if: startsWith(matrix.build, 'cuda') || startsWith(matrix.build, 'hip')
           name: Prepare CUDA
           run: |
             cp tinyBLAS/* llama.cpp/ggml/src/
@@ -611,7 +614,7 @@ jobs:
             Add-Content $env:GITHUB_ENV "CUDA=$CUDA"
 
         - id: prepare_cuda
-          if: startsWith(matrix.build, 'cuda') || matrix.build == 'hip'
+          if: startsWith(matrix.build, 'cuda') || startsWith(matrix.build, 'hip')
           name: Prepare CUDA
           run: |
             cp tinyBLAS/* llama.cpp/ggml/src/
@@ -694,6 +697,9 @@ jobs:
       matrix:
         include:
           - build: 'hip'
+            minimise: 'GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS'
+          - build: 'hip-full'
+            minimise: ''
 
     steps:
         - id: checkout
@@ -731,7 +737,7 @@ jobs:
             Add-Content $env:GITHUB_ENV "CUDA=$CUDA"
 
         - id: prepare_cuda
-          if: startsWith(matrix.build, 'cuda') || matrix.build == 'hip'
+          if: startsWith(matrix.build, 'cuda') || startsWith(matrix.build, 'hip')
           name: Prepare CUDA
           run: |
             cp tinyBLAS/* llama.cpp/ggml/src/

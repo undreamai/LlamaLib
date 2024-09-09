@@ -89,7 +89,7 @@ jobs:
 
       - name: Prepare CUDA
         id: prepare_cuda
-        if: startsWith(matrix.build, 'cuda') || matrix.build == 'hip'
+        if: startsWith(matrix.build, 'cuda') || startsWith(matrix.build, 'hip')
         run: |
           cp tinyBLAS/* llama.cpp/ggml/src/
           rm -r llama.cpp/ggml/src/ggml-cuda
