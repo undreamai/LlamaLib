@@ -108,6 +108,10 @@ jobs:
       matrix:
         include:
           - build: 'hip'
+            minimise: 'GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS'
+        include:
+          - build: 'hip-full'
+            minimise: ''
 
     steps:
         @@checkout@@
@@ -244,6 +248,10 @@ jobs:
       matrix:
         include:
           - build: 'hip'
+            minimise: 'GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS'
+        include:
+          - build: 'hip-full'
+            minimise: ''
 
     steps:
         @@checkout@@
