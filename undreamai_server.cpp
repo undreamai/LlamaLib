@@ -14,7 +14,7 @@ int main(int argc, char ** argv) {
                 for (int j = i; j < argc - 2; ++j) {
                     argv[j] = argv[j + 2];
                 }
-                argc -= 2;
+                i++;
             } else {
                 std::cerr << "Error: --template option requires a value" << std::endl;
                 exit(1);
@@ -23,7 +23,7 @@ int main(int argc, char ** argv) {
             command += argv[i];
             if (i < argc - 1) command += " ";
         }
-        ++i;
+        i++;
     }
 
     LLM* llm = LLM_Construct(command.c_str());
