@@ -222,10 +222,10 @@ void handle_error(httplib::Response & res, json error_data){
 
 void LLM::start_server(){
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-    if (params.ssl_key_file != "" && params.ssl_cert_file != "") {
-        LOG_INFO("Running with SSL", {{"key", params.ssl_key_file}, {"cert", params.ssl_cert_file}});
+    if (params.ssl_file_key != "" && params.ssl_file_cert != "") {
+        LOG_INFO("Running with SSL", {{"key", params.ssl_file_key}, {"cert", params.ssl_file_cert}});
         svr.reset(
-            new httplib::SSLServer(params.ssl_cert_file.c_str(), params.ssl_key_file.c_str())
+            new httplib::SSLServer(params.ssl_file_cert.c_str(), params.ssl_file_key.c_str())
         );
     } else {
         LOG_INFO("Running without SSL", {});
