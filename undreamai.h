@@ -57,6 +57,7 @@ class LLM {
         void init(int argc, char ** argv);
         std::string handle_completions_non_streaming(int id_task, httplib::Response* res=nullptr);
         std::string handle_completions_streaming(int id_task, StringWrapper* stringWrapper=nullptr, httplib::DataSink* sink=nullptr);
+        bool middleware_validate_api_key(const httplib::Request & req, httplib::Response & res);
 };
 
 #ifdef _WIN32

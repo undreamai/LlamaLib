@@ -235,8 +235,6 @@ void LLM::start_server(){
     svr.reset(new httplib::Server());
 #endif
 
-    std::atomic<server_state> state{SERVER_STATE_LOADING_MODEL};
-
     svr->set_default_headers({{"Server", "llama.cpp"}});
 
     // CORS preflight
@@ -288,7 +286,7 @@ void LLM::start_server(){
 
     log_data["hostname"] = params.hostname;
     log_data["port"]     = std::to_string(params.port);
-/*
+
     if (params.api_keys.size() == 1) {
         auto key = params.api_keys[0];
         log_data["api_key"] = "api_key: ****" + key.substr(std::max((int)(key.length() - 4), 0));
@@ -296,69 +294,14 @@ void LLM::start_server(){
         log_data["api_key"] = "api_key: " + std::to_string(params.api_keys.size()) + " keys loaded";
     }
 
-    state.store(SERVER_STATE_READY);
-
-
-    auto middleware_validate_api_key = [this, &res_error](const httplib::Request & req, httplib::Response & res) {
-        // TODO: should we apply API key to all endpoints, including "/health" and "/models"?
-        static const std::set<std::string> protected_endpoints = {
-            "/props",
-            "/completion",
-            "/completions",
-            "/v1/completions",
-            "/chat/completions",
-            "/v1/chat/completions",
-            "/infill",
-            "/tokenize",
-            "/detokenize",
-            "/embedding",
-            "/embeddings",
-            "/v1/embeddings",
-        };
-
-        // If API key is not set, skip validation
-        if (params.api_keys.empty()) {
-            return true;
-        }
-
-        // If path is not in protected_endpoints list, skip validation
-        if (protected_endpoints.find(req.path) == protected_endpoints.end()) {
-            return true;
-        }
-
-        // Check for API key in the header
-        auto auth_header = req.get_header_value("Authorization");
-
-        std::string prefix = "Bearer ";
-        if (auth_header.substr(0, prefix.size()) == prefix) {
-            std::string received_api_key = auth_header.substr(prefix.size());
-            if (std::find(params.api_keys.begin(), params.api_keys.end(), received_api_key) != params.api_keys.end()) {
-                return true; // API key is valid
-            }
-        }
-
-        // API key is invalid or not provided
-        // TODO: make another middleware for CORS related logic
-        res.set_header("Access-Control-Allow-Origin", req.get_header_value("Origin"));
-        res_error(res, format_error_response("Invalid API Key", ERROR_TYPE_AUTHENTICATION));
-
-        LOG_WARNING("Unauthorized: Invalid API Key", {});
-
-        return false;
-    };
-
     // register server middlewares
-    svr->set_pre_routing_handler([&middleware_validate_api_key](const httplib::Request & req, httplib::Response & res) {
+    svr->set_pre_routing_handler([this](const httplib::Request & req, httplib::Response & res) {
+        res.set_header("Access-Control-Allow-Origin", req.get_header_value("Origin"));
         if (!middleware_validate_api_key(req, res)) {
             return httplib::Server::HandlerResponse::Handled;
         }
         return httplib::Server::HandlerResponse::Unhandled;
     });
-
-    //
-    // Route handlers (or controllers)
-    //
-*/
 
     const auto handle_template_post = [this](const httplib::Request & req, httplib::Response & res) {
         handle_post(req, res);
@@ -481,6 +424,53 @@ bool LLM::is_running(){
 
 void LLM::set_template(const char* chatTemplate){
     this->chatTemplate = chatTemplate;
+}
+
+
+bool LLM::middleware_validate_api_key(const httplib::Request & req, httplib::Response & res) {
+    // TODO: should we apply API key to all endpoints, including "/health" and "/models"?
+    static const std::set<std::string> protected_endpoints = {
+        "/props",
+        "/completion",
+        "/completions",
+        "/v1/completions",
+        "/chat/completions",
+        "/v1/chat/completions",
+        "/infill",
+        "/tokenize",
+        "/detokenize",
+        "/embedding",
+        "/embeddings",
+        "/v1/embeddings",
+    };
+
+    // If API key is not set, skip validation
+    if (params.api_keys.empty()) {
+        return true;
+    }
+
+    // If path is not in protected_endpoints list, skip validation
+    if (protected_endpoints.find(req.path) == protected_endpoints.end()) {
+        return true;
+    }
+
+    // Check for API key in the header
+    auto auth_header = req.get_header_value("Authorization");
+
+    std::string prefix = "Bearer ";
+    if (auth_header.substr(0, prefix.size()) == prefix) {
+        std::string received_api_key = auth_header.substr(prefix.size());
+        if (std::find(params.api_keys.begin(), params.api_keys.end(), received_api_key) != params.api_keys.end()) {
+            return true; // API key is valid
+        }
+    }
+
+    // API key is invalid or not provided
+    handle_error(res, format_error_response("Invalid API Key", ERROR_TYPE_AUTHENTICATION));
+
+    LOG_WARNING("Unauthorized: Invalid API Key", {});
+
+    return false;
 }
 
 std::string LLM::handle_template() {
