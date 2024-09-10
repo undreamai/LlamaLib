@@ -12,7 +12,7 @@ on:
 
 env:
   LLAMACPP_VERSION: b3623
-  CMAKE_COMMON_JOBS: '-DGGML_STATIC=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DBUILD_UNDREAMAI_SERVER=ON -DBUILD_SHARED_LIBS=OFF -DLLAMA_SERVER_SSL=ON'
+  CMAKE_COMMON_JOBS: '-DGGML_STATIC=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DBUILD_UNDREAMAI_SERVER=ON -DBUILD_SHARED_LIBS=OFF'
   CMAKE_COMMON_DIR: -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs
 
 jobs:
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     env:
-      CMAKE_COMMON: '-DGGML_NATIVE=OFF -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON'
+      CMAKE_COMMON: '-DGGML_NATIVE=OFF -DLLAMA_SERVER_SSL=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON'
       PLATFORM: linux
 
     strategy:
@@ -101,7 +101,7 @@ jobs:
     container: rocm/dev-ubuntu-22.04:6.0.2
 
     env:
-        CMAKE_COMMON: '-DAMDGPU_TARGETS="gfx1030,gfx1031,gfx1032,gfx1100,gfx1101,gfx1102" -DGGML_NATIVE=OFF -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON'
+        CMAKE_COMMON: '-DAMDGPU_TARGETS="gfx1030,gfx1031,gfx1032,gfx1100,gfx1101,gfx1102" -DGGML_NATIVE=OFF -DLLAMA_SERVER_SSL=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON'
         PLATFORM: linux
 
     strategy:
@@ -133,6 +133,7 @@ jobs:
     runs-on: macos-14
 
     env:
+        CMAKE_COMMON: '-DLLAMA_SERVER_SSL=ON'
         PLATFORM: macos-arm64
 
     strategy:
@@ -159,6 +160,7 @@ jobs:
     runs-on: macos-12
 
     env:
+        CMAKE_COMMON: '-DLLAMA_SERVER_SSL=ON'
         PLATFORM: macos-x64
 
     strategy:
@@ -189,7 +191,7 @@ jobs:
     runs-on: windows-2019
 
     env:
-      CMAKE_COMMON: '-DGGML_NATIVE=OFF'
+      CMAKE_COMMON: '-DGGML_NATIVE=OFF -DLLAMA_SERVER_SSL=ON'
       VULKAN_VERSION: 1.3.261.1
       PLATFORM: windows
 
@@ -224,6 +226,7 @@ jobs:
         @@setup_llama_cpp_windows@@
         @@setup_vulcan_windows@@
         @@setup_ninja_windows@@
+        @@setup_ninja_openssl@@
         @@set_cuda_var_windows@@
         @@prepare_cuda@@
         @@setup_cuda_windows@@
@@ -240,7 +243,7 @@ jobs:
     runs-on: windows-2019
 
     env:
-      CMAKE_COMMON: '-DAMDGPU_TARGETS="gfx1030,gfx1031,gfx1032,gfx1100,gfx1101,gfx1102" -DGGML_NATIVE=OFF -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs'
+      CMAKE_COMMON: '-DAMDGPU_TARGETS="gfx1030,gfx1031,gfx1032,gfx1100,gfx1101,gfx1102" -DGGML_NATIVE=OFF -DLLAMA_SERVER_SSL=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs'
       PLATFORM: windows
     
     strategy:
@@ -256,6 +259,7 @@ jobs:
         @@setup_llama_cpp_windows@@
         @@set_cuda_var_windows@@
         @@prepare_cuda@@
+        @@setup_ninja_openssl@@
         @@setup_hip_windows@@
 
         @@cpu-cores@@

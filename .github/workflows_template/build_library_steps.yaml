@@ -165,12 +165,12 @@ jobs:
       - name: Set build parameters
         id: set_build_params_macos_arm64
         run: |
-          echo "BUILD_PARAMS=-DLLAMA_FATAL_WARNINGS=ON -DGGML_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}" >> $GITHUB_ENV
+          echo "BUILD_PARAMS=-DLLAMA_FATAL_WARNINGS=ON -DGGML_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}" >> $GITHUB_ENV
 
       - name: Set build parameters
         id: set_build_params_macos_x64
         run: |
-          echo "BUILD_PARAMS=-DLLAMA_FATAL_WARNINGS=ON -DGGML_METAL=OFF -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}" >> $GITHUB_ENV
+          echo "BUILD_PARAMS=-DLLAMA_FATAL_WARNINGS=ON -DGGML_METAL=OFF -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}" >> $GITHUB_ENV
   
       - name: Build
         id: cmake_build_macos
@@ -230,6 +230,15 @@ jobs:
         if: matrix.build == 'arm64'
         run: |
           choco install ninja
+
+      - name: Install OpenSSL
+        id: setup_ninja_openssl
+        run: |
+          choco install openssl --no-progress
+          $OPENSSL_ROOT_DIR = 'C:\Program Files\OpenSSL'
+          Add-Content $env:GITHUB_ENV "OPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR"
+          Copy-Item $OPENSSL_ROOT_DIR\lib\VC\x64\MD\libcrypto.lib $OPENSSL_ROOT_DIR\lib\
+          Copy-Item $OPENSSL_ROOT_DIR\lib\VC\x64\MD\libssl.lib $OPENSSL_ROOT_DIR\lib\
 
       - name: Get number of CPU cores
         id: cpu-cores
