@@ -264,7 +264,7 @@ jobs:
         - id: setup_hip_linux
           name: Dependencies
           run: |
-            sudo apt-get install -y git rocblas-dev hipblas-dev
+            sudo apt-get install -y git rocblas-dev hipblas-dev libssl-dev
 
         - id: setup_llama_cpp_linux
           name: Clone llama.cpp
