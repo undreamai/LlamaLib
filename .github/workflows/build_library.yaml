@@ -239,7 +239,7 @@ jobs:
     container: rocm/dev-ubuntu-22.04:6.0.2
 
     env:
-        CMAKE_COMMON: '-DAMDGPU_TARGETS="gfx1030,gfx1031,gfx1032,gfx1100,gfx1101,gfx1102" -DGGML_NATIVE=OFF -DLLAMA_SERVER_SSL=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON'
+        CMAKE_COMMON: '-DGGML_HIPBLAS=ON -DAMDGPU_TARGETS="gfx1030,gfx1031,gfx1032,gfx1100,gfx1101,gfx1102" -DGGML_NATIVE=OFF -DLLAMA_SERVER_SSL=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON'
         PLATFORM: linux
 
     strategy:
@@ -307,7 +307,7 @@ jobs:
           name: Set build parameters
           run: |
             sed -i "s:FATAL_ERROR:WARNING:g" llama.cpp/ggml/src/CMakeLists.txt
-            echo "BUILD_PARAMS=${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} -DCMAKE_HIP_COMPILER="$(hipconfig -l)/clang" -DGGML_HIPBLAS=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=`pwd`/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=`pwd`/build/libs" >> $GITHUB_ENV
+            echo "BUILD_PARAMS=${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} -DCMAKE_HIP_COMPILER="$(hipconfig -l)/clang" -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=`pwd`/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=`pwd`/build/libs" >> $GITHUB_ENV
 
         - id: cmake_build_linux
           name: Build
@@ -599,13 +599,15 @@ jobs:
             mkdir .\build\libs\Release
             cp ${env:RUNNER_TEMP}/VulkanRT*\x64\vulkan-1.dll .\build\libs\Release
 
-        - id: setup_ninja_openssl
+        - id: setup_openssl_windows
           name: Install OpenSSL
           run: |
             choco install openssl --no-progress
             $OPENSSL_ROOT_DIR = 'C:\Program Files\OpenSSL'
-            Add-Content $env:GITHUB_ENV "OPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR"
             Copy-Item $OPENSSL_ROOT_DIR\lib\VC\x64\MD\*.lib $OPENSSL_ROOT_DIR\lib\
+            Copy-Item $OPENSSL_ROOT_DIR\lib\libcrypto.lib $OPENSSL_ROOT_DIR\lib\libcrypto.a
+            Copy-Item $OPENSSL_ROOT_DIR\lib\libssl.lib $OPENSSL_ROOT_DIR\lib\libssl.a
+            Add-Content $env:GITHUB_ENV "OPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR"
 
         - id: set_cuda_var_windows
           if: startsWith(matrix.build, 'cuda')
@@ -692,7 +694,7 @@ jobs:
     runs-on: windows-2019
 
     env:
-      CMAKE_COMMON: '-DAMDGPU_TARGETS="gfx1030,gfx1031,gfx1032,gfx1100,gfx1101,gfx1102" -DGGML_NATIVE=OFF -DLLAMA_SERVER_SSL=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs'
+      CMAKE_COMMON: '-DGGML_HIPBLAS=ON -DAMDGPU_TARGETS="gfx1030,gfx1031,gfx1032,gfx1100,gfx1101,gfx1102" -DGGML_NATIVE=OFF -DLLAMA_SERVER_SSL=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs'
       PLATFORM: windows
     
     strategy:
@@ -747,13 +749,15 @@ jobs:
             sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG ${{ matrix.minimise }}:g' llama.cpp/ggml/src/CMakeLists.txt
             curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
-        - id: setup_ninja_openssl
+        - id: setup_openssl_windows
           name: Install OpenSSL
           run: |
             choco install openssl --no-progress
             $OPENSSL_ROOT_DIR = 'C:\Program Files\OpenSSL'
-            Add-Content $env:GITHUB_ENV "OPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR"
             Copy-Item $OPENSSL_ROOT_DIR\lib\VC\x64\MD\*.lib $OPENSSL_ROOT_DIR\lib\
+            Copy-Item $OPENSSL_ROOT_DIR\lib\libcrypto.lib $OPENSSL_ROOT_DIR\lib\libcrypto.a
+            Copy-Item $OPENSSL_ROOT_DIR\lib\libssl.lib $OPENSSL_ROOT_DIR\lib\libssl.a
+            Add-Content $env:GITHUB_ENV "OPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR"
 
         - id: setup_hip_windows
           name: Install
@@ -779,7 +783,7 @@ jobs:
             (Get-Content CMakeLists.txt ) -replace 'LIBRARY undreamai', 'LIBRARY undreamai_windows-hip' | Set-Content CMakeLists.txt
             (Get-Content llama.cpp/ggml/src/CMakeLists.txt ) -replace 'FATAL_ERROR', 'WARNING' | Set-Content llama.cpp/ggml/src/CMakeLists.txt
             cd build
-            cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DGGML_HIPBLAS=ON ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+            cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
 
