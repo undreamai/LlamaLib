@@ -548,8 +548,6 @@ jobs:
             defines: '-DGGML_AVX512=ON'
           - build: 'vulkan'
             defines: '-DGGML_VULKAN=ON'
-          - build: 'arm64'
-            defines: '-G Ninja -D CMAKE_TOOLCHAIN_FILE=../llama.cpp/cmake/arm64-windows-llvm.cmake'
           - build: 'cuda-cu11.7.1'
             defines: '-DGGML_CUDA=ON'
             minimise: 'GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS'
@@ -601,12 +599,6 @@ jobs:
             mkdir .\build\libs\Release
             cp ${env:RUNNER_TEMP}/VulkanRT*\x64\vulkan-1.dll .\build\libs\Release
 
-        - id: setup_ninja_windows
-          if: matrix.build == 'arm64'
-          name: Install Ninja
-          run: |
-            choco install ninja
-
         - id: setup_ninja_openssl
           name: Install OpenSSL
           run: |
@@ -655,7 +647,7 @@ jobs:
 
 
         - id: move_files_windows
-          if: matrix.build == 'arm64' || startsWith(matrix.build, 'hip')
+          if: startsWith(matrix.build, 'hip')
           name: Move files to Release folder
           run: |
             mkdir build/Release
@@ -792,7 +784,7 @@ jobs:
 
 
         - id: move_files_windows
-          if: matrix.build == 'arm64' || startsWith(matrix.build, 'hip')
+          if: startsWith(matrix.build, 'hip')
           name: Move files to Release folder
           run: |
             mkdir build/Release

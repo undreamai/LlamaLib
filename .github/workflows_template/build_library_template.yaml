@@ -208,8 +208,6 @@ jobs:
             defines: '-DGGML_AVX512=ON'
           - build: 'vulkan'
             defines: '-DGGML_VULKAN=ON'
-          - build: 'arm64'
-            defines: '-G Ninja -D CMAKE_TOOLCHAIN_FILE=../llama.cpp/cmake/arm64-windows-llvm.cmake'
           - build: 'cuda-cu11.7.1'
             defines: '-DGGML_CUDA=ON'
             minimise: 'GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS'
@@ -225,7 +223,6 @@ jobs:
         @@checkout@@
         @@setup_llama_cpp_windows@@
         @@setup_vulcan_windows@@
-        @@setup_ninja_windows@@
         @@setup_ninja_openssl@@
         @@set_cuda_var_windows@@
         @@prepare_cuda@@

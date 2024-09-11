@@ -225,12 +225,6 @@ jobs:
           mkdir .\build\libs\Release
           cp ${env:RUNNER_TEMP}/VulkanRT*\x64\vulkan-1.dll .\build\libs\Release
 
-      - name: Install Ninja
-        id: setup_ninja_windows
-        if: matrix.build == 'arm64'
-        run: |
-          choco install ninja
-
       - name: Install OpenSSL
         id: setup_ninja_openssl
         run: |
@@ -264,7 +258,7 @@ jobs:
 
       - name: Move files to Release folder
         id: move_files_windows
-        if: matrix.build == 'arm64' || startsWith(matrix.build, 'hip')
+        if: startsWith(matrix.build, 'hip')
         run: |
           mkdir build/Release
           mkdir build/libs/Release
