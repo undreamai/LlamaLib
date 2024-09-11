@@ -237,8 +237,7 @@ jobs:
           choco install openssl --no-progress
           $OPENSSL_ROOT_DIR = 'C:\Program Files\OpenSSL'
           Add-Content $env:GITHUB_ENV "OPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR"
-          Copy-Item $OPENSSL_ROOT_DIR\lib\VC\x64\MD\libcrypto.lib $OPENSSL_ROOT_DIR\lib\
-          Copy-Item $OPENSSL_ROOT_DIR\lib\VC\x64\MD\libssl.lib $OPENSSL_ROOT_DIR\lib\
+          Copy-Item $OPENSSL_ROOT_DIR\lib\VC\x64\MD\*.lib $OPENSSL_ROOT_DIR\lib\
 
       - name: Get number of CPU cores
         id: cpu-cores

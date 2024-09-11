@@ -613,8 +613,7 @@ jobs:
             choco install openssl --no-progress
             $OPENSSL_ROOT_DIR = 'C:\Program Files\OpenSSL'
             Add-Content $env:GITHUB_ENV "OPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR"
-            Copy-Item $OPENSSL_ROOT_DIR\lib\VC\x64\MD\libcrypto.lib $OPENSSL_ROOT_DIR\lib\
-            Copy-Item $OPENSSL_ROOT_DIR\lib\VC\x64\MD\libssl.lib $OPENSSL_ROOT_DIR\lib\
+            Copy-Item $OPENSSL_ROOT_DIR\lib\VC\x64\MD\*.lib $OPENSSL_ROOT_DIR\lib\
 
         - id: set_cuda_var_windows
           if: startsWith(matrix.build, 'cuda')
@@ -762,8 +761,7 @@ jobs:
             choco install openssl --no-progress
             $OPENSSL_ROOT_DIR = 'C:\Program Files\OpenSSL'
             Add-Content $env:GITHUB_ENV "OPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR"
-            Copy-Item $OPENSSL_ROOT_DIR\lib\VC\x64\MD\libcrypto.lib $OPENSSL_ROOT_DIR\lib\
-            Copy-Item $OPENSSL_ROOT_DIR\lib\VC\x64\MD\libssl.lib $OPENSSL_ROOT_DIR\lib\
+            Copy-Item $OPENSSL_ROOT_DIR\lib\VC\x64\MD\*.lib $OPENSSL_ROOT_DIR\lib\
 
         - id: setup_hip_windows
           name: Install
