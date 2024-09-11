@@ -93,6 +93,26 @@ std::vector<std::string> LLM::splitArguments(const std::string& inputString) {
     return arguments;
 }
 
+#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
+EVP_PKEY* LLM::load_key(const std::string& key_str) {
+    BIO *bio = BIO_new_mem_buf(key_str.data(), (int) key_str.size());
+    if (!bio) return NULL;
+    EVP_PKEY *key = PEM_read_bio_PrivateKey(bio, NULL, 0, NULL);
+    BIO_free(bio);
+    return key;
+}
+
+X509* LLM::load_cert(const std::string& cert_str) {
+    BIO *bio = BIO_new_mem_buf(cert_str.data(), (int) cert_str.size());
+    if (!bio) return NULL;
+    X509 *cert = (cert_str[0] == '-')
+                 ? PEM_read_bio_X509(bio, NULL, NULL, NULL)
+                 : d2i_X509_bio(bio, NULL);
+    BIO_free(bio);
+    return cert;
+}
+#endif
+
 LLM::LLM(std::string params_string){
     std::vector<std::string> arguments = splitArguments("llm " + params_string);
 
@@ -226,6 +246,11 @@ void LLM::start_server(){
         LOG_INFO("Running with SSL", {{"key", params.ssl_file_key}, {"cert", params.ssl_file_cert}});
         svr.reset(
             new httplib::SSLServer(params.ssl_file_cert.c_str(), params.ssl_file_key.c_str())
+        );
+    } else if (SSL_cert != "" && SSL_key != "") {
+        LOG_INFO("Running with SSL", {});
+        svr.reset(
+            new httplib::SSLServer(load_cert(SSL_cert), load_key(SSL_key))
         );
     } else {
         LOG_INFO("Running without SSL", {});
@@ -424,6 +449,14 @@ bool LLM::is_running(){
 
 void LLM::set_template(const char* chatTemplate){
     this->chatTemplate = chatTemplate;
+}
+
+void LLM::set_SSL(const char* SSL_cert, const char* SSL_key){
+#ifndef CPPHTTPLIB_OPENSSL_SUPPORT
+    throw std::runtime_error("SSL is not supported in this build");
+#endif
+    this->SSL_cert = SSL_cert;
+    this->SSL_key = SSL_key;
 }
 
 
@@ -855,6 +888,10 @@ const void LLM_Stop(LLM* llm) {
 
 const void LLM_SetTemplate(LLM* llm, const char* chatTemplate){
     llm->set_template(chatTemplate);
+}
+
+const void LLM_SetSSL(LLM* llm, const char* SSL_cert, const char* SSL_key){
+    llm->set_SSL(SSL_cert, SSL_key);
 }
 
 const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper){
