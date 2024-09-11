@@ -11,6 +11,10 @@
     #define sigsetjmp(jb, savemask) setjmp(jb)
     #define siglongjmp longjmp
 #endif
+#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
+    #include <openssl/err.h>
+    #include <openssl/ssl.h>
+#endif
 
 int exit_code = 1;
 int warning_code = -1;
@@ -24,6 +28,10 @@ class LLM {
         LLM(int argc, char ** argv);
         std::string chatTemplate;
 
+#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
+        static EVP_PKEY *load_key(const std::string& key_str);
+        static X509 *load_cert(const std::string& cert_str);
+#endif
         static std::vector<std::string> splitArguments(const std::string& inputString);
         int get_status();
         std::string get_status_message();
@@ -43,6 +51,7 @@ class LLM {
         void start_service();
         void stop_service();
         void set_template(const char* chatTemplate);
+        void set_SSL(const char* SSL_cert, const char* SSL_key);
         bool is_running();
 
     private:
@@ -52,6 +61,8 @@ class LLM {
         std::thread server_thread;
         std::unique_ptr<httplib::Server> svr;
         std::thread t;
+        std::string SSL_cert = "";
+        std::string SSL_key = "";
 
         void parse_args(std::string params_string);
         void init(int argc, char ** argv);
@@ -87,6 +98,7 @@ extern "C" {
     UNDREAMAI_API const void LLM_StartServer(LLM* llm);
     UNDREAMAI_API const void LLM_StopServer(LLM* llm);
     UNDREAMAI_API const void LLM_SetTemplate(LLM* llm, const char* chatTemplate);
+    UNDREAMAI_API const void LLM_SetSSL(LLM* llm, const char* SSL_cert, const char* SSL_key);
     UNDREAMAI_API const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
     UNDREAMAI_API const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
     UNDREAMAI_API const void LLM_Embeddings(LLM* llm, const char* json_data, StringWrapper* wrapper);
