@@ -605,8 +605,8 @@ jobs:
             choco install openssl --no-progress
             $OPENSSL_ROOT_DIR = 'C:\Program Files\OpenSSL'
             Copy-Item $OPENSSL_ROOT_DIR\lib\VC\x64\MD\*.lib $OPENSSL_ROOT_DIR\lib\
-            Copy-Item $OPENSSL_ROOT_DIR\lib\libcrypto.lib $OPENSSL_ROOT_DIR\lib\libcrypto.a
-            Copy-Item $OPENSSL_ROOT_DIR\lib\libssl.lib $OPENSSL_ROOT_DIR\lib\libssl.a
+            Copy-Item $OPENSSL_ROOT_DIR\lib\libcrypto_static.lib $OPENSSL_ROOT_DIR\lib\libcrypto.a
+            Copy-Item $OPENSSL_ROOT_DIR\lib\libssl_static.lib $OPENSSL_ROOT_DIR\lib\libssl.a
             Add-Content $env:GITHUB_ENV "OPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR"
 
         - id: set_cuda_var_windows
@@ -755,8 +755,8 @@ jobs:
             choco install openssl --no-progress
             $OPENSSL_ROOT_DIR = 'C:\Program Files\OpenSSL'
             Copy-Item $OPENSSL_ROOT_DIR\lib\VC\x64\MD\*.lib $OPENSSL_ROOT_DIR\lib\
-            Copy-Item $OPENSSL_ROOT_DIR\lib\libcrypto.lib $OPENSSL_ROOT_DIR\lib\libcrypto.a
-            Copy-Item $OPENSSL_ROOT_DIR\lib\libssl.lib $OPENSSL_ROOT_DIR\lib\libssl.a
+            Copy-Item $OPENSSL_ROOT_DIR\lib\libcrypto_static.lib $OPENSSL_ROOT_DIR\lib\libcrypto.a
+            Copy-Item $OPENSSL_ROOT_DIR\lib\libssl_static.lib $OPENSSL_ROOT_DIR\lib\libssl.a
             Add-Content $env:GITHUB_ENV "OPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR"
 
         - id: setup_hip_windows
