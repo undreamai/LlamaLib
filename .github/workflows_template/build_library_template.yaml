@@ -2,11 +2,6 @@ name: Build library
 
 on:
   push:
-    paths:
-      - .github/workflows/build_library.yaml
-      - CMakeLists.txt
-      - undreamai.h
-      - undreamai.cpp
     tags:
       - 'v*'
 
