@@ -252,7 +252,7 @@ jobs:
         run: |
           $env:HIP_PATH=$(Resolve-Path 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' | split-path | split-path)
           $env:CMAKE_PREFIX_PATH="${env:HIP_PATH}"
-          (Get-Content CMakeLists.txt ) -replace 'LIBRARY undreamai', 'LIBRARY undreamai_windows-hip' | Set-Content CMakeLists.txt
+          (Get-Content CMakeLists.txt ) -replace 'LIBRARY undreamai', 'LIBRARY undreamai_windows-${{ matrix.build }}' | Set-Content CMakeLists.txt
           (Get-Content llama.cpp/ggml/src/CMakeLists.txt ) -replace 'FATAL_ERROR', 'WARNING' | Set-Content llama.cpp/ggml/src/CMakeLists.txt
           cd build
           cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
