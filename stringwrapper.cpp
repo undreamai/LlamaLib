@@ -33,6 +33,7 @@ void StringWrapper::AddContent(const std::string& input) {
 }
 
 int StringWrapper::GetStringSize(){
+    std::lock_guard<std::mutex> lock(mtx);
     int num = 0;
     if (content != nullptr) num = strlen(content) + 1;
     return num;
