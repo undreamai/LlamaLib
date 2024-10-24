@@ -10,7 +10,7 @@ env:
 
 jobs:
   iOS-build:
-    runs-on: macos-14
+    runs-on: macos-12
 
     env:
       CMAKE_COMMON: '-DGGML_NATIVE=OFF -DGGML_OPENMP=OFF -DGGML_METAL_EMBED_LIBRARY=ON -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=ggml'
@@ -54,8 +54,7 @@ jobs:
             sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_iOS:g" CMakeLists.txt
             export LD_LIBRARY_PATH=""
             cd build
-            cmake -G Xcode .. ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }}
-            // ${{ env.CMAKE_COMMON_DIR }}
+            cmake -G Xcode .. ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j $(sysctl -n hw.logicalcpu) -- CODE_SIGNING_ALLOWED=NO
 
         - id: ls_build
