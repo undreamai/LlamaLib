@@ -54,8 +54,13 @@ jobs:
             sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_iOS:g" CMakeLists.txt
             export LD_LIBRARY_PATH=""
             cd build
-            cmake -G Xcode .. ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+            cmake -G Xcode .. ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }}
+            // ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j $(sysctl -n hw.logicalcpu) -- CODE_SIGNING_ALLOWED=NO
+
+        - id: ls_build
+          name: List Build
+          run: ls -R build
 
         - id: set_upload_name_unix
           name: Set upload name
