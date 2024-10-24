@@ -52,6 +52,7 @@ jobs:
           name: Build
           run: |
             sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_iOS:g" CMakeLists.txt
+            sed -i.bak "s:RUNTIME:BUNDLE:g" CMakeLists.txt
             export LD_LIBRARY_PATH=""
             cd build
             cmake -G Xcode .. ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
