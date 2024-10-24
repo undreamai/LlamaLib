@@ -1,0 +1,85 @@
+name: Build library
+
+on:
+  push:
+
+env:
+  LLAMACPP_VERSION: b3623
+  CMAKE_COMMON_JOBS: '-DGGML_STATIC=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DBUILD_UNDREAMAI_SERVER=ON -DBUILD_SHARED_LIBS=OFF'
+  CMAKE_COMMON_DIR: -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs
+
+jobs:
+  iOS-build:
+    runs-on: macos-14
+
+    env:
+      CMAKE_COMMON: '-DGGML_NATIVE=OFF -DGGML_OPENMP=OFF -DGGML_METAL_EMBED_LIBRARY=ON -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=ggml'
+      PLATFORM: iOS
+
+    steps:
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
+
+        - continue-on-error: true
+          id: setup_libs_macos
+          name: Dependencies
+          run: |
+            brew update
+
+        - id: setup_llama_cpp_linux
+          name: Clone llama.cpp
+          run: |
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+        
+            sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+            sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+            sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
+            sed -i.bak 's:abort():raise(SIGSEGV):g' ggml/src/ggml.c
+            sed -i.bak 's:GGML_NORETURN GGML_ATTRIBUTE_FORMAT://GGML_NORETURN GGML_ATTRIBUTE_FORMAT:g' ggml/include/ggml.h
+        
+            for f in examples/server/public/*;do
+              cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
+            done
+        
+            cd ..
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+
+        - id: cmake_build_iOS
+          name: Build
+          run: |
+            sed -i "s:LIBRARY undreamai:LIBRARY undreamai_iOS:g" CMakeLists.txt
+            export LD_LIBRARY_PATH=""
+            cd build
+            cmake -G Xcode .. ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+            cmake --build . --config Release -j $(sysctl -n hw.logicalcpu) -- CODE_SIGNING_ALLOWED=NO
+
+        - id: set_upload_name_unix
+          name: Set upload name
+          run: |
+            NAME=undreamai-v1.1.12-llamacpp-${{ env.PLATFORM }}
+            if [ "${{ matrix.build }}" != "" ];then NAME=$NAME-${{ matrix.build }}; fi
+            NAME=$NAME.zip
+            echo "UPLOAD_NAME=$NAME" >> $GITHUB_ENV
+            echo "UPLOAD_PATH=$NAME" >> $GITHUB_ENV
+
+        - id: remove_server
+          name: Delete server
+          run: |
+            rm build/libs/undreamai_server
+
+        - id: pack_artifacts_unix
+          name: Pack artifacts
+          run: |
+            rm build/libs/undreamai_test
+            zip -j ${{ env.UPLOAD_NAME }} build/licenses/* build/libs/*
+
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_PATH }}
