@@ -74,7 +74,6 @@ jobs:
         - id: pack_artifacts_iOS
           name: Pack artifacts
           run: |
-            rm build/libs/undreamai_test
             zip -j ${{ env.UPLOAD_NAME }} build/licenses/* build/libs/Release/libundreamai_iOS.dylib
 
         - id: upload
