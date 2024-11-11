@@ -93,7 +93,7 @@ jobs:
 
   linux-hip:
     runs-on: ubuntu-22.04
-    container: rocm/dev-ubuntu-22.04:6.0.2
+    container: rocm/dev-ubuntu-22.04:5.5
 
     env:
         CMAKE_COMMON: '-DGGML_HIPBLAS=ON -DAMDGPU_TARGETS="gfx1030,gfx1031,gfx1032,gfx1100,gfx1101,gfx1102" -DGGML_NATIVE=OFF -DLLAMA_SERVER_SSL=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON'
