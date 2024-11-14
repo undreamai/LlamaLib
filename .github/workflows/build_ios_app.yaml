@@ -18,19 +18,23 @@ jobs:
 
       - name: Download Google Drive folder
         run: |
-          gdown --folder "https://drive.google.com/drive/folders/1t5S4chMSoPFZTxSzoTUGN5PB2ud15I67?usp=sharing" -O ios-app
+          gdown "https://drive.google.com/file/d/1rxP1tweVqbG7n-Yr8-9o1UEf_VCbM1R2/view?usp=sharing" -O ios.zip
+
+      - name: Extract the ZIP file
+        run: |
+          unzip ios.zip
 
       - name: Set up Xcode
         run: sudo xcode-select -s /Applications/Xcode_14.2.app  # Adjust for the Xcode version you're using
 
       - name: Build the .ipa file
         run: |
-          cd ios-app
+          cd ios
           xcodebuild clean build -project Unity-iPhone.xcodeproj -scheme Unity-iPhone -configuration Release -destination 'platform=iOS,arch=arm64' -archivePath $PWD/build/Unity-iPhone.xcarchive clean archive
 
       - name: Export the .ipa file
         run: |
-          cd ios-app
+          cd ios
           xcodebuild -exportArchive -archivePath $PWD/build/Unity-iPhone.xcarchive -exportPath $PWD/build/Unity-iPhone.ipa -exportOptionsPlist ExportOptions.plist
           
       - name: Upload .ipa as an artifact
