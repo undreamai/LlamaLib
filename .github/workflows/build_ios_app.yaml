@@ -24,8 +24,9 @@ jobs:
         run: |
           unzip ios.zip
 
-      - name: Set up Xcode
-        run: sudo xcode-select -s /Applications/Xcode_14.2.app  # Adjust for the Xcode version you're using
+      - name: Ensure Xcode is available
+        run: |
+          xcode-select --install  # Install Xcode command line tools if not installed
 
       - name: Build the .ipa file
         run: |
