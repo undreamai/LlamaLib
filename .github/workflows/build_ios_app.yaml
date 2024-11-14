@@ -24,9 +24,10 @@ jobs:
         run: |
           unzip ios.zip
 
-      - name: Ensure Xcode is available
+      - name: Select Xcode
         run: |
-          xcode-select --install  # Install Xcode command line tools if not installed
+          ls /Applications
+          sudo xcode-select -switch /Applications/Xcode.app
 
       - name: Build the .ipa file
         run: |
