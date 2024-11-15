@@ -41,16 +41,34 @@ jobs:
       - name: Build the .ipa file
         run: |
           cd ios
-          xcodebuild clean build -project Unity-iPhone.xcodeproj -scheme Unity-iPhone -configuration Release -destination 'platform=iOS,arch=arm64' -archivePath $PWD/build/Unity-iPhone.xcarchive clean archive
+          xcodebuild clean archive \
+            -project Unity-iPhone.xcodeproj \
+            -scheme Unity-iPhone \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -archivePath $PWD/build/Unity-iPhone.xcarchive
 
       - name: Export the .ipa file
         run: |
           cd ios
-          xcodebuild -exportArchive -archivePath $PWD/build/Unity-iPhone.xcarchive -exportPath $PWD/build/Unity-iPhone.ipa -exportOptionsPlist ExportOptions.plist
-          
+          echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?> 
+          <plist version=\"1.0\"> 
+          <dict> 
+            <key>method</key> 
+            <string>development</string> 
+            <key>signingStyle</key> 
+            <string>manual</string> 
+            <key>destination</key> 
+            <string>export</string> 
+          </dict> 
+          </plist>" > ExportOptions.plist
+          xcodebuild -exportArchive \
+            -archivePath $PWD/build/Unity-iPhone.xcarchive \
+            -exportPath $PWD/build \
+            -exportOptionsPlist ExportOptions.plist
+
       - name: Upload .ipa as an artifact
         uses: actions/upload-artifact@v3
         with:
           name: iOS-ipa
-          path: $PWD/build/Unity-iPhone.ipa
-          
+          path: ios/build/*.ipa
