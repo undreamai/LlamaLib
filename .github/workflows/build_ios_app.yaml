@@ -29,6 +29,15 @@ jobs:
           ls /Applications
           sudo xcode-select -switch /Applications/Xcode.app
 
+      - name: Decode and Install Code Signing Certificate
+        env:
+          P12_BASE64: ${{ secrets.P12_BASE64 }}
+          CERT_PASSWORD: ${{ secrets.CERT_PASSWORD }}
+        run: |
+          echo "$P12_BASE64" | base64 --decode > signing_certificate.p12
+          security import signing_certificate.p12 -P "$CERT_PASSWORD" -A
+          rm signing_certificate.p12
+
       - name: Build the .ipa file
         run: |
           cd ios
