@@ -46,7 +46,8 @@ jobs:
             -scheme Unity-iPhone \
             -configuration Release \
             -destination "generic/platform=iOS" \
-            -archivePath $PWD/build/Unity-iPhone.xcarchive
+            -archivePath $PWD/build/Unity-iPhone.xcarchive \
+            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
       - name: Export the .ipa file
         run: |
@@ -55,7 +56,7 @@ jobs:
           <plist version=\"1.0\"> 
           <dict> 
             <key>method</key> 
-            <string>development</string> 
+            <string>ad-hoc</string> 
             <key>signingStyle</key> 
             <string>manual</string> 
             <key>destination</key> 
