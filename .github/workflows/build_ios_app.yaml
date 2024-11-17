@@ -49,8 +49,14 @@ jobs:
             -archivePath $PWD/build/Unity-iPhone.xcarchive \
             CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO DEVELOPMENT_TEAM=${{ secrets.TEAM_ID }}
 
+      - name: Build the .ipa file
+        run: |
+          mkdir Payload
+          mv ios/build/Unity-iPhone.xcarchive/Products/Applications/*app Payload
+          zip -r test.iap Payload
+
       - name: Upload .ipa as an artifact
         uses: actions/upload-artifact@v3
         with:
-          name: iOS-ipa
-          path: ios/build/Unity-iPhone.xcarchive
+          name: test.iap
+          path: test.iap
