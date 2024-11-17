@@ -49,38 +49,8 @@ jobs:
             -archivePath $PWD/build/Unity-iPhone.xcarchive \
             CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO DEVELOPMENT_TEAM=${{ secrets.TEAM_ID }}
 
-      - name: Export the .ipa file
-        run: |
-          cd ios
-          echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?> 
-          <plist version=\"1.0\"> 
-          <dict> 
-            <key>method</key> 
-            <string>ad-hoc</string> 
-            <key>signingStyle</key> 
-            <string>manual</string> 
-            <key>destination</key> 
-            <string>export</string> 
-            <key>teamID</key>
-            <string>Your-Team-ID</string>
-            <key>uploadBitcode</key>
-            <true/>
-            <key>uploadSymbols</key>
-            <true/>
-            <key>provisioningProfiles</key>
-            <dict>
-                <key>com.example.yourapp</key>
-                <string>Your Provisioning Profile Name</string>
-            </dict>
-          </dict> 
-          </plist>" > ExportOptions.plist
-          xcodebuild -exportArchive \
-            -archivePath $PWD/build/Unity-iPhone.xcarchive \
-            -exportPath $PWD/build \
-            -exportOptionsPlist ExportOptions.plist
-
       - name: Upload .ipa as an artifact
         uses: actions/upload-artifact@v3
         with:
           name: iOS-ipa
-          path: ios/build/*.ipa
+          path: ios/build/Unity-iPhone.xcarchive
