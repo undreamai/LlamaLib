@@ -53,10 +53,10 @@ jobs:
         run: |
           mkdir Payload
           mv ios/build/Unity-iPhone.xcarchive/Products/Applications/*app Payload
-          zip -r test.iap Payload
+          zip -r test.ipa Payload
 
       - name: Upload .ipa as an artifact
         uses: actions/upload-artifact@v3
         with:
-          name: test.iap
-          path: test.iap
+          name: test.ipa
+          path: test.ipa
