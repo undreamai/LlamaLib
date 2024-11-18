@@ -936,3 +936,8 @@ const int LLM_Status(LLM* llm, StringWrapper* wrapper) {
     return llm->get_status();
 }
 
+const int LLM_Test() {
+    return 100;
+}
+
+    UNDREAMAI_API const int LLM_Test();
