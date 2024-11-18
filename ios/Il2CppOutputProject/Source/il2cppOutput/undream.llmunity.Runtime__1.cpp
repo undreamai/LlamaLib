@@ -6209,76 +6209,76 @@ inline int32_t Task_1_get_ResultOnSuccess_mF098AC108FFA2E0D992306C6D956BA37874FA
 {
 	return ((  int32_t (*) (Task_1_t4C228DE57804012969575431CFF12D57C875552D*, const RuntimeMethod*))Task_1_get_ResultOnSuccess_mF098AC108FFA2E0D992306C6D956BA37874FAC77_gshared_inline)(__this, method);
 }
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C void DEFAULT_CALL Logging(intptr_t);
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C void DEFAULT_CALL StopLogging();
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C intptr_t DEFAULT_CALL LLM_Construct(char*);
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C void DEFAULT_CALL LLM_Delete(intptr_t);
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C void DEFAULT_CALL LLM_StartServer(intptr_t);
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C void DEFAULT_CALL LLM_StopServer(intptr_t);
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C void DEFAULT_CALL LLM_Start(intptr_t);
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C int32_t DEFAULT_CALL LLM_Started(intptr_t);
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C void DEFAULT_CALL LLM_Stop(intptr_t);
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C void DEFAULT_CALL LLM_SetTemplate(intptr_t, char*);
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C void DEFAULT_CALL LLM_SetSSL(intptr_t, char*, char*);
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C void DEFAULT_CALL LLM_Tokenize(intptr_t, char*, intptr_t);
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C void DEFAULT_CALL LLM_Detokenize(intptr_t, char*, intptr_t);
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C void DEFAULT_CALL LLM_Embeddings(intptr_t, char*, intptr_t);
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C void DEFAULT_CALL LLM_Lora_Weight(intptr_t, char*, intptr_t);
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C void DEFAULT_CALL LLM_LoraList(intptr_t, intptr_t);
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C void DEFAULT_CALL LLM_Completion(intptr_t, char*, intptr_t);
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C void DEFAULT_CALL LLM_Slot(intptr_t, char*, intptr_t);
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C void DEFAULT_CALL LLM_Cancel(intptr_t, int32_t);
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C int32_t DEFAULT_CALL LLM_Status(intptr_t, intptr_t);
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C intptr_t DEFAULT_CALL StringWrapper_Construct();
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C void DEFAULT_CALL StringWrapper_Delete(intptr_t);
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C int32_t DEFAULT_CALL StringWrapper_GetStringSize(intptr_t);
 #endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C void DEFAULT_CALL StringWrapper_GetString(intptr_t, intptr_t, int32_t, int32_t);
 #endif
 #ifdef __clang__
@@ -7414,17 +7414,17 @@ IL_0043:
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_Logging_m8F5EC2BFDDDCA60E124A36941A08EF10875C7684 (intptr_t ___0_stringWrapper, const RuntimeMethod* method) 
 {
 	typedef void (DEFAULT_CALL *PInvokeFunc) (intptr_t);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = sizeof(intptr_t);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "Logging", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "Logging", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	reinterpret_cast<PInvokeFunc>(Logging)(___0_stringWrapper);
 	#else
 	il2cppPInvokeFunc(___0_stringWrapper);
@@ -7434,17 +7434,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_Logging_m8F5EC2BFDDDCA60E124A3694
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_StopLogging_m9C2915EECE7071449E35BD7F4715EBC595F60C2D (const RuntimeMethod* method) 
 {
 	typedef void (DEFAULT_CALL *PInvokeFunc) ();
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = 0;
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "StopLogging", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "StopLogging", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	reinterpret_cast<PInvokeFunc>(StopLogging)();
 	#else
 	il2cppPInvokeFunc();
@@ -7454,12 +7454,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_StopLogging_m9C2915EECE7071449E35
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR intptr_t LLMLib_LLM_Construct_mCBEFCD7C3C9D6B3CAD7DAC4516B6974C96CBDC4C (String_t* ___0_command, const RuntimeMethod* method) 
 {
 	typedef intptr_t (DEFAULT_CALL *PInvokeFunc) (char*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = sizeof(char*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "LLM_Construct", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "LLM_Construct", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
@@ -7467,7 +7467,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR intptr_t LLMLib_LLM_Construct_mCBEFCD7C3C9D6B
 	char* ____0_command_marshaled = NULL;
 	____0_command_marshaled = il2cpp_codegen_marshal_string(___0_command);
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	intptr_t returnValue = reinterpret_cast<PInvokeFunc>(LLM_Construct)(____0_command_marshaled);
 	#else
 	intptr_t returnValue = il2cppPInvokeFunc(____0_command_marshaled);
@@ -7481,17 +7481,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR intptr_t LLMLib_LLM_Construct_mCBEFCD7C3C9D6B
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Delete_mB2226DA782DE3EBD8B858AEE5E3D98EBF754D93A (intptr_t ___0_LLMObject, const RuntimeMethod* method) 
 {
 	typedef void (DEFAULT_CALL *PInvokeFunc) (intptr_t);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = sizeof(intptr_t);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "LLM_Delete", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "LLM_Delete", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	reinterpret_cast<PInvokeFunc>(LLM_Delete)(___0_LLMObject);
 	#else
 	il2cppPInvokeFunc(___0_LLMObject);
@@ -7501,17 +7501,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Delete_mB2226DA782DE3EBD8B858
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_StartServer_mEA8D3D2598DE6167A907D865DC42C737829D3AC8 (intptr_t ___0_LLMObject, const RuntimeMethod* method) 
 {
 	typedef void (DEFAULT_CALL *PInvokeFunc) (intptr_t);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = sizeof(intptr_t);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "LLM_StartServer", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "LLM_StartServer", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	reinterpret_cast<PInvokeFunc>(LLM_StartServer)(___0_LLMObject);
 	#else
 	il2cppPInvokeFunc(___0_LLMObject);
@@ -7521,17 +7521,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_StartServer_mEA8D3D2598DE6167
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_StopServer_m0B4BBFA651294F4FAB627DB0AA9718DC7BCB4B37 (intptr_t ___0_LLMObject, const RuntimeMethod* method) 
 {
 	typedef void (DEFAULT_CALL *PInvokeFunc) (intptr_t);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = sizeof(intptr_t);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "LLM_StopServer", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "LLM_StopServer", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	reinterpret_cast<PInvokeFunc>(LLM_StopServer)(___0_LLMObject);
 	#else
 	il2cppPInvokeFunc(___0_LLMObject);
@@ -7541,17 +7541,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_StopServer_m0B4BBFA651294F4FA
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Start_m743DA675ABFD3C1E33E5F5FC69B264501397F513 (intptr_t ___0_LLMObject, const RuntimeMethod* method) 
 {
 	typedef void (DEFAULT_CALL *PInvokeFunc) (intptr_t);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = sizeof(intptr_t);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "LLM_Start", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "LLM_Start", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	reinterpret_cast<PInvokeFunc>(LLM_Start)(___0_LLMObject);
 	#else
 	il2cppPInvokeFunc(___0_LLMObject);
@@ -7561,17 +7561,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Start_m743DA675ABFD3C1E33E5F5
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool LLMLib_LLM_Started_m625C171A143FDB9077F7501308B9722A62DC3322 (intptr_t ___0_LLMObject, const RuntimeMethod* method) 
 {
 	typedef int32_t (DEFAULT_CALL *PInvokeFunc) (intptr_t);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = sizeof(intptr_t);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "LLM_Started", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "LLM_Started", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	int32_t returnValue = reinterpret_cast<PInvokeFunc>(LLM_Started)(___0_LLMObject);
 	#else
 	int32_t returnValue = il2cppPInvokeFunc(___0_LLMObject);
@@ -7582,17 +7582,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool LLMLib_LLM_Started_m625C171A143FDB9077F7
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Stop_m40CC327213341F49B71196BD6AEB714084E43E5E (intptr_t ___0_LLMObject, const RuntimeMethod* method) 
 {
 	typedef void (DEFAULT_CALL *PInvokeFunc) (intptr_t);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = sizeof(intptr_t);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "LLM_Stop", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "LLM_Stop", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	reinterpret_cast<PInvokeFunc>(LLM_Stop)(___0_LLMObject);
 	#else
 	il2cppPInvokeFunc(___0_LLMObject);
@@ -7602,12 +7602,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Stop_m40CC327213341F49B71196B
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_SetTemplate_m679ADE96542EEF213B78EFF09EE31AB10C8B71A6 (intptr_t ___0_LLMObject, String_t* ___1_chatTemplate, const RuntimeMethod* method) 
 {
 	typedef void (DEFAULT_CALL *PInvokeFunc) (intptr_t, char*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = sizeof(intptr_t) + sizeof(char*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "LLM_SetTemplate", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "LLM_SetTemplate", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
@@ -7615,7 +7615,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_SetTemplate_m679ADE96542EEF21
 	char* ____1_chatTemplate_marshaled = NULL;
 	____1_chatTemplate_marshaled = il2cpp_codegen_marshal_string(___1_chatTemplate);
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	reinterpret_cast<PInvokeFunc>(LLM_SetTemplate)(___0_LLMObject, ____1_chatTemplate_marshaled);
 	#else
 	il2cppPInvokeFunc(___0_LLMObject, ____1_chatTemplate_marshaled);
@@ -7628,12 +7628,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_SetTemplate_m679ADE96542EEF21
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_SetSSL_m855F64469DC688FB3E6F93868868356FB67FC199 (intptr_t ___0_LLMObject, String_t* ___1_SSLCert, String_t* ___2_SSLKey, const RuntimeMethod* method) 
 {
 	typedef void (DEFAULT_CALL *PInvokeFunc) (intptr_t, char*, char*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = sizeof(intptr_t) + sizeof(char*) + sizeof(char*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "LLM_SetSSL", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "LLM_SetSSL", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
@@ -7644,7 +7644,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_SetSSL_m855F64469DC688FB3E6F9
 	char* ____2_SSLKey_marshaled = NULL;
 	____2_SSLKey_marshaled = il2cpp_codegen_marshal_string(___2_SSLKey);
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	reinterpret_cast<PInvokeFunc>(LLM_SetSSL)(___0_LLMObject, ____1_SSLCert_marshaled, ____2_SSLKey_marshaled);
 	#else
 	il2cppPInvokeFunc(___0_LLMObject, ____1_SSLCert_marshaled, ____2_SSLKey_marshaled);
@@ -7660,12 +7660,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_SetSSL_m855F64469DC688FB3E6F9
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Tokenize_m5EE7E5B4E0E4468B74D9F1DE5A01B282192B5048 (intptr_t ___0_LLMObject, String_t* ___1_jsonData, intptr_t ___2_stringWrapper, const RuntimeMethod* method) 
 {
 	typedef void (DEFAULT_CALL *PInvokeFunc) (intptr_t, char*, intptr_t);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = sizeof(intptr_t) + sizeof(char*) + sizeof(intptr_t);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "LLM_Tokenize", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "LLM_Tokenize", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
@@ -7673,7 +7673,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Tokenize_m5EE7E5B4E0E4468B74D
 	char* ____1_jsonData_marshaled = NULL;
 	____1_jsonData_marshaled = il2cpp_codegen_marshal_string(___1_jsonData);
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	reinterpret_cast<PInvokeFunc>(LLM_Tokenize)(___0_LLMObject, ____1_jsonData_marshaled, ___2_stringWrapper);
 	#else
 	il2cppPInvokeFunc(___0_LLMObject, ____1_jsonData_marshaled, ___2_stringWrapper);
@@ -7686,12 +7686,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Tokenize_m5EE7E5B4E0E4468B74D
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Detokenize_m0B658E220474AF3DAF47FB998803E03CE2CD4618 (intptr_t ___0_LLMObject, String_t* ___1_jsonData, intptr_t ___2_stringWrapper, const RuntimeMethod* method) 
 {
 	typedef void (DEFAULT_CALL *PInvokeFunc) (intptr_t, char*, intptr_t);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = sizeof(intptr_t) + sizeof(char*) + sizeof(intptr_t);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "LLM_Detokenize", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "LLM_Detokenize", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
@@ -7699,7 +7699,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Detokenize_m0B658E220474AF3DA
 	char* ____1_jsonData_marshaled = NULL;
 	____1_jsonData_marshaled = il2cpp_codegen_marshal_string(___1_jsonData);
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	reinterpret_cast<PInvokeFunc>(LLM_Detokenize)(___0_LLMObject, ____1_jsonData_marshaled, ___2_stringWrapper);
 	#else
 	il2cppPInvokeFunc(___0_LLMObject, ____1_jsonData_marshaled, ___2_stringWrapper);
@@ -7712,12 +7712,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Detokenize_m0B658E220474AF3DA
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Embeddings_mCBD89E19943001104A151B2CA9AD354D14506A55 (intptr_t ___0_LLMObject, String_t* ___1_jsonData, intptr_t ___2_stringWrapper, const RuntimeMethod* method) 
 {
 	typedef void (DEFAULT_CALL *PInvokeFunc) (intptr_t, char*, intptr_t);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = sizeof(intptr_t) + sizeof(char*) + sizeof(intptr_t);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "LLM_Embeddings", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "LLM_Embeddings", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
@@ -7725,7 +7725,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Embeddings_mCBD89E19943001104
 	char* ____1_jsonData_marshaled = NULL;
 	____1_jsonData_marshaled = il2cpp_codegen_marshal_string(___1_jsonData);
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	reinterpret_cast<PInvokeFunc>(LLM_Embeddings)(___0_LLMObject, ____1_jsonData_marshaled, ___2_stringWrapper);
 	#else
 	il2cppPInvokeFunc(___0_LLMObject, ____1_jsonData_marshaled, ___2_stringWrapper);
@@ -7738,12 +7738,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Embeddings_mCBD89E19943001104
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Lora_Weight_mFB713DA33694A3CD8B4395397210C541BF412D8E (intptr_t ___0_LLMObject, String_t* ___1_jsonData, intptr_t ___2_stringWrapper, const RuntimeMethod* method) 
 {
 	typedef void (DEFAULT_CALL *PInvokeFunc) (intptr_t, char*, intptr_t);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = sizeof(intptr_t) + sizeof(char*) + sizeof(intptr_t);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "LLM_Lora_Weight", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "LLM_Lora_Weight", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
@@ -7751,7 +7751,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Lora_Weight_mFB713DA33694A3CD
 	char* ____1_jsonData_marshaled = NULL;
 	____1_jsonData_marshaled = il2cpp_codegen_marshal_string(___1_jsonData);
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	reinterpret_cast<PInvokeFunc>(LLM_Lora_Weight)(___0_LLMObject, ____1_jsonData_marshaled, ___2_stringWrapper);
 	#else
 	il2cppPInvokeFunc(___0_LLMObject, ____1_jsonData_marshaled, ___2_stringWrapper);
@@ -7764,17 +7764,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Lora_Weight_mFB713DA33694A3CD
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_LoraList_m59F31B3874926715DD98197285A79DD71C7F9E2E (intptr_t ___0_LLMObject, intptr_t ___1_stringWrapper, const RuntimeMethod* method) 
 {
 	typedef void (DEFAULT_CALL *PInvokeFunc) (intptr_t, intptr_t);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = sizeof(intptr_t) + sizeof(intptr_t);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "LLM_LoraList", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "LLM_LoraList", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	reinterpret_cast<PInvokeFunc>(LLM_LoraList)(___0_LLMObject, ___1_stringWrapper);
 	#else
 	il2cppPInvokeFunc(___0_LLMObject, ___1_stringWrapper);
@@ -7784,12 +7784,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_LoraList_m59F31B3874926715DD9
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Completion_mB635E0429063C23A12F600C5CAF0C840194C7062 (intptr_t ___0_LLMObject, String_t* ___1_jsonData, intptr_t ___2_stringWrapper, const RuntimeMethod* method) 
 {
 	typedef void (DEFAULT_CALL *PInvokeFunc) (intptr_t, char*, intptr_t);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = sizeof(intptr_t) + sizeof(char*) + sizeof(intptr_t);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "LLM_Completion", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "LLM_Completion", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
@@ -7797,7 +7797,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Completion_mB635E0429063C23A1
 	char* ____1_jsonData_marshaled = NULL;
 	____1_jsonData_marshaled = il2cpp_codegen_marshal_string(___1_jsonData);
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	reinterpret_cast<PInvokeFunc>(LLM_Completion)(___0_LLMObject, ____1_jsonData_marshaled, ___2_stringWrapper);
 	#else
 	il2cppPInvokeFunc(___0_LLMObject, ____1_jsonData_marshaled, ___2_stringWrapper);
@@ -7810,12 +7810,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Completion_mB635E0429063C23A1
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Slot_m920D469A34B08525FD0C303621A6D29F3C6C1FDA (intptr_t ___0_LLMObject, String_t* ___1_jsonData, intptr_t ___2_stringWrapper, const RuntimeMethod* method) 
 {
 	typedef void (DEFAULT_CALL *PInvokeFunc) (intptr_t, char*, intptr_t);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = sizeof(intptr_t) + sizeof(char*) + sizeof(intptr_t);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "LLM_Slot", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "LLM_Slot", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
@@ -7823,7 +7823,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Slot_m920D469A34B08525FD0C303
 	char* ____1_jsonData_marshaled = NULL;
 	____1_jsonData_marshaled = il2cpp_codegen_marshal_string(___1_jsonData);
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	reinterpret_cast<PInvokeFunc>(LLM_Slot)(___0_LLMObject, ____1_jsonData_marshaled, ___2_stringWrapper);
 	#else
 	il2cppPInvokeFunc(___0_LLMObject, ____1_jsonData_marshaled, ___2_stringWrapper);
@@ -7836,17 +7836,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Slot_m920D469A34B08525FD0C303
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Cancel_m087479C9FB0DC26F2FD68784E661089BE06916D1 (intptr_t ___0_LLMObject, int32_t ___1_idSlot, const RuntimeMethod* method) 
 {
 	typedef void (DEFAULT_CALL *PInvokeFunc) (intptr_t, int32_t);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = sizeof(intptr_t) + sizeof(int32_t);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "LLM_Cancel", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "LLM_Cancel", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	reinterpret_cast<PInvokeFunc>(LLM_Cancel)(___0_LLMObject, ___1_idSlot);
 	#else
 	il2cppPInvokeFunc(___0_LLMObject, ___1_idSlot);
@@ -7856,17 +7856,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_LLM_Cancel_m087479C9FB0DC26F2FD68
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t LLMLib_LLM_Status_mF495376D2C3E56A6F16101093E7F27474E578891 (intptr_t ___0_LLMObject, intptr_t ___1_stringWrapper, const RuntimeMethod* method) 
 {
 	typedef int32_t (DEFAULT_CALL *PInvokeFunc) (intptr_t, intptr_t);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = sizeof(intptr_t) + sizeof(intptr_t);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "LLM_Status", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "LLM_Status", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	int32_t returnValue = reinterpret_cast<PInvokeFunc>(LLM_Status)(___0_LLMObject, ___1_stringWrapper);
 	#else
 	int32_t returnValue = il2cppPInvokeFunc(___0_LLMObject, ___1_stringWrapper);
@@ -7877,17 +7877,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t LLMLib_LLM_Status_mF495376D2C3E56A6F1
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR intptr_t LLMLib_StringWrapper_Construct_m40E599F679C85B10041E9A2AF43DF6FDEC8B8588 (const RuntimeMethod* method) 
 {
 	typedef intptr_t (DEFAULT_CALL *PInvokeFunc) ();
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = 0;
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "StringWrapper_Construct", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "StringWrapper_Construct", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	intptr_t returnValue = reinterpret_cast<PInvokeFunc>(StringWrapper_Construct)();
 	#else
 	intptr_t returnValue = il2cppPInvokeFunc();
@@ -7898,17 +7898,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR intptr_t LLMLib_StringWrapper_Construct_m40E5
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_StringWrapper_Delete_mDE1F7C29599E2072C95A2BA7DC873883720C3405 (intptr_t ___0_instance, const RuntimeMethod* method) 
 {
 	typedef void (DEFAULT_CALL *PInvokeFunc) (intptr_t);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = sizeof(intptr_t);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "StringWrapper_Delete", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "StringWrapper_Delete", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	reinterpret_cast<PInvokeFunc>(StringWrapper_Delete)(___0_instance);
 	#else
 	il2cppPInvokeFunc(___0_instance);
@@ -7918,17 +7918,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_StringWrapper_Delete_mDE1F7C29599
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t LLMLib_StringWrapper_GetStringSize_mC321904BD7D44450294BA0825669383E469CFB07 (intptr_t ___0_instance, const RuntimeMethod* method) 
 {
 	typedef int32_t (DEFAULT_CALL *PInvokeFunc) (intptr_t);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = sizeof(intptr_t);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "StringWrapper_GetStringSize", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "StringWrapper_GetStringSize", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	int32_t returnValue = reinterpret_cast<PInvokeFunc>(StringWrapper_GetStringSize)(___0_instance);
 	#else
 	int32_t returnValue = il2cppPInvokeFunc(___0_instance);
@@ -7939,17 +7939,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t LLMLib_StringWrapper_GetStringSize_mC
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_StringWrapper_GetString_m3705C5B9530E263993DEAD40915FD0E00A6779C9 (intptr_t ___0_instance, intptr_t ___1_buffer, int32_t ___2_bufferSize, bool ___3_clear, const RuntimeMethod* method) 
 {
 	typedef void (DEFAULT_CALL *PInvokeFunc) (intptr_t, intptr_t, int32_t, int32_t);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	static PInvokeFunc il2cppPInvokeFunc;
 	if (il2cppPInvokeFunc == NULL)
 	{
 		int parameterSize = sizeof(intptr_t) + sizeof(intptr_t) + sizeof(int32_t) + 4;
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_avx2"), "StringWrapper_GetString", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "StringWrapper_GetString", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
 		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
 	}
 	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_avx2_INTERNAL
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 	reinterpret_cast<PInvokeFunc>(StringWrapper_GetString)(___0_instance, ___1_buffer, ___2_bufferSize, static_cast<int32_t>(___3_clear));
 	#else
 	il2cppPInvokeFunc(___0_instance, ___1_buffer, ___2_bufferSize, static_cast<int32_t>(___3_clear));
