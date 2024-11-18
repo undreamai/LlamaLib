@@ -5948,6 +5948,9 @@ inline void List_1_AddWithResize_mE759F6365F7F10866A2A0730427ABADFCB31F123 (List
 {
 	((  void (*) (List_1_t524AA52218730C1F34ECD6B5431C1EF28C50E95B*, ValueTuple_2_t973F7AB0EF5DD3619E518A966941F10D8098F52D, const RuntimeMethod*))List_1_AddWithResize_mE759F6365F7F10866A2A0730427ABADFCB31F123_gshared)(__this, ___0_item, method);
 }
+IL2CPP_EXTERN_C intptr_t DEFAULT_CALL dlopen(char*, int32_t);
+IL2CPP_EXTERN_C intptr_t DEFAULT_CALL dlsym(intptr_t, char*);
+IL2CPP_EXTERN_C int32_t DEFAULT_CALL dlclose(intptr_t);
 #if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libSystem_INTERNAL
 IL2CPP_EXTERN_C intptr_t DEFAULT_CALL dlopen(char*, int32_t);
 #endif
@@ -8452,24 +8455,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR intptr_t iOS_dlopen_m3C3C699EA3401284ABA974A3
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR intptr_t iOS_dlopen_mA316DB7BB270535406CCD5669FC26FAEDF3CCDD7 (String_t* ___0_filename, int32_t ___1_flags, const RuntimeMethod* method) 
 {
 	typedef intptr_t (DEFAULT_CALL *PInvokeFunc) (char*, int32_t);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libSystem_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(char*) + sizeof(int32_t);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("/usr/lib/libSystem.dylib"), "dlopen", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
 	char* ____0_filename_marshaled = NULL;
 	____0_filename_marshaled = il2cpp_codegen_marshal_string(___0_filename);
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libSystem_INTERNAL
 	intptr_t returnValue = reinterpret_cast<PInvokeFunc>(dlopen)(____0_filename_marshaled, ___1_flags);
-	#else
-	intptr_t returnValue = il2cppPInvokeFunc(____0_filename_marshaled, ___1_flags);
-	#endif
 
 	il2cpp_codegen_marshal_free(____0_filename_marshaled);
 	____0_filename_marshaled = NULL;
@@ -8479,24 +8469,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR intptr_t iOS_dlopen_mA316DB7BB270535406CCD566
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR intptr_t iOS_dlsym_m8B44EDFF461402D631D61A3A8580986BC3B0CEA4 (intptr_t ___0_handle, String_t* ___1_symbol, const RuntimeMethod* method) 
 {
 	typedef intptr_t (DEFAULT_CALL *PInvokeFunc) (intptr_t, char*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libSystem_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(char*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("/usr/lib/libSystem.dylib"), "dlsym", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
 	char* ____1_symbol_marshaled = NULL;
 	____1_symbol_marshaled = il2cpp_codegen_marshal_string(___1_symbol);
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libSystem_INTERNAL
 	intptr_t returnValue = reinterpret_cast<PInvokeFunc>(dlsym)(___0_handle, ____1_symbol_marshaled);
-	#else
-	intptr_t returnValue = il2cppPInvokeFunc(___0_handle, ____1_symbol_marshaled);
-	#endif
 
 	il2cpp_codegen_marshal_free(____1_symbol_marshaled);
 	____1_symbol_marshaled = NULL;
@@ -8506,21 +8483,8 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR intptr_t iOS_dlsym_m8B44EDFF461402D631D61A3A8
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t iOS_dlclose_m08283BCB73A6E42A38601FB26D1F10244D64C4D2 (intptr_t ___0_handle, const RuntimeMethod* method) 
 {
 	typedef int32_t (DEFAULT_CALL *PInvokeFunc) (intptr_t);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libSystem_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("/usr/lib/libSystem.dylib"), "dlclose", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libSystem_INTERNAL
 	int32_t returnValue = reinterpret_cast<PInvokeFunc>(dlclose)(___0_handle);
-	#else
-	int32_t returnValue = il2cppPInvokeFunc(___0_handle);
-	#endif
 
 	return returnValue;
 }
