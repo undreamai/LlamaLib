@@ -22,7 +22,7 @@ jobs:
 
       - name: Extract the ZIP file
         run: |
-          unzip ios.zip
+          unzip -n ios.zip
 
       - name: Select Xcode
         run: |
