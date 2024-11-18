@@ -24,10 +24,9 @@ jobs:
         run: |
           unzip -n ios.zip
 
-      - name: Select Xcode
+      - name: list dir
         run: |
-          ls /Applications
-          sudo xcode-select -switch /Applications/Xcode.app
+          ls -R ios
 
       - name: Decode and Install Code Signing Certificate
         env:
@@ -38,7 +37,7 @@ jobs:
           security import signing_certificate.p12 -P "$CERT_PASSWORD" -A
           rm signing_certificate.p12
 
-      - name: Build the .ipa file
+      - name: Build the .xcarchive
         run: |
           cd ios
           xcodebuild clean archive \
@@ -49,7 +48,7 @@ jobs:
             -archivePath $PWD/build/Unity-iPhone.xcarchive \
             CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO DEVELOPMENT_TEAM=${{ secrets.TEAM_ID }}
 
-      - name: Build the .ipa file
+      - name: Build the .ipa
         run: |
           mkdir Payload
           mv ios/build/Unity-iPhone.xcarchive/Products/Applications/*app Payload
