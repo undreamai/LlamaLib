@@ -458,6 +458,7 @@ extern void LLMLib_StringWrapper_Construct_m40E599F679C85B10041E9A2AF43DF6FDEC8B
 extern void LLMLib_StringWrapper_Delete_mDE1F7C29599E2072C95A2BA7DC873883720C3405 (void);
 extern void LLMLib_StringWrapper_GetStringSize_mC321904BD7D44450294BA0825669383E469CFB07 (void);
 extern void LLMLib_StringWrapper_GetString_m3705C5B9530E263993DEAD40915FD0E00A6779C9 (void);
+extern void LLMLib_LLM_Test_m5FFB583594E29A6FC4DFE9BD83297EC17CF13586 (void);
 extern void LLMLib__ctor_mBC7D78F35E058BB56E78FB5E1ACFEE10FE3A98E9 (void);
 extern void ModelEntry_GetFilenameOrRelativeAssetPath_m0E6E8AA6623041E7495F330FCFB4987F2DF68CFB (void);
 extern void ModelEntry__ctor_m53202FA5DF06D7294DEE698969BA64A1F8C06CBB (void);
@@ -751,7 +752,7 @@ extern void U3CU3Ec__DisplayClass11_1_U3CPostProgressChangedU3Eb__0_m37401476922
 extern void U3CDownloadBitsAsyncU3Ed__10__ctor_m116FD3F4B9B60F7639CE9F2CF5083C6571BA09C1 (void);
 extern void U3CDownloadBitsAsyncU3Ed__10_MoveNext_mF6CEF9B9A6E325E50C71DBB054EBD501223AD3CE (void);
 extern void U3CDownloadBitsAsyncU3Ed__10_SetStateMachine_m04C5F15F216D9B5B816714A8DA68F5BC7CA382CA (void);
-static Il2CppMethodPointer s_methodPointers[795] = 
+static Il2CppMethodPointer s_methodPointers[796] = 
 {
 	UnitySourceGeneratedAssemblyMonoScriptTypes_v1_Get_mF34FC9A6062BCE7BD3D15F8E78DB061D1279D7E5,
 	UnitySourceGeneratedAssemblyMonoScriptTypes_v1__ctor_m77089F0799E3090E56759791484DA606F99296BD,
@@ -1219,6 +1220,7 @@ static Il2CppMethodPointer s_methodPointers[795] =
 	LLMLib_StringWrapper_Delete_mDE1F7C29599E2072C95A2BA7DC873883720C3405,
 	LLMLib_StringWrapper_GetStringSize_mC321904BD7D44450294BA0825669383E469CFB07,
 	LLMLib_StringWrapper_GetString_m3705C5B9530E263993DEAD40915FD0E00A6779C9,
+	LLMLib_LLM_Test_m5FFB583594E29A6FC4DFE9BD83297EC17CF13586,
 	LLMLib__ctor_mBC7D78F35E058BB56E78FB5E1ACFEE10FE3A98E9,
 	ModelEntry_GetFilenameOrRelativeAssetPath_m0E6E8AA6623041E7495F330FCFB4987F2DF68CFB,
 	ModelEntry__ctor_m53202FA5DF06D7294DEE698969BA64A1F8C06CBB,
@@ -1549,7 +1551,7 @@ static Il2CppMethodPointer s_methodPointers[795] =
 	U3CDownloadBitsAsyncU3Ed__10_MoveNext_mF6CEF9B9A6E325E50C71DBB054EBD501223AD3CE,
 	U3CDownloadBitsAsyncU3Ed__10_SetStateMachine_m04C5F15F216D9B5B816714A8DA68F5BC7CA382CA,
 };
-static const int32_t s_InvokerIndices[795] = 
+static const int32_t s_InvokerIndices[796] = 
 {
 	7126,
 	4828,
@@ -2017,6 +2019,7 @@ static const int32_t s_InvokerIndices[795] =
 	6958,
 	6729,
 	5584,
+	7082,
 	4828,
 	6806,
 	772,
@@ -2360,9 +2363,9 @@ static const Il2CppTokenRangePair s_rgctxIndices[14] =
 	{ 0x0600009C, { 27, 11 } },
 	{ 0x060000D6, { 83, 11 } },
 	{ 0x060000D8, { 94, 4 } },
-	{ 0x060002A1, { 130, 5 } },
-	{ 0x060002A4, { 135, 1 } },
-	{ 0x060002E6, { 136, 1 } },
+	{ 0x060002A2, { 130, 5 } },
+	{ 0x060002A5, { 135, 1 } },
+	{ 0x060002E7, { 136, 1 } },
 };
 extern const uint32_t g_rgctx_Ret_t7572DE5C1A743A52C6AC9ED45664E0FBE05604AC;
 extern const uint32_t g_rgctx_ContentCallback_2_t6C8F53F8CA0195AF79958DF61677171B74DA4D95;
@@ -2645,7 +2648,7 @@ IL2CPP_EXTERN_C const Il2CppCodeGenModule g_undream_llmunity_Runtime_CodeGenModu
 const Il2CppCodeGenModule g_undream_llmunity_Runtime_CodeGenModule = 
 {
 	"undream.llmunity.Runtime.dll",
-	795,
+	796,
 	s_methodPointers,
 	0,
 	NULL,

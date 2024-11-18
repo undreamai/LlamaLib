@@ -6281,6 +6281,9 @@ IL2CPP_EXTERN_C int32_t DEFAULT_CALL StringWrapper_GetStringSize(intptr_t);
 #if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
 IL2CPP_EXTERN_C void DEFAULT_CALL StringWrapper_GetString(intptr_t, intptr_t, int32_t, int32_t);
 #endif
+#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
+IL2CPP_EXTERN_C int32_t DEFAULT_CALL LLM_Test();
+#endif
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
@@ -7955,6 +7958,27 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib_StringWrapper_GetString_m3705C5B9
 	il2cppPInvokeFunc(___0_instance, ___1_buffer, ___2_bufferSize, static_cast<int32_t>(___3_clear));
 	#endif
 
+}
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t LLMLib_LLM_Test_m5FFB583594E29A6FC4DFE9BD83297EC17CF13586 (const RuntimeMethod* method) 
+{
+	typedef int32_t (DEFAULT_CALL *PInvokeFunc) ();
+	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libundreamai_iOS_INTERNAL
+	static PInvokeFunc il2cppPInvokeFunc;
+	if (il2cppPInvokeFunc == NULL)
+	{
+		int parameterSize = 0;
+		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libundreamai_iOS"), "LLM_Test", IL2CPP_CALL_DEFAULT, CHARSET_NOT_SPECIFIED, parameterSize, false);
+		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
+	}
+	#endif
+
+	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libundreamai_iOS_INTERNAL
+	int32_t returnValue = reinterpret_cast<PInvokeFunc>(LLM_Test)();
+	#else
+	int32_t returnValue = il2cppPInvokeFunc();
+	#endif
+
+	return returnValue;
 }
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMLib__ctor_mBC7D78F35E058BB56E78FB5E1ACFEE10FE3A98E9 (LLMLib_t0738C486782C3B4407F1594AFD2AFEB135DA1ABE* __this, const RuntimeMethod* method) 
 {
