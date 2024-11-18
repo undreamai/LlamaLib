@@ -26,6 +26,7 @@ jobs:
 
       - name: list dir
         run: |
+          lipo -info /home/benuix/Downloads/ios/Libraries/Plugins/iOS/libundreamai_iOS.dylib
           ls -R ios
 
       - name: Decode and Install Code Signing Certificate
