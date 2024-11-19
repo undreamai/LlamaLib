@@ -26,7 +26,6 @@ jobs:
 
       - name: list dir
         run: |
-          lipo -info ios/Libraries/Plugins/iOS/libundreamai_iOS.dylib
           ls -R ios
 
       - name: Decode and Install Code Signing Certificate
