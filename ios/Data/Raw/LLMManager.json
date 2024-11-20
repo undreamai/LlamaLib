@@ -1,0 +1,29 @@
+{
+    "downloadOnStart": true,
+    "modelEntries": [
+        {
+            "label": "",
+            "filename": "all-MiniLM-L12-v2.Q4_K_M.gguf",
+            "path": "all-MiniLM-L12-v2.Q4_K_M.gguf",
+            "lora": false,
+            "chatTemplate": "",
+            "url": "https://huggingface.co/leliuga/all-MiniLM-L12-v2-GGUF/resolve/main/all-MiniLM-L12-v2.Q4_K_M.gguf",
+            "embeddingOnly": true,
+            "embeddingLength": 384,
+            "includeInBuild": true,
+            "contextLength": 512
+        },
+        {
+            "label": "",
+            "filename": "qwen2-0_5b-instruct-q4_k_m.gguf",
+            "path": "qwen2-0_5b-instruct-q4_k_m.gguf",
+            "lora": false,
+            "chatTemplate": "chatml",
+            "url": "https://huggingface.co/Qwen/Qwen2-0.5B-Instruct-GGUF/resolve/main/qwen2-0_5b-instruct-q4_k_m.gguf?download=true",
+            "embeddingOnly": false,
+            "embeddingLength": 896,
+            "includeInBuild": true,
+            "contextLength": 32768
+        }
+    ]
+}
