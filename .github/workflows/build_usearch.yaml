@@ -1,0 +1,43 @@
+name: Build usearch
+
+on:
+  push:
+
+jobs:
+  build:
+    name: Create Library for iOS
+    runs-on: macos-12
+
+    steps:
+      - name: clone usearch
+        run: |
+          git clone https://github.com/unum-cloud/usearch.git
+          cd usearch
+          git checkout v2.15.3
+          git submodule update --init --recursive
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "^1.21.0"
+
+      - name: Build library
+        run: |
+          cmake -DCMAKE_BUILD_TYPE=Release \
+                -DUSEARCH_BUILD_LIB_C=1 \
+                -DUSEARCH_BUILD_SQLITE=1 \
+                -DUSEARCH_BUILD_TEST_CPP=0 \
+                -DUSEARCH_BUILD_BENCH_CPP=0 \
+                -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=usearch' \
+                -B ./build_release
+          cmake --build ./build_release --config Release -- CODE_SIGNING_ALLOWED=NO
+
+      - name: list
+        run: |
+            ls -R
+
+      - name: Upload .dylib as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build_release/libusearch_c.dylib
+          path: build_release/libusearch_c.dylib
