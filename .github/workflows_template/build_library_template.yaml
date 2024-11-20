@@ -285,6 +285,26 @@ jobs:
         @@pack_artifacts_unix@@
         @@upload@@
 
+################################ iOS ################################
+
+  ios-build:
+    runs-on: macos-14
+
+    env:
+      CMAKE_COMMON: '-DGGML_METAL_EMBED_LIBRARY=ON -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=ggml'
+      PLATFORM: iOS
+
+    steps:
+        @@checkout@@
+        @@setup_libs_macos@@
+        @@setup_llama_cpp_linux@@
+
+        @@cmake_build_ios@@
+
+        @@set_upload_name_unix@@
+        @@pack_artifacts_ios@@
+        @@upload@@
+
 ################################ Release ################################
 
   create_release:
@@ -300,6 +320,7 @@ jobs:
       - windows-build
       - windows-hip
       - android-build
+      - ios-build
     steps:
         @@checkout@@
         @@download_artifacts@@
