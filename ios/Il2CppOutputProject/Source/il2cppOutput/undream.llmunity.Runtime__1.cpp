@@ -3405,7 +3405,6 @@ struct LLM_t3AAD58C432E418F850C2C601B6B32BA1B1E55305  : public MonoBehaviour_t53
 	String_t* ___loraWeightsPre;
 	bool ___embeddingsOnly;
 	int32_t ___embeddingLength;
-	Callback_1_tADCBFD8F1470636DF54E3D4F006C7B1B2CA65B71* ___debugCallback;
 };
 struct LLMCaller_t3A6BF606A05D9AD660860FB0B38B1C5B89CE4467  : public MonoBehaviour_t532A11E69716D348D8AA7F854AFCBFCB8AD17F71
 {
