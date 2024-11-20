@@ -23,6 +23,7 @@ jobs:
 
       - name: Build library
         run: |
+          cd usearch
           cmake -DCMAKE_BUILD_TYPE=Release \
                 -DUSEARCH_BUILD_LIB_C=1 \
                 -DUSEARCH_BUILD_SQLITE=1 \
@@ -39,5 +40,5 @@ jobs:
       - name: Upload .dylib as an artifact
         uses: actions/upload-artifact@v4
         with:
-          name: build_release/libusearch_c.dylib
-          path: build_release/libusearch_c.dylib
+          name: libusearch_c.dylib
+          path: usearch/build_release/libusearch_c.dylib
