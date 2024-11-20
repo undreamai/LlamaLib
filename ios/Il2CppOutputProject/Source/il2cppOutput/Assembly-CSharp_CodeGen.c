@@ -162,6 +162,7 @@ extern void RAGSample_LoadPhrases_m07BFD256747140BA7AF5EE582E31BDC2C40D9EDE (voi
 extern void RAGSample_CreateEmbeddings_m4308F7F6AF4F813F6701870B3DA48D830645F83E (void);
 extern void RAGSample_onInputFieldSubmit_mAB7F438797D90DE47F6D7C4E1BE46140A2DEDAE6 (void);
 extern void RAGSample_SetAIText_m3AC332DB18BFAD0033444AE6B11B579EE287A732 (void);
+extern void RAGSample_AddAIText_m9F27E9D5B18F60B222DF19CF428BCCD765068190 (void);
 extern void RAGSample_AIReplyComplete_mDD3E8B118F62BF781289E0E0E402E878D60CB40D (void);
 extern void RAGSample_ExitGame_m485A3B7DED72E5EDE08C889ED44F899C4A62ED09 (void);
 extern void RAGSample_CheckLLM_mDA0F775AF6FE017431176BCFC3228F9A74A3D414 (void);
@@ -190,7 +191,7 @@ extern void SimpleInteraction_CancelRequests_m0AD3D8A648AA9784CEA1035292DED56D55
 extern void SimpleInteraction_ExitGame_m91F14426FBA162970335833F371CB2870273F483 (void);
 extern void SimpleInteraction_OnValidate_m04AF5F54760EC4101AABD6555912028B685B2540 (void);
 extern void SimpleInteraction__ctor_mEAECE1AF54FEEF8333EF18AE7EAE391A0E21F750 (void);
-static Il2CppMethodPointer s_methodPointers[178] = 
+static Il2CppMethodPointer s_methodPointers[179] = 
 {
 	UnitySourceGeneratedAssemblyMonoScriptTypes_v1_Get_mBEB95BEB954BB63E9710BBC7AD5E78C4CB0A0033,
 	UnitySourceGeneratedAssemblyMonoScriptTypes_v1__ctor_mE70FB23ACC1EA12ABC948AA22C2E78B2D0AA39B1,
@@ -342,6 +343,7 @@ static Il2CppMethodPointer s_methodPointers[178] =
 	RAGSample_CreateEmbeddings_m4308F7F6AF4F813F6701870B3DA48D830645F83E,
 	RAGSample_onInputFieldSubmit_mAB7F438797D90DE47F6D7C4E1BE46140A2DEDAE6,
 	RAGSample_SetAIText_m3AC332DB18BFAD0033444AE6B11B579EE287A732,
+	RAGSample_AddAIText_m9F27E9D5B18F60B222DF19CF428BCCD765068190,
 	RAGSample_AIReplyComplete_mDD3E8B118F62BF781289E0E0E402E878D60CB40D,
 	RAGSample_ExitGame_m485A3B7DED72E5EDE08C889ED44F899C4A62ED09,
 	RAGSample_CheckLLM_mDA0F775AF6FE017431176BCFC3228F9A74A3D414,
@@ -371,7 +373,7 @@ static Il2CppMethodPointer s_methodPointers[178] =
 	SimpleInteraction_OnValidate_m04AF5F54760EC4101AABD6555912028B685B2540,
 	SimpleInteraction__ctor_mEAECE1AF54FEEF8333EF18AE7EAE391A0E21F750,
 };
-static const int32_t s_InvokerIndices[178] = 
+static const int32_t s_InvokerIndices[179] = 
 {
 	7137,
 	4839,
@@ -523,6 +525,7 @@ static const int32_t s_InvokerIndices[178] =
 	4747,
 	3954,
 	3954,
+	3954,
 	4839,
 	4839,
 	2180,
@@ -556,7 +559,7 @@ IL2CPP_EXTERN_C const Il2CppCodeGenModule g_AssemblyU2DCSharp_CodeGenModule;
 const Il2CppCodeGenModule g_AssemblyU2DCSharp_CodeGenModule = 
 {
 	"Assembly-CSharp.dll",
-	178,
+	179,
 	s_methodPointers,
 	0,
 	NULL,
