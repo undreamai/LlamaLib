@@ -3866,6 +3866,8 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMUnitySetup_LogError_m699765872C2C3A8B
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* String_Concat_m9E3155FB84015C823606188F53B47CB44C444991 (String_t* ___0_str0, String_t* ___1_str1, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLMUnitySetup_LogWarning_m956BF61A26420F76AD8F0551DB0050242EDCB2FB (String_t* ___0_message, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* LLMManager_GetAssetPath_m22E1A389C9B1686015972235D66ACAD0E85AA342 (String_t* ___0_filename, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t Application_get_platform_m59EF7D6155D18891B24767F83F388160B1FF2138 (const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* LLMUnitySetup_GetPersistentAssetPath_m39AD5E8E9EBDCFD3D4D807B8282D491AF766565D (String_t* ___0_relPath, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* LLM_GetLLMManagerAsset_mD12A4A4D6970978AB587874DED04C02CDBBE0540 (String_t* ___0_path, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModelEntry__ctor_m53202FA5DF06D7294DEE698969BA64A1F8C06CBB (ModelEntry_tFE722F7F3BF85D0F432A9CEDDC285EFD8308BF46* __this, String_t* ___0_path, bool ___1_lora, String_t* ___2_label, String_t* ___3_url, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLM_SetTemplate_m06520B78B0909480780EF75DC009F4C65F299920 (LLM_t3AAD58C432E418F850C2C601B6B32BA1B1E55305* __this, String_t* ___0_templateName, bool ___1_setDirty, const RuntimeMethod* method) ;
@@ -3911,7 +3913,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* LLM_ReadFileContents_m0D5AB25B72641
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool String_op_Equality_m030E1B219352228970A076136E455C4E568C02C1 (String_t* ___0_a, String_t* ___1_b, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* LoraManager_GetLoras_mB34102FE4D6B230EFB97BF9447A38D4AE67A556C (LoraManager_tBB4489141E1B8A2D839EDDA27A922A3280A0F3A1* __this, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* String_Concat_m093934F71A9B351911EE46311674ED463B180006 (String_t* ___0_str0, String_t* ___1_str1, String_t* ___2_str2, String_t* ___3_str3, const RuntimeMethod* method) ;
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t Application_get_platform_m59EF7D6155D18891B24767F83F388160B1FF2138 (const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t LLMUnitySetup_AndroidGetNumBigCores_m15249D0380FD74A52F1381D53B3AC32CFC101271 (const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t LLM_GetNumClients_m384ACE749A97E83121EC8B4113C9E93CFF863A0B (LLM_t3AAD58C432E418F850C2C601B6B32BA1B1E55305* __this, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* String_Format_m918500C1EFB475181349A79989BB79BB36102894 (String_t* ___0_format, ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* ___1_args, const RuntimeMethod* method) ;
@@ -5633,6 +5634,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* LLM_GetLLMManagerAssetRuntime_m21FE
 	static bool s_Il2CppMethodInitialized;
 	if (!s_Il2CppMethodInitialized)
 	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Application_tDB03BE91CDF0ACA614A5E0B67CFB77C44EB19B21_il2cpp_TypeInfo_var);
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&LLMManager_t5BB3102D86E1941AE9602C8B4E88BCEB6297415D_il2cpp_TypeInfo_var);
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&LLMUnitySetup_t87C1F2273629F2150115BF0529692DEFCEB4173A_il2cpp_TypeInfo_var);
 		s_Il2CppMethodInitialized = true;
@@ -5643,7 +5645,10 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* LLM_GetLLMManagerAssetRuntime_m21FE
 	String_t* V_3 = NULL;
 	bool V_4 = false;
 	bool V_5 = false;
+	bool V_6 = false;
+	bool V_7 = false;
 	int32_t G_B5_0 = 0;
+	int32_t G_B12_0 = 0;
 	{
 		String_t* L_0 = ___0_path;
 		bool L_1;
@@ -5658,7 +5663,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* LLM_GetLLMManagerAssetRuntime_m21FE
 	{
 		String_t* L_3 = ___0_path;
 		V_3 = L_3;
-		goto IL_004c;
+		goto IL_007f;
 	}
 
 IL_000f:
@@ -5701,7 +5706,7 @@ IL_0027:
 	{
 		String_t* L_11 = V_0;
 		V_3 = L_11;
-		goto IL_004c;
+		goto IL_007f;
 	}
 
 IL_0031:
@@ -5724,20 +5729,78 @@ IL_0031:
 	{
 		String_t* L_17 = V_1;
 		V_3 = L_17;
-		goto IL_004c;
+		goto IL_007f;
 	}
 
 IL_0048:
 	{
-		String_t* L_18 = ___0_path;
-		V_3 = L_18;
-		goto IL_004c;
+		il2cpp_codegen_runtime_class_init_inline(Application_tDB03BE91CDF0ACA614A5E0B67CFB77C44EB19B21_il2cpp_TypeInfo_var);
+		int32_t L_18;
+		L_18 = Application_get_platform_m59EF7D6155D18891B24767F83F388160B1FF2138(NULL);
+		if ((((int32_t)L_18) == ((int32_t)((int32_t)11))))
+		{
+			goto IL_005b;
+		}
+	}
+	{
+		il2cpp_codegen_runtime_class_init_inline(Application_tDB03BE91CDF0ACA614A5E0B67CFB77C44EB19B21_il2cpp_TypeInfo_var);
+		int32_t L_19;
+		L_19 = Application_get_platform_m59EF7D6155D18891B24767F83F388160B1FF2138(NULL);
+		G_B12_0 = ((((int32_t)L_19) == ((int32_t)8))? 1 : 0);
+		goto IL_005c;
 	}
 
-IL_004c:
+IL_005b:
 	{
-		String_t* L_19 = V_3;
-		return L_19;
+		G_B12_0 = 1;
+	}
+
+IL_005c:
+	{
+		V_6 = (bool)G_B12_0;
+		bool L_20 = V_6;
+		if (!L_20)
+		{
+			goto IL_007b;
+		}
+	}
+	{
+		String_t* L_21 = ___0_path;
+		il2cpp_codegen_runtime_class_init_inline(LLMUnitySetup_t87C1F2273629F2150115BF0529692DEFCEB4173A_il2cpp_TypeInfo_var);
+		String_t* L_22;
+		L_22 = LLMUnitySetup_GetPersistentAssetPath_m39AD5E8E9EBDCFD3D4D807B8282D491AF766565D(L_21, NULL);
+		V_1 = L_22;
+		String_t* L_23 = V_1;
+		bool L_24;
+		L_24 = File_Exists_m95E329ABBE3EAD6750FE1989BBA6884457136D4A(L_23, NULL);
+		V_7 = L_24;
+		bool L_25 = V_7;
+		if (!L_25)
+		{
+			goto IL_007a;
+		}
+	}
+	{
+		String_t* L_26 = V_1;
+		V_3 = L_26;
+		goto IL_007f;
+	}
+
+IL_007a:
+	{
+	}
+
+IL_007b:
+	{
+		String_t* L_27 = ___0_path;
+		V_3 = L_27;
+		goto IL_007f;
+	}
+
+IL_007f:
+	{
+		String_t* L_28 = V_3;
+		return L_28;
 	}
 }
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LLM_SetModel_m8162F21B7E46A62BEDCFC9AD143224803BAB4B07 (LLM_t3AAD58C432E418F850C2C601B6B32BA1B1E55305* __this, String_t* ___0_path, const RuntimeMethod* method) 
