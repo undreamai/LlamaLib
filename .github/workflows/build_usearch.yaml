@@ -29,7 +29,8 @@ jobs:
                 -DUSEARCH_BUILD_SQLITE=1 \
                 -DUSEARCH_BUILD_TEST_CPP=0 \
                 -DUSEARCH_BUILD_BENCH_CPP=0 \
-                -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=usearch \
+                -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 \
+                -DCMAKE_OSX_ARCHITECTURES="armv6 armv7 arm64" \
                 -B ./build_release
           cmake --build ./build_release --config Release -- CODE_SIGNING_ALLOWED=NO
 
