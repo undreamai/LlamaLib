@@ -26334,20 +26334,20 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ArchiveSaver_Load_mB458DEC04A734750F9E54
 	{
 		String_t* L_0 = ___0_filePath;
 		FileStream_t07C7222EE10B75F352B89B76E60820160FF10AD8* L_1 = (FileStream_t07C7222EE10B75F352B89B76E60820160FF10AD8*)il2cpp_codegen_object_new(FileStream_t07C7222EE10B75F352B89B76E60820160FF10AD8_il2cpp_TypeInfo_var);
-		FileStream__ctor_m78499F9BE2BE31DA34F123B4399AA457716BD6E6(L_1, L_0, 3, NULL);
+		FileStream__ctor_m158997E4E7ADD1BA5E75F4835882E32137ACB3C9(L_1, L_0, 3, 1, NULL);
 		V_0 = L_1;
 	}
 	{
 		auto __finallyBlock = il2cpp::utils::Finally([&]
 		{
 
-FINALLY_002a:
+FINALLY_002b:
 			{
 				{
 					FileStream_t07C7222EE10B75F352B89B76E60820160FF10AD8* L_2 = V_0;
 					if (!L_2)
 					{
-						goto IL_0034;
+						goto IL_0035;
 					}
 				}
 				{
@@ -26356,7 +26356,7 @@ FINALLY_002a:
 					InterfaceActionInvoker0::Invoke(0, IDisposable_t030E0496B4E0E4E4F086825007979AF51F7248C5_il2cpp_TypeInfo_var, L_3);
 				}
 
-IL_0034:
+IL_0035:
 				{
 					return;
 				}
@@ -26374,13 +26374,13 @@ IL_0034:
 				auto __finallyBlock = il2cpp::utils::Finally([&]
 				{
 
-FINALLY_001d_1:
+FINALLY_001e_1:
 					{
 						{
 							ZipArchive_t6469B8DB5F18FB4C7E24F625D0E53EA635D31C41* L_6 = V_1;
 							if (!L_6)
 							{
-								goto IL_0027_1;
+								goto IL_0028_1;
 							}
 						}
 						{
@@ -26389,7 +26389,7 @@ FINALLY_001d_1:
 							InterfaceActionInvoker0::Invoke(0, IDisposable_t030E0496B4E0E4E4F086825007979AF51F7248C5_il2cpp_TypeInfo_var, L_7);
 						}
 
-IL_0027_1:
+IL_0028_1:
 						{
 							return;
 						}
@@ -26401,7 +26401,7 @@ IL_0027_1:
 					ZipArchive_t6469B8DB5F18FB4C7E24F625D0E53EA635D31C41* L_9 = V_1;
 					NullCheck(L_8);
 					ArchiveSaverCallback_Invoke_m0EDAA96BE1DFAA1A2E66908841ECB513A562E64C_inline(L_8, L_9, NULL);
-					goto IL_0028_1;
+					goto IL_0029_1;
 				}
 				catch(Il2CppExceptionWrapper& e)
 				{
@@ -26409,9 +26409,9 @@ IL_0027_1:
 				}
 			}
 
-IL_0028_1:
+IL_0029_1:
 			{
-				goto IL_0035;
+				goto IL_0036;
 			}
 		}
 		catch(Il2CppExceptionWrapper& e)
@@ -26420,7 +26420,7 @@ IL_0028_1:
 		}
 	}
 
-IL_0035:
+IL_0036:
 	{
 		return;
 	}
