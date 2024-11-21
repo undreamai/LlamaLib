@@ -952,66 +952,26 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void GCHandle_Free_m1320A260E487EB1EA6D95F9E5
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR intptr_t GCHandle_AddrOfPinnedObject_m9C047E154D6F0FE66BE003AB99F0B67A2CA953A6 (GCHandle_tC44F6F72EE68BD4CFABA24309DA7A179D41127DC* __this, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeMethods_usearch_load_buffer_m61101715A1C699E9A4E965A1C697E7A3A677A004 (intptr_t ___0_index, intptr_t ___1_buffer, uintptr_t ___2_length, intptr_t* ___3_error, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void IndexOptions__ctor_m979AFBA65098426C7AA140BDBBDA272BB6DA6282 (IndexOptions_t0B0D431C8FB7C54B7E372FA63920F9619CEBDF28* __this, uint32_t ___0_metricKind, intptr_t ___1_metric, uint32_t ___2_quantization, uint64_t ___3_dimensions, uint64_t ___4_connectivity, uint64_t ___5_expansionAdd, uint64_t ___6_expansionSearch, bool ___7_multi, const RuntimeMethod* method) ;
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 IL2CPP_EXTERN_C intptr_t CDECL usearch_init(IndexOptions_t0B0D431C8FB7C54B7E372FA63920F9619CEBDF28_marshaled_pinvoke*, intptr_t*);
-#endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 IL2CPP_EXTERN_C void CDECL usearch_free(intptr_t, intptr_t*);
-#endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 IL2CPP_EXTERN_C void CDECL usearch_save(intptr_t, char*, intptr_t*);
-#endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 IL2CPP_EXTERN_C void CDECL usearch_load(intptr_t, char*, intptr_t*);
-#endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 IL2CPP_EXTERN_C void CDECL usearch_view(intptr_t, char*, intptr_t*);
-#endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 IL2CPP_EXTERN_C uintptr_t CDECL usearch_size(intptr_t, intptr_t*);
-#endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 IL2CPP_EXTERN_C uintptr_t CDECL usearch_capacity(intptr_t, intptr_t*);
-#endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 IL2CPP_EXTERN_C uintptr_t CDECL usearch_dimensions(intptr_t, intptr_t*);
-#endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 IL2CPP_EXTERN_C uintptr_t CDECL usearch_connectivity(intptr_t, intptr_t*);
-#endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 IL2CPP_EXTERN_C void CDECL usearch_reserve(intptr_t, uintptr_t, intptr_t*);
-#endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 IL2CPP_EXTERN_C void CDECL usearch_add(intptr_t, uint64_t, float*, uint32_t, intptr_t*);
-#endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 IL2CPP_EXTERN_C int8_t CDECL usearch_contains(intptr_t, uint64_t, intptr_t*);
-#endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 IL2CPP_EXTERN_C uintptr_t CDECL usearch_count(intptr_t, uint64_t, intptr_t*);
-#endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 IL2CPP_EXTERN_C uintptr_t CDECL usearch_search(intptr_t, intptr_t, uint32_t, uintptr_t, uint64_t*, float*, intptr_t*);
-#endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 IL2CPP_EXTERN_C uintptr_t CDECL usearch_get(intptr_t, uint64_t, uintptr_t, float*, uint32_t, intptr_t*);
-#endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 IL2CPP_EXTERN_C uintptr_t CDECL usearch_remove(intptr_t, uint64_t, intptr_t*);
-#endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 IL2CPP_EXTERN_C uintptr_t CDECL usearch_rename(intptr_t, uint64_t, uint64_t, intptr_t*);
-#endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 IL2CPP_EXTERN_C void CDECL usearch_load_buffer(intptr_t, intptr_t, uintptr_t, intptr_t*);
-#endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 IL2CPP_EXTERN_C void CDECL usearch_view_buffer(intptr_t, intptr_t, uintptr_t, intptr_t*);
-#endif
-#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 IL2CPP_EXTERN_C uintptr_t CDECL usearch_filtered_search(intptr_t, intptr_t, uint32_t, uintptr_t, Il2CppMethodPointer, intptr_t, uint64_t*, float*, intptr_t*);
-#endif
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
@@ -1169,26 +1129,13 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR intptr_t NativeMethods_usearch_init_mD340C46E
 
 
 	typedef intptr_t (CDECL *PInvokeFunc) (IndexOptions_t0B0D431C8FB7C54B7E372FA63920F9619CEBDF28_marshaled_pinvoke*, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(IndexOptions_t0B0D431C8FB7C54B7E372FA63920F9619CEBDF28_marshaled_pinvoke*) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_init", IL2CPP_CALL_C, CHARSET_NOT_SPECIFIED, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
 	IndexOptions_t0B0D431C8FB7C54B7E372FA63920F9619CEBDF28_marshaled_pinvoke* ____0_options_marshaled = NULL;
 	IndexOptions_t0B0D431C8FB7C54B7E372FA63920F9619CEBDF28_marshaled_pinvoke ____0_options_marshaled_dereferenced = {};
 	IndexOptions_t0B0D431C8FB7C54B7E372FA63920F9619CEBDF28_marshal_pinvoke(*___0_options, ____0_options_marshaled_dereferenced);
 	____0_options_marshaled = &____0_options_marshaled_dereferenced;
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	intptr_t returnValue = reinterpret_cast<PInvokeFunc>(usearch_init)(____0_options_marshaled, ___1_error);
-	#else
-	intptr_t returnValue = il2cppPInvokeFunc(____0_options_marshaled, ___1_error);
-	#endif
 
 	IndexOptions_t0B0D431C8FB7C54B7E372FA63920F9619CEBDF28 _____0_options_marshaled_unmarshaled_dereferenced;
 	memset((&_____0_options_marshaled_unmarshaled_dereferenced), 0, sizeof(_____0_options_marshaled_unmarshaled_dereferenced));
@@ -1201,44 +1148,18 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR intptr_t NativeMethods_usearch_init_mD340C46E
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeMethods_usearch_free_m2BB6079FE404FF5F6D5828CBC32CD25078CC9B21 (intptr_t ___0_index, intptr_t* ___1_error, const RuntimeMethod* method) 
 {
 	typedef void (CDECL *PInvokeFunc) (intptr_t, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_free", IL2CPP_CALL_C, CHARSET_NOT_SPECIFIED, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	reinterpret_cast<PInvokeFunc>(usearch_free)(___0_index, ___1_error);
-	#else
-	il2cppPInvokeFunc(___0_index, ___1_error);
-	#endif
 
 }
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeMethods_usearch_save_m88B1E4A8BD39AFBF380BC26E2A66AA02FC273EFE (intptr_t ___0_index, String_t* ___1_path, intptr_t* ___2_error, const RuntimeMethod* method) 
 {
 	typedef void (CDECL *PInvokeFunc) (intptr_t, char*, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(char*) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_save", IL2CPP_CALL_C, CHARSET_ANSI, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
 	char* ____1_path_marshaled = NULL;
 	____1_path_marshaled = il2cpp_codegen_marshal_string(___1_path);
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	reinterpret_cast<PInvokeFunc>(usearch_save)(___0_index, ____1_path_marshaled, ___2_error);
-	#else
-	il2cppPInvokeFunc(___0_index, ____1_path_marshaled, ___2_error);
-	#endif
 
 	il2cpp_codegen_marshal_free(____1_path_marshaled);
 	____1_path_marshaled = NULL;
@@ -1247,24 +1168,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeMethods_usearch_save_m88B1E4A8BD39
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeMethods_usearch_load_m67187D6E4C1B75D6CDEE1E1CD9C23EC4F4A26345 (intptr_t ___0_index, String_t* ___1_path, intptr_t* ___2_error, const RuntimeMethod* method) 
 {
 	typedef void (CDECL *PInvokeFunc) (intptr_t, char*, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(char*) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_load", IL2CPP_CALL_C, CHARSET_ANSI, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
 	char* ____1_path_marshaled = NULL;
 	____1_path_marshaled = il2cpp_codegen_marshal_string(___1_path);
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	reinterpret_cast<PInvokeFunc>(usearch_load)(___0_index, ____1_path_marshaled, ___2_error);
-	#else
-	il2cppPInvokeFunc(___0_index, ____1_path_marshaled, ___2_error);
-	#endif
 
 	il2cpp_codegen_marshal_free(____1_path_marshaled);
 	____1_path_marshaled = NULL;
@@ -1273,24 +1181,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeMethods_usearch_load_m67187D6E4C1B
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeMethods_usearch_view_mAED3C2FD5B4ED34E9DFFE04595A3AA272F326D7B (intptr_t ___0_index, String_t* ___1_path, intptr_t* ___2_error, const RuntimeMethod* method) 
 {
 	typedef void (CDECL *PInvokeFunc) (intptr_t, char*, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(char*) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_view", IL2CPP_CALL_C, CHARSET_ANSI, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
 	char* ____1_path_marshaled = NULL;
 	____1_path_marshaled = il2cpp_codegen_marshal_string(___1_path);
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	reinterpret_cast<PInvokeFunc>(usearch_view)(___0_index, ____1_path_marshaled, ___2_error);
-	#else
-	il2cppPInvokeFunc(___0_index, ____1_path_marshaled, ___2_error);
-	#endif
 
 	il2cpp_codegen_marshal_free(____1_path_marshaled);
 	____1_path_marshaled = NULL;
@@ -1299,119 +1194,45 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeMethods_usearch_view_mAED3C2FD5B4E
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_size_m5CA044652D16A7CB3FE73581581758A7AC12C14E (intptr_t ___0_index, intptr_t* ___1_error, const RuntimeMethod* method) 
 {
 	typedef uintptr_t (CDECL *PInvokeFunc) (intptr_t, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_size", IL2CPP_CALL_C, CHARSET_NOT_SPECIFIED, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	uintptr_t returnValue = reinterpret_cast<PInvokeFunc>(usearch_size)(___0_index, ___1_error);
-	#else
-	uintptr_t returnValue = il2cppPInvokeFunc(___0_index, ___1_error);
-	#endif
 
 	return returnValue;
 }
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_capacity_m1FA0DC1F8EE3A9F8F71ACA84F4368F8C050DF99C (intptr_t ___0_index, intptr_t* ___1_error, const RuntimeMethod* method) 
 {
 	typedef uintptr_t (CDECL *PInvokeFunc) (intptr_t, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_capacity", IL2CPP_CALL_C, CHARSET_NOT_SPECIFIED, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	uintptr_t returnValue = reinterpret_cast<PInvokeFunc>(usearch_capacity)(___0_index, ___1_error);
-	#else
-	uintptr_t returnValue = il2cppPInvokeFunc(___0_index, ___1_error);
-	#endif
 
 	return returnValue;
 }
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_dimensions_m317F4684F03C5EBAAAEE831E3B6E8562AE747CD4 (intptr_t ___0_index, intptr_t* ___1_error, const RuntimeMethod* method) 
 {
 	typedef uintptr_t (CDECL *PInvokeFunc) (intptr_t, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_dimensions", IL2CPP_CALL_C, CHARSET_NOT_SPECIFIED, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	uintptr_t returnValue = reinterpret_cast<PInvokeFunc>(usearch_dimensions)(___0_index, ___1_error);
-	#else
-	uintptr_t returnValue = il2cppPInvokeFunc(___0_index, ___1_error);
-	#endif
 
 	return returnValue;
 }
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_connectivity_m8C2F0EF335578460F5B9AB02E7F4721A78880D4E (intptr_t ___0_index, intptr_t* ___1_error, const RuntimeMethod* method) 
 {
 	typedef uintptr_t (CDECL *PInvokeFunc) (intptr_t, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_connectivity", IL2CPP_CALL_C, CHARSET_NOT_SPECIFIED, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	uintptr_t returnValue = reinterpret_cast<PInvokeFunc>(usearch_connectivity)(___0_index, ___1_error);
-	#else
-	uintptr_t returnValue = il2cppPInvokeFunc(___0_index, ___1_error);
-	#endif
 
 	return returnValue;
 }
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeMethods_usearch_reserve_mF22C3DBCFAF631C721060E427FFEB573E2229EBF (intptr_t ___0_index, uintptr_t ___1_capacity, intptr_t* ___2_error, const RuntimeMethod* method) 
 {
 	typedef void (CDECL *PInvokeFunc) (intptr_t, uintptr_t, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(uintptr_t) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_reserve", IL2CPP_CALL_C, CHARSET_NOT_SPECIFIED, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	reinterpret_cast<PInvokeFunc>(usearch_reserve)(___0_index, ___1_capacity, ___2_error);
-	#else
-	il2cppPInvokeFunc(___0_index, ___1_capacity, ___2_error);
-	#endif
 
 }
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeMethods_usearch_add_m1F173A295EE852A823136034F18B38CD642E0AF4 (intptr_t ___0_index, uint64_t ___1_key, SingleU5BU5D_t89DEFE97BCEDB5857010E79ECE0F52CF6E93B87C* ___2_vector, uint32_t ___3_vector_kind, intptr_t* ___4_error, const RuntimeMethod* method) 
 {
 	typedef void (CDECL *PInvokeFunc) (intptr_t, uint64_t, float*, uint32_t, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(uint64_t) + sizeof(void*) + sizeof(uint32_t) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_add", IL2CPP_CALL_C, CHARSET_NOT_SPECIFIED, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
 	float* ____2_vector_marshaled = NULL;
 	if (___2_vector != NULL)
@@ -1419,25 +1240,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeMethods_usearch_add_m1F173A295EE85
 		____2_vector_marshaled = reinterpret_cast<float*>((___2_vector)->GetAddressAtUnchecked(0));
 	}
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	reinterpret_cast<PInvokeFunc>(usearch_add)(___0_index, ___1_key, ____2_vector_marshaled, ___3_vector_kind, ___4_error);
-	#else
-	il2cppPInvokeFunc(___0_index, ___1_key, ____2_vector_marshaled, ___3_vector_kind, ___4_error);
-	#endif
 
 }
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeMethods_usearch_add_m5928E0709392F95C56249E96FD317FDB17A580D7 (intptr_t ___0_index, uint64_t ___1_key, DoubleU5BU5D_tCC308475BD3B8229DB2582938669EF2F9ECC1FEE* ___2_vector, uint32_t ___3_vector_kind, intptr_t* ___4_error, const RuntimeMethod* method) 
 {
 	typedef void (CDECL *PInvokeFunc) (intptr_t, uint64_t, double*, uint32_t, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(uint64_t) + sizeof(void*) + sizeof(uint32_t) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_add", IL2CPP_CALL_C, CHARSET_NOT_SPECIFIED, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
 	double* ____2_vector_marshaled = NULL;
 	if (___2_vector != NULL)
@@ -1445,67 +1253,28 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeMethods_usearch_add_m5928E0709392F
 		____2_vector_marshaled = reinterpret_cast<double*>((___2_vector)->GetAddressAtUnchecked(0));
 	}
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	reinterpret_cast<PInvokeFunc>(usearch_add)(___0_index, ___1_key, ____2_vector_marshaled, ___3_vector_kind, ___4_error);
-	#else
-	il2cppPInvokeFunc(___0_index, ___1_key, ____2_vector_marshaled, ___3_vector_kind, ___4_error);
-	#endif
 
 }
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool NativeMethods_usearch_contains_m3EC5C15C609FE60DBC6A38E5A5164757D373BEE9 (intptr_t ___0_index, uint64_t ___1_key, intptr_t* ___2_error, const RuntimeMethod* method) 
 {
 	typedef int8_t (CDECL *PInvokeFunc) (intptr_t, uint64_t, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(uint64_t) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_contains", IL2CPP_CALL_C, CHARSET_NOT_SPECIFIED, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	int8_t returnValue = reinterpret_cast<PInvokeFunc>(usearch_contains)(___0_index, ___1_key, ___2_error);
-	#else
-	int8_t returnValue = il2cppPInvokeFunc(___0_index, ___1_key, ___2_error);
-	#endif
 
 	return static_cast<bool>(returnValue);
 }
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_count_mA07BBC2AF8BE12B5D319991A42928591222D8862 (intptr_t ___0_index, uint64_t ___1_key, intptr_t* ___2_error, const RuntimeMethod* method) 
 {
 	typedef uintptr_t (CDECL *PInvokeFunc) (intptr_t, uint64_t, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(uint64_t) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_count", IL2CPP_CALL_C, CHARSET_NOT_SPECIFIED, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	uintptr_t returnValue = reinterpret_cast<PInvokeFunc>(usearch_count)(___0_index, ___1_key, ___2_error);
-	#else
-	uintptr_t returnValue = il2cppPInvokeFunc(___0_index, ___1_key, ___2_error);
-	#endif
 
 	return returnValue;
 }
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_search_m80A8C4F74484C35781B1FC3F237A48E13DED0954 (intptr_t ___0_index, intptr_t ___1_query_vector, uint32_t ___2_query_kind, uintptr_t ___3_count, UInt64U5BU5D_tAB1A62450AC0899188486EDB9FC066B8BEED9299* ___4_found_keys, SingleU5BU5D_t89DEFE97BCEDB5857010E79ECE0F52CF6E93B87C* ___5_found_distances, intptr_t* ___6_error, const RuntimeMethod* method) 
 {
 	typedef uintptr_t (CDECL *PInvokeFunc) (intptr_t, intptr_t, uint32_t, uintptr_t, uint64_t*, float*, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(intptr_t) + sizeof(uint32_t) + sizeof(uintptr_t) + sizeof(void*) + sizeof(void*) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_search", IL2CPP_CALL_C, CHARSET_NOT_SPECIFIED, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
 	uint64_t* ____4_found_keys_marshaled = NULL;
 	if (___4_found_keys != NULL)
@@ -1523,11 +1292,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_search_m80A8C
 		memset(____5_found_distances_marshaled, 0, ____5_found_distances_Length * sizeof(float));
 	}
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	uintptr_t returnValue = reinterpret_cast<PInvokeFunc>(usearch_search)(___0_index, ___1_query_vector, ___2_query_kind, ___3_count, ____4_found_keys_marshaled, ____5_found_distances_marshaled, ___6_error);
-	#else
-	uintptr_t returnValue = il2cppPInvokeFunc(___0_index, ___1_query_vector, ___2_query_kind, ___3_count, ____4_found_keys_marshaled, ____5_found_distances_marshaled, ___6_error);
-	#endif
 
 	if (____4_found_keys_marshaled != NULL)
 	{
@@ -1558,15 +1323,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_search_m80A8C
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_search_m937A68B5CB2D585D7D4EF5D4C298D2412A1DB84C (intptr_t ___0_index, SingleU5BU5D_t89DEFE97BCEDB5857010E79ECE0F52CF6E93B87C* ___1_query_vector, uint32_t ___2_query_kind, uintptr_t ___3_count, UInt64U5BU5D_tAB1A62450AC0899188486EDB9FC066B8BEED9299* ___4_found_keys, SingleU5BU5D_t89DEFE97BCEDB5857010E79ECE0F52CF6E93B87C* ___5_found_distances, intptr_t* ___6_error, const RuntimeMethod* method) 
 {
 	typedef uintptr_t (CDECL *PInvokeFunc) (intptr_t, float*, uint32_t, uintptr_t, uint64_t*, float*, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(void*) + sizeof(uint32_t) + sizeof(uintptr_t) + sizeof(void*) + sizeof(void*) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_search", IL2CPP_CALL_C, CHARSET_NOT_SPECIFIED, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
 	float* ____1_query_vector_marshaled = NULL;
 	if (___1_query_vector != NULL)
@@ -1590,11 +1346,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_search_m937A6
 		memset(____5_found_distances_marshaled, 0, ____5_found_distances_Length * sizeof(float));
 	}
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	uintptr_t returnValue = reinterpret_cast<PInvokeFunc>(usearch_search)(___0_index, ____1_query_vector_marshaled, ___2_query_kind, ___3_count, ____4_found_keys_marshaled, ____5_found_distances_marshaled, ___6_error);
-	#else
-	uintptr_t returnValue = il2cppPInvokeFunc(___0_index, ____1_query_vector_marshaled, ___2_query_kind, ___3_count, ____4_found_keys_marshaled, ____5_found_distances_marshaled, ___6_error);
-	#endif
 
 	if (____4_found_keys_marshaled != NULL)
 	{
@@ -1625,15 +1377,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_search_m937A6
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_search_m164622EA0D4520DF4DDB77D68D41EBA4393B0838 (intptr_t ___0_index, DoubleU5BU5D_tCC308475BD3B8229DB2582938669EF2F9ECC1FEE* ___1_query_vector, uint32_t ___2_query_kind, uintptr_t ___3_count, UInt64U5BU5D_tAB1A62450AC0899188486EDB9FC066B8BEED9299* ___4_found_keys, SingleU5BU5D_t89DEFE97BCEDB5857010E79ECE0F52CF6E93B87C* ___5_found_distances, intptr_t* ___6_error, const RuntimeMethod* method) 
 {
 	typedef uintptr_t (CDECL *PInvokeFunc) (intptr_t, double*, uint32_t, uintptr_t, uint64_t*, float*, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(void*) + sizeof(uint32_t) + sizeof(uintptr_t) + sizeof(void*) + sizeof(void*) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_search", IL2CPP_CALL_C, CHARSET_NOT_SPECIFIED, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
 	double* ____1_query_vector_marshaled = NULL;
 	if (___1_query_vector != NULL)
@@ -1657,11 +1400,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_search_m16462
 		memset(____5_found_distances_marshaled, 0, ____5_found_distances_Length * sizeof(float));
 	}
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	uintptr_t returnValue = reinterpret_cast<PInvokeFunc>(usearch_search)(___0_index, ____1_query_vector_marshaled, ___2_query_kind, ___3_count, ____4_found_keys_marshaled, ____5_found_distances_marshaled, ___6_error);
-	#else
-	uintptr_t returnValue = il2cppPInvokeFunc(___0_index, ____1_query_vector_marshaled, ___2_query_kind, ___3_count, ____4_found_keys_marshaled, ____5_found_distances_marshaled, ___6_error);
-	#endif
 
 	if (____4_found_keys_marshaled != NULL)
 	{
@@ -1692,15 +1431,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_search_m16462
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_get_m3B6BA5FE0E8B0C60CE64A16723ACCF25166E1881 (intptr_t ___0_index, uint64_t ___1_key, uintptr_t ___2_count, SingleU5BU5D_t89DEFE97BCEDB5857010E79ECE0F52CF6E93B87C* ___3_vector, uint32_t ___4_vector_kind, intptr_t* ___5_error, const RuntimeMethod* method) 
 {
 	typedef uintptr_t (CDECL *PInvokeFunc) (intptr_t, uint64_t, uintptr_t, float*, uint32_t, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(uint64_t) + sizeof(uintptr_t) + sizeof(void*) + sizeof(uint32_t) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_get", IL2CPP_CALL_C, CHARSET_NOT_SPECIFIED, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
 	float* ____3_vector_marshaled = NULL;
 	if (___3_vector != NULL)
@@ -1710,11 +1440,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_get_m3B6BA5FE
 		memset(____3_vector_marshaled, 0, ____3_vector_Length * sizeof(float));
 	}
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	uintptr_t returnValue = reinterpret_cast<PInvokeFunc>(usearch_get)(___0_index, ___1_key, ___2_count, ____3_vector_marshaled, ___4_vector_kind, ___5_error);
-	#else
-	uintptr_t returnValue = il2cppPInvokeFunc(___0_index, ___1_key, ___2_count, ____3_vector_marshaled, ___4_vector_kind, ___5_error);
-	#endif
 
 	if (____3_vector_marshaled != NULL)
 	{
@@ -1733,15 +1459,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_get_m3B6BA5FE
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_get_mDD217A80A377AD9CBC1C8AA49A6D03E518D3B3EF (intptr_t ___0_index, uint64_t ___1_key, uintptr_t ___2_count, DoubleU5BU5D_tCC308475BD3B8229DB2582938669EF2F9ECC1FEE* ___3_vector, uint32_t ___4_vector_kind, intptr_t* ___5_error, const RuntimeMethod* method) 
 {
 	typedef uintptr_t (CDECL *PInvokeFunc) (intptr_t, uint64_t, uintptr_t, double*, uint32_t, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(uint64_t) + sizeof(uintptr_t) + sizeof(void*) + sizeof(uint32_t) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_get", IL2CPP_CALL_C, CHARSET_NOT_SPECIFIED, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
 	double* ____3_vector_marshaled = NULL;
 	if (___3_vector != NULL)
@@ -1751,11 +1468,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_get_mDD217A80
 		memset(____3_vector_marshaled, 0, ____3_vector_Length * sizeof(double));
 	}
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	uintptr_t returnValue = reinterpret_cast<PInvokeFunc>(usearch_get)(___0_index, ___1_key, ___2_count, ____3_vector_marshaled, ___4_vector_kind, ___5_error);
-	#else
-	uintptr_t returnValue = il2cppPInvokeFunc(___0_index, ___1_key, ___2_count, ____3_vector_marshaled, ___4_vector_kind, ___5_error);
-	#endif
 
 	if (____3_vector_marshaled != NULL)
 	{
@@ -1774,97 +1487,36 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_get_mDD217A80
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_remove_m25509F9200BC302B38D3C5A2D239DE1A334B70DC (intptr_t ___0_index, uint64_t ___1_key, intptr_t* ___2_error, const RuntimeMethod* method) 
 {
 	typedef uintptr_t (CDECL *PInvokeFunc) (intptr_t, uint64_t, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(uint64_t) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_remove", IL2CPP_CALL_C, CHARSET_NOT_SPECIFIED, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	uintptr_t returnValue = reinterpret_cast<PInvokeFunc>(usearch_remove)(___0_index, ___1_key, ___2_error);
-	#else
-	uintptr_t returnValue = il2cppPInvokeFunc(___0_index, ___1_key, ___2_error);
-	#endif
 
 	return returnValue;
 }
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_rename_mF6DAD189943F914AFD63CA964071A50B318F853B (intptr_t ___0_index, uint64_t ___1_key_from, uint64_t ___2_key_to, intptr_t* ___3_error, const RuntimeMethod* method) 
 {
 	typedef uintptr_t (CDECL *PInvokeFunc) (intptr_t, uint64_t, uint64_t, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(uint64_t) + sizeof(uint64_t) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_rename", IL2CPP_CALL_C, CHARSET_NOT_SPECIFIED, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	uintptr_t returnValue = reinterpret_cast<PInvokeFunc>(usearch_rename)(___0_index, ___1_key_from, ___2_key_to, ___3_error);
-	#else
-	uintptr_t returnValue = il2cppPInvokeFunc(___0_index, ___1_key_from, ___2_key_to, ___3_error);
-	#endif
 
 	return returnValue;
 }
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeMethods_usearch_load_buffer_m61101715A1C699E9A4E965A1C697E7A3A677A004 (intptr_t ___0_index, intptr_t ___1_buffer, uintptr_t ___2_length, intptr_t* ___3_error, const RuntimeMethod* method) 
 {
 	typedef void (CDECL *PInvokeFunc) (intptr_t, intptr_t, uintptr_t, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(intptr_t) + sizeof(uintptr_t) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_load_buffer", IL2CPP_CALL_C, CHARSET_ANSI, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	reinterpret_cast<PInvokeFunc>(usearch_load_buffer)(___0_index, ___1_buffer, ___2_length, ___3_error);
-	#else
-	il2cppPInvokeFunc(___0_index, ___1_buffer, ___2_length, ___3_error);
-	#endif
 
 }
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeMethods_usearch_view_buffer_mD2167F1A8A8EC1D576869BF7F6CFFCAC1F36BDD5 (intptr_t ___0_index, intptr_t ___1_buffer, uintptr_t ___2_length, intptr_t* ___3_error, const RuntimeMethod* method) 
 {
 	typedef void (CDECL *PInvokeFunc) (intptr_t, intptr_t, uintptr_t, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(intptr_t) + sizeof(uintptr_t) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_view_buffer", IL2CPP_CALL_C, CHARSET_ANSI, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	reinterpret_cast<PInvokeFunc>(usearch_view_buffer)(___0_index, ___1_buffer, ___2_length, ___3_error);
-	#else
-	il2cppPInvokeFunc(___0_index, ___1_buffer, ___2_length, ___3_error);
-	#endif
 
 }
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_filtered_search_m5A1805589EAD28DA2FDA9A282E3B09F3904959A6 (intptr_t ___0_index, intptr_t ___1_query_vector, uint32_t ___2_query_kind, uintptr_t ___3_count, FilterCallback_t054E59DACA7991125F2791154689E66A75A6D8E2* ___4_filter, intptr_t ___5_filterState, UInt64U5BU5D_tAB1A62450AC0899188486EDB9FC066B8BEED9299* ___6_found_keys, SingleU5BU5D_t89DEFE97BCEDB5857010E79ECE0F52CF6E93B87C* ___7_found_distances, intptr_t* ___8_error, const RuntimeMethod* method) 
 {
 	typedef uintptr_t (CDECL *PInvokeFunc) (intptr_t, intptr_t, uint32_t, uintptr_t, Il2CppMethodPointer, intptr_t, uint64_t*, float*, intptr_t*);
-	#if !FORCE_PINVOKE_INTERNAL && !FORCE_PINVOKE_libusearch_static_c_INTERNAL
-	static PInvokeFunc il2cppPInvokeFunc;
-	if (il2cppPInvokeFunc == NULL)
-	{
-		int parameterSize = sizeof(intptr_t) + sizeof(intptr_t) + sizeof(uint32_t) + sizeof(uintptr_t) + sizeof(void*) + sizeof(intptr_t) + sizeof(void*) + sizeof(void*) + sizeof(intptr_t*);
-		il2cppPInvokeFunc = il2cpp_codegen_resolve_pinvoke<PInvokeFunc>(IL2CPP_NATIVE_STRING("libusearch_static_c"), "usearch_filtered_search", IL2CPP_CALL_C, CHARSET_NOT_SPECIFIED, parameterSize, false);
-		IL2CPP_ASSERT(il2cppPInvokeFunc != NULL);
-	}
-	#endif
 
 	Il2CppMethodPointer ____4_filter_marshaled = NULL;
 	____4_filter_marshaled = il2cpp_codegen_marshal_delegate(reinterpret_cast<MulticastDelegate_t*>(___4_filter));
@@ -1885,11 +1537,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR uintptr_t NativeMethods_usearch_filtered_sear
 		memset(____7_found_distances_marshaled, 0, ____7_found_distances_Length * sizeof(float));
 	}
 
-	#if FORCE_PINVOKE_INTERNAL || FORCE_PINVOKE_libusearch_static_c_INTERNAL
 	uintptr_t returnValue = reinterpret_cast<PInvokeFunc>(usearch_filtered_search)(___0_index, ___1_query_vector, ___2_query_kind, ___3_count, ____4_filter_marshaled, ___5_filterState, ____6_found_keys_marshaled, ____7_found_distances_marshaled, ___8_error);
-	#else
-	uintptr_t returnValue = il2cppPInvokeFunc(___0_index, ___1_query_vector, ___2_query_kind, ___3_count, ____4_filter_marshaled, ___5_filterState, ____6_found_keys_marshaled, ____7_found_distances_marshaled, ___8_error);
-	#endif
 
 	if (____6_found_keys_marshaled != NULL)
 	{
