@@ -17,6 +17,17 @@ if (NOT WIN32)
     target_compile_options(ggml PRIVATE -Wno-return-type -Wno-sometimes-uninitialized)
 endif()
 
+foreach (target common ggml-cuda ggml-hip ggml-musa)
+    target_compile_definitions(ggml-cuda PUBLIC GGML_USE_TINYBLAS NDEBUG)
+    if(GGML_MINIMIZE_CODE_SIZE)
+        target_compile_definitions(ggml-cuda PUBLIC GGML_MINIMIZE_CODE_SIZE)
+    endif()
+    if(GGML_NO_IQUANTS)
+        target_compile_definitions(ggml-cuda PUBLIC GGML_NO_IQUANTS)
+    endif()
+endforeach()
+
+
 set(LIBRARY undreamai)
 if(DEFINED LIBRARY_SUFFIX)
   set(LIBRARY "${LIBRARY}_${LIBRARY_SUFFIX}")
