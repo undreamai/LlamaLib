@@ -37,6 +37,29 @@ jobs:
           cmake ..
           cmake --build . --config Release -j $(nproc)
 
+################################ Cross-platform ################################
+
+      - name: Setup llama.cpp
+        id: setup_llama_cpp
+        shell: bash
+        run: |
+          git clone https://github.com/ggerganov/llama.cpp llama.cpp
+          cd llama.cpp
+          git checkout ${{ env.LLAMACPP_VERSION }}
+
+          git apply ../llama.cpp.patch
+          cp ../tinyBLAS/* ggml/src/ggml-cuda
+
+          for f in examples/server/public/*;do
+              output=$(echo "$f" | sed -e 's:public/::g').hpp
+              echo $output
+              cmake -DINPUT="$f" -DOUTPUT="$output" -P "scripts/xxd.cmake"
+          done
+
+          cd ..
+          mkdir -p build/licenses build/libs
+          cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+
 ################################ Linux ################################
 
       - name: Dependencies
@@ -49,27 +72,6 @@ jobs:
         id: setup_hip_linux
         run: |
           sudo apt-get install -y git rocblas-dev hipblas-dev
-
-      - name: Clone llama.cpp
-        id: setup_llama_cpp_linux
-        run: |
-          git clone https://github.com/ggerganov/llama.cpp llama.cpp
-          cd llama.cpp
-          git checkout ${{ env.LLAMACPP_VERSION }}
-
-          sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
-          sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
-          sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
-          sed -i.bak 's:abort():raise(SIGSEGV):g' ggml/src/ggml.c
-          sed -i.bak 's:GGML_NORETURN GGML_ATTRIBUTE_FORMAT://GGML_NORETURN GGML_ATTRIBUTE_FORMAT:g' ggml/include/ggml.h
-
-          for f in examples/server/public/*;do
-            cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
-          done
-
-          cd ..
-          mkdir -p build/licenses build/libs
-          cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
 
       - name: Dependencies Vulcan
         id: setup_vulcan_linux
@@ -87,15 +89,6 @@ jobs:
         run: |
           echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
 
-      - name: Prepare CUDA
-        id: prepare_cuda
-        if: startsWith(matrix.build, 'cuda') || startsWith(matrix.build, 'hip')
-        run: |
-          cp tinyBLAS/* llama.cpp/ggml/src/
-          rm -r llama.cpp/ggml/src/ggml-cuda
-          sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG ${{ matrix.minimise }}:g' llama.cpp/ggml/src/CMakeLists.txt
-          curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
-
       - uses: Jimver/cuda-toolkit@v0.2.15
         id: setup_cuda_linux
         if: startsWith(matrix.build, 'cuda')
@@ -111,23 +104,16 @@ jobs:
           ln -s ${{ env.CUDA_PATH }} ${{ github.workspace }}/build/cuda
 
       - name: Set build parameters
-        id: set_build_params_linux
-        run: |
-          echo "BUILD_PARAMS=${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}" >> $GITHUB_ENV
-
-      - name: Set build parameters
         id: set_build_params_hip_linux
         run: |
-          sed -i "s:FATAL_ERROR:WARNING:g" llama.cpp/ggml/src/CMakeLists.txt
-          echo "BUILD_PARAMS=${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} -DCMAKE_HIP_COMPILER="$(hipconfig -l)/clang" -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=`pwd`/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=`pwd`/build/libs" >> $GITHUB_ENV
+          echo "CMAKE_COMMON_DIR=-DCMAKE_HIP_COMPILER=$(hipconfig -l)/clang -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=`pwd`/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=`pwd`/build/libs" >> $GITHUB_ENV
   
       - name: Build
         id: cmake_build_linux
         run: |
-          sed -i "s:LIBRARY undreamai:LIBRARY undreamai_${{ env.PLATFORM }}-${{ matrix.build }}:g" CMakeLists.txt
           export LD_LIBRARY_PATH=""
           cd build
-          cmake .. ${{ env.BUILD_PARAMS }}
+          cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
           cmake --build . --config Release -j $(nproc)
 
       - name: Test
@@ -162,47 +148,14 @@ jobs:
         run: |
           brew update
 
-      - name: Set build parameters
-        id: set_build_params_macos_arm64
-        run: |
-          echo "BUILD_PARAMS=-DLLAMA_FATAL_WARNINGS=ON -DGGML_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}" >> $GITHUB_ENV
-
-      - name: Set build parameters
-        id: set_build_params_macos_x64
-        run: |
-          echo "BUILD_PARAMS=-DLLAMA_FATAL_WARNINGS=ON -DGGML_METAL=OFF -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}" >> $GITHUB_ENV
-  
       - name: Build
         id: cmake_build_macos
         run: |
-          sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_${{ env.PLATFORM }}-${{ matrix.build }}:g" CMakeLists.txt
           cd build
-          cmake .. ${{ env.BUILD_PARAMS }}
+          cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
           cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
 
 ################################ Windows ################################
-
-      - name: Clone llama.cpp
-        id: setup_llama_cpp_windows
-        run: |
-          git clone https://github.com/ggerganov/llama.cpp llama.cpp
-          cd llama.cpp
-          git checkout ${{ env.LLAMACPP_VERSION }}
-          (Get-Content examples/server/server.cpp ) -replace 'utils.hpp', 'utils_callback.hpp' | Set-Content examples/server/server.cpp
-          (Get-Content examples/server/server.cpp ) -replace 'main\(int argc', 'main_server(int argc' | Set-Content examples/server/server.cpp
-          (Get-Content ggml/src/ggml-vulkan.cpp ) -replace 'exit\(1', 'std::terminate(' | Set-Content ggml/src/ggml-vulkan.cpp
-          (Get-Content ggml/src/ggml.c ) -replace 'abort\(\)', 'raise(SIGSEGV)' | Set-Content ggml/src/ggml.c
-          (Get-Content ggml/include/ggml.h ) -replace 'GGML_NORETURN GGML_ATTRIBUTE_FORMAT', '//GGML_NORETURN GGML_ATTRIBUTE_FORMAT' | Set-Content ggml/include/ggml.h
-
-          Get-ChildItem examples/server/public/* | ForEach-Object {
-            $f = $_.FullName
-            $output = $f -replace "public\\", ""
-            echo "cmake -DINPUT=$f -DOUTPUT=$output.hpp -P scripts/xxd.cmake"
-            cmake -DINPUT="$f" -DOUTPUT="$output.hpp" -P "scripts/xxd.cmake"
-          }
-
-          cd ..
-          mkdir -p build/licenses/
 
       - name: Set CUDA variable
         id: set_cuda_var_windows
@@ -242,9 +195,8 @@ jobs:
       - name: Build
         id: cmake_build_windows
         run: |
-          (Get-Content CMakeLists.txt ) -replace 'LIBRARY undreamai', 'LIBRARY undreamai_windows-${{ matrix.build }}' | Set-Content CMakeLists.txt
           cd build
-          cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+          cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
       - name: Build
@@ -252,10 +204,8 @@ jobs:
         run: |
           $env:HIP_PATH=$(Resolve-Path 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' | split-path | split-path)
           $env:CMAKE_PREFIX_PATH="${env:HIP_PATH}"
-          (Get-Content CMakeLists.txt ) -replace 'LIBRARY undreamai', 'LIBRARY undreamai_windows-${{ matrix.build }}' | Set-Content CMakeLists.txt
-          (Get-Content llama.cpp/ggml/src/CMakeLists.txt ) -replace 'FATAL_ERROR', 'WARNING' | Set-Content llama.cpp/ggml/src/CMakeLists.txt
           cd build
-          cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+          cmake -G "Unix Makefiles" .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
       - name: Move files to Release folder
@@ -321,10 +271,9 @@ jobs:
       - name: Build
         id: cmake_build_android
         run: |
-          sed -i "s:LIBRARY undreamai:LIBRARY undreamai_android:g" CMakeLists.txt
           export LD_LIBRARY_PATH=""
           cd build
-          cmake .. -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-23 -DCMAKE_C_FLAGS=-march=armv8.4a+dotprod ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+          cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }} -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-23 -DCMAKE_C_FLAGS=-march=armv8.4a+dotprod ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
           cmake --build . --config Release -j $(nproc)
 
       - name: Delete server
@@ -337,11 +286,10 @@ jobs:
       - id: cmake_build_ios
         name: Build
         run: |
-          sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_iOS:g" CMakeLists.txt
           sed -i.bak "s:RUNTIME:BUNDLE DESTINATION .:g" CMakeLists.txt
           export LD_LIBRARY_PATH=""
           cd build
-          cmake -G Xcode .. ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+          cmake -G Xcode .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
           cmake --build . --config Release -j $(sysctl -n hw.logicalcpu) -- CODE_SIGNING_ALLOWED=NO
 
       - id: pack_artifacts_ios

@@ -99,11 +99,9 @@ jobs:
           - build: 'vulkan'
             defines: '-DGGML_VULKAN=ON'
           - build: 'cuda-cu11.7.1'
-            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
-            minimise: 'GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS'
+            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda" -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
           - build: 'cuda-cu12.2.0'
-            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
-            minimise: 'GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS'
+            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda" -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
           - build: 'cuda-cu11.7.1-full'
             defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
           - build: 'cuda-cu12.2.0-full'
@@ -114,32 +112,35 @@ jobs:
           name: Clone
           uses: actions/checkout@v4
 
-        - id: setup_libs_linux
-          name: Dependencies
-          run: |
-            sudo apt-get update
-            sudo apt-get install -y build-essential cmake zip libssl-dev
-
-        - id: setup_llama_cpp_linux
-          name: Clone llama.cpp
+        - id: setup_llama_cpp
+          name: Setup llama.cpp
           run: |
             git clone https://github.com/ggerganov/llama.cpp llama.cpp
             cd llama.cpp
             git checkout ${{ env.LLAMACPP_VERSION }}
         
-            sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
-            sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
-            sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
-            sed -i.bak 's:abort():raise(SIGSEGV):g' ggml/src/ggml.c
-            sed -i.bak 's:GGML_NORETURN GGML_ATTRIBUTE_FORMAT://GGML_NORETURN GGML_ATTRIBUTE_FORMAT:g' ggml/include/ggml.h
+            git apply ../llama.cpp.patch
+            cp ../tinyBLAS/* ggml/src/ggml-cuda
         
             for f in examples/server/public/*;do
-              cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
+                output=$(echo "$f" | sed -e 's:public/::g').hpp
+                echo $output
+                cmake -DINPUT="$f" -DOUTPUT="$output" -P "scripts/xxd.cmake"
             done
         
             cd ..
             mkdir -p build/licenses build/libs
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+          shell: bash
+
+        @@add_licenses@@
+
+
+        - id: setup_libs_linux
+          name: Dependencies
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y build-essential cmake zip libssl-dev
 
         - id: setup_vulcan_linux
           if: matrix.build == 'vulkan'
@@ -157,15 +158,6 @@ jobs:
           run: |
             echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
 
-        - id: prepare_cuda
-          if: startsWith(matrix.build, 'cuda') || startsWith(matrix.build, 'hip')
-          name: Prepare CUDA
-          run: |
-            cp tinyBLAS/* llama.cpp/ggml/src/
-            rm -r llama.cpp/ggml/src/ggml-cuda
-            sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG ${{ matrix.minimise }}:g' llama.cpp/ggml/src/CMakeLists.txt
-            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
-
         - id: setup_cuda_linux
           if: startsWith(matrix.build, 'cuda')
           uses: Jimver/cuda-toolkit@v0.2.15
@@ -181,18 +173,12 @@ jobs:
             ln -s ${{ env.CUDA_PATH }} ${{ github.workspace }}/build/cuda
 
 
-        - id: set_build_params_linux
-          name: Set build parameters
-          run: |
-            echo "BUILD_PARAMS=${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}" >> $GITHUB_ENV
-
         - id: cmake_build_linux
           name: Build
           run: |
-            sed -i "s:LIBRARY undreamai:LIBRARY undreamai_${{ env.PLATFORM }}-${{ matrix.build }}:g" CMakeLists.txt
             export LD_LIBRARY_PATH=""
             cd build
-            cmake .. ${{ env.BUILD_PARAMS }}
+            cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j $(nproc)
 
         - id: test_build_unix
@@ -241,14 +227,37 @@ jobs:
       matrix:
         include:
           - build: 'hip'
-            minimise: 'GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS'
+            defines: -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
           - build: 'hip-full'
-            minimise: ''
 
     steps:
         - id: checkout
           name: Clone
           uses: actions/checkout@v4
+
+        - id: setup_llama_cpp
+          name: Setup llama.cpp
+          run: |
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+        
+            git apply ../llama.cpp.patch
+            cp ../tinyBLAS/* ggml/src/ggml-cuda
+        
+            for f in examples/server/public/*;do
+                output=$(echo "$f" | sed -e 's:public/::g').hpp
+                echo $output
+                cmake -DINPUT="$f" -DOUTPUT="$output" -P "scripts/xxd.cmake"
+            done
+        
+            cd ..
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+          shell: bash
+
+        @@add_licenses@@
+
 
         - id: setup_libs_linux
           name: Dependencies
@@ -261,56 +270,18 @@ jobs:
           run: |
             sudo apt-get install -y git rocblas-dev hipblas-dev
 
-        - id: setup_llama_cpp_linux
-          name: Clone llama.cpp
-          run: |
-            git clone https://github.com/ggerganov/llama.cpp llama.cpp
-            cd llama.cpp
-            git checkout ${{ env.LLAMACPP_VERSION }}
-        
-            sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
-            sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
-            sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
-            sed -i.bak 's:abort():raise(SIGSEGV):g' ggml/src/ggml.c
-            sed -i.bak 's:GGML_NORETURN GGML_ATTRIBUTE_FORMAT://GGML_NORETURN GGML_ATTRIBUTE_FORMAT:g' ggml/include/ggml.h
-        
-            for f in examples/server/public/*;do
-              cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
-            done
-        
-            cd ..
-            mkdir -p build/licenses build/libs
-            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
-
-        - id: set_cuda_var_linux
-          if: startsWith(matrix.build, 'cuda')
-          name: Set CUDA variable
-          run: |
-            echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
-
-        - id: prepare_cuda
-          if: startsWith(matrix.build, 'cuda') || startsWith(matrix.build, 'hip')
-          name: Prepare CUDA
-          run: |
-            cp tinyBLAS/* llama.cpp/ggml/src/
-            rm -r llama.cpp/ggml/src/ggml-cuda
-            sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG ${{ matrix.minimise }}:g' llama.cpp/ggml/src/CMakeLists.txt
-            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
-
 
         - id: set_build_params_hip_linux
           name: Set build parameters
           run: |
-            sed -i "s:FATAL_ERROR:WARNING:g" llama.cpp/ggml/src/CMakeLists.txt
-            echo "BUILD_PARAMS=${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} -DCMAKE_HIP_COMPILER="$(hipconfig -l)/clang" -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=`pwd`/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=`pwd`/build/libs" >> $GITHUB_ENV
+            echo "CMAKE_COMMON_DIR=-DCMAKE_HIP_COMPILER=$(hipconfig -l)/clang -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=`pwd`/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=`pwd`/build/libs" >> $GITHUB_ENV
 
         - id: cmake_build_linux
           name: Build
           run: |
-            sed -i "s:LIBRARY undreamai:LIBRARY undreamai_${{ env.PLATFORM }}-${{ matrix.build }}:g" CMakeLists.txt
             export LD_LIBRARY_PATH=""
             cd build
-            cmake .. ${{ env.BUILD_PARAMS }}
+            cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j $(nproc)
 
 
@@ -350,14 +321,38 @@ jobs:
       matrix:
         include:
           - build: 'acc'
-            defines: ''
+            defines: '-DGGML_METAL_EMBED_LIBRARY=ON'
           - build: 'no_acc'
-            defines: '-DGGML_ACCELERATE=OFF -DGGML_BLAS=OFF'
+            defines: '-DGGML_METAL_EMBED_LIBRARY=ON -DGGML_ACCELERATE=OFF -DGGML_BLAS=OFF'
 
     steps:
         - id: checkout
           name: Clone
           uses: actions/checkout@v4
+
+        - id: setup_llama_cpp
+          name: Setup llama.cpp
+          run: |
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+        
+            git apply ../llama.cpp.patch
+            cp ../tinyBLAS/* ggml/src/ggml-cuda
+        
+            for f in examples/server/public/*;do
+                output=$(echo "$f" | sed -e 's:public/::g').hpp
+                echo $output
+                cmake -DINPUT="$f" -DOUTPUT="$output" -P "scripts/xxd.cmake"
+            done
+        
+            cd ..
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+          shell: bash
+
+        @@add_licenses@@
+
 
         - continue-on-error: true
           id: setup_libs_macos
@@ -365,39 +360,12 @@ jobs:
           run: |
             brew update
 
-        - id: setup_llama_cpp_linux
-          name: Clone llama.cpp
-          run: |
-            git clone https://github.com/ggerganov/llama.cpp llama.cpp
-            cd llama.cpp
-            git checkout ${{ env.LLAMACPP_VERSION }}
-        
-            sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
-            sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
-            sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
-            sed -i.bak 's:abort():raise(SIGSEGV):g' ggml/src/ggml.c
-            sed -i.bak 's:GGML_NORETURN GGML_ATTRIBUTE_FORMAT://GGML_NORETURN GGML_ATTRIBUTE_FORMAT:g' ggml/include/ggml.h
-        
-            for f in examples/server/public/*;do
-              cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
-            done
-        
-            cd ..
-            mkdir -p build/licenses build/libs
-            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
-
-
-        - id: set_build_params_macos_arm64
-          name: Set build parameters
-          run: |
-            echo "BUILD_PARAMS=-DLLAMA_FATAL_WARNINGS=ON -DGGML_METAL_EMBED_LIBRARY=ON -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}" >> $GITHUB_ENV
 
         - id: cmake_build_macos
           name: Build
           run: |
-            sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_${{ env.PLATFORM }}-${{ matrix.build }}:g" CMakeLists.txt
             cd build
-            cmake .. ${{ env.BUILD_PARAMS }}
+            cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
 
 
@@ -435,14 +403,38 @@ jobs:
       matrix:
         include:
           - build: 'acc'
-            defines: ''
+            defines: '-DGGML_METAL=OFF'
           - build: 'no_acc'
-            defines: '-DGGML_ACCELERATE=OFF -DGGML_BLAS=OFF'
+            defines: '-DGGML_METAL=OFF -DGGML_ACCELERATE=OFF -DGGML_BLAS=OFF'
 
     steps:
         - id: checkout
           name: Clone
           uses: actions/checkout@v4
+
+        - id: setup_llama_cpp
+          name: Setup llama.cpp
+          run: |
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+        
+            git apply ../llama.cpp.patch
+            cp ../tinyBLAS/* ggml/src/ggml-cuda
+        
+            for f in examples/server/public/*;do
+                output=$(echo "$f" | sed -e 's:public/::g').hpp
+                echo $output
+                cmake -DINPUT="$f" -DOUTPUT="$output" -P "scripts/xxd.cmake"
+            done
+        
+            cd ..
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+          shell: bash
+
+        @@add_licenses@@
+
 
         - continue-on-error: true
           id: setup_libs_macos
@@ -450,39 +442,12 @@ jobs:
           run: |
             brew update
 
-        - id: setup_llama_cpp_linux
-          name: Clone llama.cpp
-          run: |
-            git clone https://github.com/ggerganov/llama.cpp llama.cpp
-            cd llama.cpp
-            git checkout ${{ env.LLAMACPP_VERSION }}
-        
-            sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
-            sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
-            sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
-            sed -i.bak 's:abort():raise(SIGSEGV):g' ggml/src/ggml.c
-            sed -i.bak 's:GGML_NORETURN GGML_ATTRIBUTE_FORMAT://GGML_NORETURN GGML_ATTRIBUTE_FORMAT:g' ggml/include/ggml.h
-        
-            for f in examples/server/public/*;do
-              cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
-            done
-        
-            cd ..
-            mkdir -p build/licenses build/libs
-            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
-
-
-        - id: set_build_params_macos_x64
-          name: Set build parameters
-          run: |
-            echo "BUILD_PARAMS=-DLLAMA_FATAL_WARNINGS=ON -DGGML_METAL=OFF -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}" >> $GITHUB_ENV
 
         - id: cmake_build_macos
           name: Build
           run: |
-            sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_${{ env.PLATFORM }}-${{ matrix.build }}:g" CMakeLists.txt
             cd build
-            cmake .. ${{ env.BUILD_PARAMS }}
+            cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
 
         - id: test_build_unix
@@ -544,11 +509,9 @@ jobs:
           - build: 'vulkan'
             defines: '-DGGML_VULKAN=ON'
           - build: 'cuda-cu11.7.1'
-            defines: '-DGGML_CUDA=ON'
-            minimise: 'GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS'
+            defines: '-DGGML_CUDA=ON -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
           - build: 'cuda-cu12.2.0'
-            defines: '-DGGML_CUDA=ON'
-            minimise: 'GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS'
+            defines: '-DGGML_CUDA=ON -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
           - build: 'cuda-cu11.7.1-full'
             defines: '-DGGML_CUDA=ON'
           - build: 'cuda-cu12.2.0-full'
@@ -559,27 +522,29 @@ jobs:
           name: Clone
           uses: actions/checkout@v4
 
-        - id: setup_llama_cpp_windows
-          name: Clone llama.cpp
+        - id: setup_llama_cpp
+          name: Setup llama.cpp
           run: |
             git clone https://github.com/ggerganov/llama.cpp llama.cpp
             cd llama.cpp
             git checkout ${{ env.LLAMACPP_VERSION }}
-            (Get-Content examples/server/server.cpp ) -replace 'utils.hpp', 'utils_callback.hpp' | Set-Content examples/server/server.cpp
-            (Get-Content examples/server/server.cpp ) -replace 'main\(int argc', 'main_server(int argc' | Set-Content examples/server/server.cpp
-            (Get-Content ggml/src/ggml-vulkan.cpp ) -replace 'exit\(1', 'std::terminate(' | Set-Content ggml/src/ggml-vulkan.cpp
-            (Get-Content ggml/src/ggml.c ) -replace 'abort\(\)', 'raise(SIGSEGV)' | Set-Content ggml/src/ggml.c
-            (Get-Content ggml/include/ggml.h ) -replace 'GGML_NORETURN GGML_ATTRIBUTE_FORMAT', '//GGML_NORETURN GGML_ATTRIBUTE_FORMAT' | Set-Content ggml/include/ggml.h
         
-            Get-ChildItem examples/server/public/* | ForEach-Object {
-              $f = $_.FullName
-              $output = $f -replace "public\\", ""
-              echo "cmake -DINPUT=$f -DOUTPUT=$output.hpp -P scripts/xxd.cmake"
-              cmake -DINPUT="$f" -DOUTPUT="$output.hpp" -P "scripts/xxd.cmake"
-            }
+            git apply ../llama.cpp.patch
+            cp ../tinyBLAS/* ggml/src/ggml-cuda
+        
+            for f in examples/server/public/*;do
+                output=$(echo "$f" | sed -e 's:public/::g').hpp
+                echo $output
+                cmake -DINPUT="$f" -DOUTPUT="$output" -P "scripts/xxd.cmake"
+            done
         
             cd ..
-            mkdir -p build/licenses/
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+          shell: bash
+
+        @@add_licenses@@
+
 
         - id: setup_vulcan_windows
           if: matrix.build == 'vulkan'
@@ -612,15 +577,6 @@ jobs:
             $CUDA = [regex]::Match("${{ matrix.build }}", $pattern).Value
             Add-Content $env:GITHUB_ENV "CUDA=$CUDA"
 
-        - id: prepare_cuda
-          if: startsWith(matrix.build, 'cuda') || startsWith(matrix.build, 'hip')
-          name: Prepare CUDA
-          run: |
-            cp tinyBLAS/* llama.cpp/ggml/src/
-            rm -r llama.cpp/ggml/src/ggml-cuda
-            sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG ${{ matrix.minimise }}:g' llama.cpp/ggml/src/CMakeLists.txt
-            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
-
         - id: setup_cuda_windows
           if: startsWith(matrix.build, 'cuda')
           uses: Jimver/cuda-toolkit@v0.2.15
@@ -637,9 +593,8 @@ jobs:
         - id: cmake_build_windows
           name: Build
           run: |
-            (Get-Content CMakeLists.txt ) -replace 'LIBRARY undreamai', 'LIBRARY undreamai_windows-${{ matrix.build }}' | Set-Content CMakeLists.txt
             cd build
-            cmake .. ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+            cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
 
@@ -696,36 +651,37 @@ jobs:
       matrix:
         include:
           - build: 'hip'
-            minimise: 'GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS'
+            defines: '-DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
           - build: 'hip-full'
-            minimise: ''
 
     steps:
         - id: checkout
           name: Clone
           uses: actions/checkout@v4
 
-        - id: setup_llama_cpp_windows
-          name: Clone llama.cpp
+        - id: setup_llama_cpp
+          name: Setup llama.cpp
           run: |
             git clone https://github.com/ggerganov/llama.cpp llama.cpp
             cd llama.cpp
             git checkout ${{ env.LLAMACPP_VERSION }}
-            (Get-Content examples/server/server.cpp ) -replace 'utils.hpp', 'utils_callback.hpp' | Set-Content examples/server/server.cpp
-            (Get-Content examples/server/server.cpp ) -replace 'main\(int argc', 'main_server(int argc' | Set-Content examples/server/server.cpp
-            (Get-Content ggml/src/ggml-vulkan.cpp ) -replace 'exit\(1', 'std::terminate(' | Set-Content ggml/src/ggml-vulkan.cpp
-            (Get-Content ggml/src/ggml.c ) -replace 'abort\(\)', 'raise(SIGSEGV)' | Set-Content ggml/src/ggml.c
-            (Get-Content ggml/include/ggml.h ) -replace 'GGML_NORETURN GGML_ATTRIBUTE_FORMAT', '//GGML_NORETURN GGML_ATTRIBUTE_FORMAT' | Set-Content ggml/include/ggml.h
         
-            Get-ChildItem examples/server/public/* | ForEach-Object {
-              $f = $_.FullName
-              $output = $f -replace "public\\", ""
-              echo "cmake -DINPUT=$f -DOUTPUT=$output.hpp -P scripts/xxd.cmake"
-              cmake -DINPUT="$f" -DOUTPUT="$output.hpp" -P "scripts/xxd.cmake"
-            }
+            git apply ../llama.cpp.patch
+            cp ../tinyBLAS/* ggml/src/ggml-cuda
+        
+            for f in examples/server/public/*;do
+                output=$(echo "$f" | sed -e 's:public/::g').hpp
+                echo $output
+                cmake -DINPUT="$f" -DOUTPUT="$output" -P "scripts/xxd.cmake"
+            done
         
             cd ..
-            mkdir -p build/licenses/
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+          shell: bash
+
+        @@add_licenses@@
+
 
         - id: set_cuda_var_windows
           if: startsWith(matrix.build, 'cuda')
@@ -734,15 +690,6 @@ jobs:
             $pattern = "\d+\.\d+\.\d+"
             $CUDA = [regex]::Match("${{ matrix.build }}", $pattern).Value
             Add-Content $env:GITHUB_ENV "CUDA=$CUDA"
-
-        - id: prepare_cuda
-          if: startsWith(matrix.build, 'cuda') || startsWith(matrix.build, 'hip')
-          name: Prepare CUDA
-          run: |
-            cp tinyBLAS/* llama.cpp/ggml/src/
-            rm -r llama.cpp/ggml/src/ggml-cuda
-            sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG ${{ matrix.minimise }}:g' llama.cpp/ggml/src/CMakeLists.txt
-            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
         - id: setup_openssl_windows
           name: Install OpenSSL
@@ -775,10 +722,8 @@ jobs:
           run: |
             $env:HIP_PATH=$(Resolve-Path 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' | split-path | split-path)
             $env:CMAKE_PREFIX_PATH="${env:HIP_PATH}"
-            (Get-Content CMakeLists.txt ) -replace 'LIBRARY undreamai', 'LIBRARY undreamai_windows-${{ matrix.build }}' | Set-Content CMakeLists.txt
-            (Get-Content llama.cpp/ggml/src/CMakeLists.txt ) -replace 'FATAL_ERROR', 'WARNING' | Set-Content llama.cpp/ggml/src/CMakeLists.txt
             cd build
-            cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+            cmake -G "Unix Makefiles" .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
 
@@ -839,46 +784,48 @@ jobs:
           name: Clone
           uses: actions/checkout@v4
 
+        - id: setup_llama_cpp
+          name: Setup llama.cpp
+          run: |
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+        
+            git apply ../llama.cpp.patch
+            cp ../tinyBLAS/* ggml/src/ggml-cuda
+        
+            for f in examples/server/public/*;do
+                output=$(echo "$f" | sed -e 's:public/::g').hpp
+                echo $output
+                cmake -DINPUT="$f" -DOUTPUT="$output" -P "scripts/xxd.cmake"
+            done
+        
+            cd ..
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+          shell: bash
+
+        @@add_licenses@@
+
+
         - id: setup_libs_linux
           name: Dependencies
           run: |
             sudo apt-get update
             sudo apt-get install -y build-essential cmake zip libssl-dev
 
-        - id: setup_llama_cpp_linux
-          name: Clone llama.cpp
-          run: |
-            git clone https://github.com/ggerganov/llama.cpp llama.cpp
-            cd llama.cpp
-            git checkout ${{ env.LLAMACPP_VERSION }}
-        
-            sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
-            sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
-            sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
-            sed -i.bak 's:abort():raise(SIGSEGV):g' ggml/src/ggml.c
-            sed -i.bak 's:GGML_NORETURN GGML_ATTRIBUTE_FORMAT://GGML_NORETURN GGML_ATTRIBUTE_FORMAT:g' ggml/include/ggml.h
-        
-            for f in examples/server/public/*;do
-              cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
-            done
-        
-            cd ..
-            mkdir -p build/licenses build/libs
-            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
 
         - id: set_ndk_var_linux
           name: Set NDK variable
           run: |
             echo "NDK=`ls -d /usr/local/lib/android/sdk/ndk/26.*`" >> $GITHUB_ENV
 
-
         - id: cmake_build_android
           name: Build
           run: |
-            sed -i "s:LIBRARY undreamai:LIBRARY undreamai_android:g" CMakeLists.txt
             export LD_LIBRARY_PATH=""
             cd build
-            cmake .. -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-23 -DCMAKE_C_FLAGS=-march=armv8.4a+dotprod ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+            cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }} -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-23 -DCMAKE_C_FLAGS=-march=armv8.4a+dotprod ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j $(nproc)
 
 
@@ -924,42 +871,44 @@ jobs:
           name: Clone
           uses: actions/checkout@v4
 
+        - id: setup_llama_cpp
+          name: Setup llama.cpp
+          run: |
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+        
+            git apply ../llama.cpp.patch
+            cp ../tinyBLAS/* ggml/src/ggml-cuda
+        
+            for f in examples/server/public/*;do
+                output=$(echo "$f" | sed -e 's:public/::g').hpp
+                echo $output
+                cmake -DINPUT="$f" -DOUTPUT="$output" -P "scripts/xxd.cmake"
+            done
+        
+            cd ..
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+          shell: bash
+
+        @@add_licenses@@
+
+
         - continue-on-error: true
           id: setup_libs_macos
           name: Dependencies
           run: |
             brew update
 
-        - id: setup_llama_cpp_linux
-          name: Clone llama.cpp
-          run: |
-            git clone https://github.com/ggerganov/llama.cpp llama.cpp
-            cd llama.cpp
-            git checkout ${{ env.LLAMACPP_VERSION }}
-        
-            sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
-            sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
-            sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
-            sed -i.bak 's:abort():raise(SIGSEGV):g' ggml/src/ggml.c
-            sed -i.bak 's:GGML_NORETURN GGML_ATTRIBUTE_FORMAT://GGML_NORETURN GGML_ATTRIBUTE_FORMAT:g' ggml/include/ggml.h
-        
-            for f in examples/server/public/*;do
-              cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
-            done
-        
-            cd ..
-            mkdir -p build/licenses build/libs
-            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
-
 
         - id: cmake_build_ios
           name: Build
           run: |
-            sed -i.bak "s:LIBRARY undreamai:LIBRARY undreamai_iOS:g" CMakeLists.txt
             sed -i.bak "s:RUNTIME:BUNDLE DESTINATION .:g" CMakeLists.txt
             export LD_LIBRARY_PATH=""
             cd build
-            cmake -G Xcode .. ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+            cmake -G Xcode .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j $(sysctl -n hw.logicalcpu) -- CODE_SIGNING_ALLOWED=NO
 
 

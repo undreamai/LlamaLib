@@ -63,11 +63,9 @@ jobs:
           - build: 'vulkan'
             defines: '-DGGML_VULKAN=ON'
           - build: 'cuda-cu11.7.1'
-            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
-            minimise: 'GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS'
+            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda" -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
           - build: 'cuda-cu12.2.0'
-            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
-            minimise: 'GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS'
+            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda" -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
           - build: 'cuda-cu11.7.1-full'
             defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
           - build: 'cuda-cu12.2.0-full'
@@ -75,15 +73,15 @@ jobs:
             
     steps:
         @@checkout@@
+        @@setup_llama_cpp@@
+        @@add_licenses@@
+
         @@setup_libs_linux@@
-        @@setup_llama_cpp_linux@@
         @@setup_vulcan_linux@@
         @@set_cuda_var_linux@@
-        @@prepare_cuda@@
         @@setup_cuda_linux@@
         @@link_cuda_linux@@
 
-        @@set_build_params_linux@@
         @@cmake_build_linux@@
         @@test_build_unix@@
 
@@ -103,17 +101,16 @@ jobs:
       matrix:
         include:
           - build: 'hip'
-            minimise: 'GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS'
+            defines: -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
           - build: 'hip-full'
-            minimise: ''
 
     steps:
         @@checkout@@
+        @@setup_llama_cpp@@
+        @@add_licenses@@
+
         @@setup_libs_linux@@
         @@setup_hip_linux@@
-        @@setup_llama_cpp_linux@@
-        @@set_cuda_var_linux@@
-        @@prepare_cuda@@
 
         @@set_build_params_hip_linux@@
         @@cmake_build_linux@@
@@ -135,16 +132,17 @@ jobs:
       matrix:
         include:
           - build: 'acc'
-            defines: ''
+            defines: '-DGGML_METAL_EMBED_LIBRARY=ON'
           - build: 'no_acc'
-            defines: '-DGGML_ACCELERATE=OFF -DGGML_BLAS=OFF'
+            defines: '-DGGML_METAL_EMBED_LIBRARY=ON -DGGML_ACCELERATE=OFF -DGGML_BLAS=OFF'
 
     steps:
         @@checkout@@
-        @@setup_libs_macos@@
-        @@setup_llama_cpp_linux@@
+        @@setup_llama_cpp@@
+        @@add_licenses@@
 
-        @@set_build_params_macos_arm64@@
+        @@setup_libs_macos@@
+
         @@cmake_build_macos@@
 
         @@set_upload_name_unix@@
@@ -162,16 +160,17 @@ jobs:
       matrix:
         include:
           - build: 'acc'
-            defines: ''
+            defines: '-DGGML_METAL=OFF'
           - build: 'no_acc'
-            defines: '-DGGML_ACCELERATE=OFF -DGGML_BLAS=OFF'
+            defines: '-DGGML_METAL=OFF -DGGML_ACCELERATE=OFF -DGGML_BLAS=OFF'
 
     steps:
         @@checkout@@
-        @@setup_libs_macos@@
-        @@setup_llama_cpp_linux@@
+        @@setup_llama_cpp@@
+        @@add_licenses@@
 
-        @@set_build_params_macos_x64@@
+        @@setup_libs_macos@@
+
         @@cmake_build_macos@@
         @@test_build_unix@@
 
@@ -204,11 +203,9 @@ jobs:
           - build: 'vulkan'
             defines: '-DGGML_VULKAN=ON'
           - build: 'cuda-cu11.7.1'
-            defines: '-DGGML_CUDA=ON'
-            minimise: 'GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS'
+            defines: '-DGGML_CUDA=ON -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
           - build: 'cuda-cu12.2.0'
-            defines: '-DGGML_CUDA=ON'
-            minimise: 'GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS'
+            defines: '-DGGML_CUDA=ON -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
           - build: 'cuda-cu11.7.1-full'
             defines: '-DGGML_CUDA=ON'
           - build: 'cuda-cu12.2.0-full'
@@ -216,11 +213,12 @@ jobs:
 
     steps:
         @@checkout@@
-        @@setup_llama_cpp_windows@@
+        @@setup_llama_cpp@@
+        @@add_licenses@@
+
         @@setup_vulcan_windows@@
         @@setup_openssl_windows@@
         @@set_cuda_var_windows@@
-        @@prepare_cuda@@
         @@setup_cuda_windows@@
 
         @@cpu-cores@@
@@ -242,15 +240,15 @@ jobs:
       matrix:
         include:
           - build: 'hip'
-            minimise: 'GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS'
+            defines: '-DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
           - build: 'hip-full'
-            minimise: ''
 
     steps:
         @@checkout@@
-        @@setup_llama_cpp_windows@@
+        @@setup_llama_cpp@@
+        @@add_licenses@@
+
         @@set_cuda_var_windows@@
-        @@prepare_cuda@@
         @@setup_openssl_windows@@
         @@setup_hip_windows@@
 
@@ -274,10 +272,12 @@ jobs:
 
     steps:
         @@checkout@@
-        @@setup_libs_linux@@
-        @@setup_llama_cpp_linux@@
-        @@set_ndk_var_linux@@
+        @@setup_llama_cpp@@
+        @@add_licenses@@
 
+        @@setup_libs_linux@@
+
+        @@set_ndk_var_linux@@
         @@cmake_build_android@@
 
         @@set_upload_name_unix@@
@@ -296,8 +296,10 @@ jobs:
 
     steps:
         @@checkout@@
+        @@setup_llama_cpp@@
+        @@add_licenses@@
+
         @@setup_libs_macos@@
-        @@setup_llama_cpp_linux@@
 
         @@cmake_build_ios@@
 
