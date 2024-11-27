@@ -7,7 +7,7 @@ on:
 
 env:
   LLAMACPP_VERSION: b4164
-  CMAKE_COMMON_JOBS: '-DGGML_STATIC=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DBUILD_UNDREAMAI_SERVER=ON -DBUILD_SHARED_LIBS=OFF'
+  CMAKE_COMMON_JOBS: '-DLLAMA_BUILD_COMMON=ON -DGGML_STATIC=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DBUILD_UNDREAMAI_SERVER=ON -DBUILD_SHARED_LIBS=OFF'
   CMAKE_COMMON_DIR: -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs
 
 jobs:
@@ -123,17 +123,17 @@ jobs:
             cp ../tinyBLAS/* ggml/src/ggml-cuda
         
             for f in examples/server/public/*;do
-                output=$(echo "$f" | sed -e 's:public/::g').hpp
-                echo $output
-                cmake -DINPUT="$f" -DOUTPUT="$output" -P "scripts/xxd.cmake"
+                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
             done
-        
-            cd ..
-            mkdir -p build/licenses build/libs
-            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
           shell: bash
 
-        @@add_licenses@@
+        - id: add_licenses
+          name: Add licenses
+          run: |
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+          shell: bash
 
 
         - id: setup_libs_linux
@@ -246,17 +246,17 @@ jobs:
             cp ../tinyBLAS/* ggml/src/ggml-cuda
         
             for f in examples/server/public/*;do
-                output=$(echo "$f" | sed -e 's:public/::g').hpp
-                echo $output
-                cmake -DINPUT="$f" -DOUTPUT="$output" -P "scripts/xxd.cmake"
+                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
             done
-        
-            cd ..
-            mkdir -p build/licenses build/libs
-            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
           shell: bash
 
-        @@add_licenses@@
+        - id: add_licenses
+          name: Add licenses
+          run: |
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+          shell: bash
 
 
         - id: setup_libs_linux
@@ -341,17 +341,17 @@ jobs:
             cp ../tinyBLAS/* ggml/src/ggml-cuda
         
             for f in examples/server/public/*;do
-                output=$(echo "$f" | sed -e 's:public/::g').hpp
-                echo $output
-                cmake -DINPUT="$f" -DOUTPUT="$output" -P "scripts/xxd.cmake"
+                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
             done
-        
-            cd ..
-            mkdir -p build/licenses build/libs
-            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
           shell: bash
 
-        @@add_licenses@@
+        - id: add_licenses
+          name: Add licenses
+          run: |
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+          shell: bash
 
 
         - continue-on-error: true
@@ -423,17 +423,17 @@ jobs:
             cp ../tinyBLAS/* ggml/src/ggml-cuda
         
             for f in examples/server/public/*;do
-                output=$(echo "$f" | sed -e 's:public/::g').hpp
-                echo $output
-                cmake -DINPUT="$f" -DOUTPUT="$output" -P "scripts/xxd.cmake"
+                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
             done
-        
-            cd ..
-            mkdir -p build/licenses build/libs
-            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
           shell: bash
 
-        @@add_licenses@@
+        - id: add_licenses
+          name: Add licenses
+          run: |
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+          shell: bash
 
 
         - continue-on-error: true
@@ -533,17 +533,17 @@ jobs:
             cp ../tinyBLAS/* ggml/src/ggml-cuda
         
             for f in examples/server/public/*;do
-                output=$(echo "$f" | sed -e 's:public/::g').hpp
-                echo $output
-                cmake -DINPUT="$f" -DOUTPUT="$output" -P "scripts/xxd.cmake"
+                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
             done
-        
-            cd ..
-            mkdir -p build/licenses build/libs
-            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
           shell: bash
 
-        @@add_licenses@@
+        - id: add_licenses
+          name: Add licenses
+          run: |
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+          shell: bash
 
 
         - id: setup_vulcan_windows
@@ -670,17 +670,17 @@ jobs:
             cp ../tinyBLAS/* ggml/src/ggml-cuda
         
             for f in examples/server/public/*;do
-                output=$(echo "$f" | sed -e 's:public/::g').hpp
-                echo $output
-                cmake -DINPUT="$f" -DOUTPUT="$output" -P "scripts/xxd.cmake"
+                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
             done
-        
-            cd ..
-            mkdir -p build/licenses build/libs
-            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
           shell: bash
 
-        @@add_licenses@@
+        - id: add_licenses
+          name: Add licenses
+          run: |
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+          shell: bash
 
 
         - id: set_cuda_var_windows
@@ -795,17 +795,17 @@ jobs:
             cp ../tinyBLAS/* ggml/src/ggml-cuda
         
             for f in examples/server/public/*;do
-                output=$(echo "$f" | sed -e 's:public/::g').hpp
-                echo $output
-                cmake -DINPUT="$f" -DOUTPUT="$output" -P "scripts/xxd.cmake"
+                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
             done
-        
-            cd ..
-            mkdir -p build/licenses build/libs
-            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
           shell: bash
 
-        @@add_licenses@@
+        - id: add_licenses
+          name: Add licenses
+          run: |
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+          shell: bash
 
 
         - id: setup_libs_linux
@@ -882,17 +882,17 @@ jobs:
             cp ../tinyBLAS/* ggml/src/ggml-cuda
         
             for f in examples/server/public/*;do
-                output=$(echo "$f" | sed -e 's:public/::g').hpp
-                echo $output
-                cmake -DINPUT="$f" -DOUTPUT="$output" -P "scripts/xxd.cmake"
+                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
             done
-        
-            cd ..
-            mkdir -p build/licenses build/libs
-            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
           shell: bash
 
-        @@add_licenses@@
+        - id: add_licenses
+          name: Add licenses
+          run: |
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+          shell: bash
 
 
         - continue-on-error: true

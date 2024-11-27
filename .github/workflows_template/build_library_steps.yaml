@@ -51,14 +51,16 @@ jobs:
           cp ../tinyBLAS/* ggml/src/ggml-cuda
 
           for f in examples/server/public/*;do
-              output=$(echo "$f" | sed -e 's:public/::g').hpp
-              echo $output
-              cmake -DINPUT="$f" -DOUTPUT="$output" -P "scripts/xxd.cmake"
+              cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
           done
 
-          cd ..
+      - name: Add licenses
+        id: add_licenses
+        shell: bash
+        run: |
           mkdir -p build/licenses build/libs
           cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+          curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
 ################################ Linux ################################
 
