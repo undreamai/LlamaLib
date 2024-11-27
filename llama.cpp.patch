@@ -37,25 +37,6 @@ index 071508dd..5141fea0 100644
  endif()
  
  add_library(ggml-base
-diff --git a/ggml/src/ggml-cuda/CMakeLists.txt b/ggml/src/ggml-cuda/CMakeLists.txt
-index b0cb93e0..693375d9 100644
---- a/ggml/src/ggml-cuda/CMakeLists.txt
-+++ b/ggml/src/ggml-cuda/CMakeLists.txt
-@@ -33,6 +33,14 @@ if (CUDAToolkit_FOUND)
-     file(GLOB   SRCS "template-instances/mmq*.cu")
-     list(APPEND GGML_SOURCES_CUDA ${SRCS})
- 
-+    add_compile_definitions(GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG)
-+    if(GGML_MINIMIZE_CODE_SIZE)
-+        target_compile_definitions(ggml PUBLIC GGML_MINIMIZE_CODE_SIZE)
-+    endif()
-+    if(GGML_NO_IQUANTS)
-+        target_compile_definitions(ggml PUBLIC GGML_NO_IQUANTS)
-+    endif()
-+
-     if (GGML_CUDA_FA_ALL_QUANTS)
-         file(GLOB   SRCS "template-instances/fattn-vec*.cu")
-         list(APPEND GGML_SOURCES_CUDA ${SRCS})
 diff --git a/ggml/src/ggml-cuda/acc.cu b/ggml/src/ggml-cuda/acc.cu
 deleted file mode 100644
 index 96bfe1c9..00000000
@@ -19388,44 +19369,6 @@ index a7124ee5..00000000
 -#define CUDA_WKV_BLOCK_SIZE 64
 -
 -void ggml_cuda_op_rwkv_wkv6(ggml_backend_cuda_context & ctx, ggml_tensor * dst);
-diff --git a/ggml/src/ggml-hip/CMakeLists.txt b/ggml/src/ggml-hip/CMakeLists.txt
-index b15fbd24..8ff4fa3d 100644
---- a/ggml/src/ggml-hip/CMakeLists.txt
-+++ b/ggml/src/ggml-hip/CMakeLists.txt
-@@ -70,7 +70,13 @@ ggml_add_backend_library(ggml-hip
-                         )
- 
- # TODO: do not use CUDA definitions for HIP
--target_compile_definitions(ggml PUBLIC GGML_USE_CUDA)
-+target_compile_definitions(ggml PUBLIC GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG)
-+if(GGML_MINIMIZE_CODE_SIZE)
-+    target_compile_definitions(ggml PUBLIC GGML_MINIMIZE_CODE_SIZE)
-+endif()
-+if(GGML_NO_IQUANTS)
-+    target_compile_definitions(ggml PUBLIC GGML_NO_IQUANTS)
-+endif()
- 
- add_compile_definitions(GGML_USE_HIP)
- 
-diff --git a/ggml/src/ggml-musa/CMakeLists.txt b/ggml/src/ggml-musa/CMakeLists.txt
-index e1a69186..a1bac25e 100644
---- a/ggml/src/ggml-musa/CMakeLists.txt
-+++ b/ggml/src/ggml-musa/CMakeLists.txt
-@@ -53,7 +53,13 @@ if (MUSAToolkit_FOUND)
-                             )
- 
-     # TODO: do not use CUDA definitions for MUSA
--    target_compile_definitions(ggml PUBLIC GGML_USE_CUDA)
-+    target_compile_definitions(ggml PUBLIC GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG)
-+    if(GGML_MINIMIZE_CODE_SIZE)
-+        target_compile_definitions(ggml PUBLIC GGML_MINIMIZE_CODE_SIZE)
-+    endif()
-+    if(GGML_NO_IQUANTS)
-+        target_compile_definitions(ggml PUBLIC GGML_NO_IQUANTS)
-+    endif()
- 
-     add_compile_definitions(GGML_USE_MUSA)
-     add_compile_definitions(GGML_CUDA_PEER_MAX_BATCH_SIZE=${GGML_CUDA_PEER_MAX_BATCH_SIZE})
 diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 index 49527fdf..255fc3d6 100644
 --- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
