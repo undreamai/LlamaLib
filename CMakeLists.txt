@@ -22,7 +22,7 @@ if(DEFINED LIBRARY_SUFFIX)
   set(LIBRARY "${LIBRARY}_${LIBRARY_SUFFIX}")
 endif()
 
-add_library(${LIBRARY} SHARED stringwrapper.cpp utils_callback.hpp undreamai.cpp)
+add_library(${LIBRARY} SHARED stringwrapper.cpp undreamai.cpp)
 install(TARGETS ${LIBRARY} LIBRARY)
 target_include_directories(${LIBRARY} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} llama.cpp/examples/server)
 target_link_libraries(${LIBRARY} PRIVATE common ${CMAKE_THREAD_LIBS_INIT})
