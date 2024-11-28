@@ -102,10 +102,6 @@ jobs:
             defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda" -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
           - build: 'cuda-cu12.2.0'
             defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda" -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
-          - build: 'cuda-cu11.7.1-full'
-            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
-          - build: 'cuda-cu12.2.0-full'
-            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
             
     steps:
         - id: setup_libs_linux
@@ -229,7 +225,6 @@ jobs:
         include:
           - build: 'hip'
             defines: '-DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
-          - build: 'hip-full'
 
     steps:
         - id: setup_libs_linux
@@ -514,10 +509,6 @@ jobs:
             defines: '-DGGML_CUDA=ON -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
           - build: 'cuda-cu12.2.0'
             defines: '-DGGML_CUDA=ON -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
-          - build: 'cuda-cu11.7.1-full'
-            defines: '-DGGML_CUDA=ON'
-          - build: 'cuda-cu12.2.0-full'
-            defines: '-DGGML_CUDA=ON'
 
     steps:
         - id: checkout
@@ -654,7 +645,6 @@ jobs:
         include:
           - build: 'hip'
             defines: '-DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
-          - build: 'hip-full'
 
     steps:
         - id: checkout
@@ -983,8 +973,7 @@ jobs:
               rm $servers
             fi
         
-            zip -r $PREFIX.zip `cat bundle | grep -v full` linux-archchecker windows-archchecker
-            zip -r $PREFIX-full.zip `cat bundle | grep full`
+            zip -r $PREFIX.zip `cat bundle` linux-archchecker windows-archchecker
 
         - id: release
           name: Release
