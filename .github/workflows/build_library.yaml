@@ -108,6 +108,13 @@ jobs:
             defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
             
     steps:
+        - id: setup_libs_linux
+          name: Dependencies
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y build-essential cmake zip libssl-dev git
+
+
         - id: checkout
           name: Clone
           uses: actions/checkout@v4
@@ -136,13 +143,7 @@ jobs:
           shell: bash
 
 
-        - id: setup_libs_linux
-          name: Dependencies
-          run: |
-            sudo apt-get update
-            sudo apt-get install -y build-essential cmake zip libssl-dev
-
-        - id: setup_vulcan_linux
+        - id: setup_vulkan_linux
           if: matrix.build == 'vulkan'
           name: Dependencies Vulcan
           run: |
@@ -231,6 +232,13 @@ jobs:
           - build: 'hip-full'
 
     steps:
+        - id: setup_libs_linux
+          name: Dependencies
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y build-essential cmake zip libssl-dev git
+
+
         - id: checkout
           name: Clone
           uses: actions/checkout@v4
@@ -259,16 +267,10 @@ jobs:
           shell: bash
 
 
-        - id: setup_libs_linux
-          name: Dependencies
-          run: |
-            sudo apt-get update
-            sudo apt-get install -y build-essential cmake zip libssl-dev
-
         - id: setup_hip_linux
           name: Dependencies
           run: |
-            sudo apt-get install -y git rocblas-dev hipblas-dev
+            sudo apt-get install -y rocblas-dev hipblas-dev
 
 
         - id: set_build_params_hip_linux
@@ -326,6 +328,13 @@ jobs:
             defines: '-DGGML_METAL_EMBED_LIBRARY=ON -DGGML_ACCELERATE=OFF -DGGML_BLAS=OFF'
 
     steps:
+        - continue-on-error: true
+          id: setup_libs_macos
+          name: Dependencies
+          run: |
+            brew update
+
+
         - id: checkout
           name: Clone
           uses: actions/checkout@v4
@@ -352,13 +361,6 @@ jobs:
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
             curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
           shell: bash
-
-
-        - continue-on-error: true
-          id: setup_libs_macos
-          name: Dependencies
-          run: |
-            brew update
 
 
         - id: cmake_build_macos
@@ -408,6 +410,13 @@ jobs:
             defines: '-DGGML_METAL=OFF -DGGML_ACCELERATE=OFF -DGGML_BLAS=OFF'
 
     steps:
+        - continue-on-error: true
+          id: setup_libs_macos
+          name: Dependencies
+          run: |
+            brew update
+
+
         - id: checkout
           name: Clone
           uses: actions/checkout@v4
@@ -434,13 +443,6 @@ jobs:
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
             curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
           shell: bash
-
-
-        - continue-on-error: true
-          id: setup_libs_macos
-          name: Dependencies
-          run: |
-            brew update
 
 
         - id: cmake_build_macos
@@ -780,6 +782,13 @@ jobs:
       PLATFORM: android
 
     steps:
+        - id: setup_libs_linux
+          name: Dependencies
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y build-essential cmake zip libssl-dev git
+
+
         - id: checkout
           name: Clone
           uses: actions/checkout@v4
@@ -806,13 +815,6 @@ jobs:
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
             curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
           shell: bash
-
-
-        - id: setup_libs_linux
-          name: Dependencies
-          run: |
-            sudo apt-get update
-            sudo apt-get install -y build-essential cmake zip libssl-dev
 
 
         - id: set_ndk_var_linux
@@ -867,6 +869,13 @@ jobs:
       PLATFORM: iOS
 
     steps:
+        - continue-on-error: true
+          id: setup_libs_macos
+          name: Dependencies
+          run: |
+            brew update
+
+
         - id: checkout
           name: Clone
           uses: actions/checkout@v4
@@ -893,13 +902,6 @@ jobs:
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
             curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
           shell: bash
-
-
-        - continue-on-error: true
-          id: setup_libs_macos
-          name: Dependencies
-          run: |
-            brew update
 
 
         - id: cmake_build_ios

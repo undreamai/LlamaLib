@@ -68,15 +68,15 @@ jobs:
         id: setup_libs_linux
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake zip libssl-dev
+          sudo apt-get install -y build-essential cmake zip libssl-dev git
 
       - name: Dependencies
         id: setup_hip_linux
         run: |
-          sudo apt-get install -y git rocblas-dev hipblas-dev
+          sudo apt-get install -y rocblas-dev hipblas-dev
 
       - name: Dependencies Vulcan
-        id: setup_vulcan_linux
+        id: setup_vulkan_linux
         if: matrix.build == 'vulkan'
         run: |
           wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -

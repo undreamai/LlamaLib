@@ -72,12 +72,13 @@ jobs:
             defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
             
     steps:
+        @@setup_libs_linux@@
+
         @@checkout@@
         @@setup_llama_cpp@@
         @@add_licenses@@
 
-        @@setup_libs_linux@@
-        @@setup_vulcan_linux@@
+        @@setup_vulkan_linux@@
         @@set_cuda_var_linux@@
         @@setup_cuda_linux@@
         @@link_cuda_linux@@
@@ -105,11 +106,12 @@ jobs:
           - build: 'hip-full'
 
     steps:
+        @@setup_libs_linux@@
+
         @@checkout@@
         @@setup_llama_cpp@@
         @@add_licenses@@
 
-        @@setup_libs_linux@@
         @@setup_hip_linux@@
 
         @@set_build_params_hip_linux@@
@@ -137,11 +139,11 @@ jobs:
             defines: '-DGGML_METAL_EMBED_LIBRARY=ON -DGGML_ACCELERATE=OFF -DGGML_BLAS=OFF'
 
     steps:
+        @@setup_libs_macos@@
+
         @@checkout@@
         @@setup_llama_cpp@@
         @@add_licenses@@
-
-        @@setup_libs_macos@@
 
         @@cmake_build_macos@@
 
@@ -165,11 +167,11 @@ jobs:
             defines: '-DGGML_METAL=OFF -DGGML_ACCELERATE=OFF -DGGML_BLAS=OFF'
 
     steps:
+        @@setup_libs_macos@@
+
         @@checkout@@
         @@setup_llama_cpp@@
         @@add_licenses@@
-
-        @@setup_libs_macos@@
 
         @@cmake_build_macos@@
         @@test_build_unix@@
@@ -271,11 +273,11 @@ jobs:
       PLATFORM: android
 
     steps:
+        @@setup_libs_linux@@
+
         @@checkout@@
         @@setup_llama_cpp@@
         @@add_licenses@@
-
-        @@setup_libs_linux@@
 
         @@set_ndk_var_linux@@
         @@cmake_build_android@@
@@ -295,11 +297,11 @@ jobs:
       PLATFORM: iOS
 
     steps:
+        @@setup_libs_macos@@
+
         @@checkout@@
         @@setup_llama_cpp@@
         @@add_licenses@@
-
-        @@setup_libs_macos@@
 
         @@cmake_build_ios@@
 
