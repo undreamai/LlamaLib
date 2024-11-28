@@ -102,7 +102,7 @@ jobs:
       matrix:
         include:
           - build: 'hip'
-            defines: -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
+            defines: '-DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
           - build: 'hip-full'
 
     steps:
