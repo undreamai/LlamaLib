@@ -1,8 +1,40 @@
 diff --git a/examples/server/server.cpp b/examples/server/server.cpp
-index f9d20fee..817d83f2 100644
+index f9d20fee..b31d241c 100644
 --- a/examples/server/server.cpp
 +++ b/examples/server/server.cpp
-@@ -2403,7 +2403,7 @@ inline void signal_handler(int signal) {
+@@ -651,16 +651,24 @@ struct server_context {
+ 
+         // Clear any sampling context
+         for (server_slot & slot : slots) {
+-            common_sampler_free(slot.smpl);
+-            slot.smpl = nullptr;
++            if (slot.smpl != nullptr) {
++                common_sampler_free(slot.smpl);
++                slot.smpl = nullptr;
++            }
+ 
+-            llama_free(slot.ctx_dft);
+-            slot.ctx_dft = nullptr;
++            if (slot.ctx_dft != nullptr) {
++                llama_free(slot.ctx_dft);
++                slot.ctx_dft = nullptr;
++            }
+ 
+-            common_speculative_free(slot.spec);
+-            slot.spec = nullptr;
++            if (slot.spec != nullptr) {
++                common_speculative_free(slot.spec);
++                slot.spec = nullptr;
++            }
+ 
+-            llama_batch_free(slot.batch_spec);
++            if (slot.ctx_dft) {
++                llama_batch_free(slot.batch_spec);
++            }
+         }
+ 
+         llama_batch_free(batch);
+@@ -2403,7 +2411,7 @@ inline void signal_handler(int signal) {
      shutdown_handler(signal);
  }
  
