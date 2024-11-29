@@ -123,7 +123,10 @@ jobs:
             git checkout ${{ env.LLAMACPP_VERSION }}
         
             git apply ../llama.cpp.patch
-            cp ../tinyBLAS/* ggml/src/ggml-cuda
+            mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
+            rm -r ggml/src/ggml-cuda
+            cp -R ../tinyBLAS ggml/src/ggml-cuda
+            mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
         
             for f in examples/server/public/*;do
                 cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
@@ -246,7 +249,10 @@ jobs:
             git checkout ${{ env.LLAMACPP_VERSION }}
         
             git apply ../llama.cpp.patch
-            cp ../tinyBLAS/* ggml/src/ggml-cuda
+            mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
+            rm -r ggml/src/ggml-cuda
+            cp -R ../tinyBLAS ggml/src/ggml-cuda
+            mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
         
             for f in examples/server/public/*;do
                 cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
@@ -342,7 +348,10 @@ jobs:
             git checkout ${{ env.LLAMACPP_VERSION }}
         
             git apply ../llama.cpp.patch
-            cp ../tinyBLAS/* ggml/src/ggml-cuda
+            mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
+            rm -r ggml/src/ggml-cuda
+            cp -R ../tinyBLAS ggml/src/ggml-cuda
+            mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
         
             for f in examples/server/public/*;do
                 cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
@@ -424,7 +433,10 @@ jobs:
             git checkout ${{ env.LLAMACPP_VERSION }}
         
             git apply ../llama.cpp.patch
-            cp ../tinyBLAS/* ggml/src/ggml-cuda
+            mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
+            rm -r ggml/src/ggml-cuda
+            cp -R ../tinyBLAS ggml/src/ggml-cuda
+            mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
         
             for f in examples/server/public/*;do
                 cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
@@ -523,7 +535,10 @@ jobs:
             git checkout ${{ env.LLAMACPP_VERSION }}
         
             git apply ../llama.cpp.patch
-            cp ../tinyBLAS/* ggml/src/ggml-cuda
+            mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
+            rm -r ggml/src/ggml-cuda
+            cp -R ../tinyBLAS ggml/src/ggml-cuda
+            mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
         
             for f in examples/server/public/*;do
                 cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
@@ -659,7 +674,10 @@ jobs:
             git checkout ${{ env.LLAMACPP_VERSION }}
         
             git apply ../llama.cpp.patch
-            cp ../tinyBLAS/* ggml/src/ggml-cuda
+            mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
+            rm -r ggml/src/ggml-cuda
+            cp -R ../tinyBLAS ggml/src/ggml-cuda
+            mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
         
             for f in examples/server/public/*;do
                 cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
@@ -791,7 +809,10 @@ jobs:
             git checkout ${{ env.LLAMACPP_VERSION }}
         
             git apply ../llama.cpp.patch
-            cp ../tinyBLAS/* ggml/src/ggml-cuda
+            mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
+            rm -r ggml/src/ggml-cuda
+            cp -R ../tinyBLAS ggml/src/ggml-cuda
+            mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
         
             for f in examples/server/public/*;do
                 cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
@@ -878,7 +899,10 @@ jobs:
             git checkout ${{ env.LLAMACPP_VERSION }}
         
             git apply ../llama.cpp.patch
-            cp ../tinyBLAS/* ggml/src/ggml-cuda
+            mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
+            rm -r ggml/src/ggml-cuda
+            cp -R ../tinyBLAS ggml/src/ggml-cuda
+            mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
         
             for f in examples/server/public/*;do
                 cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
