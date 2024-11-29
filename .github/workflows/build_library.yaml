@@ -103,9 +103,9 @@ jobs:
           - build: 'cuda-cu12.2.0'
             defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda" -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
           - build: 'cuda-cu11.7.1-full'
-            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
+            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda" -DGGML_NO_IQUANTS=ON'
           - build: 'cuda-cu12.2.0-full'
-            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
+            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda" -DGGML_NO_IQUANTS=ON'
             
     steps:
         - id: setup_libs_linux
@@ -233,6 +233,7 @@ jobs:
           - build: 'hip'
             defines: '-DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
           - build: 'hip-full'
+            defines: '-DGGML_NO_IQUANTS=ON'
 
     steps:
         - id: setup_libs_linux
@@ -527,9 +528,9 @@ jobs:
           - build: 'cuda-cu12.2.0'
             defines: '-DGGML_CUDA=ON -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
           - build: 'cuda-cu11.7.1-full'
-            defines: '-DGGML_CUDA=ON'
+            defines: '-DGGML_CUDA=ON -DGGML_NO_IQUANTS=ON'
           - build: 'cuda-cu12.2.0-full'
-            defines: '-DGGML_CUDA=ON'
+            defines: '-DGGML_CUDA=ON -DGGML_NO_IQUANTS=ON'
 
     steps:
         - id: checkout
@@ -670,6 +671,7 @@ jobs:
           - build: 'hip'
             defines: '-DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
           - build: 'hip-full'
+            defines: '-DGGML_NO_IQUANTS=ON'
 
     steps:
         - id: checkout
