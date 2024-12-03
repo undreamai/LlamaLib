@@ -227,6 +227,14 @@ jobs:
           move build/libs/*exp build/libs/Release
           move build/libs/*lib build/libs/Release
 
+      - name: Copy Cuda DLLs
+        id: copy_cuda_dlls
+        if: startsWith(matrix.build, 'cuda')
+        run: |
+          echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
+          $dst='build/libs/Release'
+          robocopy "${{steps.cuda-toolkit.outputs.CUDA_PATH}}\bin" $dst cudart64_*.dll cublas64_*.dll cublasLt64_*.dll
+
       - name: Set upload name
         id: set_upload_name_windows
         run: |
