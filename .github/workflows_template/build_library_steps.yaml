@@ -155,6 +155,8 @@ jobs:
         continue-on-error: true
         run: |
           brew update
+          echo "Architecture: $(uname -m)"
+          echo "Operating System: $(uname -s)"
 
       - name: Build
         id: cmake_build_macos
