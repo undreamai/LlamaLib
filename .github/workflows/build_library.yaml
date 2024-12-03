@@ -345,6 +345,8 @@ jobs:
           name: Dependencies
           run: |
             brew update
+            echo "Architecture: $(uname -m)"
+            echo "Operating System: $(uname -s)"
 
 
         - id: checkout
@@ -433,6 +435,8 @@ jobs:
           name: Dependencies
           run: |
             brew update
+            echo "Architecture: $(uname -m)"
+            echo "Operating System: $(uname -s)"
 
 
         - id: checkout
@@ -924,6 +928,8 @@ jobs:
           name: Dependencies
           run: |
             brew update
+            echo "Architecture: $(uname -m)"
+            echo "Operating System: $(uname -s)"
 
 
         - id: checkout
