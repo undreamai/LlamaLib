@@ -232,10 +232,11 @@ jobs:
       - name: Copy Cuda DLLs
         id: copy_cuda_dlls
         if: startsWith(matrix.build, 'cuda')
+        shell: bash
         run: |
-          echo "Cuda install location: ${{ env.CUDA_PATH }}"
-          $dst='build/libs/Release'
-          robocopy "${{ env.CUDA_PATH }}\bin" $dst cudart64_*.dll cublas64_*.dll cublasLt64_*.dll
+          mv "${{ env.CUDA_PATH }}"/bin/cudart64_*.dll build/libs/Release
+          mv "${{ env.CUDA_PATH }}"/bin/cublas64_*.dll build/libs/Release
+          mv "${{ env.CUDA_PATH }}"/bin/cublasLt64_*.dll build/libs/Release
 
       - name: Set upload name
         id: set_upload_name_windows
@@ -250,12 +251,12 @@ jobs:
           ls -R build
           del build/libs/Release/undreamai_test.exe
           mkdir artifacts
-          Copy-Item .\build\licenses\* .\artifacts\
-          Copy-Item .\build\Release\* .\artifacts\
-          Copy-Item .\build\libs\Release\*dll .\artifacts\
+          move .\build\licenses\* .\artifacts\
+          move .\build\Release\* .\artifacts\
+          move .\build\libs\Release\*dll .\artifacts\
           $serverPath = ".\build\libs\Release\undreamai_server.exe"
           if (Test-Path $serverPath) {
-              Copy-Item $serverPath -Destination ".\artifacts\"
+              move $serverPath -Destination ".\artifacts\"
           }
           cd artifacts
           7z a ../${{ env.UPLOAD_NAME }} *
