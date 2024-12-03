@@ -651,9 +651,9 @@ jobs:
           if: startsWith(matrix.build, 'cuda')
           name: Copy Cuda DLLs
           run: |
-            echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
+            echo "Cuda install location: ${{ env.CUDA_PATH }}"
             $dst='build/libs/Release'
-            robocopy "${{steps.cuda-toolkit.outputs.CUDA_PATH}}\bin" $dst cudart64_*.dll cublas64_*.dll cublasLt64_*.dll
+            robocopy "${{ env.CUDA_PATH }}\bin" $dst cudart64_*.dll cublas64_*.dll cublasLt64_*.dll
 
         - id: set_upload_name_windows
           name: Set upload name
