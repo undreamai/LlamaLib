@@ -229,6 +229,7 @@ jobs:
         @@cmake_build_windows@@
 
         @@move_files_windows@@
+        @@copy_cuda_dlls@@
         @@set_upload_name_windows@@
         @@pack_artifacts_windows@@
         @@upload@@
