@@ -48,10 +48,13 @@ jobs:
           git checkout ${{ env.LLAMACPP_VERSION }}
 
           git apply ../llama.cpp.patch
-          mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
-          rm -r ggml/src/ggml-cuda
-          cp -R ../tinyBLAS ggml/src/ggml-cuda
-          mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
+          if [[ "${{ matrix.tinyBLAS }}" != "" ]]; then
+            echo "tinyBLAS"
+            mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
+            rm -r ggml/src/ggml-cuda
+            cp -R ../tinyBLAS ggml/src/ggml-cuda
+            mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
+          fi
 
           for f in examples/server/public/*;do
               cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"

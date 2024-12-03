@@ -64,8 +64,14 @@ jobs:
             defines: '-DGGML_VULKAN=ON'
           - build: 'cuda-cu11.7.1'
             defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda" -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
+            tinyBLAS: 'ON'
           - build: 'cuda-cu12.2.0'
             defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda" -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
+            tinyBLAS: 'ON'
+          - build: 'cuda-cu11.7.1-full'
+            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
+          - build: 'cuda-cu12.2.0-full'
+            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
             
     steps:
         @@setup_libs_linux@@
@@ -98,7 +104,6 @@ jobs:
       matrix:
         include:
           - build: 'hip'
-            defines: '-DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
 
     steps:
         @@setup_libs_linux@@
@@ -201,8 +206,14 @@ jobs:
             defines: '-DGGML_VULKAN=ON'
           - build: 'cuda-cu11.7.1'
             defines: '-DGGML_CUDA=ON -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
+            tinyBLAS: 'ON'
           - build: 'cuda-cu12.2.0'
             defines: '-DGGML_CUDA=ON -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
+            tinyBLAS: 'ON'
+          - build: 'cuda-cu11.7.1-full'
+            defines: '-DGGML_CUDA=ON'
+          - build: 'cuda-cu12.2.0-full'
+            defines: '-DGGML_CUDA=ON'
 
     steps:
         @@checkout@@
@@ -233,7 +244,6 @@ jobs:
       matrix:
         include:
           - build: 'hip'
-            defines: '-DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
 
     steps:
         @@checkout@@
