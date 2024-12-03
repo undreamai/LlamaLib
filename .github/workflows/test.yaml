@@ -1,0 +1,142 @@
+name: Build library
+
+on:
+  push:
+
+env:
+  LLAMACPP_VERSION: b3623
+  CMAKE_COMMON_JOBS: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DBUILD_UNDREAMAI_SERVER=ON -DBUILD_SHARED_LIBS=OFF'
+  CMAKE_COMMON_DIR: -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs
+
+jobs:
+  linux-build:
+    runs-on: ubuntu-22.04
+
+    env:
+      CMAKE_COMMON: '-DGGML_NATIVE=OFF -DLLAMA_SERVER_SSL=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON'
+      PLATFORM: linux
+
+    strategy:
+      matrix:
+        include:
+          - build: 'cuda-cu12.2.0-full'
+            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
+            
+    steps:
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
+
+        - id: setup_libs_linux
+          name: Dependencies
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y build-essential cmake zip libssl-dev
+
+        - id: setup_llama_cpp_linux
+          name: Clone llama.cpp
+          run: |
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+        
+            sed -i.bak 's:utils.hpp:utils_callback.hpp:g' examples/server/server.cpp
+            sed -i.bak 's:main(int argc:main_server(int argc:g' examples/server/server.cpp
+            sed -i.bak 's:exit(1):std\:\:terminate():g' ggml/src/ggml-vulkan.cpp
+            sed -i.bak 's:abort():raise(SIGSEGV):g' ggml/src/ggml.c
+            sed -i.bak 's:GGML_NORETURN GGML_ATTRIBUTE_FORMAT://GGML_NORETURN GGML_ATTRIBUTE_FORMAT:g' ggml/include/ggml.h
+        
+            for f in examples/server/public/*;do
+              cmake -DINPUT=$f -DOUTPUT=`echo $f|sed -e 's:public/::g'`.hpp -P scripts/xxd.cmake
+            done
+        
+            cd ..
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+
+        - id: setup_vulcan_linux
+          if: matrix.build == 'vulkan'
+          name: Dependencies Vulcan
+          run: |
+            wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+            sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list https://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
+            sudo apt-get update -y
+            sudo apt-get install -y build-essential vulkan-sdk
+            cp /lib/x86_64-linux-gnu/libvulkan.so.1 build/libs/
+
+        - id: set_cuda_var_linux
+          if: startsWith(matrix.build, 'cuda')
+          name: Set CUDA variable
+          run: |
+            echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
+
+        # - id: prepare_cuda
+        #   if: startsWith(matrix.build, 'cuda') || startsWith(matrix.build, 'hip')
+        #   name: Prepare CUDA
+        #   run: |
+        #     cp tinyBLAS/* llama.cpp/ggml/src/
+        #     rm -r llama.cpp/ggml/src/ggml-cuda
+        #     sed -i 's:GGML_USE_CUDA:GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG ${{ matrix.minimise }}:g' llama.cpp/ggml/src/CMakeLists.txt
+        #     curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+
+        - id: setup_cuda_linux
+          if: startsWith(matrix.build, 'cuda')
+          uses: Jimver/cuda-toolkit@v0.2.15
+          with:
+            cuda: ${{ env.CUDA }}
+            linux-local-args: '["--toolkit"]'
+            method: network
+
+        - id: link_cuda_linux
+          if: startsWith(matrix.build, 'cuda')
+          name: Link Cuda
+          run: |
+            ln -s ${{ env.CUDA_PATH }} ${{ github.workspace }}/build/cuda
+
+
+        - id: set_build_params_linux
+          name: Set build parameters
+          run: |
+            echo "BUILD_PARAMS=${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}" >> $GITHUB_ENV
+
+        - id: cmake_build_linux
+          name: Build
+          run: |
+            sed -i "s:LIBRARY undreamai:LIBRARY undreamai_${{ env.PLATFORM }}-${{ matrix.build }}:g" CMakeLists.txt
+            export LD_LIBRARY_PATH=""
+            cd build
+            cmake .. ${{ env.BUILD_PARAMS }}
+            cmake --build . --config Release -j $(nproc)
+
+        - id: test_build_unix
+          if: matrix.build == 'noavx' || matrix.build == 'avx' || matrix.build == 'avx2' ||
+            matrix.build == 'acc' || matrix.build == 'no_acc'
+          name: Test
+          run: |
+            cd build/libs
+            curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
+            ./undreamai_test -m model.gguf -np 1 --log-disable
+            rm model.gguf
+
+
+        - id: set_upload_name_unix
+          name: Set upload name
+          run: |
+            NAME=undreamai-test-llamacpp-${{ env.PLATFORM }}
+            if [ "${{ matrix.build }}" != "" ];then NAME=$NAME-${{ matrix.build }}; fi
+            NAME=$NAME.zip
+            echo "UPLOAD_NAME=$NAME" >> $GITHUB_ENV
+            echo "UPLOAD_PATH=$NAME" >> $GITHUB_ENV
+
+        - id: pack_artifacts_unix
+          name: Pack artifacts
+          run: |
+            rm build/libs/undreamai_test
+            zip -j ${{ env.UPLOAD_NAME }} build/licenses/* build/libs/*
+
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_PATH }}
