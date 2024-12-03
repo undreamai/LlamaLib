@@ -152,7 +152,7 @@ jobs:
         @@upload@@
 
   macOS-x64-build:
-    runs-on: macos-12
+    runs-on: macos-13
 
     env:
         CMAKE_COMMON: '-DLLAMA_SERVER_SSL=ON'
