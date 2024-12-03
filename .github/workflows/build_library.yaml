@@ -344,9 +344,9 @@ jobs:
           id: setup_libs_macos
           name: Dependencies
           run: |
-            brew update
             echo "Architecture: $(uname -m)"
             echo "Operating System: $(uname -s)"
+            brew update
 
 
         - id: checkout
@@ -434,9 +434,9 @@ jobs:
           id: setup_libs_macos
           name: Dependencies
           run: |
-            brew update
             echo "Architecture: $(uname -m)"
             echo "Operating System: $(uname -s)"
+            brew update
 
 
         - id: checkout
@@ -927,9 +927,9 @@ jobs:
           id: setup_libs_macos
           name: Dependencies
           run: |
-            brew update
             echo "Architecture: $(uname -m)"
             echo "Operating System: $(uname -s)"
+            brew update
 
 
         - id: checkout

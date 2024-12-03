@@ -154,9 +154,9 @@ jobs:
         id: setup_libs_macos
         continue-on-error: true
         run: |
-          brew update
           echo "Architecture: $(uname -m)"
           echo "Operating System: $(uname -s)"
+          brew update
 
       - name: Build
         id: cmake_build_macos
