@@ -231,7 +231,7 @@ jobs:
 
       - name: Copy Cuda DLLs
         id: copy_cuda_dlls
-        if: startsWith(matrix.build, 'cuda')
+        if: startsWith(matrix.build, 'cuda') && matrix.tinyBLAS == ""
         shell: bash
         run: |
           mv "${{ env.CUDA_PATH }}"/bin/cudart64_*.dll build/libs/Release
