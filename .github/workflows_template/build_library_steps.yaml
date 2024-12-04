@@ -66,7 +66,9 @@ jobs:
         run: |
           mkdir -p build/licenses build/libs
           cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
-          curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+          if [[ "${{ matrix.tinyBLAS }}" != "" ]]; then
+            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+          fi
 
 ################################ Linux ################################
 
