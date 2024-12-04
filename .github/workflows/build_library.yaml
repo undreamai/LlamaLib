@@ -163,11 +163,12 @@ jobs:
             sudo apt-get install -y build-essential vulkan-sdk
             cp /lib/x86_64-linux-gnu/libvulkan.so.1 build/libs/
 
-        - id: set_cuda_var_linux
+        - id: set_cuda_var
           if: startsWith(matrix.build, 'cuda')
           name: Set CUDA variable
           run: |
             echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
+          shell: bash
 
         - id: setup_cuda_linux
           if: startsWith(matrix.build, 'cuda')
@@ -184,13 +185,20 @@ jobs:
             ln -s ${{ env.CUDA_PATH }} ${{ github.workspace }}/build/cuda
 
 
-        - id: cmake_build_linux
+        - id: cpu-cores
+          name: Get number of CPU cores
+          uses: SimenB/github-actions-cpu-cores@v2
+
+        - id: cmake_build
           name: Build
           run: |
-            export LD_LIBRARY_PATH=""
+            if [ $RUNNER_OS == "Linux" ]; then
+              export LD_LIBRARY_PATH=""
+            fi
             cd build
             cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
-            cmake --build . --config Release -j $(nproc)
+            cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
+          shell: bash
 
         - id: test_build_unix
           if: matrix.build == 'noavx' || matrix.build == 'avx' || matrix.build == 'avx2' ||
@@ -203,7 +211,7 @@ jobs:
             rm model.gguf
 
 
-        - id: set_upload_name_unix
+        - id: set_upload_name
           name: Set upload name
           run: |
             NAME=undreamai-${{ github.ref_name }}-llamacpp-${{ env.PLATFORM }}
@@ -211,6 +219,7 @@ jobs:
             NAME=$NAME.zip
             echo "UPLOAD_NAME=$NAME" >> $GITHUB_ENV
             echo "UPLOAD_PATH=$NAME" >> $GITHUB_ENV
+          shell: bash
 
         - id: pack_artifacts_unix
           name: Pack artifacts
@@ -294,16 +303,10 @@ jobs:
           run: |
             echo "CMAKE_COMMON_DIR=-DCMAKE_HIP_COMPILER=$(hipconfig -l)/clang -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=`pwd`/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=`pwd`/build/libs" >> $GITHUB_ENV
 
-        - id: cmake_build_linux
-          name: Build
-          run: |
-            export LD_LIBRARY_PATH=""
-            cd build
-            cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
-            cmake --build . --config Release -j $(nproc)
+        @@cmake_build_linux@@
 
 
-        - id: set_upload_name_unix
+        - id: set_upload_name
           name: Set upload name
           run: |
             NAME=undreamai-${{ github.ref_name }}-llamacpp-${{ env.PLATFORM }}
@@ -311,6 +314,7 @@ jobs:
             NAME=$NAME.zip
             echo "UPLOAD_NAME=$NAME" >> $GITHUB_ENV
             echo "UPLOAD_PATH=$NAME" >> $GITHUB_ENV
+          shell: bash
 
         - id: pack_artifacts_unix
           name: Pack artifacts
@@ -332,7 +336,7 @@ jobs:
     runs-on: macos-14
 
     env:
-        CMAKE_COMMON: '-DLLAMA_SERVER_SSL=ON'
+        CMAKE_COMMON: '-DLLAMA_SERVER_SSL=ON -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_CURL=ON'
         PLATFORM: macos-arm64
 
     strategy:
@@ -389,15 +393,23 @@ jobs:
           shell: bash
 
 
-        - id: cmake_build_macos
+        - id: cpu-cores
+          name: Get number of CPU cores
+          uses: SimenB/github-actions-cpu-cores@v2
+
+        - id: cmake_build
           name: Build
           run: |
+            if [ $RUNNER_OS == "Linux" ]; then
+              export LD_LIBRARY_PATH=""
+            fi
             cd build
-            cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
-            cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
+            cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+            cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
+          shell: bash
 
 
-        - id: set_upload_name_unix
+        - id: set_upload_name
           name: Set upload name
           run: |
             NAME=undreamai-${{ github.ref_name }}-llamacpp-${{ env.PLATFORM }}
@@ -405,6 +417,7 @@ jobs:
             NAME=$NAME.zip
             echo "UPLOAD_NAME=$NAME" >> $GITHUB_ENV
             echo "UPLOAD_PATH=$NAME" >> $GITHUB_ENV
+          shell: bash
 
         - id: pack_artifacts_unix
           name: Pack artifacts
@@ -424,7 +437,7 @@ jobs:
     runs-on: macos-13
 
     env:
-        CMAKE_COMMON: '-DLLAMA_SERVER_SSL=ON'
+        CMAKE_COMMON: '-DLLAMA_SERVER_SSL=ON -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_CURL=ON'
         PLATFORM: macos-x64
 
     strategy:
@@ -481,12 +494,20 @@ jobs:
           shell: bash
 
 
-        - id: cmake_build_macos
+        - id: cpu-cores
+          name: Get number of CPU cores
+          uses: SimenB/github-actions-cpu-cores@v2
+
+        - id: cmake_build
           name: Build
           run: |
+            if [ $RUNNER_OS == "Linux" ]; then
+              export LD_LIBRARY_PATH=""
+            fi
             cd build
-            cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
-            cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
+            cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+            cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
+          shell: bash
 
         - id: test_build_unix
           if: matrix.build == 'noavx' || matrix.build == 'avx' || matrix.build == 'avx2' ||
@@ -499,7 +520,7 @@ jobs:
             rm model.gguf
 
 
-        - id: set_upload_name_unix
+        - id: set_upload_name
           name: Set upload name
           run: |
             NAME=undreamai-${{ github.ref_name }}-llamacpp-${{ env.PLATFORM }}
@@ -507,6 +528,7 @@ jobs:
             NAME=$NAME.zip
             echo "UPLOAD_NAME=$NAME" >> $GITHUB_ENV
             echo "UPLOAD_PATH=$NAME" >> $GITHUB_ENV
+          shell: bash
 
         - id: pack_artifacts_unix
           name: Pack artifacts
@@ -617,13 +639,12 @@ jobs:
             Copy-Item $OPENSSL_ROOT_DIR\lib\libssl_static.lib $OPENSSL_ROOT_DIR\lib\libssl.a
             Add-Content $env:GITHUB_ENV "OPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR"
 
-        - id: set_cuda_var_windows
+        - id: set_cuda_var
           if: startsWith(matrix.build, 'cuda')
           name: Set CUDA variable
           run: |
-            $pattern = "\d+\.\d+\.\d+"
-            $CUDA = [regex]::Match("${{ matrix.build }}", $pattern).Value
-            Add-Content $env:GITHUB_ENV "CUDA=$CUDA"
+            echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
+          shell: bash
 
         - id: setup_cuda_windows
           if: startsWith(matrix.build, 'cuda')
@@ -638,12 +659,16 @@ jobs:
           name: Get number of CPU cores
           uses: SimenB/github-actions-cpu-cores@v2
 
-        - id: cmake_build_windows
+        - id: cmake_build
           name: Build
           run: |
+            if [ $RUNNER_OS == "Linux" ]; then
+              export LD_LIBRARY_PATH=""
+            fi
             cd build
             cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
+          shell: bash
 
 
         - id: move_files_windows
@@ -666,12 +691,15 @@ jobs:
             mv "${{ env.CUDA_PATH }}"/bin/cublasLt64_*.dll build/libs/Release
           shell: bash
 
-        - id: set_upload_name_windows
+        - id: set_upload_name
           name: Set upload name
           run: |
-            $NAME = "undreamai-${{ github.ref_name }}-llamacpp-${{ env.PLATFORM }}-${{ matrix.build }}.zip"
-            Add-Content $env:GITHUB_ENV "UPLOAD_NAME=$NAME"
-            Add-Content $env:GITHUB_ENV "UPLOAD_PATH=$NAME"
+            NAME=undreamai-${{ github.ref_name }}-llamacpp-${{ env.PLATFORM }}
+            if [ "${{ matrix.build }}" != "" ];then NAME=$NAME-${{ matrix.build }}; fi
+            NAME=$NAME.zip
+            echo "UPLOAD_NAME=$NAME" >> $GITHUB_ENV
+            echo "UPLOAD_PATH=$NAME" >> $GITHUB_ENV
+          shell: bash
 
         - id: pack_artifacts_windows
           name: Pack artifacts
@@ -746,13 +774,12 @@ jobs:
           shell: bash
 
 
-        - id: set_cuda_var_windows
+        - id: set_cuda_var
           if: startsWith(matrix.build, 'cuda')
           name: Set CUDA variable
           run: |
-            $pattern = "\d+\.\d+\.\d+"
-            $CUDA = [regex]::Match("${{ matrix.build }}", $pattern).Value
-            Add-Content $env:GITHUB_ENV "CUDA=$CUDA"
+            echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
+          shell: bash
 
         - id: setup_openssl_windows
           name: Install OpenSSL
@@ -801,12 +828,15 @@ jobs:
             move build/libs/*exp build/libs/Release
             move build/libs/*lib build/libs/Release
 
-        - id: set_upload_name_windows
+        - id: set_upload_name
           name: Set upload name
           run: |
-            $NAME = "undreamai-${{ github.ref_name }}-llamacpp-${{ env.PLATFORM }}-${{ matrix.build }}.zip"
-            Add-Content $env:GITHUB_ENV "UPLOAD_NAME=$NAME"
-            Add-Content $env:GITHUB_ENV "UPLOAD_PATH=$NAME"
+            NAME=undreamai-${{ github.ref_name }}-llamacpp-${{ env.PLATFORM }}
+            if [ "${{ matrix.build }}" != "" ];then NAME=$NAME-${{ matrix.build }}; fi
+            NAME=$NAME.zip
+            echo "UPLOAD_NAME=$NAME" >> $GITHUB_ENV
+            echo "UPLOAD_PATH=$NAME" >> $GITHUB_ENV
+          shell: bash
 
         - id: pack_artifacts_windows
           name: Pack artifacts
@@ -900,7 +930,7 @@ jobs:
             cmake --build . --config Release -j $(nproc)
 
 
-        - id: set_upload_name_unix
+        - id: set_upload_name
           name: Set upload name
           run: |
             NAME=undreamai-${{ github.ref_name }}-llamacpp-${{ env.PLATFORM }}
@@ -908,6 +938,7 @@ jobs:
             NAME=$NAME.zip
             echo "UPLOAD_NAME=$NAME" >> $GITHUB_ENV
             echo "UPLOAD_PATH=$NAME" >> $GITHUB_ENV
+          shell: bash
 
         - id: remove_server
           name: Delete server
@@ -993,7 +1024,7 @@ jobs:
             cmake --build . --config Release -j $(sysctl -n hw.logicalcpu) -- CODE_SIGNING_ALLOWED=NO
 
 
-        - id: set_upload_name_unix
+        - id: set_upload_name
           name: Set upload name
           run: |
             NAME=undreamai-${{ github.ref_name }}-llamacpp-${{ env.PLATFORM }}
@@ -1001,6 +1032,7 @@ jobs:
             NAME=$NAME.zip
             echo "UPLOAD_NAME=$NAME" >> $GITHUB_ENV
             echo "UPLOAD_PATH=$NAME" >> $GITHUB_ENV
+          shell: bash
 
         - id: pack_artifacts_ios
           name: Pack artifacts

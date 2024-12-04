@@ -81,14 +81,15 @@ jobs:
         @@add_licenses@@
 
         @@setup_vulkan_linux@@
-        @@set_cuda_var_linux@@
+        @@set_cuda_var@@
         @@setup_cuda_linux@@
         @@link_cuda_linux@@
 
-        @@cmake_build_linux@@
+        @@cpu-cores@@
+        @@cmake_build@@
         @@test_build_unix@@
 
-        @@set_upload_name_unix@@
+        @@set_upload_name@@
         @@pack_artifacts_unix@@
         @@upload@@
 
@@ -117,7 +118,7 @@ jobs:
         @@set_build_params_hip_linux@@
         @@cmake_build_linux@@
 
-        @@set_upload_name_unix@@
+        @@set_upload_name@@
         @@pack_artifacts_unix@@
         @@upload@@
 
@@ -127,7 +128,7 @@ jobs:
     runs-on: macos-14
 
     env:
-        CMAKE_COMMON: '-DLLAMA_SERVER_SSL=ON'
+        CMAKE_COMMON: '-DLLAMA_SERVER_SSL=ON -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_CURL=ON'
         PLATFORM: macos-arm64
 
     strategy:
@@ -145,9 +146,10 @@ jobs:
         @@setup_llama_cpp@@
         @@add_licenses@@
 
-        @@cmake_build_macos@@
+        @@cpu-cores@@
+        @@cmake_build@@
 
-        @@set_upload_name_unix@@
+        @@set_upload_name@@
         @@pack_artifacts_unix@@
         @@upload@@
 
@@ -155,7 +157,7 @@ jobs:
     runs-on: macos-13
 
     env:
-        CMAKE_COMMON: '-DLLAMA_SERVER_SSL=ON'
+        CMAKE_COMMON: '-DLLAMA_SERVER_SSL=ON -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_CURL=ON'
         PLATFORM: macos-x64
 
     strategy:
@@ -173,10 +175,11 @@ jobs:
         @@setup_llama_cpp@@
         @@add_licenses@@
 
-        @@cmake_build_macos@@
+        @@cpu-cores@@
+        @@cmake_build@@
         @@test_build_unix@@
 
-        @@set_upload_name_unix@@
+        @@set_upload_name@@
         @@pack_artifacts_unix@@
         @@upload@@
 
@@ -222,15 +225,15 @@ jobs:
 
         @@setup_vulcan_windows@@
         @@setup_openssl_windows@@
-        @@set_cuda_var_windows@@
+        @@set_cuda_var@@
         @@setup_cuda_windows@@
 
         @@cpu-cores@@
-        @@cmake_build_windows@@
+        @@cmake_build@@
 
         @@move_files_windows@@
         @@copy_cuda_dlls@@
-        @@set_upload_name_windows@@
+        @@set_upload_name@@
         @@pack_artifacts_windows@@
         @@upload@@
 
@@ -251,7 +254,7 @@ jobs:
         @@setup_llama_cpp@@
         @@add_licenses@@
 
-        @@set_cuda_var_windows@@
+        @@set_cuda_var@@
         @@setup_openssl_windows@@
         @@setup_hip_windows@@
 
@@ -259,7 +262,7 @@ jobs:
         @@cmake_build_hip_windows@@
 
         @@move_files_windows@@
-        @@set_upload_name_windows@@
+        @@set_upload_name@@
         @@pack_artifacts_windows@@
         @@upload@@
 
@@ -283,7 +286,7 @@ jobs:
         @@set_ndk_var_linux@@
         @@cmake_build_android@@
 
-        @@set_upload_name_unix@@
+        @@set_upload_name@@
         @@remove_server@@
         @@pack_artifacts_unix@@
         @@upload@@
@@ -306,7 +309,7 @@ jobs:
 
         @@cmake_build_ios@@
 
-        @@set_upload_name_unix@@
+        @@set_upload_name@@
         @@pack_artifacts_ios@@
         @@upload@@
 
