@@ -70,6 +70,38 @@ jobs:
             curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
           fi
 
+      - name: Set CUDA variable
+        id: set_cuda_var
+        if: startsWith(matrix.build, 'cuda')
+        shell: bash
+        run: |
+          echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
+  
+      - name: Get number of CPU cores
+        id: cpu-cores
+        uses: SimenB/github-actions-cpu-cores@v2
+
+      - name: Build
+        id: cmake_build
+        shell: bash
+        run: |
+          if [ $RUNNER_OS == "Linux" ]; then
+            export LD_LIBRARY_PATH=""
+          fi
+          cd build
+          cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+          cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
+
+      - name: Set upload name
+        id: set_upload_name
+        shell: bash
+        run: |
+          NAME=undreamai-${{ github.ref_name }}-llamacpp-${{ env.PLATFORM }}
+          if [ "${{ matrix.build }}" != "" ];then NAME=$NAME-${{ matrix.build }}; fi
+          NAME=$NAME.zip
+          echo "UPLOAD_NAME=$NAME" >> $GITHUB_ENV
+          echo "UPLOAD_PATH=$NAME" >> $GITHUB_ENV
+
 ################################ Linux ################################
 
       - name: Dependencies
@@ -93,12 +125,6 @@ jobs:
           sudo apt-get install -y build-essential vulkan-sdk
           cp /lib/x86_64-linux-gnu/libvulkan.so.1 build/libs/
 
-      - name: Set CUDA variable
-        id: set_cuda_var_linux
-        if: startsWith(matrix.build, 'cuda')
-        run: |
-          echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
-
       - uses: Jimver/cuda-toolkit@v0.2.15
         id: setup_cuda_linux
         if: startsWith(matrix.build, 'cuda')
@@ -117,14 +143,6 @@ jobs:
         id: set_build_params_hip_linux
         run: |
           echo "CMAKE_COMMON_DIR=-DCMAKE_HIP_COMPILER=$(hipconfig -l)/clang -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=`pwd`/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=`pwd`/build/libs" >> $GITHUB_ENV
-  
-      - name: Build
-        id: cmake_build_linux
-        run: |
-          export LD_LIBRARY_PATH=""
-          cd build
-          cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
-          cmake --build . --config Release -j $(nproc)
 
       - name: Test
         id: test_build_unix
@@ -134,15 +152,6 @@ jobs:
           curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
           ./undreamai_test -m model.gguf -np 1 --log-disable
           rm model.gguf
-
-      - name: Set upload name
-        id: set_upload_name_unix
-        run: |
-          NAME=undreamai-${{ github.ref_name }}-llamacpp-${{ env.PLATFORM }}
-          if [ "${{ matrix.build }}" != "" ];then NAME=$NAME-${{ matrix.build }}; fi
-          NAME=$NAME.zip
-          echo "UPLOAD_NAME=$NAME" >> $GITHUB_ENV
-          echo "UPLOAD_PATH=$NAME" >> $GITHUB_ENV
 
       - name: Pack artifacts
         id: pack_artifacts_unix
@@ -160,22 +169,7 @@ jobs:
           echo "Operating System: $(uname -s)"
           brew update
 
-      - name: Build
-        id: cmake_build_macos
-        run: |
-          cd build
-          cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_CURL=ON ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
-          cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
-
 ################################ Windows ################################
-
-      - name: Set CUDA variable
-        id: set_cuda_var_windows
-        if: startsWith(matrix.build, 'cuda')
-        run: |
-          $pattern = "\d+\.\d+\.\d+"
-          $CUDA = [regex]::Match("${{ matrix.build }}", $pattern).Value
-          Add-Content $env:GITHUB_ENV "CUDA=$CUDA"
 
       - name: Install Vulkan SDK
         id: setup_vulcan_windows
@@ -199,17 +193,6 @@ jobs:
           Copy-Item $OPENSSL_ROOT_DIR\lib\libcrypto_static.lib $OPENSSL_ROOT_DIR\lib\libcrypto.a
           Copy-Item $OPENSSL_ROOT_DIR\lib\libssl_static.lib $OPENSSL_ROOT_DIR\lib\libssl.a
           Add-Content $env:GITHUB_ENV "OPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR"
-
-      - name: Get number of CPU cores
-        id: cpu-cores
-        uses: SimenB/github-actions-cpu-cores@v2
-
-      - name: Build
-        id: cmake_build_windows
-        run: |
-          cd build
-          cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
-          cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
       - name: Build
         id: cmake_build_hip_windows
@@ -239,13 +222,6 @@ jobs:
           mv "${{ env.CUDA_PATH }}"/bin/cudart64_*.dll build/libs/Release
           mv "${{ env.CUDA_PATH }}"/bin/cublas64_*.dll build/libs/Release
           mv "${{ env.CUDA_PATH }}"/bin/cublasLt64_*.dll build/libs/Release
-
-      - name: Set upload name
-        id: set_upload_name_windows
-        run: |
-          $NAME = "undreamai-${{ github.ref_name }}-llamacpp-${{ env.PLATFORM }}-${{ matrix.build }}.zip"
-          Add-Content $env:GITHUB_ENV "UPLOAD_NAME=$NAME"
-          Add-Content $env:GITHUB_ENV "UPLOAD_PATH=$NAME"
 
       - name: Pack artifacts
         id: pack_artifacts_windows
