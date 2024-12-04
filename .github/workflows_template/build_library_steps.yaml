@@ -227,7 +227,7 @@ jobs:
         id: pack_artifacts_windows
         run: |
           ls -R build
-          del build/libs/Release/undreamai_test.exe
+          del build/libs/Release/undreamai_test.*
           mkdir artifacts
           move .\build\licenses\* .\artifacts\
           move .\build\Release\* .\artifacts\
