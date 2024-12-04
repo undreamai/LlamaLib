@@ -648,7 +648,7 @@ jobs:
             move build/libs/*lib build/libs/Release
 
         - id: copy_cuda_dlls
-          if: startsWith(matrix.build, 'cuda') && matrix.tinyBLAS == ""
+          if: ${{ startsWith(matrix.build, 'cuda') && matrix.tinyBLAS == '' }}
           name: Copy Cuda DLLs
           run: |
             mv "${{ env.CUDA_PATH }}"/bin/cudart64_*.dll build/libs/Release
