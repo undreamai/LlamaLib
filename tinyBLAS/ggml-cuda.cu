@@ -240,7 +240,7 @@
 #include "ggml-backend-impl.h"
 
 
--[[noreturn]]
+[[noreturn]]
 static void exit_(int rc) {
 #define exit exit_
 #if defined(__GNUC__) || defined(__llvm__)
@@ -351,7 +351,7 @@ GGML_CALL bool ggml_cuda_link(const struct ggml_backend_api *backend_api) {
 
 #define GGML_CUDA_MAX_STREAMS 8
 
--[[noreturn]]
+[[noreturn]]
 void ggml_cuda_error(const char * stmt, const char * func, const char * file, int line, const char * msg);
 
 #define CUDA_CHECK_GEN(err, success, error_fn)                                      \
@@ -14231,7 +14231,7 @@ void ggml_cuda_op_rwkv_wkv6(ggml_backend_cuda_context & ctx, ggml_tensor * dst);
 
 static_assert(sizeof(half) == sizeof(ggml_fp16_t), "wrong fp16 size");
 
--[[noreturn]]
+[[noreturn]]
 void ggml_cuda_error(const char * stmt, const char * func, const char * file, int line, const char * msg) {
     int id = -1; // in case cudaGetDevice fails
     cudaGetDevice(&id);
