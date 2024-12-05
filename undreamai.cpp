@@ -156,16 +156,21 @@ LLM::LLM(int argc, char ** argv){
 }
 
 void LLM::init(int argc, char ** argv){
+    LOG_INFO("init", {});
     set_error_handlers();
+    LOG_INFO("set_error_handlers", {});
     if (setjmp(point) != 0) return;
     try{
         ctx_server.batch = { 0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+        LOG_INFO("starting", {});
 
         if (!common_params_parse(argc, argv, params, LLAMA_EXAMPLE_SERVER)) {
             throw std::runtime_error("Invalid parameters!");
         }
+        LOG_INFO("common_params_parse", {});
 
         common_init();
+        LOG_INFO("common_init", {});
 
         // enabling this will output extra debug information in the HTTP responses from the server
         // see format_final_response_oaicompat()
@@ -176,6 +181,7 @@ void LLM::init(int argc, char ** argv){
         }
 
         llama_backend_init();
+        LOG_INFO("llama_backend_init", {});
         llama_backend_has_init = true;
         llama_numa_init(params.numa);
 
@@ -196,6 +202,7 @@ void LLM::init(int argc, char ** argv){
 
         // load the model
         if (!ctx_server.load_model(params)) {
+            LOG_INFO("Error loading the model", {});
             throw std::runtime_error("Error loading the model!");
         } else {
             ctx_server.init();
@@ -207,6 +214,7 @@ void LLM::init(int argc, char ** argv){
             &server_context::process_single_task, &ctx_server, std::placeholders::_1));
         ctx_server.queue_tasks.on_update_slots(std::bind(
             &server_context::update_slots, &ctx_server));
+        LOG_INFO("init done", {});
     } catch(...) {
         handle_exception(1);
     }
