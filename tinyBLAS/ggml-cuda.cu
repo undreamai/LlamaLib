@@ -8488,8 +8488,6 @@ void ggml_cuda_op_im2col(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
     }
 }
 
-#ifndef GGML_MINIMIZE_CODE_SIZE
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // ROLLUP mmq.cu
@@ -11813,8 +11811,6 @@ bool ggml_cuda_should_use_mmq(enum ggml_type type, int cc, int64_t ne11) {
 
     return (cc < CC_RDNA3 && cc != CC_CDNA && cc != CC_VEGA20) || ne11 < MMQ_DP4A_MAX_BATCH_SIZE;
 }
-
-#endif // GGML_MINIMIZE_CODE_SIZE
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -17224,7 +17220,6 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
             const int cc = ggml_cuda_info().devices[dev_ctx->device].cc;
             return cc >= CC_VOLTA && cc < CC_OFFSET_AMD && op->src[1]->type == GGML_TYPE_F16 && op->src[2]->type == GGML_TYPE_F16;
         }
-#endif
         case GGML_OP_CROSS_ENTROPY_LOSS:
         case GGML_OP_CROSS_ENTROPY_LOSS_BACK:
         case GGML_OP_OPT_STEP_ADAMW:
@@ -17474,6 +17469,8 @@ ggml_backend_t ggml_backend_cuda_init(int device) {
 }
 
 GGML_BACKEND_DL_IMPL(ggml_backend_cuda_reg)
+
+#ifndef GGML_MINIMIZE_CODE_SIZE
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -18498,6 +18495,11 @@ DECL_FATTN_WMMA_F16_CASE(96, 8, half);
 DECL_FATTN_WMMA_F16_CASE(128, 8, half);
 DECL_FATTN_WMMA_F16_CASE(256, 8, half);
 
+
+#endif // GGML_MINIMIZE_CODE_SIZE
+
+#ifndef GGML_NO_IQUANTS
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // ROLLUP template-instances/mmq-instance-iq1_s.cu
@@ -18585,6 +18587,8 @@ DECL_MMQ_CASE(GGML_TYPE_IQ4_NL);
 
 
 DECL_MMQ_CASE(GGML_TYPE_IQ4_XS);
+
+#endif // GGML_NO_IQUANTS
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -18863,8 +18867,6 @@ void ggml_cuda_cross_entropy_loss_back(ggml_backend_cuda_context & ctx, ggml_ten
 
     cross_entropy_loss_back_f32<<<blocks_num, blocks_dim, shmem, stream>>>(src0_d, src1_d, opt0_d, dst_d, ne00);
 }
-
-#ifndef GGML_MINIMIZE_CODE_SIZE
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -19243,16 +19245,11 @@ void ggml_cuda_argmax(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
     argmax_f32<<<blocks_num, blocks_dim, 0, stream>>>(src0_d, dst_d, ne00);
 }
 
-#endif // GGML_MINIMIZE_CODE_SIZE
-
-#ifndef GGML_NO_IQUANTS
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // ROLLUP count-equal.cu
 //
 ////////////////////////////////////////////////////////////////////////////////
-
 
 
 template <typename T>
