@@ -47,8 +47,8 @@ jobs:
             # cp -R ../tinyBLAS ggml/src/ggml-cuda
             # mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
 
-            cp tinyBLAS/* llama.cpp/ggml/src/
-            rm -r llama.cpp/ggml/src/ggml-cuda
+            cp ../tinyBLAS/* ggml/src/
+            rm -r ggml/src/ggml-cuda
         
             for f in examples/server/public/*;do
                 cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
