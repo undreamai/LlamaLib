@@ -1,13 +1,7 @@
 diff --git a/examples/server/server.cpp b/examples/server/server.cpp
-index e79e7aa2..452aa03b 100644
+index e79e7aa2..6f86a3de 100644
 --- a/examples/server/server.cpp
 +++ b/examples/server/server.cpp
-@@ -1,4 +1,4 @@
--#include "utils.hpp"
-+#include "utils_callback.hpp"
- 
- #include "common.h"
- #include "json-schema-to-grammar.h"
 @@ -2495,7 +2495,7 @@ inline void signal_handler(int signal) {
      shutdown_handler(signal);
  }
