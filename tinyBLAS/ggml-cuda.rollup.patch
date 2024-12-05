@@ -1,5 +1,5 @@
 diff --git a/rollup b/rollup_patched
-index 2e23fc6c..46e024ea 100644
+index 3f239771..65bba936 100644
 --- a/rollup
 +++ b/rollup_patched
 @@ -1,3 +1,6 @@
@@ -9,7 +9,7 @@ index 2e23fc6c..46e024ea 100644
  #include <algorithm>
  #include <array>
  #include <atomic>
-@@ -52,22 +55,261 @@
+@@ -53,22 +56,261 @@
  #else
  #define GGML_COMMON_DECL_CUDA
  #define GGML_COMMON_IMPL_CUDA
@@ -280,7 +280,7 @@ index 2e23fc6c..46e024ea 100644
  #define STRINGIZE_IMPL(...) #__VA_ARGS__
  #define STRINGIZE(...) STRINGIZE_IMPL(__VA_ARGS__)
  
-@@ -93,7 +335,7 @@
+@@ -94,7 +336,7 @@
  
  #define GGML_CUDA_MAX_STREAMS 8
  
@@ -289,7 +289,7 @@ index 2e23fc6c..46e024ea 100644
  void ggml_cuda_error(const char * stmt, const char * func, const char * file, int line, const char * msg);
  
  #define CUDA_CHECK_GEN(err, success, error_fn)                                      \
-@@ -106,9 +348,13 @@ void ggml_cuda_error(const char * stmt, const char * func, const char * file, in
+@@ -107,9 +349,13 @@ void ggml_cuda_error(const char * stmt, const char * func, const char * file, in
  
  #define CUDA_CHECK(err) CUDA_CHECK_GEN(err, cudaSuccess, cudaGetErrorString)
  
@@ -304,7 +304,7 @@ index 2e23fc6c..46e024ea 100644
      }
  #else
      static const char * cublas_get_error_str(const cublasStatus_t err) {
-@@ -150,7 +396,129 @@ typedef half2 dfloat2;
+@@ -151,7 +397,129 @@ typedef half2 dfloat2;
  #else
  typedef float dfloat; // dequantize float
  typedef float2 dfloat2;
@@ -435,7 +435,7 @@ index 2e23fc6c..46e024ea 100644
  
  #if (defined(GGML_USE_HIPBLAS) && defined(__HIP_PLATFORM_AMD__)) || __CUDA_ARCH__ >= CC_PASCAL
  #define FP16_AVAILABLE
-@@ -180,16 +548,16 @@ static constexpr bool int8_mma_available(const int cc) {
+@@ -181,16 +549,16 @@ static constexpr bool int8_mma_available(const int cc) {
      return cc < CC_OFFSET_AMD && cc >= CC_TURING;
  }
  
@@ -455,7 +455,7 @@ index 2e23fc6c..46e024ea 100644
             file_name, line, function_name, arch, arch_list);
  #endif // defined(GGML_USE_HIPBLAS) && defined(__HIP_PLATFORM_AMD__)
      __trap();
-@@ -375,6 +743,12 @@ struct ggml_cuda_type_traits<GGML_TYPE_F16> {
+@@ -376,6 +744,12 @@ struct ggml_cuda_type_traits<GGML_TYPE_F16> {
      static constexpr int qr = 1;
  };
  
@@ -468,7 +468,7 @@ index 2e23fc6c..46e024ea 100644
  template<>
  struct ggml_cuda_type_traits<GGML_TYPE_Q4_0> {
      static constexpr int qk = QK4_0;
-@@ -2307,6 +2681,9 @@ to_fp32_cuda_t ggml_get_to_fp32_cuda(ggml_type type) {
+@@ -2308,6 +2682,9 @@ to_fp32_cuda_t ggml_get_to_fp32_cuda(ggml_type type) {
              return dequantize_row_iq3_s_cuda;
          case GGML_TYPE_F16:
              return convert_unary_cuda<half>;
@@ -478,7 +478,7 @@ index 2e23fc6c..46e024ea 100644
          default:
              return nullptr;
      }
-@@ -2468,6 +2845,27 @@ static __device__ void cpy_1_f16_f32(const char * cxi, char * cdsti) {
+@@ -2469,6 +2846,27 @@ static __device__ void cpy_1_f16_f32(const char * cxi, char * cdsti) {
      *dsti = *xi;
  }
  
@@ -506,7 +506,7 @@ index 2e23fc6c..46e024ea 100644
  template <cpy_kernel_t cpy_1>
  static __global__ void cpy_f32_f16(const char * cx, char * cdst, const int ne,
                                     const int ne00, const int ne01, const int ne02, const int nb00, const int nb01, const int nb02,
-@@ -2736,6 +3134,16 @@ static void ggml_cpy_f16_f32_cuda(
+@@ -2737,6 +3135,16 @@ static void ggml_cpy_f16_f32_cuda(
          (cx, cdst, ne, ne00, ne01, ne02, nb00, nb01, nb02, nb03, ne10, ne11, ne12, nb10, nb11, nb12, nb13);
  }
  
@@ -523,7 +523,7 @@ index 2e23fc6c..46e024ea 100644
  static void ggml_cpy_f32_f32_cuda(
      const char * cx, char * cdst, const int ne,
      const int ne00, const int ne01, const int ne02, const int nb00, const int nb01, const int nb02,
-@@ -2756,6 +3164,16 @@ static void ggml_cpy_f32_f16_cuda(
+@@ -2757,6 +3165,16 @@ static void ggml_cpy_f32_f16_cuda(
          (cx, cdst, ne, ne00, ne01, ne02, nb00, nb01, nb02, nb03, ne10, ne11, ne12, nb10, nb11, nb12, nb13);
  }
  
@@ -540,7 +540,7 @@ index 2e23fc6c..46e024ea 100644
  static void ggml_cpy_f32_q8_0_cuda(
      const char * cx, char * cdst, const int ne,
      const int ne00, const int ne01, const int ne02, const int nb00, const int nb01, const int nb02,
-@@ -2832,6 +3250,16 @@ static void ggml_cpy_f16_f16_cuda(
+@@ -2833,6 +3251,16 @@ static void ggml_cpy_f16_f16_cuda(
          (cx, cdst, ne, ne00, ne01, ne02, nb00, nb01, nb02, nb03, ne10, ne11, ne12, nb10, nb11, nb12, nb13);
  }
  
@@ -557,7 +557,7 @@ index 2e23fc6c..46e024ea 100644
  void ggml_cuda_cpy(ggml_backend_cuda_context & ctx, const ggml_tensor * src0, ggml_tensor * src1) {
      const int64_t ne = ggml_nelements(src0);
      GGML_ASSERT(ne == ggml_nelements(src1));
-@@ -2889,6 +3317,12 @@ void ggml_cuda_cpy(ggml_backend_cuda_context & ctx, const ggml_tensor * src0, gg
+@@ -2890,6 +3318,12 @@ void ggml_cuda_cpy(ggml_backend_cuda_context & ctx, const ggml_tensor * src0, gg
          ggml_cpy_f16_f16_cuda (src0_ddc, src1_ddc, ne, ne00, ne01, ne02, nb00, nb01, nb02, nb03, ne10, ne11, ne12, nb10, nb11, nb12, nb13, main_stream);
      } else if (src0->type == GGML_TYPE_F16 && src1->type == GGML_TYPE_F32) {
          ggml_cpy_f16_f32_cuda (src0_ddc, src1_ddc, ne, ne00, ne01, ne02, nb00, nb01, nb02, nb03, ne10, ne11, ne12, nb10, nb11, nb12, nb13, main_stream);
@@ -570,7 +570,7 @@ index 2e23fc6c..46e024ea 100644
      } else {
          GGML_ABORT("%s: unsupported type combination (%s to %s)\n", __func__,
                  ggml_type_name(src0->type), ggml_type_name(src1->type));
-@@ -2923,6 +3357,12 @@ void* ggml_cuda_cpy_fn(const ggml_tensor * src0, ggml_tensor * src1) {
+@@ -2924,6 +3358,12 @@ void* ggml_cuda_cpy_fn(const ggml_tensor * src0, ggml_tensor * src1) {
          return (void*) cpy_f32_f16<cpy_1_f32_f16>;
      } else if (src0->type == GGML_TYPE_F16 && src1->type == GGML_TYPE_F32) {
          return (void*) cpy_f32_f16<cpy_1_f16_f32>;
@@ -583,7 +583,7 @@ index 2e23fc6c..46e024ea 100644
      } else {
          GGML_ABORT("%s: unsupported type combination (%s to %s)\n", __func__,
                  ggml_type_name(src0->type), ggml_type_name(src1->type));
-@@ -3439,12 +3879,21 @@ static __device__ void convert_f16(const void * vx, const int64_t ib, const int
+@@ -3440,12 +3880,21 @@ static __device__ void convert_f16(const void * vx, const int64_t ib, const int
      v.y = x[ib + iqs + 1];
  }
  
@@ -605,7 +605,7 @@ index 2e23fc6c..46e024ea 100644
          type == GGML_TYPE_F16 ? convert_f16 :
          nullptr;
  }
-@@ -3613,6 +4062,16 @@ static void convert_mul_mat_vec_f16_cuda(const void * vx, const dfloat * y, floa
+@@ -3614,6 +4063,16 @@ static void convert_mul_mat_vec_f16_cuda(const void * vx, const dfloat * y, floa
          <<<block_nums, block_dims, 0, stream>>>(vx, y, dst, ncols, nrows);
  }
  
@@ -622,7 +622,7 @@ index 2e23fc6c..46e024ea 100644
  void ggml_cuda_op_dequantize_mul_mat_vec(
      ggml_backend_cuda_context & ctx,
      const ggml_tensor * src0, const ggml_tensor * src1, ggml_tensor * dst, const char * src0_dd_i, const float * src1_ddf_i,
-@@ -3678,6 +4137,9 @@ void ggml_cuda_op_dequantize_mul_mat_vec(
+@@ -3679,6 +4138,9 @@ void ggml_cuda_op_dequantize_mul_mat_vec(
          case GGML_TYPE_F16:
              convert_mul_mat_vec_f16_cuda(src0_dd_i, src1_dfloat, dst_dd_i, ne00, row_diff, stream);
              break;
@@ -632,7 +632,7 @@ index 2e23fc6c..46e024ea 100644
          default:
              GGML_ABORT("fatal error");
              break;
-@@ -5554,6 +6016,8 @@ void launch_fattn(
+@@ -5555,6 +6017,8 @@ void launch_fattn(
      CUDA_CHECK(cudaGetLastError());
  }
  
@@ -641,7 +641,7 @@ index 2e23fc6c..46e024ea 100644
  ////////////////////////////////////////////////////////////////////////////////
  //
  // ROLLUP fattn-tile-f16.cuh
-@@ -7694,6 +8158,8 @@ void ggml_cuda_flash_attn_ext_tile_f16(ggml_backend_cuda_context & ctx, ggml_ten
+@@ -7695,6 +8159,8 @@ void ggml_cuda_flash_attn_ext_tile_f16(ggml_backend_cuda_context & ctx, ggml_ten
      }
  }
  
@@ -650,7 +650,7 @@ index 2e23fc6c..46e024ea 100644
  ////////////////////////////////////////////////////////////////////////////////
  //
  // ROLLUP fattn-tile-f32.cu
-@@ -8211,6 +8677,9 @@ void ggml_cuda_op_get_rows(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
+@@ -8212,6 +8678,9 @@ void ggml_cuda_op_get_rows(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
          case GGML_TYPE_F16:
              get_rows_cuda_float(src0, src1, dst, (const half *)src0_d, src1_i32, dst_d, stream);
              break;
@@ -660,7 +660,7 @@ index 2e23fc6c..46e024ea 100644
          case GGML_TYPE_F32:
              get_rows_cuda_float(src0, src1, dst, src0_d, src1_i32, dst_d, stream);
              break;
-@@ -11509,6 +11978,8 @@ extern DECL_MMQ_CASE(GGML_TYPE_Q3_K);
+@@ -11510,6 +11979,8 @@ extern DECL_MMQ_CASE(GGML_TYPE_Q3_K);
  extern DECL_MMQ_CASE(GGML_TYPE_Q4_K);
  extern DECL_MMQ_CASE(GGML_TYPE_Q5_K);
  extern DECL_MMQ_CASE(GGML_TYPE_Q6_K);
@@ -669,7 +669,7 @@ index 2e23fc6c..46e024ea 100644
  extern DECL_MMQ_CASE(GGML_TYPE_IQ2_XXS);
  extern DECL_MMQ_CASE(GGML_TYPE_IQ2_XS);
  extern DECL_MMQ_CASE(GGML_TYPE_IQ2_S);
-@@ -11517,6 +11988,7 @@ extern DECL_MMQ_CASE(GGML_TYPE_IQ3_S);
+@@ -11518,6 +11989,7 @@ extern DECL_MMQ_CASE(GGML_TYPE_IQ3_S);
  extern DECL_MMQ_CASE(GGML_TYPE_IQ1_S);
  extern DECL_MMQ_CASE(GGML_TYPE_IQ4_NL);
  extern DECL_MMQ_CASE(GGML_TYPE_IQ4_XS);
@@ -677,7 +677,7 @@ index 2e23fc6c..46e024ea 100644
  
  // -------------------------------------------------------------------------------------------------------------------------
  
-@@ -11587,6 +12059,7 @@ void ggml_cuda_op_mul_mat_q(
+@@ -11588,6 +12060,7 @@ void ggml_cuda_op_mul_mat_q(
          case GGML_TYPE_Q6_K:
              mul_mat_q_case<GGML_TYPE_Q6_K>(ctx, args, stream);
              break;
@@ -685,7 +685,7 @@ index 2e23fc6c..46e024ea 100644
          case GGML_TYPE_IQ2_XXS:
              mul_mat_q_case<GGML_TYPE_IQ2_XXS>(ctx, args, stream);
              break;
-@@ -11611,6 +12084,7 @@ void ggml_cuda_op_mul_mat_q(
+@@ -11612,6 +12085,7 @@ void ggml_cuda_op_mul_mat_q(
          case GGML_TYPE_IQ4_NL:
              mul_mat_q_case<GGML_TYPE_IQ4_NL>(ctx, args, stream);
              break;
@@ -693,7 +693,7 @@ index 2e23fc6c..46e024ea 100644
          default:
              GGML_ABORT("fatal error");
              break;
-@@ -13963,7 +14437,7 @@ static void ggml_cuda_log(enum ggml_log_level level, const char * format, ...) {
+@@ -13974,7 +14448,7 @@ static void ggml_cuda_log(enum ggml_log_level level, const char * format, ...) {
      }
  }
  
@@ -702,7 +702,7 @@ index 2e23fc6c..46e024ea 100644
  void ggml_cuda_error(const char * stmt, const char * func, const char * file, int line, const char * msg) {
      int id = -1; // in case cudaGetDevice fails
      cudaGetDevice(&id);
-@@ -14027,8 +14501,8 @@ static ggml_cuda_device_info ggml_cuda_init() {
+@@ -14038,8 +14512,8 @@ static ggml_cuda_device_info ggml_cuda_init() {
  #ifdef __HIP_PLATFORM_AMD__
      // Workaround for a rocBLAS bug when using multiple graphics cards:
      // https://github.com/ROCmSoftwarePlatform/rocBLAS/issues/1346
@@ -713,7 +713,7 @@ index 2e23fc6c..46e024ea 100644
  #endif
  
      ggml_cuda_device_info info = {};
-@@ -16183,9 +16657,11 @@ static bool ggml_cuda_compute_forward(ggml_backend_cuda_context & ctx, struct gg
+@@ -16194,9 +16668,11 @@ static bool ggml_cuda_compute_forward(ggml_backend_cuda_context & ctx, struct gg
          case GGML_OP_ARGSORT:
              ggml_cuda_op_argsort(ctx, dst);
              break;
@@ -725,7 +725,7 @@ index 2e23fc6c..46e024ea 100644
          case GGML_OP_CROSS_ENTROPY_LOSS:
              ggml_cuda_cross_entropy_loss(ctx, dst);
              break;
-@@ -16270,6 +16746,7 @@ GGML_CALL static bool ggml_backend_cuda_cpy_tensor_async(ggml_backend_t backend_
+@@ -16281,6 +16757,7 @@ GGML_CALL static bool ggml_backend_cuda_cpy_tensor_async(ggml_backend_t backend_
      }
  
      if (backend_src != backend_dst) {
@@ -733,7 +733,7 @@ index 2e23fc6c..46e024ea 100644
          // copy on src stream
          if (cuda_ctx_src->device == cuda_ctx_dst->device) {
              CUDA_CHECK(cudaMemcpyAsync(dst->data, src->data, ggml_nbytes(dst), cudaMemcpyDeviceToDevice, cuda_ctx_src->stream()));
-@@ -16648,6 +17125,7 @@ GGML_CALL static bool ggml_backend_cuda_supports_op(ggml_backend_t backend, cons
+@@ -16659,6 +17136,7 @@ GGML_CALL static bool ggml_backend_cuda_supports_op(ggml_backend_t backend, cons
                  switch (a->type) {
                      case GGML_TYPE_F32:
                      case GGML_TYPE_F16:
@@ -741,7 +741,7 @@ index 2e23fc6c..46e024ea 100644
                      case GGML_TYPE_Q4_0:
                      case GGML_TYPE_Q4_1:
                      case GGML_TYPE_Q5_0:
-@@ -16677,6 +17155,7 @@ GGML_CALL static bool ggml_backend_cuda_supports_op(ggml_backend_t backend, cons
+@@ -16688,6 +17166,7 @@ GGML_CALL static bool ggml_backend_cuda_supports_op(ggml_backend_t backend, cons
              {
                  switch (op->src[0]->type) {
                      case GGML_TYPE_F16:
@@ -749,7 +749,7 @@ index 2e23fc6c..46e024ea 100644
                      case GGML_TYPE_F32:
                      case GGML_TYPE_Q4_0:
                      case GGML_TYPE_Q4_1:
-@@ -16725,6 +17204,15 @@ GGML_CALL static bool ggml_backend_cuda_supports_op(ggml_backend_t backend, cons
+@@ -16736,6 +17215,15 @@ GGML_CALL static bool ggml_backend_cuda_supports_op(ggml_backend_t backend, cons
                  if (src0_type == src1_type && ggml_is_contiguous(op->src[0]) && ggml_is_contiguous(op->src[1])) {
                      return true;
                  }
@@ -765,7 +765,7 @@ index 2e23fc6c..46e024ea 100644
                  return false;
              } break;
          case GGML_OP_DUP:
-@@ -16779,7 +17267,9 @@ GGML_CALL static bool ggml_backend_cuda_supports_op(ggml_backend_t backend, cons
+@@ -16790,7 +17278,9 @@ GGML_CALL static bool ggml_backend_cuda_supports_op(ggml_backend_t backend, cons
          case GGML_OP_LEAKY_RELU:
              return true;
          case GGML_OP_FLASH_ATTN_EXT:
@@ -776,7 +776,7 @@ index 2e23fc6c..46e024ea 100644
              return (op->src[0]->ne[0] == 64 && op->src[1]->type == GGML_TYPE_F16) || op->src[0]->ne[0] == 128;
  #else
              if (op->src[0]->ne[0] == 128) {
-@@ -16823,7 +17313,7 @@ GGML_CALL static bool ggml_backend_cuda_offload_op(ggml_backend_t backend, const
+@@ -16834,7 +17324,7 @@ GGML_CALL static bool ggml_backend_cuda_offload_op(ggml_backend_t backend, const
      GGML_UNUSED(backend);
  }
  
@@ -785,7 +785,7 @@ index 2e23fc6c..46e024ea 100644
  #ifdef GGML_CUDA_NO_PEER_COPY
      return nullptr;
  #else
-@@ -16841,19 +17331,19 @@ static ggml_backend_event_t ggml_backend_cuda_event_new(ggml_backend_t backend)
+@@ -16852,19 +17342,19 @@ static ggml_backend_event_t ggml_backend_cuda_event_new(ggml_backend_t backend)
  #endif
  }
  
@@ -808,7 +808,7 @@ index 2e23fc6c..46e024ea 100644
      ggml_backend_cuda_context * cuda_ctx = (ggml_backend_cuda_context *)backend->context;
  
      if (ggml_backend_is_cuda(event->backend)) {
-@@ -16872,7 +17362,7 @@ static void ggml_backend_cuda_event_wait(ggml_backend_t backend, ggml_backend_ev
+@@ -16883,7 +17373,7 @@ static void ggml_backend_cuda_event_wait(ggml_backend_t backend, ggml_backend_ev
      }
  }
  
@@ -817,7 +817,7 @@ index 2e23fc6c..46e024ea 100644
      CUDA_CHECK(cudaEventSynchronize((cudaEvent_t)event->context));
  }
  
-@@ -16999,6 +17489,8 @@ GGML_CALL int ggml_backend_cuda_reg_devices() {
+@@ -17010,6 +17500,8 @@ GGML_CALL int ggml_backend_cuda_reg_devices() {
      return device_count;
  }
  
@@ -826,7 +826,7 @@ index 2e23fc6c..46e024ea 100644
  ////////////////////////////////////////////////////////////////////////////////
  //
  // ROLLUP template-instances/fattn-vec-f16-instance-hs128-f16-f16.cu
-@@ -18022,6 +18514,10 @@ DECL_FATTN_WMMA_F16_CASE(96, 8, half);
+@@ -18033,6 +18525,10 @@ DECL_FATTN_WMMA_F16_CASE(96, 8, half);
  DECL_FATTN_WMMA_F16_CASE(128, 8, half);
  DECL_FATTN_WMMA_F16_CASE(256, 8, half);
  
@@ -837,7 +837,7 @@ index 2e23fc6c..46e024ea 100644
  ////////////////////////////////////////////////////////////////////////////////
  //
  // ROLLUP template-instances/mmq-instance-iq1_s.cu
-@@ -18110,6 +18606,8 @@ DECL_MMQ_CASE(GGML_TYPE_IQ4_NL);
+@@ -18121,6 +18617,8 @@ DECL_MMQ_CASE(GGML_TYPE_IQ4_NL);
  
  DECL_MMQ_CASE(GGML_TYPE_IQ4_XS);
  
