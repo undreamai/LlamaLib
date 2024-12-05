@@ -300,19 +300,6 @@ static void ggml_cuda_print(const char *fmt, ...) {
 // #define GGML_CUDA_FORCE_MMQ // [jart] want this
 #endif
 
-GGML_CALL bool ggml_cuda_link(const struct ggml_backend_api *backend_api) {
-        fprintf(stderr, "%s: welcome to " GGML_CUDA_NAME " SDK with " BLAS_NAME "\n", __func__);
-#ifdef __HIP_PLATFORM_AMD__
-    // cargo culting workaround below
-#ifndef GGML_USE_TINYBLAS
-    rocblas_initialize();
-    cudaDeviceSynchronize();
-#endif
-#endif
-    int device_count;
-    return cudaGetDeviceCount(&device_count) == cudaSuccess && device_count > 0;
-}
-
 #define STRINGIZE_IMPL(...) #__VA_ARGS__
 #define STRINGIZE(...) STRINGIZE_IMPL(__VA_ARGS__)
 
