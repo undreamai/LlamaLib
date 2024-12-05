@@ -31,7 +31,7 @@ index a7e9dc9b..c89327e4 100644
  
      enum ggml_status {
 diff --git a/ggml/src/CMakeLists.txt b/ggml/src/CMakeLists.txt
-index ff84b9bb..b4dd4b4d 100644
+index ff84b9bb..6039e7be 100644
 --- a/ggml/src/CMakeLists.txt
 +++ b/ggml/src/CMakeLists.txt
 @@ -319,7 +319,7 @@ if (GGML_CUDA)
@@ -39,7 +39,7 @@ index ff84b9bb..b4dd4b4d 100644
          endif()
  
 -        list(APPEND GGML_CDEF_PUBLIC GGML_USE_CUDA)
-+        list(APPEND GGML_CDEF_PUBLIC GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG ${{ matrix.minimise }})
++        list(APPEND GGML_CDEF_PUBLIC GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS)
  
          add_compile_definitions(GGML_CUDA_DMMV_X=${GGML_CUDA_DMMV_X})
          add_compile_definitions(GGML_CUDA_MMV_Y=${GGML_CUDA_MMV_Y})
