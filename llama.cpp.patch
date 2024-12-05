@@ -1,53 +1,27 @@
 diff --git a/examples/server/server.cpp b/examples/server/server.cpp
-index f9d20fee..b31d241c 100644
+index e79e7aa2..452aa03b 100644
 --- a/examples/server/server.cpp
 +++ b/examples/server/server.cpp
-@@ -651,16 +651,24 @@ struct server_context {
+@@ -1,4 +1,4 @@
+-#include "utils.hpp"
++#include "utils_callback.hpp"
  
-         // Clear any sampling context
-         for (server_slot & slot : slots) {
--            common_sampler_free(slot.smpl);
--            slot.smpl = nullptr;
-+            if (slot.smpl != nullptr) {
-+                common_sampler_free(slot.smpl);
-+                slot.smpl = nullptr;
-+            }
- 
--            llama_free(slot.ctx_dft);
--            slot.ctx_dft = nullptr;
-+            if (slot.ctx_dft != nullptr) {
-+                llama_free(slot.ctx_dft);
-+                slot.ctx_dft = nullptr;
-+            }
- 
--            common_speculative_free(slot.spec);
--            slot.spec = nullptr;
-+            if (slot.spec != nullptr) {
-+                common_speculative_free(slot.spec);
-+                slot.spec = nullptr;
-+            }
- 
--            llama_batch_free(slot.batch_spec);
-+            if (slot.ctx_dft) {
-+                llama_batch_free(slot.batch_spec);
-+            }
-         }
- 
-         llama_batch_free(batch);
-@@ -2403,7 +2411,7 @@ inline void signal_handler(int signal) {
+ #include "common.h"
+ #include "json-schema-to-grammar.h"
+@@ -2495,7 +2495,7 @@ inline void signal_handler(int signal) {
      shutdown_handler(signal);
  }
  
 -int main(int argc, char ** argv) {
 +int main_server(int argc, char ** argv) {
-     // own arguments required by this example
-     common_params params;
- 
+ #if SERVER_VERBOSE != 1
+     log_disable();
+ #endif
 diff --git a/ggml/include/ggml.h b/ggml/include/ggml.h
-index 9843b09f..590f9bb2 100644
+index a7e9dc9b..c89327e4 100644
 --- a/ggml/include/ggml.h
 +++ b/ggml/include/ggml.h
-@@ -318,7 +318,7 @@
+@@ -325,7 +325,7 @@
  extern "C" {
  #endif
  
@@ -57,23 +31,32 @@ index 9843b09f..590f9bb2 100644
  
      enum ggml_status {
 diff --git a/ggml/src/CMakeLists.txt b/ggml/src/CMakeLists.txt
-index 071508dd..5141fea0 100644
+index ff84b9bb..b4dd4b4d 100644
 --- a/ggml/src/CMakeLists.txt
 +++ b/ggml/src/CMakeLists.txt
-@@ -203,7 +203,7 @@ endif()
- # ggml
+@@ -319,7 +319,7 @@ if (GGML_CUDA)
+             list(APPEND GGML_SOURCES_CUDA ${SRCS})
+         endif()
  
- if (GGML_BACKEND_DL AND NOT BUILD_SHARED_LIBS)
--    message(FATAL_ERROR "GGML_BACKEND_DL requires BUILD_SHARED_LIBS")
-+    message(WARNING "GGML_BACKEND_DL requires BUILD_SHARED_LIBS")
- endif()
+-        list(APPEND GGML_CDEF_PUBLIC GGML_USE_CUDA)
++        list(APPEND GGML_CDEF_PUBLIC GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG ${{ matrix.minimise }})
  
- add_library(ggml-base
-diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-index 49527fdf..255fc3d6 100644
---- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-+++ b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-@@ -55,7 +55,7 @@ static_assert(K_QUANTS_PER_ITERATION == 1 || K_QUANTS_PER_ITERATION == 2, "K_QUA
+         add_compile_definitions(GGML_CUDA_DMMV_X=${GGML_CUDA_DMMV_X})
+         add_compile_definitions(GGML_CUDA_MMV_Y=${GGML_CUDA_MMV_Y})
+@@ -466,7 +466,7 @@ if (GGML_HIPBLAS)
+         list(APPEND GGML_SOURCES_ROCM ${SRCS})
+     endif()
+ 
+-    list(APPEND GGML_CDEF_PUBLIC GGML_USE_CUDA)
++    list(APPEND GGML_CDEF_PUBLIC GGML_USE_CUDA GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS)
+ 
+     add_compile_definitions(GGML_USE_HIPBLAS)
+     add_compile_definitions(GGML_CUDA_DMMV_X=${GGML_CUDA_DMMV_X})
+diff --git a/ggml/src/ggml-vulkan.cpp b/ggml/src/ggml-vulkan.cpp
+index 32fda32a..4e80f91f 100644
+--- a/ggml/src/ggml-vulkan.cpp
++++ b/ggml/src/ggml-vulkan.cpp
+@@ -53,7 +53,7 @@ static_assert(K_QUANTS_PER_ITERATION == 1 || K_QUANTS_PER_ITERATION == 2, "K_QUA
          if (err_ != vk::Result::eSuccess) {                         \
              fprintf(stderr, "ggml_vulkan: %s error %s at %s:%d\n",  \
                  #err, to_string(err_).c_str(), __FILE__, __LINE__); \
@@ -83,10 +66,10 @@ index 49527fdf..255fc3d6 100644
      } while (0)
  
 diff --git a/ggml/src/ggml.c b/ggml/src/ggml.c
-index 1a2318cb..efa4869a 100644
+index d0a99150..20530f6a 100644
 --- a/ggml/src/ggml.c
 +++ b/ggml/src/ggml.c
-@@ -174,7 +174,7 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {
+@@ -254,7 +254,7 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {
      fprintf(stderr, "\n");
  
      ggml_print_backtrace();
@@ -94,4 +77,4 @@ index 1a2318cb..efa4869a 100644
 +    raise(SIGSEGV);
  }
  
- //
+ #define GGML_DEBUG 0
