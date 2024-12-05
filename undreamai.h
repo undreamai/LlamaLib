@@ -15,16 +15,12 @@
     #include <openssl/err.h>
     #include <openssl/ssl.h>
 #endif
-#define LOG_ERROR(  MSG, ...) server_log_callback("ERR",  __func__, __LINE__, MSG, __VA_ARGS__)
-#define LOG_WARNING(MSG, ...) server_log_callback("WARN", __func__, __LINE__, MSG, __VA_ARGS__)
-#define LOG_INFO(   MSG, ...) server_log_callback("INFO", __func__, __LINE__, MSG, __VA_ARGS__)
 
 int exit_code = 1;
 int warning_code = -1;
 int status;
 std::string status_message;
 sigjmp_buf point;
-StringWrapper* logStringWrapper;
 
 class LLM {
     public:
@@ -59,7 +55,7 @@ class LLM {
         bool is_running();
 
     private:
-        common_params params;
+        gpt_params params;
         bool llama_backend_has_init;
         server_context ctx_server;
         std::thread server_thread;
@@ -70,8 +66,8 @@ class LLM {
 
         void parse_args(std::string params_string);
         void init(int argc, char ** argv);
-        std::string handle_completions_non_streaming(std::unordered_set<int> id_tasks, httplib::Response* res=nullptr);
-        std::string handle_completions_streaming(std::unordered_set<int> id_tasks, StringWrapper* stringWrapper=nullptr, httplib::DataSink* sink=nullptr);
+        std::string handle_completions_non_streaming(int id_task, httplib::Response* res=nullptr);
+        std::string handle_completions_streaming(int id_task, StringWrapper* stringWrapper=nullptr, httplib::DataSink* sink=nullptr);
         bool middleware_validate_api_key(const httplib::Request & req, httplib::Response & res);
 };
 
