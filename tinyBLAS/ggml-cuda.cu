@@ -50,16 +50,13 @@
 #include "ggml-cuda.h"
 
 
+
 #if defined(GGML_USE_HIP)
 #define GGML_COMMON_DECL_HIP
 #define GGML_COMMON_IMPL_HIP
 #else
 #define GGML_COMMON_DECL_CUDA
 #define GGML_COMMON_IMPL_CUDA
-#if defined(GGML_USE_MUSA)
-#define GGML_COMMON_DECL_MUSA
-#define GGML_COMMON_IMPL_MUSA
-#endif
 #endif
 #include "ggml-common.h"
 
@@ -136,7 +133,7 @@
 #define CUBLAS_STATUS_EXECUTION_FAILED HIPBLAS_STATUS_EXECUTION_FAILED
 #define CUBLAS_STATUS_INTERNAL_ERROR HIPBLAS_STATUS_INTERNAL_ERROR
 #define CUBLAS_STATUS_NOT_SUPPORTED HIPBLAS_STATUS_NOT_SUPPORTED
-#endif
+#endif //GGML_USE_TINYBLAS
 
 #define __shfl_xor_sync(mask, var, laneMask, width) __shfl_xor(var, laneMask, width)
 #define cudaDeviceCanAccessPeer hipDeviceCanAccessPeer
@@ -238,7 +235,7 @@
 #define cublasComputeType_t cudaDataType_t
 #endif // CUDART_VERSION < 11020
 
-#endif // defined(GGML_USE_HIPBLAS)
+#endif // GGML_USE_HIP
 
 #include "ggml-backend-impl.h"
 
@@ -19316,4 +19313,3 @@ void ggml_cuda_count_equal(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
             GGML_ASSERT(false);
             break;
     }
-}
