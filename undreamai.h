@@ -21,6 +21,7 @@ int warning_code = -1;
 int status;
 std::string status_message;
 sigjmp_buf point;
+StringWrapper* logStringWrapper;
 
 class LLM {
     public:
