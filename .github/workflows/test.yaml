@@ -53,6 +53,8 @@ jobs:
             for f in examples/server/public/*;do
                 cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
             done
+
+            mkdir -p ../build/licenses ../build/libs
           shell: bash
 
         - id: set_cuda_var_linux
