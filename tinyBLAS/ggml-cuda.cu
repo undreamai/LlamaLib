@@ -1,3 +1,6 @@
+// -*- mode:c++;indent-tabs-mode:nil;c-basic-offset:4;coding:utf-8 -*-
+// vi: set et ft=cpp ts=4 sts=4 sw=4 fenc=utf-8 :vi
+
 #include <algorithm>
 #include <array>
 #include <atomic>
@@ -43,7 +46,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "ggml-impl.h"
+#include "ggml.h"
 #include "ggml-cuda.h"
 
 
@@ -53,8 +56,13 @@
 #else
 #define GGML_COMMON_DECL_CUDA
 #define GGML_COMMON_IMPL_CUDA
+#if defined(GGML_USE_MUSA)
+#define GGML_COMMON_DECL_MUSA
+#define GGML_COMMON_IMPL_MUSA
+#endif
 #endif
 #include "ggml-common.h"
+
 
 #if defined(GGML_USE_HIP)
 #include <hip/hip_runtime.h>
@@ -230,15 +238,83 @@
 #define cublasComputeType_t cudaDataType_t
 #endif // CUDART_VERSION < 11020
 
-#endif // defined(GGML_USE_HIP)
+#endif // defined(GGML_USE_HIPBLAS)
 
 #include "ggml-backend-impl.h"
+
+
+-[[noreturn]]
+static void exit_(int rc) {
+#define exit exit_
+#if defined(__GNUC__) || defined(__llvm__)
+    __builtin_unreachable();
+#elif defined(_MSC_VER)
+    __assume(0);
+#endif
+    for (;;);
+}
+
+// printf() and fprintf() runtime bridge
+// this is needed so text gets printed on windows
+// it also helps ensure the atomicity of log lines
+static void ggml_cuda_print(const char *fmt, ...) {
+#define GGML_CUDA_PRINT_BUFSIZ 512
+#define fflush(_) (void)0
+#define printf(...) ggml_cuda_print(__VA_ARGS__)
+#define fprintf(_, ...) ggml_cuda_print(__VA_ARGS__)
+    int len;
+    va_list va;
+    char buf[GGML_CUDA_PRINT_BUFSIZ];
+    va_start(va, fmt);
+    len = vsnprintf(buf, GGML_CUDA_PRINT_BUFSIZ, fmt, va);
+    va_end(va);
+    if (len < 0)
+        len = strnlen(buf, GGML_CUDA_PRINT_BUFSIZ);
+    if (len >= GGML_CUDA_PRINT_BUFSIZ) {
+        len = GGML_CUDA_PRINT_BUFSIZ;
+        buf[len - 4] = '.';
+        buf[len - 3] = '.';
+        buf[len - 2] = '.';
+        buf[len - 1] = '\n';
+    }
+}
 
 #ifdef GGML_USE_TINYBLAS
 #define BLAS_NAME "tinyBLAS"
 #else
 #define BLAS_NAME GGML_CUBLAS_NAME
 #endif
+
+// define this if you want to always fallback to MMQ kernels and not use cuBLAS for matrix multiplication
+// on modern hardware, using cuBLAS is recommended as it utilizes F16 tensor cores which are very performant
+// for large computational tasks. the drawback is that this requires some extra amount of VRAM:
+// -  7B quantum model: +100-200 MB
+// - 13B quantum model: +200-400 MB
+//
+// [jart] https://github.com/Mozilla-Ocho/llamafile/issues/403#issuecomment-2103687594
+//
+// TODO(jart): oops looks like we can't use this anymore, because my
+//             five year old NVIDIA GeForce RTX 2080 Ti card stopped
+//             working with "ggml-cuda.cu:11460: ERROR: CUDA kernel
+//             mul_mat_q has no device code compatible with CUDA arch
+//             700. ggml-cuda.cu was compiled for: 600,700,800,900"!
+//
+#ifdef GGML_USE_TINYBLAS
+// #define GGML_CUDA_FORCE_MMQ // [jart] want this
+#endif
+
+GGML_CALL bool ggml_cuda_link(const struct ggml_backend_api *backend_api) {
+        fprintf(stderr, "%s: welcome to " GGML_CUDA_NAME " SDK with " BLAS_NAME "\n", __func__);
+#ifdef __HIP_PLATFORM_AMD__
+    // cargo culting workaround below
+#ifndef GGML_USE_TINYBLAS
+    rocblas_initialize();
+    cudaDeviceSynchronize();
+#endif
+#endif
+    int device_count;
+    return cudaGetDeviceCount(&device_count) == cudaSuccess && device_count > 0;
+}
 
 #define STRINGIZE_IMPL(...) #__VA_ARGS__
 #define STRINGIZE(...) STRINGIZE_IMPL(__VA_ARGS__)
@@ -278,7 +354,7 @@
 
 #define GGML_CUDA_MAX_STREAMS 8
 
-GGML_NORETURN
+-[[noreturn]]
 void ggml_cuda_error(const char * stmt, const char * func, const char * file, int line, const char * msg);
 
 #define CUDA_CHECK_GEN(err, success, error_fn)                                      \
@@ -377,16 +453,8 @@ static __device__ __forceinline__ unsigned int __vcmpne4_musa(unsigned int a, un
 }
 #endif // defined(GGML_USE_MUSA)
 
-#if defined(GGML_USE_HIP)
+#if defined(GGML_USE_HIPBLAS)
 #define __CUDA_ARCH__ 1300
-
-#if defined(__gfx803__) || defined(__gfx900__) || defined(__gfx906__)
-#define GCN
-#endif
-
-#if defined(__gfx908__) || defined(__gfx90a__) || defined(__gfx942__)
-#define CDNA
-#endif
 
 #if defined(__gfx1100__) || defined(__gfx1101__) || defined(__gfx1102__) || defined(__gfx1103__) || \
     defined(__gfx1150__) || defined(__gfx1151__)
@@ -469,7 +537,7 @@ static __device__ __forceinline__ half2 __shfl_xor(half2 var, int laneMask, int 
     return tmp.val;
 }
 #endif // defined(__HIP_PLATFORM_AMD__) && HIP_VERSION < 50600000
-#endif // defined(GGML_USE_HIP)
+#endif // defined(GGML_USE_HIPBLAS)
 
 #if (defined(GGML_USE_HIP) && defined(__HIP_PLATFORM_AMD__)) || __CUDA_ARCH__ >= CC_PASCAL
 #define FP16_AVAILABLE
@@ -503,16 +571,16 @@ static constexpr bool int8_mma_available(const int cc) {
     return cc < CC_OFFSET_AMD && cc >= CC_TURING;
 }
 
-GGML_NORETURN
+[[noreturn]]
 static __device__ void no_device_code(
     const char * file_name, const int line, const char * function_name, const int arch, const char * arch_list) {
 
 #if defined(GGML_USE_HIP) && defined(__HIP_PLATFORM_AMD__)
-    (printf)("%s:%d: ERROR: HIP kernel %s has no device code compatible with HIP arch %d.\n",
+    printf("%s:%d: ERROR: HIP kernel %s has no device code compatible with HIP arch %d.\n",
            file_name, line, function_name, arch);
     GGML_UNUSED(arch_list);
 #else
-    (printf)("%s:%d: ERROR: CUDA kernel %s has no device code compatible with CUDA arch %d. ggml-cuda.cu was compiled for: %s\n",
+    printf("%s:%d: ERROR: CUDA kernel %s has no device code compatible with CUDA arch %d. ggml-cuda.cu was compiled for: %s\n",
            file_name, line, function_name, arch, arch_list);
 #endif // defined(GGML_USE_HIP) && defined(__HIP_PLATFORM_AMD__)
     __trap();
@@ -1143,119 +1211,6 @@ void ggml_cuda_op_arange(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
     GGML_ASSERT(ggml_nelements(dst) == steps);
 
     arange_f32_cuda(dst_d, dst->ne[0], start, step, stream);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// ROLLUP argmax.cu
-//
-////////////////////////////////////////////////////////////////////////////////
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// ROLLUP argmax.cuh
-//
-////////////////////////////////////////////////////////////////////////////////
-
-
-void ggml_cuda_argmax(ggml_backend_cuda_context & ctx, ggml_tensor * dst);
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// ROLLUP sum.cuh
-//
-////////////////////////////////////////////////////////////////////////////////
-
-
-void sum_f32_cuda(ggml_cuda_pool & pool, const float * x, float * dst, const int64_t ne, cudaStream_t stream);
-
-void ggml_cuda_op_sum(ggml_backend_cuda_context & ctx, ggml_tensor * dst);
-
-static __global__ void argmax_f32(const float * __restrict__ x, int32_t * __restrict__ dst, const int64_t ncols) {
-    const int64_t row = blockIdx.x;
-
-    float maxval = -FLT_MAX;
-    int   argmax = -1;
-    const float * rowx = x + row * ncols;
-
-    for (int32_t col = threadIdx.x; col < ncols; col += blockDim.x) {
-        const float val = rowx[col];
-        if (val > maxval) {
-            maxval = val;
-            argmax = col;
-        }
-    }
-
-#pragma unroll
-    for (int offset = 16; offset > 0; offset >>= 1) {
-        const float val = __shfl_xor_sync(0xFFFFFFFF, maxval, offset, WARP_SIZE);
-        const int   col = __shfl_xor_sync(0xFFFFFFFF, argmax, offset, WARP_SIZE);
-        if (val > maxval) {
-            maxval = val;
-            argmax = col;
-        }
-    }
-
-    const int n_warps = blockDim.x / WARP_SIZE;
-    const int lane_id = threadIdx.x % WARP_SIZE;
-    const int warp_id = threadIdx.x / WARP_SIZE;
-    if (n_warps > 1) {
-        constexpr int    max_warps = 1024 / WARP_SIZE;
-        __shared__ float shared_maxval[max_warps];
-        __shared__ int   shared_argmax[max_warps];
-        if (lane_id == 0) {
-            shared_maxval[warp_id] = maxval;
-            shared_argmax[warp_id] = argmax;
-        }
-
-        __syncthreads();
-
-        if (warp_id == 0) {
-            if (lane_id < n_warps) {
-                maxval = shared_maxval[lane_id];
-                argmax = shared_argmax[lane_id];
-            }
-#pragma unroll
-            for (int offset = 16; offset > 0; offset >>= 1) {
-                const float val = __shfl_xor_sync(0xFFFFFFFF, maxval, offset, WARP_SIZE);
-                const int   col = __shfl_xor_sync(0xFFFFFFFF, argmax, offset, WARP_SIZE);
-                if (val > maxval) {
-                    maxval = val;
-                    argmax = col;
-                }
-            }
-        }
-    }
-
-    if (warp_id == 0 && lane_id == 0) {
-        dst[row] = argmax;
-    }
-}
-
-void ggml_cuda_argmax(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
-    const ggml_tensor * src0 = dst->src[0];
-
-    GGML_ASSERT(src0->type == GGML_TYPE_F32);
-    GGML_ASSERT( dst->type == GGML_TYPE_I32);
-
-    GGML_ASSERT(ggml_is_contiguous(src0));
-
-    const int64_t ne00  = src0->ne[0];
-    const int64_t nrows = ggml_nrows(src0);
-
-    const float * src0_d = (const float *) src0->data;
-    int32_t     * dst_d  = (int32_t     *) dst->data;
-
-    cudaStream_t stream = ctx.stream();
-
-    const int64_t num_blocks = nrows;
-    const int64_t num_threads = std::min<int64_t>(1024, (ne00 + WARP_SIZE - 1) / WARP_SIZE * WARP_SIZE);
-    const dim3 blocks_dim(num_threads, 1, 1);
-    const dim3 blocks_num(num_blocks, 1, 1);
-
-    argmax_f32<<<blocks_num, blocks_dim, 0, stream>>>(src0_d, dst_d, ne00);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2944,85 +2899,6 @@ void ggml_cuda_op_conv_transpose_1d(ggml_backend_cuda_context & ctx, ggml_tensor
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// ROLLUP count-equal.cu
-//
-////////////////////////////////////////////////////////////////////////////////
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// ROLLUP count-equal.cuh
-//
-////////////////////////////////////////////////////////////////////////////////
-
-
-#define CUDA_COUNT_EQUAL_CHUNK_SIZE 128
-
-void ggml_cuda_count_equal(ggml_backend_cuda_context & ctx, ggml_tensor * dst);
-
-
-template <typename T>
-static __global__ void count_equal(const T * __restrict__ x, const T * __restrict__ y, int64_t * __restrict__ dst, const int64_t dk, const int64_t k) {
-    const int64_t i0 = (int64_t) blockIdx.x*dk;
-    const int64_t i1 = min(i0 + dk, k);
-
-    int nequal = 0;
-
-    for (int64_t i = i0 + threadIdx.x; i < i1; i += WARP_SIZE) {
-        const T xi = x[i];
-        const T yi = y[i];
-        nequal += xi == yi;
-    }
-
-    nequal = warp_reduce_sum(nequal);
-
-    if (threadIdx.x != 0) {
-        return;
-    }
-
-    atomicAdd((int *) dst, nequal);
-}
-
-void ggml_cuda_count_equal(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
-    const ggml_tensor * src0 = dst->src[0];
-    const ggml_tensor * src1 = dst->src[1];
-
-    GGML_ASSERT(src0->type == src1->type);
-    GGML_ASSERT( dst->type == GGML_TYPE_I64);
-
-    GGML_ASSERT(ggml_are_same_shape(src0, src1));
-    GGML_ASSERT(ggml_is_contiguous(src0));
-    GGML_ASSERT(ggml_is_contiguous(src1));
-    GGML_ASSERT(ggml_is_contiguous(dst));
-
-    int64_t * dst_d  = (int64_t *) dst->data;
-
-    cudaStream_t stream = ctx.stream();
-    const int nsm = ggml_cuda_info().devices[ggml_cuda_get_device()].nsm;
-
-    const int64_t ne = ggml_nelements(src0);
-    GGML_ASSERT(ne < (1 << 30) && "atomicAdd implementation only supports int");
-    const int64_t dne = GGML_PAD((ne + 4*nsm - 1) / (4*nsm), CUDA_COUNT_EQUAL_CHUNK_SIZE);
-
-    CUDA_CHECK(cudaMemsetAsync(dst_d, 0, ggml_nbytes(dst), stream));
-
-    const dim3 blocks_dim(WARP_SIZE, 1, 1);
-    const dim3 blocks_num(std::min((int64_t)4*nsm, (ne + CUDA_COUNT_EQUAL_CHUNK_SIZE - 1)/CUDA_COUNT_EQUAL_CHUNK_SIZE), 1, 1);
-
-    switch (src0->type) {
-        case GGML_TYPE_I32: {
-            const int * src0_d = (const int *) src0->data;
-            const int * src1_d = (const int *) src1->data;
-            count_equal<<<blocks_num, blocks_dim, 0, stream>>>(src0_d, src1_d, dst_d, dne, ne);
-        } break;
-        default:
-            GGML_ASSERT(false);
-            break;
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
 // ROLLUP cpy.cu
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -3615,33 +3491,33 @@ void* ggml_cuda_cpy_fn(const ggml_tensor * src0, ggml_tensor * src1) {
     if (src0->type == src1->type && ggml_is_contiguous(src0) && ggml_is_contiguous(src1)) {
         return nullptr;
     } else if (src0->type == GGML_TYPE_F32 && src1->type == GGML_TYPE_F32) {
-            return (void*) cpy_f32_f16<cpy_1_f32_f32>;
+        return (void*) cpy_f32_f16<cpy_1_f32_f32>;
     } else if (src0->type == GGML_TYPE_F32 && src1->type == GGML_TYPE_F16) {
-            return (void*) cpy_f32_f16<cpy_1_f32_f16>;
+        return (void*) cpy_f32_f16<cpy_1_f32_f16>;
     } else if (src0->type == GGML_TYPE_F32 && src1->type == GGML_TYPE_Q8_0) {
-            return (void*) cpy_f32_q<cpy_blck_f32_q8_0, QK8_0>;
+        return (void*) cpy_f32_q<cpy_blck_f32_q8_0, QK8_0>;
     } else if (src0->type == GGML_TYPE_Q8_0 && src1->type == GGML_TYPE_F32) {
         return (void*) cpy_q_f32<cpy_blck_q8_0_f32, QK8_0>;
     } else if (src0->type == GGML_TYPE_F32 && src1->type == GGML_TYPE_Q4_0) {
-            return (void*) cpy_f32_q<cpy_blck_f32_q4_0, QK4_0>;
+        return (void*) cpy_f32_q<cpy_blck_f32_q4_0, QK4_0>;
     } else if (src0->type == GGML_TYPE_F32 && src1->type == GGML_TYPE_Q4_1) {
-            return (void*) cpy_f32_q<cpy_blck_f32_q4_1, QK4_1>;
+        return (void*) cpy_f32_q<cpy_blck_f32_q4_1, QK4_1>;
     } else if (src0->type == GGML_TYPE_F32 && src1->type == GGML_TYPE_Q5_0) {
-            return (void*) cpy_f32_q<cpy_blck_f32_q5_0, QK5_0>;
+        return (void*) cpy_f32_q<cpy_blck_f32_q5_0, QK5_0>;
     } else if (src0->type == GGML_TYPE_F32 && src1->type == GGML_TYPE_IQ4_NL) {
-            return (void*) cpy_f32_q<cpy_blck_f32_iq4_nl, QK4_NL>;
+        return (void*) cpy_f32_q<cpy_blck_f32_iq4_nl, QK4_NL>;
     } else if (src0->type == GGML_TYPE_F32 && src1->type == GGML_TYPE_Q5_1) {
-            return (void*) cpy_f32_q<cpy_blck_f32_q5_1, QK5_1>;
+        return (void*) cpy_f32_q<cpy_blck_f32_q5_1, QK5_1>;
     } else if (src0->type == GGML_TYPE_F16 && src1->type == GGML_TYPE_F16) {
-            return (void*) cpy_f32_f16<cpy_1_f32_f16>;
+        return (void*) cpy_f32_f16<cpy_1_f32_f16>;
     } else if (src0->type == GGML_TYPE_F16 && src1->type == GGML_TYPE_F32) {
-            return (void*) cpy_f32_f16<cpy_1_f16_f32>;
+        return (void*) cpy_f32_f16<cpy_1_f16_f32>;
     } else if (src0->type == GGML_TYPE_F32 && src1->type == GGML_TYPE_BF16) {
-            return (void*) cpy_f32_f16<cpy_1_f32_bf16>; // [jart]
+        return (void*) cpy_f32_f16<cpy_1_f32_bf16>; // [jart]
     } else if (src0->type == GGML_TYPE_BF16 && src1->type == GGML_TYPE_BF16) {
-            return (void*) cpy_f32_f16<cpy_1_f32_bf16>; // [jart]
+        return (void*) cpy_f32_f16<cpy_1_f32_bf16>; // [jart]
     } else if (src0->type == GGML_TYPE_BF16 && src1->type == GGML_TYPE_F32) {
-            return (void*) cpy_f32_f16<cpy_1_bf16_f32>; // [jart]
+        return (void*) cpy_f32_f16<cpy_1_bf16_f32>; // [jart]
     } else {
         GGML_ABORT("%s: unsupported type combination (%s to %s)\n", __func__,
                 ggml_type_name(src0->type), ggml_type_name(src1->type));
@@ -3949,187 +3825,6 @@ void ggml_cuda_op_mul_mat_vec(
     GGML_UNUSED(src1_ddq_i);
     GGML_UNUSED(src1_ncols);
     GGML_UNUSED(src1_padded_row_size);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// ROLLUP cross-entropy-loss.cu
-//
-////////////////////////////////////////////////////////////////////////////////
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// ROLLUP cross-entropy-loss.cuh
-//
-////////////////////////////////////////////////////////////////////////////////
-
-
-#define CUDA_CROSS_ENTROPY_LOSS_BLOCK_SIZE 256
-
-void ggml_cuda_cross_entropy_loss(ggml_backend_cuda_context & ctx, ggml_tensor * dst);
-
-void ggml_cuda_cross_entropy_loss_back(ggml_backend_cuda_context & ctx, ggml_tensor * dst);
-
-
-static __global__ void cross_entropy_loss_f32(const float * logits, const float * labels, float * dst, const int nclasses, const int k) {
-    const int warp_id = threadIdx.x / WARP_SIZE;
-    const int lane_id = threadIdx.x % WARP_SIZE;
-    const int i0 = blockDim.x*blockIdx.x + warp_id*WARP_SIZE;
-
-    const int ne_tmp = WARP_SIZE*nclasses;
-
-    extern __shared__ float tmp_all[];
-    float * tmp_logits = tmp_all + (2*warp_id + 0)*ne_tmp;
-    float * tmp_labels = tmp_all + (2*warp_id + 1)*ne_tmp;
-
-    // Each warp first loads ne_tmp logits/labels into shared memory:
-    for (int i = lane_id; i < ne_tmp; i += WARP_SIZE) {
-        const int ig = i0*nclasses + i; // ig == i global
-
-        tmp_logits[i] = ig < k*nclasses ? logits[ig] : 0.0f;
-        tmp_labels[i] = ig < k*nclasses ? labels[ig] : 0.0f;
-    }
-
-    // Each thread in the warp then calculates the cross entropy loss for a single row.
-    // TODO: pad in order to avoid shared memory bank conflicts.
-
-    // Find maximum for softmax:
-    float max = -INFINITY;
-    for (int i = 0; i < nclasses; ++i) {
-        max = fmaxf(max, tmp_logits[lane_id*nclasses + i]);
-    }
-
-    // Calculate log(softmax(logits)) which is just logits - max:
-    float sum = 0.0f;
-    for (int i = 0; i < nclasses; ++i) {
-        float val = tmp_logits[lane_id*nclasses + i] - max;
-        sum += expf(val);
-        tmp_logits[lane_id*nclasses + i] = val;
-    }
-    sum = logf(sum);
-
-    // log(exp(logits - max) / sum) = (logits - max) - log(sum)
-    float loss = 0.0f;
-    for (int i = 0; i < nclasses; ++i) {
-        loss += (tmp_logits[lane_id*nclasses + i] - sum) * tmp_labels[lane_id*nclasses + i];
-    }
-    loss = -warp_reduce_sum(loss) / (float)k;
-
-    __syncthreads();
-
-    if (lane_id == 0) {
-        tmp_all[warp_id] = loss;
-    }
-
-    __syncthreads();
-
-    if (warp_id != 0) {
-        return;
-    }
-
-    loss = lane_id < CUDA_CROSS_ENTROPY_LOSS_BLOCK_SIZE/WARP_SIZE ? tmp_all[lane_id] : 0.0f;
-    loss = warp_reduce_sum(loss);
-
-    if (lane_id != 0) {
-        return;
-    }
-
-    dst[blockIdx.x] = loss;
-}
-
-static __global__ void cross_entropy_loss_back_f32(const float * logits, const float * labels, const float * loss, float * dst, const int nclasses) {
-    extern __shared__ float tmp[];
-
-    float maxval = -INFINITY;
-    for (int i = threadIdx.x; i < nclasses; i += WARP_SIZE) {
-        const float val = logits[blockIdx.x*nclasses + i];
-        maxval = fmaxf(maxval, val);
-        tmp[i] = val;
-    }
-    maxval = warp_reduce_max(maxval);
-
-    float sum = 0.0f;
-    for (int i = threadIdx.x; i < nclasses; i += WARP_SIZE) {
-        const float val = expf(tmp[i] - maxval);
-        sum += val;
-        tmp[i] = val;
-    }
-    sum = warp_reduce_sum(sum);
-    const float sm_scale = 1.0f/sum;
-
-    const float d_by_nrows = *loss/gridDim.x;
-    for (int i = threadIdx.x; i < nclasses; i += WARP_SIZE) {
-        dst[blockIdx.x*nclasses + i] = (tmp[i]*sm_scale - labels[blockIdx.x*nclasses + i])*d_by_nrows;
-    }
-}
-
-void ggml_cuda_cross_entropy_loss(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
-    const ggml_tensor * src0 = dst->src[0];
-    const ggml_tensor * src1 = dst->src[1];
-
-    GGML_ASSERT(src0->type == GGML_TYPE_F32);
-    GGML_ASSERT(src1->type == GGML_TYPE_F32);
-    GGML_ASSERT( dst->type == GGML_TYPE_F32);
-
-    GGML_ASSERT(ggml_is_contiguous(src0));
-    GGML_ASSERT(ggml_is_contiguous(src1));
-    GGML_ASSERT(ggml_is_contiguous(dst));
-
-    const int64_t ne00  = src0->ne[0];
-    const int64_t nrows = ggml_nrows(src0);
-
-    const float * src0_d = (const float *) src0->data;
-    const float * src1_d = (const float *) src1->data;
-    float       * dst_d  = (float       *) dst->data;
-
-    ggml_cuda_pool & pool = ctx.pool();
-    cudaStream_t stream = ctx.stream();
-
-    const dim3 blocks_dim(CUDA_CROSS_ENTROPY_LOSS_BLOCK_SIZE, 1, 1);
-    const dim3 blocks_num((nrows + CUDA_CROSS_ENTROPY_LOSS_BLOCK_SIZE - 1) / CUDA_CROSS_ENTROPY_LOSS_BLOCK_SIZE, 1, 1);
-    const int shmem = 2*CUDA_CROSS_ENTROPY_LOSS_BLOCK_SIZE*ne00*sizeof(float);
-
-    ggml_cuda_pool_alloc<float> dst_tmp(pool, blocks_num.x);
-
-    cross_entropy_loss_f32<<<blocks_num, blocks_dim, shmem, stream>>>(src0_d, src1_d, dst_tmp.ptr, ne00, nrows);
-
-    // Combine results from individual blocks:
-    sum_f32_cuda(pool, dst_tmp.ptr, dst_d, blocks_num.x, stream);
-}
-
-void ggml_cuda_cross_entropy_loss_back(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
-    const ggml_tensor * src0 = dst->src[0];
-    const ggml_tensor * src1 = dst->src[1];
-    const ggml_tensor * opt0 = dst->src[2];
-
-    GGML_ASSERT(src0->type == GGML_TYPE_F32);
-    GGML_ASSERT(src1->type == GGML_TYPE_F32);
-    GGML_ASSERT(opt0->type == GGML_TYPE_F32);
-    GGML_ASSERT( dst->type == GGML_TYPE_F32);
-
-    GGML_ASSERT(ggml_is_contiguous(src0));
-    GGML_ASSERT(ggml_is_contiguous(src1));
-    GGML_ASSERT(ggml_is_contiguous(opt0));
-    GGML_ASSERT(ggml_is_contiguous(dst));
-    GGML_ASSERT(ggml_are_same_shape(src0, src1));
-    GGML_ASSERT(ggml_are_same_shape(src0, dst));
-
-    const int64_t ne00  = src0->ne[0];
-    const int64_t nrows = ggml_nrows(src0);
-
-    const float * src0_d = (const float *) src0->data;
-    const float * src1_d = (const float *) src1->data;
-    const float * opt0_d = (const float *) opt0->data;
-    float       * dst_d  = (float       *) dst->data;
-
-    cudaStream_t stream = ctx.stream();
-
-    const dim3 blocks_dim(WARP_SIZE, 1, 1);
-    const dim3 blocks_num(nrows, 1, 1);
-    const int shmem = ne00*sizeof(float);
-
-    cross_entropy_loss_back_f32<<<blocks_num, blocks_dim, shmem, stream>>>(src0_d, src1_d, opt0_d, dst_d, ne00);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5987,8 +5682,6 @@ void launch_fattn(
     CUDA_CHECK(cudaGetLastError());
 }
 
-#ifndef GGML_MINIMIZE_CODE_SIZE
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // ROLLUP fattn-tile-f16.cuh
@@ -7568,6 +7261,9 @@ static void ggml_cuda_flash_attn_ext_wmma_f16(ggml_backend_cuda_context & ctx, g
         case 256:
             ggml_cuda_flash_attn_ext_wmma_f16_case<256, cols_per_block, half>(ctx, dst);
             break;
+        case GGML_TYPE_BF16: // [jart] bf16 https://github.com/ggerganov/llama.cpp/pull/7488
+            convert_mul_mat_vec_bf16_cuda(src0_dd_i, src1_dfloat, dst_dd_i, ne00, row_diff, stream);
+            break;
         default:
             GGML_ABORT("fatal error");
             break;
@@ -8482,8 +8178,6 @@ void ggml_cuda_flash_attn_ext_tile_f32(ggml_backend_cuda_context & ctx, ggml_ten
     }
 }
 
-#endif // GGML_MINIMIZE_CODE_SIZE
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // ROLLUP getrows.cu
@@ -8652,9 +8346,6 @@ void ggml_cuda_op_get_rows(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
         case GGML_TYPE_F16:
             get_rows_cuda_float(src0, src1, dst, (const half *)src0_d, src1_i32, dst_d, stream);
             break;
-        case GGML_TYPE_BF16:
-            get_rows_cuda_float(src0, src1, dst, (const __nv_bfloat16 *)src0_d, src1_i32, dst_d, stream);
-            break;
         case GGML_TYPE_F32:
             get_rows_cuda_float(src0, src1, dst, src0_d, src1_i32, dst_d, stream);
             break;
@@ -8799,6 +8490,8 @@ void ggml_cuda_op_im2col(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
         im2col_cuda_f32(src1_d, (float *) dst_d, IW, IH, OW, OH, KW, KH, IC, batch, batch_offset, delta_offset, s0, s1, p0, p1, d0, d1, stream);
     }
 }
+
+#ifndef GGML_MINIMIZE_CODE_SIZE
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -11952,7 +11645,6 @@ extern DECL_MMQ_CASE(GGML_TYPE_Q3_K);
 extern DECL_MMQ_CASE(GGML_TYPE_Q4_K);
 extern DECL_MMQ_CASE(GGML_TYPE_Q5_K);
 extern DECL_MMQ_CASE(GGML_TYPE_Q6_K);
-
 #ifndef GGML_NO_IQUANTS
 extern DECL_MMQ_CASE(GGML_TYPE_IQ2_XXS);
 extern DECL_MMQ_CASE(GGML_TYPE_IQ2_XS);
@@ -12035,7 +11727,6 @@ void ggml_cuda_op_mul_mat_q(
         case GGML_TYPE_Q6_K:
             mul_mat_q_case<GGML_TYPE_Q6_K>(ctx, args, stream);
             break;
-#ifndef GGML_NO_IQUANTS
         case GGML_TYPE_IQ2_XXS:
             mul_mat_q_case<GGML_TYPE_IQ2_XXS>(ctx, args, stream);
             break;
@@ -12060,7 +11751,6 @@ void ggml_cuda_op_mul_mat_q(
         case GGML_TYPE_IQ4_NL:
             mul_mat_q_case<GGML_TYPE_IQ4_NL>(ctx, args, stream);
             break;
-#endif // GGML_NO_IQUANTS
         default:
             GGML_ABORT("fatal error");
             break;
@@ -12126,6 +11816,8 @@ bool ggml_cuda_should_use_mmq(enum ggml_type type, int cc, int64_t ne11) {
 
     return (cc < CC_RDNA3 && cc != CC_CDNA && cc != CC_VEGA20) || ne11 < MMQ_DP4A_MAX_BATCH_SIZE;
 }
+
+#endif // GGML_MINIMIZE_CODE_SIZE
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -12533,6 +12225,7 @@ void ggml_cuda_op_mul_mat_vec_q(
         case GGML_TYPE_Q6_K:
             mul_mat_vec_q6_K_q8_1_cuda(src0_dd_i, src1_ddq_i, dst_dd_i, ne00, row_diff, src1_padded_row_size, src1_ncols, nrows_dst, stream);
             break;
+#ifndef GGML_NO_IQUANTS
         case GGML_TYPE_IQ2_XXS:
             mul_mat_vec_iq2_xxs_q8_1_cuda(src0_dd_i, src1_ddq_i, dst_dd_i, ne00, row_diff, src1_padded_row_size, src1_ncols, nrows_dst, stream);
             break;
@@ -12560,6 +12253,7 @@ void ggml_cuda_op_mul_mat_vec_q(
         case GGML_TYPE_IQ3_S:
             mul_mat_vec_iq3_s_q8_1_cuda(src0_dd_i, src1_ddq_i, dst_dd_i, ne00, row_diff, src1_padded_row_size, src1_ncols, nrows_dst, stream);
             break;
+#endif // GGML_NO_IQUANTS
         default:
             GGML_ABORT("fatal error");
             break;
@@ -12813,166 +12507,6 @@ void ggml_cuda_op_rms_norm(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
     memcpy(&eps, dst->op_params, sizeof(float));
 
     rms_norm_f32_cuda(src0_d, dst_d, ne00, nrows, eps, stream);
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// ROLLUP opt-step-adamw.cu
-//
-////////////////////////////////////////////////////////////////////////////////
-
-#include "ggml-impl.h"
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// ROLLUP opt-step-adamw.cuh
-//
-////////////////////////////////////////////////////////////////////////////////
-
-
-#define CUDA_OPT_STEP_ADAMW_BLOCK_SIZE 256
-
-void ggml_cuda_opt_step_adamw(ggml_backend_cuda_context & ctx, ggml_tensor * dst);
-
-
-static __global__ void opt_step_adamw_f32(
-    float * __restrict__ x, const float * __restrict__ g, float * __restrict__ g_m, float * __restrict__ g_v,
-    const float * __restrict__ pars, const int64_t k) {
-
-    const int64_t i = (int64_t) blockIdx.x*blockDim.x + threadIdx.x;
-
-    if (i >= k) {
-        return;
-    }
-
-    const float alpha  = pars[0];
-    const float beta1  = pars[1];
-    const float beta2  = pars[2];
-    const float eps    = pars[3];
-    const float wd     = pars[4];
-    const float beta1h = pars[5];
-    const float beta2h = pars[6];
-
-    const float gi = g[i];
-    const float gmi = g_m[i]*beta1 +    gi*(1.0f - beta1);
-    const float gvi = g_v[i]*beta2 + gi*gi*(1.0f - beta2);
-
-    g_m[i] = gmi;
-    g_v[i] = gvi;
-
-    const float mh =       gmi*beta1h;
-    const float vh = sqrtf(gvi*beta2h) + eps;
-
-    x[i] = x[i]*(1.0f - alpha*wd) - alpha*mh/vh;
-}
-
-static void opt_step_adamw_f32_cuda(
-    float * x, const float * g, float * g_m, float * g_v, const float * pars, const int64_t k, cudaStream_t stream) {
-
-    const dim3 block_dims(CUDA_OPT_STEP_ADAMW_BLOCK_SIZE, 1, 1);
-    const dim3 block_nums((k + CUDA_OPT_STEP_ADAMW_BLOCK_SIZE - 1) / CUDA_OPT_STEP_ADAMW_BLOCK_SIZE, 1, 1);
-    opt_step_adamw_f32<<<block_nums, block_dims, 0, stream>>>(x, g, g_m, g_v, pars, k);
-}
-
-void ggml_cuda_opt_step_adamw(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
-    const ggml_tensor * src0         = dst->src[0];
-    const ggml_tensor * src0_grad    = dst->src[1];
-    const ggml_tensor * src0_grad_m  = dst->src[2];
-    const ggml_tensor * src0_grad_v  = dst->src[3];
-    const ggml_tensor * adamw_params = dst->src[4];
-
-    GGML_ASSERT(src0->type         == GGML_TYPE_F32);
-    GGML_ASSERT(src0_grad->type    == GGML_TYPE_F32);
-    GGML_ASSERT(src0_grad_m->type  == GGML_TYPE_F32);
-    GGML_ASSERT(src0_grad_v->type  == GGML_TYPE_F32);
-    GGML_ASSERT(adamw_params->type == GGML_TYPE_F32);
-    GGML_ASSERT(ggml_is_contiguous(src0));
-    GGML_ASSERT(ggml_is_contiguous(src0_grad));
-    GGML_ASSERT(ggml_is_contiguous(src0_grad_m));
-    GGML_ASSERT(ggml_is_contiguous(src0_grad_v));
-    GGML_ASSERT(ggml_is_contiguous(adamw_params));
-    GGML_ASSERT(ggml_are_same_shape(src0, src0_grad));
-    GGML_ASSERT(ggml_are_same_shape(src0, src0_grad_m));
-    GGML_ASSERT(ggml_are_same_shape(src0, src0_grad_v));
-    GGML_ASSERT(ggml_nelements(adamw_params) == 7);
-
-    float       * src0_d         = (float       *) src0->data;
-    const float * src0_grad_d    = (const float *) src0_grad->data;
-    float       * src0_grad_m_d  = (float       *) src0_grad_m->data;
-    float       * src0_grad_v_d  = (float       *) src0_grad_v->data;
-    const float * adamw_params_d = (const float *) adamw_params->data;
-
-    cudaStream_t stream = ctx.stream();
-
-    const int64_t ne = ggml_nelements(src0);
-
-    opt_step_adamw_f32_cuda(src0_d, src0_grad_d, src0_grad_m_d, src0_grad_v_d, adamw_params_d, ne, stream);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// ROLLUP out-prod.cu
-//
-////////////////////////////////////////////////////////////////////////////////
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// ROLLUP out-prod.cuh
-//
-////////////////////////////////////////////////////////////////////////////////
-
-
-void ggml_cuda_out_prod(ggml_backend_cuda_context & ctx, ggml_tensor * dst);
-
-
-void ggml_cuda_out_prod(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
-    const ggml_tensor * src0 = dst->src[0];
-    const ggml_tensor * src1 = dst->src[1];
-
-    GGML_TENSOR_BINARY_OP_LOCALS
-
-    GGML_ASSERT(src0->type == GGML_TYPE_F32);
-    GGML_ASSERT(src1->type == GGML_TYPE_F32);
-    GGML_ASSERT(dst->type  == GGML_TYPE_F32);
-    GGML_ASSERT(ggml_is_contiguous(src0));
-    GGML_ASSERT(ggml_is_contiguous(dst));
-
-    GGML_ASSERT(ne01 == ne11);
-    GGML_ASSERT(ne0 == ne00);
-    GGML_ASSERT(ne1 == ne10);
-
-    GGML_ASSERT(ne2 == src0->ne[2]);
-    GGML_ASSERT(ne2 == src1->ne[2]);
-    GGML_ASSERT(ne3 == src0->ne[3]);
-    GGML_ASSERT(ne3 == src1->ne[3]);
-
-    const float * src0_d = (const float *) src0->data;
-    const float * src1_d = (const float *) src1->data;
-    float       *  dst_d = (float       *)  dst->data;
-
-    cudaStream_t   stream = ctx.stream();
-    cublasHandle_t handle = ctx.cublas_handle();
-
-    const float alpha = 1.0f;
-    const float beta = 0.0f;
-
-    GGML_ASSERT(ne2 == 1);
-    GGML_ASSERT(ne3 == 1);
-    CUBLAS_CHECK(cublasSetStream(handle, stream));
-
-    const bool src1_T = ggml_is_transposed(src1);
-    const cublasOperation_t src1_cublas_op =  src1_T ? CUBLAS_OP_N : CUBLAS_OP_T;
-    const int64_t           ldb            = (src1_T ?        nb10 :        nb11) /  sizeof(float);
-    GGML_ASSERT(                             (src1_T ?        nb11 :        nb10) == sizeof(float));
-
-    CUBLAS_CHECK(
-        cublasSgemm(handle, CUBLAS_OP_N, src1_cublas_op,
-                ne0, ne1, ne01,
-                &alpha, src0_d, ne00,
-                        src1_d, ldb,
-                &beta,  dst_d,  ne0));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -13913,20 +13447,9 @@ void ggml_cuda_op_soft_max(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// ROLLUP sum.cu
+// ROLLUP sumrows.cu
 //
 ////////////////////////////////////////////////////////////////////////////////
-
-#if !defined(GGML_USE_HIP) && !defined(GGML_USE_MUSA) && CUDART_VERSION >= 11700
-#define USE_CUB
-#endif // !defined(GGML_USE_HIP) && !defined(GGML_USE_MUSA) && CUDART_VERSION >= 11700
-
-#ifdef USE_CUB
-// On Windows CUB uses libraries with variables called CC_PASCAL which conflict with the define in common.cuh.
-// For this reason CUB must be included BEFORE anything else.
-#include <cub/cub.cuh>
-using namespace cub;
-#endif // USE_CUB
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -13939,46 +13462,6 @@ using namespace cub;
 void sum_rows_f32_cuda(const float * x, float * dst, const int ncols, const int nrows, cudaStream_t stream);
 
 void ggml_cuda_op_sum_rows(ggml_backend_cuda_context & ctx, ggml_tensor * dst);
-
-
-void sum_f32_cuda(ggml_cuda_pool & pool, const float * x, float * dst, const int64_t ne, cudaStream_t stream) {
-#ifdef USE_CUB
-    size_t tmp_size = 0;
-    DeviceReduce::Sum(nullptr,       tmp_size, x, dst, ne, stream);
-    ggml_cuda_pool_alloc<uint8_t> tmp_alloc(pool, tmp_size);
-    DeviceReduce::Sum(tmp_alloc.ptr, tmp_size, x, dst, ne, stream);
-#else
-    // Use (inefficient) sum_rows implementation as a fallback.
-    // For AMD there is rocPRIM which could be used as a drop-in replacement via hipcub but this would require C++11 -> C++14.
-    sum_rows_f32_cuda(x, dst, ne, 1, stream);
-    GGML_UNUSED(pool);
-#endif // USE_CUB
-}
-
-void ggml_cuda_op_sum(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
-    const ggml_tensor * src0 = dst->src[0];
-
-    GGML_ASSERT(src0->type == GGML_TYPE_F32);
-    GGML_ASSERT( dst->type == GGML_TYPE_F32);
-    GGML_ASSERT(ggml_is_contiguous(src0));
-
-    const float * src0_d = (const float *) src0->data;
-    float * dst_d = (float *) dst->data;
-
-    const int64_t ne = ggml_nelements(src0);
-
-    ggml_cuda_pool & pool = ctx.pool();
-    cudaStream_t stream = ctx.stream();
-
-    sum_f32_cuda(pool, src0_d, dst_d, ne, stream);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// ROLLUP sumrows.cu
-//
-////////////////////////////////////////////////////////////////////////////////
-
 
 static __global__ void k_sum_rows_f32(const float * x, float * dst, const int ncols) {
     const int row = blockIdx.x;
@@ -14668,10 +14151,78 @@ void ggml_cuda_op_upscale(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// ROLLUP wkv6.cu
+// ROLLUP ggml-cuda.cu
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "ggml-cuda.h"
+#include "ggml-impl.h"
+#include "ggml-backend-impl.h"
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// ROLLUP argmax.cuh
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+void ggml_cuda_argmax(ggml_backend_cuda_context & ctx, ggml_tensor * dst);
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// ROLLUP count-equal.cuh
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+#define CUDA_COUNT_EQUAL_CHUNK_SIZE 128
+
+void ggml_cuda_count_equal(ggml_backend_cuda_context & ctx, ggml_tensor * dst);
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// ROLLUP cross-entropy-loss.cuh
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+#define CUDA_CROSS_ENTROPY_LOSS_BLOCK_SIZE 256
+
+void ggml_cuda_cross_entropy_loss(ggml_backend_cuda_context & ctx, ggml_tensor * dst);
+
+void ggml_cuda_cross_entropy_loss_back(ggml_backend_cuda_context & ctx, ggml_tensor * dst);
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// ROLLUP opt-step-adamw.cuh
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+#define CUDA_OPT_STEP_ADAMW_BLOCK_SIZE 256
+
+void ggml_cuda_opt_step_adamw(ggml_backend_cuda_context & ctx, ggml_tensor * dst);
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// ROLLUP out-prod.cuh
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+void ggml_cuda_out_prod(ggml_backend_cuda_context & ctx, ggml_tensor * dst);
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// ROLLUP sum.cuh
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+void sum_f32_cuda(ggml_cuda_pool & pool, const float * x, float * dst, const int64_t ne, cudaStream_t stream);
+
+void ggml_cuda_op_sum(ggml_backend_cuda_context & ctx, ggml_tensor * dst);
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -14684,108 +14235,10 @@ void ggml_cuda_op_upscale(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
 
 void ggml_cuda_op_rwkv_wkv6(ggml_backend_cuda_context & ctx, ggml_tensor * dst);
 
-static __global__ void rwkv_wkv_f32(const int B, const int T, const int C, const int H, const float * k, const float * v, const float * r, const float * tf, const float * td, const float * s, float * dst) {
-    const int tid = threadIdx.x;
-    const int bid = blockIdx.x;
-
-    const int head_size = CUDA_WKV_BLOCK_SIZE;
-    const int batch_i = bid / H;
-    const int head_i = bid % H;
-    const int state_size = C * head_size;
-    const int n_seq_tokens = T / B;
-
-    float state[head_size];
-    __shared__ float _k[head_size], _r[head_size], _tf[head_size], _td[head_size];
-
-    #pragma unroll
-    for (int i = 0; i < head_size; i++) {
-        state[i] = s[batch_i * state_size + head_i * head_size * head_size + i * head_size + tid];
-    }
-
-    __syncthreads();
-    _tf[tid] = tf[head_i * head_size + tid];
-    __syncthreads();
-
-    for (int t = batch_i * n_seq_tokens * C + head_i * head_size + tid; t < (batch_i + 1) * n_seq_tokens * C + head_i * head_size + tid; t += C) {
-        __syncthreads();
-        _k[tid] = k[t];
-        _r[tid] = r[t];
-        _td[tid] = td[t];
-        __syncthreads();
-
-        const float _v = v[t];
-        float y = 0;
-        for (int j = 0; j < head_size; j += 4) {
-            const float4& k = (float4&)(_k[j]);
-            const float4& r = (float4&)(_r[j]);
-            const float4& tf = (float4&)(_tf[j]);
-            const float4& td = (float4&)(_td[j]);
-            float4& s = (float4&)(state[j]);
-            float4 kv;
-
-            kv.x = k.x * _v;
-            kv.y = k.y * _v;
-            kv.z = k.z * _v;
-            kv.w = k.w * _v;
-
-            y += r.x * (tf.x * kv.x + s.x);
-            y += r.y * (tf.y * kv.y + s.y);
-            y += r.z * (tf.z * kv.z + s.z);
-            y += r.w * (tf.w * kv.w + s.w);
-
-            s.x = s.x * td.x + kv.x;
-            s.y = s.y * td.y + kv.y;
-            s.z = s.z * td.z + kv.z;
-            s.w = s.w * td.w + kv.w;
-        }
-        dst[t] = y;
-    }
-
-    #pragma unroll
-    for (int i = 0; i < head_size; i++) {
-        dst[T * C + batch_i * state_size + head_i * head_size * head_size + i * head_size + tid] = state[i];
-    }
-}
-
-void ggml_cuda_op_rwkv_wkv6(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
-    const float * k_d  = (const float *)dst->src[0]->data;
-    const float * v_d  = (const float *)dst->src[1]->data;
-    const float * r_d  = (const float *)dst->src[2]->data;
-    const float * tf_d = (const float *)dst->src[3]->data;
-    const float * td_d = (const float *)dst->src[4]->data;
-    const float * s_d  = (const float *)dst->src[5]->data;
-
-    const int64_t B = dst->src[5]->ne[1];
-    const int64_t T = dst->src[0]->ne[3];
-    const int64_t C = dst->ne[0];
-    const int64_t H = dst->src[0]->ne[2];
-
-    float * dst_d = (float *)dst->data;
-
-    cudaStream_t stream = ctx.stream();
-
-    GGML_ASSERT(dst->src[5]->type == GGML_TYPE_F32);
-    GGML_ASSERT(C % H == 0);
-    GGML_ASSERT(C / H == CUDA_WKV_BLOCK_SIZE); // The current cuda kernel is designed for RWKV6, HEAD_SIZE == 64
-
-    rwkv_wkv_f32<<<B * H, C / H, 0, stream>>>(B, T, C, H, k_d, v_d, r_d, tf_d, td_d, s_d, dst_d);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// ROLLUP ggml-cuda.cu
-//
-////////////////////////////////////////////////////////////////////////////////
-
-#include "ggml-cuda.h"
-#include "ggml-impl.h"
-#include "ggml-backend-impl.h"
-
-
 
 static_assert(sizeof(half) == sizeof(ggml_fp16_t), "wrong fp16 size");
 
-[[noreturn]]
+-[[noreturn]]
 void ggml_cuda_error(const char * stmt, const char * func, const char * file, int line, const char * msg) {
     int id = -1; // in case cudaGetDevice fails
     cudaGetDevice(&id);
@@ -15400,6 +14853,7 @@ struct ggml_backend_cuda_split_buffer_context {
 
     std::vector<ggml_tensor_extra_gpu *> tensor_extras;
 };
+
 
 static void ggml_backend_cuda_split_buffer_free_buffer(ggml_backend_buffer_t buffer) {
     ggml_backend_cuda_split_buffer_context * ctx = (ggml_backend_cuda_split_buffer_context *)buffer->context;
@@ -17192,7 +16646,7 @@ static enum ggml_status ggml_backend_cuda_graph_compute(ggml_backend_t backend, 
         if (cuda_ctx->cuda_graph->number_consecutive_updates >= 4) {
             cuda_ctx->cuda_graph->disable_due_to_too_many_updates = true;
 #ifndef NDEBUG
-            GGML_LOG_DEBUG"%s: disabling CUDA graphs due to too many consecutive updates\n", __func__);
+            GGML_LOG_DEBUG("%s: disabling CUDA graphs due to too many consecutive updates\n", __func__);
 #endif
         }
     }
@@ -17578,6 +17032,7 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
                 switch (a->type) {
                     case GGML_TYPE_F32:
                     case GGML_TYPE_F16:
+                    case GGML_TYPE_BF16: // [jart]
                     case GGML_TYPE_Q4_0:
                     case GGML_TYPE_Q4_1:
                     case GGML_TYPE_Q5_0:
@@ -17614,6 +17069,7 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
             {
                 switch (op->src[0]->type) {
                     case GGML_TYPE_F16:
+                    case GGML_TYPE_BF16: // [jart]
                     case GGML_TYPE_F32:
                     case GGML_TYPE_Q4_0:
                     case GGML_TYPE_Q4_1:
@@ -17663,6 +17119,15 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
                     return true;
                 }
                 if (src0_type == src1_type && ggml_is_contiguous(op->src[0]) && ggml_is_contiguous(op->src[1])) {
+                    return true;
+                }
+                if (src0_type == GGML_TYPE_BF16 && src1_type == GGML_TYPE_BF16) {
+                    return true;
+                }
+                if (src0_type == GGML_TYPE_BF16 && src1_type == GGML_TYPE_F32) {
+                    return true;
+                }
+                if (src0_type == GGML_TYPE_F32 && src1_type == GGML_TYPE_BF16) {
                     return true;
                 }
                 return false;
@@ -17744,6 +17209,9 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
 #ifndef FLASH_ATTN_AVAILABLE
             return false;
 #endif
+#if defined(GGML_MINIMIZE_CODE_SIZE)
+            return false;
+#endif
             if (op->src[1]->type == GGML_TYPE_BF16 || op->src[2]->type == GGML_TYPE_BF16) {
                 return false;
             }
@@ -17759,6 +17227,7 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
             const int cc = ggml_cuda_info().devices[dev_ctx->device].cc;
             return cc >= CC_VOLTA && cc < CC_OFFSET_AMD && op->src[1]->type == GGML_TYPE_F16 && op->src[2]->type == GGML_TYPE_F16;
         }
+#endif
         case GGML_OP_CROSS_ENTROPY_LOSS:
         case GGML_OP_CROSS_ENTROPY_LOSS_BACK:
         case GGML_OP_OPT_STEP_ADAMW:
@@ -18008,8 +17477,6 @@ ggml_backend_t ggml_backend_cuda_init(int device) {
 }
 
 GGML_BACKEND_DL_IMPL(ggml_backend_cuda_reg)
-
-#ifndef GGML_MINIMIZE_CODE_SIZE
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -19034,10 +18501,6 @@ DECL_FATTN_WMMA_F16_CASE(96, 8, half);
 DECL_FATTN_WMMA_F16_CASE(128, 8, half);
 DECL_FATTN_WMMA_F16_CASE(256, 8, half);
 
-#endif // GGML_MINIMIZE_CODE_SIZE
-
-#ifndef GGML_NO_IQUANTS
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // ROLLUP template-instances/mmq-instance-iq1_s.cu
@@ -19125,8 +18588,6 @@ DECL_MMQ_CASE(GGML_TYPE_IQ4_NL);
 
 
 DECL_MMQ_CASE(GGML_TYPE_IQ4_XS);
-
-#endif // GGML_NO_IQUANTS
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -19237,3 +18698,622 @@ DECL_MMQ_CASE(GGML_TYPE_Q6_K);
 
 
 DECL_MMQ_CASE(GGML_TYPE_Q8_0);
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// ROLLUP cross-entropy-loss.cu
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+static __global__ void cross_entropy_loss_f32(const float * logits, const float * labels, float * dst, const int nclasses, const int k) {
+    const int warp_id = threadIdx.x / WARP_SIZE;
+    const int lane_id = threadIdx.x % WARP_SIZE;
+    const int i0 = blockDim.x*blockIdx.x + warp_id*WARP_SIZE;
+
+    const int ne_tmp = WARP_SIZE*nclasses;
+
+    extern __shared__ float tmp_all[];
+    float * tmp_logits = tmp_all + (2*warp_id + 0)*ne_tmp;
+    float * tmp_labels = tmp_all + (2*warp_id + 1)*ne_tmp;
+
+    // Each warp first loads ne_tmp logits/labels into shared memory:
+    for (int i = lane_id; i < ne_tmp; i += WARP_SIZE) {
+        const int ig = i0*nclasses + i; // ig == i global
+
+        tmp_logits[i] = ig < k*nclasses ? logits[ig] : 0.0f;
+        tmp_labels[i] = ig < k*nclasses ? labels[ig] : 0.0f;
+    }
+
+    // Each thread in the warp then calculates the cross entropy loss for a single row.
+    // TODO: pad in order to avoid shared memory bank conflicts.
+
+    // Find maximum for softmax:
+    float max = -INFINITY;
+    for (int i = 0; i < nclasses; ++i) {
+        max = fmaxf(max, tmp_logits[lane_id*nclasses + i]);
+    }
+
+    // Calculate log(softmax(logits)) which is just logits - max:
+    float sum = 0.0f;
+    for (int i = 0; i < nclasses; ++i) {
+        float val = tmp_logits[lane_id*nclasses + i] - max;
+        sum += expf(val);
+        tmp_logits[lane_id*nclasses + i] = val;
+    }
+    sum = logf(sum);
+
+    // log(exp(logits - max) / sum) = (logits - max) - log(sum)
+    float loss = 0.0f;
+    for (int i = 0; i < nclasses; ++i) {
+        loss += (tmp_logits[lane_id*nclasses + i] - sum) * tmp_labels[lane_id*nclasses + i];
+    }
+    loss = -warp_reduce_sum(loss) / (float)k;
+
+    __syncthreads();
+
+    if (lane_id == 0) {
+        tmp_all[warp_id] = loss;
+    }
+
+    __syncthreads();
+
+    if (warp_id != 0) {
+        return;
+    }
+
+    loss = lane_id < CUDA_CROSS_ENTROPY_LOSS_BLOCK_SIZE/WARP_SIZE ? tmp_all[lane_id] : 0.0f;
+    loss = warp_reduce_sum(loss);
+
+    if (lane_id != 0) {
+        return;
+    }
+
+    dst[blockIdx.x] = loss;
+}
+
+static __global__ void cross_entropy_loss_back_f32(const float * logits, const float * labels, const float * loss, float * dst, const int nclasses) {
+    extern __shared__ float tmp[];
+
+    float maxval = -INFINITY;
+    for (int i = threadIdx.x; i < nclasses; i += WARP_SIZE) {
+        const float val = logits[blockIdx.x*nclasses + i];
+        maxval = fmaxf(maxval, val);
+        tmp[i] = val;
+    }
+    maxval = warp_reduce_max(maxval);
+
+    float sum = 0.0f;
+    for (int i = threadIdx.x; i < nclasses; i += WARP_SIZE) {
+        const float val = expf(tmp[i] - maxval);
+        sum += val;
+        tmp[i] = val;
+    }
+    sum = warp_reduce_sum(sum);
+    const float sm_scale = 1.0f/sum;
+
+    const float d_by_nrows = *loss/gridDim.x;
+    for (int i = threadIdx.x; i < nclasses; i += WARP_SIZE) {
+        dst[blockIdx.x*nclasses + i] = (tmp[i]*sm_scale - labels[blockIdx.x*nclasses + i])*d_by_nrows;
+    }
+}
+
+void ggml_cuda_cross_entropy_loss(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
+    const ggml_tensor * src0 = dst->src[0];
+    const ggml_tensor * src1 = dst->src[1];
+
+    GGML_ASSERT(src0->type == GGML_TYPE_F32);
+    GGML_ASSERT(src1->type == GGML_TYPE_F32);
+    GGML_ASSERT( dst->type == GGML_TYPE_F32);
+
+    GGML_ASSERT(ggml_is_contiguous(src0));
+    GGML_ASSERT(ggml_is_contiguous(src1));
+    GGML_ASSERT(ggml_is_contiguous(dst));
+
+    const int64_t ne00  = src0->ne[0];
+    const int64_t nrows = ggml_nrows(src0);
+
+    const float * src0_d = (const float *) src0->data;
+    const float * src1_d = (const float *) src1->data;
+    float       * dst_d  = (float       *) dst->data;
+
+    ggml_cuda_pool & pool = ctx.pool();
+    cudaStream_t stream = ctx.stream();
+
+    const dim3 blocks_dim(CUDA_CROSS_ENTROPY_LOSS_BLOCK_SIZE, 1, 1);
+    const dim3 blocks_num((nrows + CUDA_CROSS_ENTROPY_LOSS_BLOCK_SIZE - 1) / CUDA_CROSS_ENTROPY_LOSS_BLOCK_SIZE, 1, 1);
+    const int shmem = 2*CUDA_CROSS_ENTROPY_LOSS_BLOCK_SIZE*ne00*sizeof(float);
+
+    ggml_cuda_pool_alloc<float> dst_tmp(pool, blocks_num.x);
+
+    cross_entropy_loss_f32<<<blocks_num, blocks_dim, shmem, stream>>>(src0_d, src1_d, dst_tmp.ptr, ne00, nrows);
+
+    // Combine results from individual blocks:
+    sum_f32_cuda(pool, dst_tmp.ptr, dst_d, blocks_num.x, stream);
+}
+
+void ggml_cuda_cross_entropy_loss_back(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
+    const ggml_tensor * src0 = dst->src[0];
+    const ggml_tensor * src1 = dst->src[1];
+    const ggml_tensor * opt0 = dst->src[2];
+
+    GGML_ASSERT(src0->type == GGML_TYPE_F32);
+    GGML_ASSERT(src1->type == GGML_TYPE_F32);
+    GGML_ASSERT(opt0->type == GGML_TYPE_F32);
+    GGML_ASSERT( dst->type == GGML_TYPE_F32);
+
+    GGML_ASSERT(ggml_is_contiguous(src0));
+    GGML_ASSERT(ggml_is_contiguous(src1));
+    GGML_ASSERT(ggml_is_contiguous(opt0));
+    GGML_ASSERT(ggml_is_contiguous(dst));
+    GGML_ASSERT(ggml_are_same_shape(src0, src1));
+    GGML_ASSERT(ggml_are_same_shape(src0, dst));
+
+    const int64_t ne00  = src0->ne[0];
+    const int64_t nrows = ggml_nrows(src0);
+
+    const float * src0_d = (const float *) src0->data;
+    const float * src1_d = (const float *) src1->data;
+    const float * opt0_d = (const float *) opt0->data;
+    float       * dst_d  = (float       *) dst->data;
+
+    cudaStream_t stream = ctx.stream();
+
+    const dim3 blocks_dim(WARP_SIZE, 1, 1);
+    const dim3 blocks_num(nrows, 1, 1);
+    const int shmem = ne00*sizeof(float);
+
+    cross_entropy_loss_back_f32<<<blocks_num, blocks_dim, shmem, stream>>>(src0_d, src1_d, opt0_d, dst_d, ne00);
+}
+
+#ifndef GGML_MINIMIZE_CODE_SIZE
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// ROLLUP sum.cu
+//
+////////////////////////////////////////////////////////////////////////////////
+
+#if !defined(GGML_USE_HIP) && !defined(GGML_USE_MUSA) && CUDART_VERSION >= 11700
+#define USE_CUB
+#endif // !defined(GGML_USE_HIP) && !defined(GGML_USE_MUSA) && CUDART_VERSION >= 11700
+
+#ifdef USE_CUB
+// On Windows CUB uses libraries with variables called CC_PASCAL which conflict with the define in common.cuh.
+// For this reason CUB must be included BEFORE anything else.
+#include <cub/cub.cuh>
+using namespace cub;
+#endif // USE_CUB
+
+
+
+void sum_f32_cuda(ggml_cuda_pool & pool, const float * x, float * dst, const int64_t ne, cudaStream_t stream) {
+#ifdef USE_CUB
+    size_t tmp_size = 0;
+    DeviceReduce::Sum(nullptr,       tmp_size, x, dst, ne, stream);
+    ggml_cuda_pool_alloc<uint8_t> tmp_alloc(pool, tmp_size);
+    DeviceReduce::Sum(tmp_alloc.ptr, tmp_size, x, dst, ne, stream);
+#else
+    // Use (inefficient) sum_rows implementation as a fallback.
+    // For AMD there is rocPRIM which could be used as a drop-in replacement via hipcub but this would require C++11 -> C++14.
+    sum_rows_f32_cuda(x, dst, ne, 1, stream);
+    GGML_UNUSED(pool);
+#endif // USE_CUB
+}
+
+void ggml_cuda_op_sum(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
+    const ggml_tensor * src0 = dst->src[0];
+
+    GGML_ASSERT(src0->type == GGML_TYPE_F32);
+    GGML_ASSERT( dst->type == GGML_TYPE_F32);
+    GGML_ASSERT(ggml_is_contiguous(src0));
+
+    const float * src0_d = (const float *) src0->data;
+    float * dst_d = (float *) dst->data;
+
+    const int64_t ne = ggml_nelements(src0);
+
+    ggml_cuda_pool & pool = ctx.pool();
+    cudaStream_t stream = ctx.stream();
+
+    sum_f32_cuda(pool, src0_d, dst_d, ne, stream);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// ROLLUP opt-step-adamw.cu
+//
+////////////////////////////////////////////////////////////////////////////////
+
+#include "ggml-impl.h"
+
+
+static __global__ void opt_step_adamw_f32(
+    float * __restrict__ x, const float * __restrict__ g, float * __restrict__ g_m, float * __restrict__ g_v,
+    const float * __restrict__ pars, const int64_t k) {
+
+    const int64_t i = (int64_t) blockIdx.x*blockDim.x + threadIdx.x;
+
+    if (i >= k) {
+        return;
+    }
+
+    const float alpha  = pars[0];
+    const float beta1  = pars[1];
+    const float beta2  = pars[2];
+    const float eps    = pars[3];
+    const float wd     = pars[4];
+    const float beta1h = pars[5];
+    const float beta2h = pars[6];
+
+    const float gi = g[i];
+    const float gmi = g_m[i]*beta1 +    gi*(1.0f - beta1);
+    const float gvi = g_v[i]*beta2 + gi*gi*(1.0f - beta2);
+
+    g_m[i] = gmi;
+    g_v[i] = gvi;
+
+    const float mh =       gmi*beta1h;
+    const float vh = sqrtf(gvi*beta2h) + eps;
+
+    x[i] = x[i]*(1.0f - alpha*wd) - alpha*mh/vh;
+}
+
+static void opt_step_adamw_f32_cuda(
+    float * x, const float * g, float * g_m, float * g_v, const float * pars, const int64_t k, cudaStream_t stream) {
+
+    const dim3 block_dims(CUDA_OPT_STEP_ADAMW_BLOCK_SIZE, 1, 1);
+    const dim3 block_nums((k + CUDA_OPT_STEP_ADAMW_BLOCK_SIZE - 1) / CUDA_OPT_STEP_ADAMW_BLOCK_SIZE, 1, 1);
+    opt_step_adamw_f32<<<block_nums, block_dims, 0, stream>>>(x, g, g_m, g_v, pars, k);
+}
+
+void ggml_cuda_opt_step_adamw(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
+    const ggml_tensor * src0         = dst->src[0];
+    const ggml_tensor * src0_grad    = dst->src[1];
+    const ggml_tensor * src0_grad_m  = dst->src[2];
+    const ggml_tensor * src0_grad_v  = dst->src[3];
+    const ggml_tensor * adamw_params = dst->src[4];
+
+    GGML_ASSERT(src0->type         == GGML_TYPE_F32);
+    GGML_ASSERT(src0_grad->type    == GGML_TYPE_F32);
+    GGML_ASSERT(src0_grad_m->type  == GGML_TYPE_F32);
+    GGML_ASSERT(src0_grad_v->type  == GGML_TYPE_F32);
+    GGML_ASSERT(adamw_params->type == GGML_TYPE_F32);
+    GGML_ASSERT(ggml_is_contiguous(src0));
+    GGML_ASSERT(ggml_is_contiguous(src0_grad));
+    GGML_ASSERT(ggml_is_contiguous(src0_grad_m));
+    GGML_ASSERT(ggml_is_contiguous(src0_grad_v));
+    GGML_ASSERT(ggml_is_contiguous(adamw_params));
+    GGML_ASSERT(ggml_are_same_shape(src0, src0_grad));
+    GGML_ASSERT(ggml_are_same_shape(src0, src0_grad_m));
+    GGML_ASSERT(ggml_are_same_shape(src0, src0_grad_v));
+    GGML_ASSERT(ggml_nelements(adamw_params) == 7);
+
+    float       * src0_d         = (float       *) src0->data;
+    const float * src0_grad_d    = (const float *) src0_grad->data;
+    float       * src0_grad_m_d  = (float       *) src0_grad_m->data;
+    float       * src0_grad_v_d  = (float       *) src0_grad_v->data;
+    const float * adamw_params_d = (const float *) adamw_params->data;
+
+    cudaStream_t stream = ctx.stream();
+
+    const int64_t ne = ggml_nelements(src0);
+
+    opt_step_adamw_f32_cuda(src0_d, src0_grad_d, src0_grad_m_d, src0_grad_v_d, adamw_params_d, ne, stream);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// ROLLUP out-prod.cu
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+void ggml_cuda_out_prod(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
+    const ggml_tensor * src0 = dst->src[0];
+    const ggml_tensor * src1 = dst->src[1];
+
+    GGML_TENSOR_BINARY_OP_LOCALS
+
+    GGML_ASSERT(src0->type == GGML_TYPE_F32);
+    GGML_ASSERT(src1->type == GGML_TYPE_F32);
+    GGML_ASSERT(dst->type  == GGML_TYPE_F32);
+    GGML_ASSERT(ggml_is_contiguous(src0));
+    GGML_ASSERT(ggml_is_contiguous(dst));
+
+    GGML_ASSERT(ne01 == ne11);
+    GGML_ASSERT(ne0 == ne00);
+    GGML_ASSERT(ne1 == ne10);
+
+    GGML_ASSERT(ne2 == src0->ne[2]);
+    GGML_ASSERT(ne2 == src1->ne[2]);
+    GGML_ASSERT(ne3 == src0->ne[3]);
+    GGML_ASSERT(ne3 == src1->ne[3]);
+
+    const float * src0_d = (const float *) src0->data;
+    const float * src1_d = (const float *) src1->data;
+    float       *  dst_d = (float       *)  dst->data;
+
+    cudaStream_t   stream = ctx.stream();
+    cublasHandle_t handle = ctx.cublas_handle();
+
+    const float alpha = 1.0f;
+    const float beta = 0.0f;
+
+    GGML_ASSERT(ne2 == 1);
+    GGML_ASSERT(ne3 == 1);
+    CUBLAS_CHECK(cublasSetStream(handle, stream));
+
+    const bool src1_T = ggml_is_transposed(src1);
+    const cublasOperation_t src1_cublas_op =  src1_T ? CUBLAS_OP_N : CUBLAS_OP_T;
+    const int64_t           ldb            = (src1_T ?        nb10 :        nb11) /  sizeof(float);
+    GGML_ASSERT(                             (src1_T ?        nb11 :        nb10) == sizeof(float));
+
+    CUBLAS_CHECK(
+        cublasSgemm(handle, CUBLAS_OP_N, src1_cublas_op,
+                ne0, ne1, ne01,
+                &alpha, src0_d, ne00,
+                        src1_d, ldb,
+                &beta,  dst_d,  ne0));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// ROLLUP wkv6.cu
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+static __global__ void rwkv_wkv_f32(const int B, const int T, const int C, const int H, const float * k, const float * v, const float * r, const float * tf, const float * td, const float * s, float * dst) {
+    const int tid = threadIdx.x;
+    const int bid = blockIdx.x;
+
+    const int head_size = CUDA_WKV_BLOCK_SIZE;
+    const int batch_i = bid / H;
+    const int head_i = bid % H;
+    const int state_size = C * head_size;
+    const int n_seq_tokens = T / B;
+
+    float state[head_size];
+    __shared__ float _k[head_size], _r[head_size], _tf[head_size], _td[head_size];
+
+    #pragma unroll
+    for (int i = 0; i < head_size; i++) {
+        state[i] = s[batch_i * state_size + head_i * head_size * head_size + i * head_size + tid];
+    }
+
+    __syncthreads();
+    _tf[tid] = tf[head_i * head_size + tid];
+    __syncthreads();
+
+    for (int t = batch_i * n_seq_tokens * C + head_i * head_size + tid; t < (batch_i + 1) * n_seq_tokens * C + head_i * head_size + tid; t += C) {
+        __syncthreads();
+        _k[tid] = k[t];
+        _r[tid] = r[t];
+        _td[tid] = td[t];
+        __syncthreads();
+
+        const float _v = v[t];
+        float y = 0;
+        for (int j = 0; j < head_size; j += 4) {
+            const float4& k = (float4&)(_k[j]);
+            const float4& r = (float4&)(_r[j]);
+            const float4& tf = (float4&)(_tf[j]);
+            const float4& td = (float4&)(_td[j]);
+            float4& s = (float4&)(state[j]);
+            float4 kv;
+
+            kv.x = k.x * _v;
+            kv.y = k.y * _v;
+            kv.z = k.z * _v;
+            kv.w = k.w * _v;
+
+            y += r.x * (tf.x * kv.x + s.x);
+            y += r.y * (tf.y * kv.y + s.y);
+            y += r.z * (tf.z * kv.z + s.z);
+            y += r.w * (tf.w * kv.w + s.w);
+
+            s.x = s.x * td.x + kv.x;
+            s.y = s.y * td.y + kv.y;
+            s.z = s.z * td.z + kv.z;
+            s.w = s.w * td.w + kv.w;
+        }
+        dst[t] = y;
+    }
+
+    #pragma unroll
+    for (int i = 0; i < head_size; i++) {
+        dst[T * C + batch_i * state_size + head_i * head_size * head_size + i * head_size + tid] = state[i];
+    }
+}
+
+void ggml_cuda_op_rwkv_wkv6(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
+    const float * k_d  = (const float *)dst->src[0]->data;
+    const float * v_d  = (const float *)dst->src[1]->data;
+    const float * r_d  = (const float *)dst->src[2]->data;
+    const float * tf_d = (const float *)dst->src[3]->data;
+    const float * td_d = (const float *)dst->src[4]->data;
+    const float * s_d  = (const float *)dst->src[5]->data;
+
+    const int64_t B = dst->src[5]->ne[1];
+    const int64_t T = dst->src[0]->ne[3];
+    const int64_t C = dst->ne[0];
+    const int64_t H = dst->src[0]->ne[2];
+
+    float * dst_d = (float *)dst->data;
+
+    cudaStream_t stream = ctx.stream();
+
+    GGML_ASSERT(dst->src[5]->type == GGML_TYPE_F32);
+    GGML_ASSERT(C % H == 0);
+    GGML_ASSERT(C / H == CUDA_WKV_BLOCK_SIZE); // The current cuda kernel is designed for RWKV6, HEAD_SIZE == 64
+
+    rwkv_wkv_f32<<<B * H, C / H, 0, stream>>>(B, T, C, H, k_d, v_d, r_d, tf_d, td_d, s_d, dst_d);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// ROLLUP argmax.cu
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+static __global__ void argmax_f32(const float * __restrict__ x, int32_t * __restrict__ dst, const int64_t ncols) {
+    const int64_t row = blockIdx.x;
+
+    float maxval = -FLT_MAX;
+    int   argmax = -1;
+    const float * rowx = x + row * ncols;
+
+    for (int32_t col = threadIdx.x; col < ncols; col += blockDim.x) {
+        const float val = rowx[col];
+        if (val > maxval) {
+            maxval = val;
+            argmax = col;
+        }
+    }
+
+#pragma unroll
+    for (int offset = 16; offset > 0; offset >>= 1) {
+        const float val = __shfl_xor_sync(0xFFFFFFFF, maxval, offset, WARP_SIZE);
+        const int   col = __shfl_xor_sync(0xFFFFFFFF, argmax, offset, WARP_SIZE);
+        if (val > maxval) {
+            maxval = val;
+            argmax = col;
+        }
+    }
+
+    const int n_warps = blockDim.x / WARP_SIZE;
+    const int lane_id = threadIdx.x % WARP_SIZE;
+    const int warp_id = threadIdx.x / WARP_SIZE;
+    if (n_warps > 1) {
+        constexpr int    max_warps = 1024 / WARP_SIZE;
+        __shared__ float shared_maxval[max_warps];
+        __shared__ int   shared_argmax[max_warps];
+        if (lane_id == 0) {
+            shared_maxval[warp_id] = maxval;
+            shared_argmax[warp_id] = argmax;
+        }
+
+        __syncthreads();
+
+        if (warp_id == 0) {
+            if (lane_id < n_warps) {
+                maxval = shared_maxval[lane_id];
+                argmax = shared_argmax[lane_id];
+            }
+#pragma unroll
+            for (int offset = 16; offset > 0; offset >>= 1) {
+                const float val = __shfl_xor_sync(0xFFFFFFFF, maxval, offset, WARP_SIZE);
+                const int   col = __shfl_xor_sync(0xFFFFFFFF, argmax, offset, WARP_SIZE);
+                if (val > maxval) {
+                    maxval = val;
+                    argmax = col;
+                }
+            }
+        }
+    }
+
+    if (warp_id == 0 && lane_id == 0) {
+        dst[row] = argmax;
+    }
+}
+
+void ggml_cuda_argmax(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
+    const ggml_tensor * src0 = dst->src[0];
+
+    GGML_ASSERT(src0->type == GGML_TYPE_F32);
+    GGML_ASSERT( dst->type == GGML_TYPE_I32);
+
+    GGML_ASSERT(ggml_is_contiguous(src0));
+
+    const int64_t ne00  = src0->ne[0];
+    const int64_t nrows = ggml_nrows(src0);
+
+    const float * src0_d = (const float *) src0->data;
+    int32_t     * dst_d  = (int32_t     *) dst->data;
+
+    cudaStream_t stream = ctx.stream();
+
+    const int64_t num_blocks = nrows;
+    const int64_t num_threads = std::min<int64_t>(1024, (ne00 + WARP_SIZE - 1) / WARP_SIZE * WARP_SIZE);
+    const dim3 blocks_dim(num_threads, 1, 1);
+    const dim3 blocks_num(num_blocks, 1, 1);
+
+    argmax_f32<<<blocks_num, blocks_dim, 0, stream>>>(src0_d, dst_d, ne00);
+}
+
+#endif // GGML_MINIMIZE_CODE_SIZE
+
+#ifndef GGML_NO_IQUANTS
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// ROLLUP count-equal.cu
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+template <typename T>
+static __global__ void count_equal(const T * __restrict__ x, const T * __restrict__ y, int64_t * __restrict__ dst, const int64_t dk, const int64_t k) {
+    const int64_t i0 = (int64_t) blockIdx.x*dk;
+    const int64_t i1 = min(i0 + dk, k);
+
+    int nequal = 0;
+
+    for (int64_t i = i0 + threadIdx.x; i < i1; i += WARP_SIZE) {
+        const T xi = x[i];
+        const T yi = y[i];
+        nequal += xi == yi;
+    }
+
+    nequal = warp_reduce_sum(nequal);
+
+    if (threadIdx.x != 0) {
+        return;
+    }
+
+    atomicAdd((int *) dst, nequal);
+}
+
+void ggml_cuda_count_equal(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
+    const ggml_tensor * src0 = dst->src[0];
+    const ggml_tensor * src1 = dst->src[1];
+
+    GGML_ASSERT(src0->type == src1->type);
+    GGML_ASSERT( dst->type == GGML_TYPE_I64);
+
+    GGML_ASSERT(ggml_are_same_shape(src0, src1));
+    GGML_ASSERT(ggml_is_contiguous(src0));
+    GGML_ASSERT(ggml_is_contiguous(src1));
+    GGML_ASSERT(ggml_is_contiguous(dst));
+
+    int64_t * dst_d  = (int64_t *) dst->data;
+
+    cudaStream_t stream = ctx.stream();
+    const int nsm = ggml_cuda_info().devices[ggml_cuda_get_device()].nsm;
+
+    const int64_t ne = ggml_nelements(src0);
+    GGML_ASSERT(ne < (1 << 30) && "atomicAdd implementation only supports int");
+    const int64_t dne = GGML_PAD((ne + 4*nsm - 1) / (4*nsm), CUDA_COUNT_EQUAL_CHUNK_SIZE);
+
+    CUDA_CHECK(cudaMemsetAsync(dst_d, 0, ggml_nbytes(dst), stream));
+
+    const dim3 blocks_dim(WARP_SIZE, 1, 1);
+    const dim3 blocks_num(std::min((int64_t)4*nsm, (ne + CUDA_COUNT_EQUAL_CHUNK_SIZE - 1)/CUDA_COUNT_EQUAL_CHUNK_SIZE), 1, 1);
+
+    switch (src0->type) {
+        case GGML_TYPE_I32: {
+            const int * src0_d = (const int *) src0->data;
+            const int * src1_d = (const int *) src1->data;
+            count_equal<<<blocks_num, blocks_dim, 0, stream>>>(src0_d, src1_d, dst_d, dne, ne);
+        } break;
+        default:
+            GGML_ASSERT(false);
+            break;
+    }
+}
