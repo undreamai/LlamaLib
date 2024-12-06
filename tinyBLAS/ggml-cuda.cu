@@ -7113,7 +7113,6 @@ extern DECL_FATTN_WMMA_F16_CASE(256, 16, half);
 
 void ggml_cuda_flash_attn_ext(ggml_backend_cuda_context & ctx, ggml_tensor * dst);
 
-
 static void ggml_cuda_flash_attn_ext_wmma_f16(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
     const ggml_tensor * KQV = dst;
     const ggml_tensor * Q   = dst->src[0];
@@ -7245,14 +7244,12 @@ static void ggml_cuda_flash_attn_ext_wmma_f16(ggml_backend_cuda_context & ctx, g
         case 256:
             ggml_cuda_flash_attn_ext_wmma_f16_case<256, cols_per_block, half>(ctx, dst);
             break;
-        case GGML_TYPE_BF16: // [jart] bf16 https://github.com/ggerganov/llama.cpp/pull/7488
-            convert_mul_mat_vec_bf16_cuda(src0_dd_i, src1_dfloat, dst_dd_i, ne00, row_diff, stream);
-            break;
         default:
             GGML_ABORT("fatal error");
             break;
     }
 }
+
 #define FATTN_VEC_F16_CASE(D, type_K, type_V)                               \
     if (Q->ne[0] == (D) && K->type == (type_K) && V->type == (type_V)) {    \
         ggml_cuda_flash_attn_ext_vec_f16_case<D, type_K, type_V>(ctx, dst); \
@@ -19297,3 +19294,4 @@ void ggml_cuda_count_equal(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
             GGML_ASSERT(false);
             break;
     }
+}
