@@ -239,65 +239,10 @@
 
 #include "ggml-backend-impl.h"
 
-
-[[noreturn]]
-static void exit_(int rc) {
-#define exit exit_
-#if defined(__GNUC__) || defined(__llvm__)
-    __builtin_unreachable();
-#elif defined(_MSC_VER)
-    __assume(0);
-#endif
-    for (;;);
-}
-
-// printf() and fprintf() runtime bridge
-// this is needed so text gets printed on windows
-// it also helps ensure the atomicity of log lines
-static void ggml_cuda_print(const char *fmt, ...) {
-#define GGML_CUDA_PRINT_BUFSIZ 512
-#define fflush(_) (void)0
-#define printf(...) ggml_cuda_print(__VA_ARGS__)
-#define fprintf(_, ...) ggml_cuda_print(__VA_ARGS__)
-    int len;
-    va_list va;
-    char buf[GGML_CUDA_PRINT_BUFSIZ];
-    va_start(va, fmt);
-    len = vsnprintf(buf, GGML_CUDA_PRINT_BUFSIZ, fmt, va);
-    va_end(va);
-    if (len < 0)
-        len = strnlen(buf, GGML_CUDA_PRINT_BUFSIZ);
-    if (len >= GGML_CUDA_PRINT_BUFSIZ) {
-        len = GGML_CUDA_PRINT_BUFSIZ;
-        buf[len - 4] = '.';
-        buf[len - 3] = '.';
-        buf[len - 2] = '.';
-        buf[len - 1] = '\n';
-    }
-}
-
 #ifdef GGML_USE_TINYBLAS
 #define BLAS_NAME "tinyBLAS"
 #else
 #define BLAS_NAME GGML_CUBLAS_NAME
-#endif
-
-// define this if you want to always fallback to MMQ kernels and not use cuBLAS for matrix multiplication
-// on modern hardware, using cuBLAS is recommended as it utilizes F16 tensor cores which are very performant
-// for large computational tasks. the drawback is that this requires some extra amount of VRAM:
-// -  7B quantum model: +100-200 MB
-// - 13B quantum model: +200-400 MB
-//
-// [jart] https://github.com/Mozilla-Ocho/llamafile/issues/403#issuecomment-2103687594
-//
-// TODO(jart): oops looks like we can't use this anymore, because my
-//             five year old NVIDIA GeForce RTX 2080 Ti card stopped
-//             working with "ggml-cuda.cu:11460: ERROR: CUDA kernel
-//             mul_mat_q has no device code compatible with CUDA arch
-//             700. ggml-cuda.cu was compiled for: 600,700,800,900"!
-//
-#ifdef GGML_USE_TINYBLAS
-// #define GGML_CUDA_FORCE_MMQ // [jart] want this
 #endif
 
 #define STRINGIZE_IMPL(...) #__VA_ARGS__
@@ -338,7 +283,7 @@ static void ggml_cuda_print(const char *fmt, ...) {
 
 #define GGML_CUDA_MAX_STREAMS 8
 
-[[noreturn]]
+GGML_NORETURN
 void ggml_cuda_error(const char * stmt, const char * func, const char * file, int line, const char * msg);
 
 #define CUDA_CHECK_GEN(err, success, error_fn)                                      \
@@ -555,7 +500,7 @@ static constexpr bool int8_mma_available(const int cc) {
     return cc < CC_OFFSET_AMD && cc >= CC_TURING;
 }
 
-[[noreturn]]
+GGML_NORETURN
 static __device__ void no_device_code(
     const char * file_name, const int line, const char * function_name, const int arch, const char * arch_list) {
 
@@ -14215,7 +14160,7 @@ void ggml_cuda_op_rwkv_wkv6(ggml_backend_cuda_context & ctx, ggml_tensor * dst);
 
 static_assert(sizeof(half) == sizeof(ggml_fp16_t), "wrong fp16 size");
 
-[[noreturn]]
+GGML_NORETURN
 void ggml_cuda_error(const char * stmt, const char * func, const char * file, int line, const char * msg) {
     int id = -1; // in case cudaGetDevice fails
     cudaGetDevice(&id);
