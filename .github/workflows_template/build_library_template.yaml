@@ -116,7 +116,7 @@ jobs:
         @@setup_hip_linux@@
 
         @@set_build_params_hip_linux@@
-        @@cmake_build_linux@@
+        @@cmake_build@@
 
         @@set_upload_name@@
         @@pack_artifacts_unix@@

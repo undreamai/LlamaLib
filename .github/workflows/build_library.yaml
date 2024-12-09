@@ -303,7 +303,16 @@ jobs:
           run: |
             echo "CMAKE_COMMON_DIR=-DCMAKE_HIP_COMPILER=$(hipconfig -l)/clang -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=`pwd`/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=`pwd`/build/libs" >> $GITHUB_ENV
 
-        @@cmake_build_linux@@
+        - id: cmake_build
+          name: Build
+          run: |
+            if [ $RUNNER_OS == "Linux" ]; then
+              export LD_LIBRARY_PATH=""
+            fi
+            cd build
+            cmake .. -DLIBRARY_SUFFIX="${{ env.PLATFORM }}-${{ matrix.build }}" ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+            cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
+          shell: bash
 
 
         - id: set_upload_name
