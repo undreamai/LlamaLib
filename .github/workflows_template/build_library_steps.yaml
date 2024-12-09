@@ -76,6 +76,7 @@ jobs:
         shell: bash
         run: |
           echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=" >> $GITHUB_ENV
   
       - name: Get number of CPU cores
         id: cpu-cores
@@ -83,11 +84,7 @@ jobs:
 
       - name: Build
         id: cmake_build
-        shell: bash
         run: |
-          if [ $RUNNER_OS == "Linux" ]; then
-            export LD_LIBRARY_PATH=""
-          fi
           cd build
           cmake .. -DLIBRARY_SUFFIX="${{ env.PLATFORM }}-${{ matrix.build }}" ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}

@@ -168,6 +168,7 @@ jobs:
           name: Set CUDA variable
           run: |
             echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
+            echo "LD_LIBRARY_PATH=" >> $GITHUB_ENV
           shell: bash
 
         - id: setup_cuda_linux
@@ -192,13 +193,9 @@ jobs:
         - id: cmake_build
           name: Build
           run: |
-            if [ $RUNNER_OS == "Linux" ]; then
-              export LD_LIBRARY_PATH=""
-            fi
             cd build
             cmake .. -DLIBRARY_SUFFIX="${{ env.PLATFORM }}-${{ matrix.build }}" ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
-          shell: bash
 
         - id: test_build_unix
           if: matrix.build == 'noavx' || matrix.build == 'avx' || matrix.build == 'avx2' ||
@@ -306,13 +303,9 @@ jobs:
         - id: cmake_build
           name: Build
           run: |
-            if [ $RUNNER_OS == "Linux" ]; then
-              export LD_LIBRARY_PATH=""
-            fi
             cd build
             cmake .. -DLIBRARY_SUFFIX="${{ env.PLATFORM }}-${{ matrix.build }}" ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
-          shell: bash
 
 
         - id: set_upload_name
@@ -409,13 +402,9 @@ jobs:
         - id: cmake_build
           name: Build
           run: |
-            if [ $RUNNER_OS == "Linux" ]; then
-              export LD_LIBRARY_PATH=""
-            fi
             cd build
             cmake .. -DLIBRARY_SUFFIX="${{ env.PLATFORM }}-${{ matrix.build }}" ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
-          shell: bash
 
 
         - id: set_upload_name
@@ -510,13 +499,9 @@ jobs:
         - id: cmake_build
           name: Build
           run: |
-            if [ $RUNNER_OS == "Linux" ]; then
-              export LD_LIBRARY_PATH=""
-            fi
             cd build
             cmake .. -DLIBRARY_SUFFIX="${{ env.PLATFORM }}-${{ matrix.build }}" ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
-          shell: bash
 
         - id: test_build_unix
           if: matrix.build == 'noavx' || matrix.build == 'avx' || matrix.build == 'avx2' ||
@@ -653,6 +638,7 @@ jobs:
           name: Set CUDA variable
           run: |
             echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
+            echo "LD_LIBRARY_PATH=" >> $GITHUB_ENV
           shell: bash
 
         - id: setup_cuda_windows
@@ -671,13 +657,9 @@ jobs:
         - id: cmake_build
           name: Build
           run: |
-            if [ $RUNNER_OS == "Linux" ]; then
-              export LD_LIBRARY_PATH=""
-            fi
             cd build
             cmake .. -DLIBRARY_SUFFIX="${{ env.PLATFORM }}-${{ matrix.build }}" ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
-          shell: bash
 
 
         - id: move_files_windows
@@ -788,6 +770,7 @@ jobs:
           name: Set CUDA variable
           run: |
             echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
+            echo "LD_LIBRARY_PATH=" >> $GITHUB_ENV
           shell: bash
 
         - id: setup_openssl_windows
