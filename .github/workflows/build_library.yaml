@@ -716,12 +716,12 @@ jobs:
             ls -R build
             del build/libs/Release/undreamai_test.*
             mkdir artifacts
-            move .\build\licenses\* .\artifacts\
-            move .\build\Release\* .\artifacts\
-            move .\build\libs\Release\*dll .\artifacts\
+            Copy-Item .\build\licenses\* .\artifacts\
+            Copy-Item .\build\Release\* .\artifacts\
+            Copy-Item .\build\libs\Release\*dll .\artifacts\
             $serverPath = ".\build\libs\Release\undreamai_server.exe"
             if (Test-Path $serverPath) {
-                move $serverPath -Destination ".\artifacts\"
+                Copy-Item $serverPath -Destination ".\artifacts\"
             }
             cd artifacts
             7z a ../${{ env.UPLOAD_NAME }} *
@@ -853,12 +853,12 @@ jobs:
             ls -R build
             del build/libs/Release/undreamai_test.*
             mkdir artifacts
-            move .\build\licenses\* .\artifacts\
-            move .\build\Release\* .\artifacts\
-            move .\build\libs\Release\*dll .\artifacts\
+            Copy-Item .\build\licenses\* .\artifacts\
+            Copy-Item .\build\Release\* .\artifacts\
+            Copy-Item .\build\libs\Release\*dll .\artifacts\
             $serverPath = ".\build\libs\Release\undreamai_server.exe"
             if (Test-Path $serverPath) {
-                move $serverPath -Destination ".\artifacts\"
+                Copy-Item $serverPath -Destination ".\artifacts\"
             }
             cd artifacts
             7z a ../${{ env.UPLOAD_NAME }} *
