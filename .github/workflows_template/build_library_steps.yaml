@@ -89,7 +89,7 @@ jobs:
             export LD_LIBRARY_PATH=""
           fi
           cd build
-          cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+          cmake .. -DLIBRARY_SUFFIX="${{ env.PLATFORM }}-${{ matrix.build }}" ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
       - name: Set upload name
@@ -200,7 +200,7 @@ jobs:
           $env:HIP_PATH=$(Resolve-Path 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' | split-path | split-path)
           $env:CMAKE_PREFIX_PATH="${env:HIP_PATH}"
           cd build
-          cmake -G "Unix Makefiles" .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }}-${{ matrix.build }} -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+          cmake -G "Unix Makefiles" .. -DLIBRARY_SUFFIX="${{ env.PLATFORM }}-${{ matrix.build }}" -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
       - name: Move files to Release folder
@@ -270,7 +270,7 @@ jobs:
         run: |
           export LD_LIBRARY_PATH=""
           cd build
-          cmake .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }} -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-23 -DCMAKE_C_FLAGS=-march=armv8.4a+dotprod ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+          cmake .. -DLIBRARY_SUFFIX="${{ env.PLATFORM }}" -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-23 -DCMAKE_C_FLAGS=-march=armv8.4a+dotprod ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
           cmake --build . --config Release -j $(nproc)
 
       - name: Delete server
@@ -286,7 +286,7 @@ jobs:
           sed -i.bak "s:RUNTIME:BUNDLE DESTINATION .:g" CMakeLists.txt
           export LD_LIBRARY_PATH=""
           cd build
-          cmake -G Xcode .. -DLIBRARY_SUFFIX=${{ env.PLATFORM }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+          cmake -G Xcode .. -DLIBRARY_SUFFIX="${{ env.PLATFORM }}" ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
           cmake --build . --config Release -j $(sysctl -n hw.logicalcpu) -- CODE_SIGNING_ALLOWED=NO
 
       - id: pack_artifacts_ios
