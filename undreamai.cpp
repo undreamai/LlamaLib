@@ -167,14 +167,6 @@ void LLM::init(int argc, char ** argv){
 
         common_init();
 
-        // enabling this will output extra debug information in the HTTP responses from the server
-        // see format_final_response_oaicompat()
-        const bool verbose = params.verbosity > 9;
-
-        if (params.model_alias == "unknown") {
-            params.model_alias = params.model;
-        }
-
         llama_backend_init();
         llama_backend_has_init = true;
         llama_numa_init(params.numa);
@@ -282,7 +274,17 @@ void LLM::start_server(){
     svr->set_read_timeout (params.timeout_read);
     svr->set_write_timeout(params.timeout_write);
 
-    if (!svr->bind_to_port(params.hostname, params.port)) {
+    bool was_bound = false;
+    if (params.port == 0) {
+        int bound_port = svr->bind_to_any_port(params.hostname);
+        if ((was_bound = (bound_port >= 0))) {
+            params.port = bound_port;
+        }
+    } else {
+        was_bound = svr->bind_to_port(params.hostname, params.port);
+    }
+
+    if (!was_bound) {
         throw std::runtime_error("couldn't bind to server socket: hostname=" + params.hostname + " port=" + std::to_string(params.port));
     }
 
@@ -417,14 +419,12 @@ void LLM::stop_service(){
         LOG_INFO("shutting down tasks", {});
         ctx_server.queue_tasks.terminate();
 
-        server_task_result res;
-        res.stop     = true;
-        res.error    = false;
-
+        auto res = std::make_unique<server_task_result_error>();
+        res->err_type = ERROR_TYPE_UNAVAILABLE;
         for(int id_task:ctx_server.queue_results.waiting_task_ids){
-            res.id       = id_task;
-            res.data     = format_error_response("shutting down task " + std::to_string(id_task), ERROR_TYPE_INVALID_REQUEST);
-            ctx_server.queue_results.send(res);
+            res->id = id_task;
+            res->err_msg = format_error_response("shutting down task " + std::to_string(id_task), ERROR_TYPE_INVALID_REQUEST);
+            ctx_server.queue_results.send(std::move(res));
         }
 
         if(llama_backend_has_init) llama_backend_free();
@@ -566,12 +566,12 @@ std::string LLM::handle_detokenize(json body) {
 }
 
 std::string LLM::handle_embeddings(json body, httplib::Response* res) {
-    bool is_openai = false;
+    bool oaicompat = false;
 
     // an input prompt can be a string or a list of tokens (integer)
     json prompt;
     if (body.count("input") != 0) {
-        is_openai = true;
+        oaicompat = true;
         prompt = body.at("input");
     } else if (body.count("content") != 0) {
         // with "content", we only support single prompt
@@ -587,16 +587,25 @@ std::string LLM::handle_embeddings(json body, httplib::Response* res) {
     json responses = json::array();
     bool error = false;
     {
-        std::vector<server_task> tasks = ctx_server.create_tasks_inference({{"prompt", prompt}}, SERVER_TASK_INF_TYPE_EMBEDDING);
+        std::vector<server_task> tasks;
+        std::vector<llama_tokens> tokenized_prompts = tokenize_input_prompts(ctx_server.ctx, prompt, /* add_special */ false, true);
+        for (size_t i = 0; i < tokenized_prompts.size(); i++) {
+            server_task task   = server_task(SERVER_TASK_TYPE_EMBEDDING);
+            task.id            = ctx_server.queue_tasks.get_new_id();
+            task.index         = i;
+            task.prompt_tokens = std::move(tokenized_prompts[i]);
+            tasks.push_back(task);
+        }
+
         ctx_server.queue_results.add_waiting_tasks(tasks);
         ctx_server.queue_tasks.post(tasks);
 
         // get the result
         std::unordered_set<int> task_ids = server_task::get_list_id(tasks);
 
-        ctx_server.receive_cmpl_results(task_ids, [&](std::vector<server_task_result> & results) {
-            for (const auto & res : results) {
-                responses.push_back(res.data);
+        ctx_server.receive_multi_results(task_ids, [&](std::vector<server_task_result_ptr> & results) {
+            for (auto & res : results) {
+                responses.push_back(res->to_json());
             }
         }, [&](const json & error_data) {
             handle_error(*res, error_data);
@@ -611,9 +620,9 @@ std::string LLM::handle_embeddings(json body, httplib::Response* res) {
     }
 
     // write JSON response
-    json root = is_openai
+    json root = oaicompat
         ? format_embeddings_response_oaicompat(body, responses)
-        : responses[0];
+        : responses.size() == 1 ? responses[0] : json(responses);
     return root.dump();
 };
 
@@ -639,15 +648,15 @@ std::string LLM::handle_lora_adapters_apply(json body, httplib::Response* res) {
         }
     }
 
-    server_task task;
-    task.type = SERVER_TASK_TYPE_SET_LORA;
-    const int id_task = ctx_server.queue_tasks.post(task);
-    ctx_server.queue_results.add_waiting_task_id(id_task);
+    server_task task(SERVER_TASK_TYPE_SET_LORA);
+    task.id = ctx_server.queue_tasks.get_new_id();
+    ctx_server.queue_results.add_waiting_task_id(task.id);
+    ctx_server.queue_tasks.post(task);
 
-    server_task_result result = ctx_server.queue_results.recv(id_task);
-    ctx_server.queue_results.remove_waiting_task_id(id_task);
+    server_task_result_ptr result = ctx_server.queue_results.recv(task.id);
+    ctx_server.queue_results.remove_waiting_task_id(task.id);
 
-    return result.data.dump();
+    return result->to_json().dump();
 };
 
 std::string LLM::handle_lora_adapters_list(){
@@ -665,15 +674,15 @@ std::string LLM::handle_lora_adapters_list(){
 
 std::string LLM::handle_completions_non_streaming(std::unordered_set<int> task_ids, httplib::Response* res) {
     std::string result_data = "";
-    ctx_server.receive_cmpl_results(task_ids, [&](std::vector<server_task_result> & results) {
+    ctx_server.receive_multi_results(task_ids, [&](std::vector<server_task_result_ptr> & results) {
         if (results.size() == 1) {
             // single result
-            result_data = results[0].data.dump(-1, ' ', false, json::error_handler_t::replace);
+            result_data = results[0]->to_json().dump();
         } else {
             // multiple results (multitask)
             json arr = json::array();
             for (const auto & res : results) {
-                arr.push_back(res.data);
+                arr.push_back(res->to_json());
             }
             result_data = arr.dump(-1, ' ', false, json::error_handler_t::replace);
         }
@@ -690,14 +699,22 @@ class SinkException : public std::exception {};
 std::string LLM::handle_completions_streaming(std::unordered_set<int> task_ids, StringWrapper* stringWrapper, httplib::DataSink* sink) {
     std::string result_data = "";
 
-    ctx_server.receive_cmpl_results_stream(task_ids, [&](const server_task_result & result) -> bool {
-        std::string str = result.data.dump(-1, ' ', false, json::error_handler_t::replace);
-        str = "data: " + str + "\n\n";
-        result_data += str;
+    ctx_server.receive_cmpl_results_stream(task_ids, [&](server_task_result_ptr & result) -> bool {
+        json res_json = result->to_json();
+        result_data += "data: " + res_json.dump() + "\n\n";
         if (stringWrapper != nullptr) stringWrapper->SetContent(result_data);
         if (sink != nullptr)
         {
-            if(!server_sent_event(*sink, "data", result.data)) throw SinkException();
+            if (res_json.is_array()) {
+                for (const auto & res : res_json) {
+                    if (!server_sent_event(*sink, "data", res)) {
+                        throw SinkException();
+                    }
+                }
+                return true;
+            } else {
+                if(!server_sent_event(*sink, "data", res_json)) throw SinkException();
+            }
         }
         return true;
     }, [&](const json & error_data) {
@@ -714,12 +731,40 @@ std::string LLM::handle_completions_streaming(std::unordered_set<int> task_ids, 
     return result_data;
 }
 
-std::string LLM::handle_completions(json data, StringWrapper* stringWrapper, httplib::Response* res) {
+std::string LLM::handle_completions(json data, StringWrapper* stringWrapper, httplib::Response* res, bool oaicompat, bool oaicompat_chat) {
     if (setjmp(point) != 0) return "";
     clear_status();
     std::string result_data = "";
     try {
-        std::vector<server_task> tasks = ctx_server.create_tasks_inference(data, SERVER_TASK_INF_TYPE_COMPLETION);
+        auto completion_id = gen_chatcmplid();
+        std::vector<server_task> tasks;
+
+        try {
+            std::vector<llama_tokens> tokenized_prompts = tokenize_input_prompts(ctx_server.ctx, data.at("prompt"), true, true);
+            tasks.reserve(tokenized_prompts.size());
+            for (size_t i = 0; i < tokenized_prompts.size(); i++) {
+                server_task task = server_task(SERVER_TASK_TYPE_COMPLETION);
+
+                task.id    = ctx_server.queue_tasks.get_new_id();
+                task.index = i;
+
+                task.prompt_tokens    = std::move(tokenized_prompts[i]);
+                task.params           = server_task::params_from_json_cmpl(ctx_server.model, ctx_server.params_base, data);
+                task.id_selected_slot = json_value(data, "id_slot", -1);
+
+                // OAI-compat
+                task.params.oaicompat           = oaicompat;
+                task.params.oaicompat_chat      = oaicompat_chat;
+                task.params.oaicompat_cmpl_id   = completion_id;
+                // oaicompat_model is already populated by params_from_json_cmpl
+
+                tasks.push_back(task);
+            }
+        } catch (const std::exception & e) {
+            handle_error(*res, format_error_response(e.what(), ERROR_TYPE_INVALID_REQUEST));
+            return "";
+        }
+
         ctx_server.queue_results.add_waiting_tasks(tasks);
         ctx_server.queue_tasks.post(tasks);
 
@@ -737,10 +782,10 @@ std::string LLM::handle_completions(json data, StringWrapper* stringWrapper, htt
                 result_data = handle_completions_streaming(task_ids, stringWrapper, nullptr);
                 on_complete(true);
             } else {
-                const auto chunked_content_provider = [task_ids, this](size_t, httplib::DataSink & sink) {
+                const auto chunked_content_provider = [task_ids, this, oaicompat](size_t, httplib::DataSink & sink) {
                     handle_completions_streaming(task_ids, nullptr, &sink);
-                    static const std::string ev_done = "data: [DONE]\n\n";
-                    if(&sink != nullptr){
+                    if(&sink != nullptr && oaicompat){
+                        static const std::string ev_done = "data: [DONE]\n\n";
                         sink.write(ev_done.data(), ev_done.size());
                         sink.done();
                     }
@@ -760,19 +805,29 @@ std::string LLM::handle_slots_action(json data, httplib::Response* res) {
     clear_status();
     std::string result_data = "";
     try {
-        server_task task;
-        int id_slot = json_value(data, "id_slot", 0);
-        task.data = {
-            { "id_slot", id_slot},
-        };
-
         std::string action = data["action"];
+        server_task_type task_type;
+        if (action == "save") {
+            task_type = SERVER_TASK_TYPE_SLOT_SAVE;
+        } else if (action == "restore") {
+            task_type = SERVER_TASK_TYPE_SLOT_RESTORE;
+        } else if (action == "erase") {
+            task_type = SERVER_TASK_TYPE_SLOT_ERASE;
+        } else {
+            throw std::runtime_error("Invalid action" + action);
+        }
+
+        server_task task(task_type);
+        int id_slot = json_value(data, "id_slot", 0);
+        task.id = ctx_server.queue_tasks.get_new_id();
+        task.slot_action.slot_id  = id_slot;
+
         if (action == "save" || action == "restore") {
             if (data.count("filepath") != 0) {
                 std::string filepath = data.at("filepath");
 
-                task.data["filename"] = filepath.substr(filepath.find_last_of("/\\") + 1);
-                task.data["filepath"] = filepath;
+                task.slot_action.filename = filepath.substr(filepath.find_last_of("/\\") + 1);
+                task.slot_action.filepath  = filepath;
             } else {
                 // deprecated
                 std::string filename = data.at("filename");
@@ -781,32 +836,23 @@ std::string LLM::handle_slots_action(json data, httplib::Response* res) {
                     if(res != nullptr) handle_error(*res, format_error_response("Invalid filename", ERROR_TYPE_INVALID_REQUEST));
                     return "";
                 }
-                task.data["filename"] = filename;
-                task.data["filepath"] = params.slot_save_path + filename;
+                task.slot_action.filename = filename;
+                task.slot_action.filepath  = params.slot_save_path + filename;
             }
-            if (action == "save") {
-                task.type = SERVER_TASK_TYPE_SLOT_SAVE;
-            } else {
-                task.type = SERVER_TASK_TYPE_SLOT_RESTORE;
-            }
-        } else if (action == "erase") {
-            task.type = SERVER_TASK_TYPE_SLOT_ERASE;
-        } else {
-            throw std::runtime_error("Invalid action" + action);
         }
 
-        const int id_task = ctx_server.queue_tasks.post(task);
-        ctx_server.queue_results.add_waiting_task_id(id_task);
+        ctx_server.queue_results.add_waiting_task_id(task.id);
+        ctx_server.queue_tasks.post(task);
 
-        server_task_result result = ctx_server.queue_results.recv(id_task);
-        ctx_server.queue_results.remove_waiting_task_id(id_task);
+        server_task_result_ptr result = ctx_server.queue_results.recv(task.id);
+        ctx_server.queue_results.remove_waiting_task_id(task.id);
 
-        result_data = result.data.dump();
-        if (result.error) {
+        result_data = result->to_json();
+        if (result->is_error()) {
             LOG_ERROR("Error processing handle_slots_action", result_data);
-            if(res != nullptr) handle_error(*res, result.data);
+            if(res != nullptr) handle_error(*res, result_data);
         } else {
-            if(res != nullptr) res->set_content(result_data, "application/json");
+            if(res != nullptr) res_ok(*res, result_data);
         }
     } catch(...) {
         handle_exception();
