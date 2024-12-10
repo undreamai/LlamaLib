@@ -168,7 +168,7 @@ jobs:
           name: Set CUDA variable
           run: |
             echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
-            echo "LD_LIBRARY_PATH=" >> $GITHUB_ENV
+            echo "LD_LIBRARY_PATH=''" >> $GITHUB_ENV
           shell: bash
 
         - id: setup_cuda_linux
@@ -638,7 +638,7 @@ jobs:
           name: Set CUDA variable
           run: |
             echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
-            echo "LD_LIBRARY_PATH=" >> $GITHUB_ENV
+            echo "LD_LIBRARY_PATH=''" >> $GITHUB_ENV
           shell: bash
 
         - id: setup_cuda_windows
@@ -770,7 +770,7 @@ jobs:
           name: Set CUDA variable
           run: |
             echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
-            echo "LD_LIBRARY_PATH=" >> $GITHUB_ENV
+            echo "LD_LIBRARY_PATH=''" >> $GITHUB_ENV
           shell: bash
 
         - id: setup_openssl_windows
