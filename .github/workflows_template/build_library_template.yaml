@@ -62,6 +62,7 @@ jobs:
             defines: '-DGGML_AVX512=ON'
           - build: 'vulkan'
             defines: '-DGGML_VULKAN=ON'
+            tinyBLAS: 'ON'
           - build: 'cuda-cu11.7.1'
             defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda" -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
             tinyBLAS: 'ON'
@@ -105,6 +106,7 @@ jobs:
       matrix:
         include:
           - build: 'hip'
+            tinyBLAS: 'ON'
 
     steps:
         @@setup_libs_linux@@
@@ -207,6 +209,7 @@ jobs:
             defines: '-DGGML_AVX512=ON'
           - build: 'vulkan'
             defines: '-DGGML_VULKAN=ON'
+            tinyBLAS: 'ON'
           - build: 'cuda-cu11.7.1'
             defines: '-DGGML_CUDA=ON -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
             tinyBLAS: 'ON'
@@ -248,6 +251,7 @@ jobs:
       matrix:
         include:
           - build: 'hip'
+            tinyBLAS: 'ON'          
 
     steps:
         @@checkout@@
