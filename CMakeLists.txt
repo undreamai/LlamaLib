@@ -29,7 +29,9 @@ foreach (target common ggml-cuda ggml-hip ggml-musa)
     endif()
 endforeach()
 
-set_target_properties(vulkan-shaders-gen PROPERTIES LINK_OPTIONS "-Wl,-Bdynamic")
+if (TARGET vulkan-shaders-gen)
+    set_target_properties(vulkan-shaders-gen PROPERTIES LINK_OPTIONS "-Wl,-Bdynamic")
+endif()
 
 set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} /Zm1000")
 
