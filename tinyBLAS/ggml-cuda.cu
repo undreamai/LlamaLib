@@ -3591,7 +3591,7 @@ static __global__ void mul_mat_vec(
     if (block_size > WARP_SIZE) {
         buf_iw[tid/WARP_SIZE] = sumf;
         __syncthreads();
-        if (tid > WARP_SIZE) {
+        if (tid >= WARP_SIZE) {
             return;
         }
         sumf = buf_iw[tid];
@@ -5855,7 +5855,6 @@ static __global__ void flash_attn_vec_ext_f16(
         for (int j = 0; j < ncols; ++j) {
             half kqmax_new_j = ncols == 1 ? kqmax_new : kqmax_new_arr[j];
 
-            kqmax_new_j = warp_reduce_max(kqmax_new_j);
             if (threadIdx.x == 0) {
                 kqmax_shared[j][threadIdx.y] = kqmax_new_j;
             }
@@ -6292,7 +6291,6 @@ static __global__ void flash_attn_vec_ext_f32(
         for (int j = 0; j < ncols; ++j) {
             float kqmax_new_j = kqmax_new_arr[j];
 
-            kqmax_new_j = warp_reduce_max(kqmax_new_j);
             if (threadIdx.x == 0) {
                 kqmax_shared[j][threadIdx.y] = kqmax_new_j;
             }
@@ -17341,7 +17339,7 @@ static void * ggml_backend_cuda_reg_get_proc_address(ggml_backend_reg_t reg, con
 static const ggml_backend_reg_i ggml_backend_cuda_reg_interface = {
     /* .get_name          = */ ggml_backend_cuda_reg_get_name,
     /* .get_device_count  = */ ggml_backend_cuda_reg_get_device_count,
-    /* .get_device_get    = */ ggml_backend_cuda_reg_get_device,
+    /* .get_device        = */ ggml_backend_cuda_reg_get_device,
     /* .get_proc_address  = */ ggml_backend_cuda_reg_get_proc_address,
 };
 
