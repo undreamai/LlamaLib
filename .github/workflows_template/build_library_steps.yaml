@@ -76,7 +76,7 @@ jobs:
         shell: bash
         run: |
           echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=''" >> $GITHUB_ENV
   
       - name: Get number of CPU cores
         id: cpu-cores
