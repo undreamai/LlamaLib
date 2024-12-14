@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		00000000008063A1000160D3 /* libiPhone-lib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D8A1C72A0E8063A1000160D3 /* libiPhone-lib.a */; };
 		0D8B2BE0A09A5C43F6737420 /* libundreamai_iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BE8BC6839E1A408EF23249F /* libundreamai_iOS.a */; };
+		35D59C3D4635FEC82CE4EC73 /* libundreamai_iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D0CFF940AF8A92159DEF1566 /* libundreamai_iOS.a */; };
 		415674EFD2EC187355BC05B1 /* LaunchScreen-iPhoneLandscape.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E24B93E9D27D99850693BAF /* LaunchScreen-iPhoneLandscape.png */; };
 		475B26F38A3A652C6174529D /* IUnityInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 679ACDCF6D14CA6FE6F81479 /* IUnityInterface.h */; };
 		5623C57617FDCB0800090B9E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
@@ -99,6 +100,7 @@
 		9E277B346B541C2D072C5489 /* IUnityGraphicsMetal.h in Headers */ = {isa = PBXBuildFile; fileRef = 894C1B251937BE1BC2B4D36C /* IUnityGraphicsMetal.h */; };
 		AF3F0F5597A0749485B362BF /* libusearch_static_c.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C03F1CB080514F1A6A7438DB /* libusearch_static_c.a */; };
 		BEE3E21D322649C83B0DD4DC /* LaunchScreen-iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5A3A1B4C3FB1FC90023B942E /* LaunchScreen-iPhone.storyboard */; };
+		E5FC1E1B75FCDF5938F47AD9 /* libundreamai_iOS.a in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D0CFF940AF8A92159DEF1566 /* libundreamai_iOS.a */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F5C03E9DD3BF40D8EC0F4404 /* LaunchScreen-iPhonePortrait.png in Resources */ = {isa = PBXBuildFile; fileRef = 681AA63C19788ACA381FB8C1 /* LaunchScreen-iPhonePortrait.png */; };
 /* End PBXBuildFile section */
 
@@ -152,6 +154,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				9D25ABA5213FB47800354C27 /* UnityFramework.framework in Embed Frameworks */,
+				E5FC1E1B75FCDF5938F47AD9 /* libundreamai_iOS.a in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -495,6 +498,7 @@
 		CF2D9CD79707BC66F0D724D2 /* UnityEngine.TextCoreTextEngineModule_CodeGen.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = UnityEngine.TextCoreTextEngineModule_CodeGen.c; path = Il2CppOutputProject/Source/il2cppOutput/UnityEngine.TextCoreTextEngineModule_CodeGen.c; sourceTree = SOURCE_ROOT; };
 		CFD9F8BCEB8E8AB7DDA7F121 /* GenericMethods__10.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GenericMethods__10.cpp; path = Il2CppOutputProject/Source/il2cppOutput/GenericMethods__10.cpp; sourceTree = SOURCE_ROOT; };
 		D0609838D7B79343BB1B66CD /* mscorlib__12.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = mscorlib__12.cpp; path = Il2CppOutputProject/Source/il2cppOutput/mscorlib__12.cpp; sourceTree = SOURCE_ROOT; };
+		D0CFF940AF8A92159DEF1566 /* libundreamai_iOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libundreamai_iOS.a; path = "Libraries/Plugins/iOS/LLMUnity/undreamai-v1.2.0-llamacpp/libundreamai_iOS.a"; sourceTree = SOURCE_ROOT; };
 		D1002655EF7EC77F763671BA /* System.Xml.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = System.Xml.cpp; path = Il2CppOutputProject/Source/il2cppOutput/System.Xml.cpp; sourceTree = SOURCE_ROOT; };
 		D36225A528040BD949BFC983 /* Generics__30.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Generics__30.cpp; path = Il2CppOutputProject/Source/il2cppOutput/Generics__30.cpp; sourceTree = SOURCE_ROOT; };
 		D36D733DA6A3052F599DC7CE /* mscorlib__5.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = mscorlib__5.cpp; path = Il2CppOutputProject/Source/il2cppOutput/mscorlib__5.cpp; sourceTree = SOURCE_ROOT; };
@@ -604,6 +608,7 @@
 				7F4E05AB2717219200A2CBE4 /* libGameAssembly.a in Frameworks */,
 				9D0A618B21BFE7F30094DC33 /* libiconv.2.tbd in Frameworks */,
 				AF3F0F5597A0749485B362BF /* libusearch_static_c.a in Frameworks */,
+				35D59C3D4635FEC82CE4EC73 /* libundreamai_iOS.a in Frameworks */,
 				0D8B2BE0A09A5C43F6737420 /* libundreamai_iOS.a in Frameworks */,
 				63ACF7178776C648B96974EB /* baselib.a in Frameworks */,
 				574A8D1BFDF4103B13A6538A /* GameController.framework in Frameworks */,
@@ -627,6 +632,14 @@
 				45C76ABEC14C6E10C9CFC809 /* il2cppOutput */,
 			);
 			path = Source;
+			sourceTree = "<group>";
+		};
+		04FEE827A3162129575875B4 /* LLMUnity */ = {
+			isa = PBXGroup;
+			children = (
+				808B74B884A0BD4BF0EBE146 /* undreamai-v1.2.0-llamacpp */,
+			);
+			path = LLMUnity;
 			sourceTree = "<group>";
 		};
 		08E06EF576D79C4643098BCC /* Il2CppOutputProject */ = {
@@ -971,6 +984,14 @@
 			path = il2cppOutput;
 			sourceTree = "<group>";
 		};
+		53D667C6AFCF5C846FB3B413 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				04FEE827A3162129575875B4 /* LLMUnity */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
 		5623C57817FDCB0800090B9E /* Unity-iPhone Tests */ = {
 			isa = PBXGroup;
 			children = (
@@ -996,6 +1017,14 @@
 				02B5D4D6B0470540F179573A /* iOS */,
 			);
 			path = usearch;
+			sourceTree = "<group>";
+		};
+		808B74B884A0BD4BF0EBE146 /* undreamai-v1.2.0-llamacpp */ = {
+			isa = PBXGroup;
+			children = (
+				D0CFF940AF8A92159DEF1566 /* libundreamai_iOS.a */,
+			);
+			path = "undreamai-v1.2.0-llamacpp";
 			sourceTree = "<group>";
 		};
 		8A3EDDC51615B7C1001839E9 /* UI */ = {
@@ -1156,6 +1185,7 @@
 			isa = PBXGroup;
 			children = (
 				918AE8B582D58D6B0323AC98 /* LLMUnity */,
+				E65BCBDDB23DA191911454C2 /* Plugins */,
 				03F528621B447098000F4FB8 /* Il2CppOptions.cpp */,
 				AAC3E38B1A68945900F6174A /* RegisterFeatures.cpp */,
 				AAC3E38C1A68945900F6174A /* RegisterFeatures.h */,
@@ -1164,6 +1194,14 @@
 			);
 			path = Libraries;
 			sourceTree = SOURCE_ROOT;
+		};
+		E65BCBDDB23DA191911454C2 /* Plugins */ = {
+			isa = PBXGroup;
+			children = (
+				53D667C6AFCF5C846FB3B413 /* iOS */,
+			);
+			path = Plugins;
+			sourceTree = "<group>";
 		};
 		EBE0234C5247E8E177282600 /* Resources */ = {
 			isa = PBXGroup;
@@ -1592,6 +1630,7 @@
 				LD_GENERATE_MAP_FILE = YES;
 				LIBRARY_SEARCH_PATHS = (
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
+					"$(SRCROOT)/Libraries/Plugins/iOS/LLMUnity/undreamai-v1.2.0-llamacpp",
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/undreamai-v1.1.12-llamacpp/iOS",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.unity3d.${PRODUCT_NAME:rfc1034identifier}";
@@ -1646,6 +1685,7 @@
 				LD_GENERATE_MAP_FILE = YES;
 				LIBRARY_SEARCH_PATHS = (
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
+					"$(SRCROOT)/Libraries/Plugins/iOS/LLMUnity/undreamai-v1.2.0-llamacpp",
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/undreamai-v1.1.12-llamacpp/iOS",
 				);
 				ONLY_ACTIVE_ARCH = YES;
@@ -1773,6 +1813,7 @@
 				LD_GENERATE_MAP_FILE = YES;
 				LIBRARY_SEARCH_PATHS = (
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
+					"$(SRCROOT)/Libraries/Plugins/iOS/LLMUnity/undreamai-v1.2.0-llamacpp",
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/undreamai-v1.1.12-llamacpp/iOS",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.unity3d.${PRODUCT_NAME:rfc1034identifier}";
@@ -1899,6 +1940,7 @@
 				LD_GENERATE_MAP_FILE = YES;
 				LIBRARY_SEARCH_PATHS = (
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
+					"$(SRCROOT)/Libraries/Plugins/iOS/LLMUnity/undreamai-v1.2.0-llamacpp",
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/undreamai-v1.1.12-llamacpp/iOS",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.unity3d.${PRODUCT_NAME:rfc1034identifier}";
@@ -2103,11 +2145,12 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_GENERATE_MAP_FILE = YES;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Libraries",
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
+					"$(SRCROOT)/Libraries/Plugins/iOS/LLMUnity/undreamai-v1.2.0-llamacpp",
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/undreamai-v1.1.12-llamacpp/iOS",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -2177,11 +2220,12 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_GENERATE_MAP_FILE = YES;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Libraries",
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
+					"$(SRCROOT)/Libraries/Plugins/iOS/LLMUnity/undreamai-v1.2.0-llamacpp",
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/undreamai-v1.1.12-llamacpp/iOS",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -2253,11 +2297,12 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_GENERATE_MAP_FILE = YES;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Libraries",
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
+					"$(SRCROOT)/Libraries/Plugins/iOS/LLMUnity/undreamai-v1.2.0-llamacpp",
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/undreamai-v1.1.12-llamacpp/iOS",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -2330,11 +2375,12 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_GENERATE_MAP_FILE = YES;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Libraries",
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
+					"$(SRCROOT)/Libraries/Plugins/iOS/LLMUnity/undreamai-v1.2.0-llamacpp",
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/undreamai-v1.1.12-llamacpp/iOS",
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
