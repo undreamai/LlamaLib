@@ -100,7 +100,6 @@
 		9E277B346B541C2D072C5489 /* IUnityGraphicsMetal.h in Headers */ = {isa = PBXBuildFile; fileRef = 894C1B251937BE1BC2B4D36C /* IUnityGraphicsMetal.h */; };
 		AF3F0F5597A0749485B362BF /* libusearch_static_c.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C03F1CB080514F1A6A7438DB /* libusearch_static_c.a */; };
 		BEE3E21D322649C83B0DD4DC /* LaunchScreen-iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5A3A1B4C3FB1FC90023B942E /* LaunchScreen-iPhone.storyboard */; };
-		E5FC1E1B75FCDF5938F47AD9 /* libundreamai_iOS.a in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D0CFF940AF8A92159DEF1566 /* libundreamai_iOS.a */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F5C03E9DD3BF40D8EC0F4404 /* LaunchScreen-iPhonePortrait.png in Resources */ = {isa = PBXBuildFile; fileRef = 681AA63C19788ACA381FB8C1 /* LaunchScreen-iPhonePortrait.png */; };
 /* End PBXBuildFile section */
 
@@ -154,7 +153,6 @@
 			dstSubfolderSpec = 10;
 			files = (
 				9D25ABA5213FB47800354C27 /* UnityFramework.framework in Embed Frameworks */,
-				E5FC1E1B75FCDF5938F47AD9 /* libundreamai_iOS.a in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -607,8 +605,8 @@
 				9D690CDF21BFD3E3005026B1 /* UIKit.framework in Frameworks */,
 				7F4E05AB2717219200A2CBE4 /* libGameAssembly.a in Frameworks */,
 				9D0A618B21BFE7F30094DC33 /* libiconv.2.tbd in Frameworks */,
-				AF3F0F5597A0749485B362BF /* libusearch_static_c.a in Frameworks */,
 				35D59C3D4635FEC82CE4EC73 /* libundreamai_iOS.a in Frameworks */,
+				AF3F0F5597A0749485B362BF /* libusearch_static_c.a in Frameworks */,
 				0D8B2BE0A09A5C43F6737420 /* libundreamai_iOS.a in Frameworks */,
 				63ACF7178776C648B96974EB /* baselib.a in Frameworks */,
 				574A8D1BFDF4103B13A6538A /* GameController.framework in Frameworks */,
@@ -1629,8 +1627,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_GENERATE_MAP_FILE = YES;
 				LIBRARY_SEARCH_PATHS = (
-					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
 					"$(SRCROOT)/Libraries/Plugins/iOS/LLMUnity/undreamai-v1.2.0-llamacpp",
+					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/undreamai-v1.1.12-llamacpp/iOS",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.unity3d.${PRODUCT_NAME:rfc1034identifier}";
@@ -1684,8 +1682,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_GENERATE_MAP_FILE = YES;
 				LIBRARY_SEARCH_PATHS = (
-					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
 					"$(SRCROOT)/Libraries/Plugins/iOS/LLMUnity/undreamai-v1.2.0-llamacpp",
+					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/undreamai-v1.1.12-llamacpp/iOS",
 				);
 				ONLY_ACTIVE_ARCH = YES;
@@ -1812,8 +1810,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_GENERATE_MAP_FILE = YES;
 				LIBRARY_SEARCH_PATHS = (
-					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
 					"$(SRCROOT)/Libraries/Plugins/iOS/LLMUnity/undreamai-v1.2.0-llamacpp",
+					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/undreamai-v1.1.12-llamacpp/iOS",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.unity3d.${PRODUCT_NAME:rfc1034identifier}";
@@ -1939,8 +1937,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_GENERATE_MAP_FILE = YES;
 				LIBRARY_SEARCH_PATHS = (
-					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
 					"$(SRCROOT)/Libraries/Plugins/iOS/LLMUnity/undreamai-v1.2.0-llamacpp",
+					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/undreamai-v1.1.12-llamacpp/iOS",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.unity3d.${PRODUCT_NAME:rfc1034identifier}";
@@ -2145,12 +2143,12 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_GENERATE_MAP_FILE = YES;
-				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Libraries",
-					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
 					"$(SRCROOT)/Libraries/Plugins/iOS/LLMUnity/undreamai-v1.2.0-llamacpp",
+					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/undreamai-v1.1.12-llamacpp/iOS",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -2220,12 +2218,12 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_GENERATE_MAP_FILE = YES;
-				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Libraries",
-					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
 					"$(SRCROOT)/Libraries/Plugins/iOS/LLMUnity/undreamai-v1.2.0-llamacpp",
+					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/undreamai-v1.1.12-llamacpp/iOS",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -2297,12 +2295,12 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_GENERATE_MAP_FILE = YES;
-				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Libraries",
-					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
 					"$(SRCROOT)/Libraries/Plugins/iOS/LLMUnity/undreamai-v1.2.0-llamacpp",
+					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/undreamai-v1.1.12-llamacpp/iOS",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -2375,12 +2373,12 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_GENERATE_MAP_FILE = YES;
-				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Libraries",
-					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
 					"$(SRCROOT)/Libraries/Plugins/iOS/LLMUnity/undreamai-v1.2.0-llamacpp",
+					"$(SRCROOT)/Libraries/LLMUnity/Resources/usearch/iOS",
 					"$(SRCROOT)/Libraries/LLMUnity/Resources/undreamai-v1.1.12-llamacpp/iOS",
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
