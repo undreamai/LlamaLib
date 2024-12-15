@@ -1,0 +1,726 @@
+diff --git a/rollup b/rollup_patched
+index e538fbbc..4fc347c8 100644
+--- a/rollup
++++ b/rollup_patched
+@@ -1,3 +1,6 @@
++// -*- mode:c++;indent-tabs-mode:nil;c-basic-offset:4;coding:utf-8 -*-
++// vi: set et ft=cpp ts=4 sts=4 sw=4 fenc=utf-8 :vi
++
+ #include <algorithm>
+ #include <array>
+ #include <atomic>
+@@ -62,12 +65,256 @@
+ 
+ 
+ #if defined(GGML_USE_HIP)
+-#include "vendors/hip.h"
+-#elif defined(GGML_USE_MUSA)
+-#include "vendors/musa.h"
++#include <hip/hip_runtime.h>
++#include <hip/hip_fp16.h>
++#include <hip/hip_bfloat16.h>
++
++#ifdef GGML_USE_TINYBLAS
++#include "tinyblas.cu"
++#define __nv_bfloat16 hip_bfloat16
++#define CUBLAS_COMPUTE_16F TINYBLAS_COMPUTE_16F
++#define CUBLAS_COMPUTE_32F TINYBLAS_COMPUTE_32F
++#define CUBLAS_COMPUTE_32F_FAST_16F TINYBLAS_COMPUTE_32F
++#define CUBLAS_GEMM_DEFAULT TINYBLAS_GEMM_DEFAULT
++#define CUBLAS_GEMM_DEFAULT_TENSOR_OP TINYBLAS_GEMM_DEFAULT
++#define CUBLAS_OP_N TINYBLAS_OP_N
++#define CUBLAS_OP_T TINYBLAS_OP_T
++#define CUBLAS_STATUS_SUCCESS TINYBLAS_STATUS_SUCCESS
++#define CUBLAS_TF32_TENSOR_OP_MATH 0
++#define CUDA_R_16F TINYBLAS_R_16F
++#define CUDA_R_32F TINYBLAS_R_32F
++#define cublasComputeType_t tinyblasComputeType_t
++#define cublasCreate tinyblasCreate
++#define cublasDestroy tinyblasDestroy
++#define cublasGemmEx tinyblasGemmEx
++#define cublasGemmBatchedEx tinyblasGemmBatchedEx
++#define cublasGemmStridedBatchedEx tinyblasGemmStridedBatchedEx
++#define cublasHandle_t tinyblasHandle_t
++#define cublasSetMathMode(handle, mode) CUBLAS_STATUS_SUCCESS
++#define cublasSetStream tinyblasSetStream
++#define cublasSgemm tinyblasSgemm
++#define cublasStatus_t tinyblasStatus_t
++#define cudaDataType_t tinyblasDataType_t
++#define cublasGetStatusString tinyblasGetStatusString
++
+ #else
+-#include "vendors/cuda.h"
+-#endif // defined(GGML_USE_HIP)
++#include <hipblas/hipblas.h>
++#ifdef __HIP_PLATFORM_AMD__
++// for rocblas_initialize()
++#include "rocblas/rocblas.h"
++#endif // __HIP_PLATFORM_AMD__
++#define __nv_bfloat16 hip_bfloat16
++#define CUBLAS_COMPUTE_16F HIPBLAS_R_16F
++#define CUBLAS_COMPUTE_32F HIPBLAS_R_32F
++#define CUBLAS_COMPUTE_32F_FAST_16F HIPBLAS_R_32F
++#define CUBLAS_GEMM_DEFAULT HIPBLAS_GEMM_DEFAULT
++#define CUBLAS_GEMM_DEFAULT_TENSOR_OP HIPBLAS_GEMM_DEFAULT
++#define CUBLAS_OP_N HIPBLAS_OP_N
++#define CUBLAS_OP_T HIPBLAS_OP_T
++#define CUBLAS_STATUS_SUCCESS HIPBLAS_STATUS_SUCCESS
++#define CUBLAS_TF32_TENSOR_OP_MATH 0
++#define CUDA_R_16F  HIPBLAS_R_16F
++#define CUDA_R_32F  HIPBLAS_R_32F
++#define cublasComputeType_t hipblasDatatype_t //deprecated, new hipblasComputeType_t not in 5.6
++#define cublasCreate hipblasCreate
++#define cublasDestroy hipblasDestroy
++#define cublasGemmEx hipblasGemmEx
++#define cublasGemmBatchedEx hipblasGemmBatchedEx
++#define cublasGemmStridedBatchedEx hipblasGemmStridedBatchedEx
++#define cublasHandle_t hipblasHandle_t
++#define cublasSetMathMode(handle, mode) CUBLAS_STATUS_SUCCESS
++#define cublasSetStream hipblasSetStream
++#define cublasSgemm hipblasSgemm
++#define cublasStatus_t hipblasStatus_t
++#define cudaDataType_t hipblasDatatype_t //deprecated, new hipblasDatatype not in 5.6
++#define CUBLAS_STATUS_SUCCESS HIPBLAS_STATUS_SUCCESS
++#define CUBLAS_STATUS_NOT_INITIALIZED HIPBLAS_STATUS_NOT_INITIALIZED
++#define CUBLAS_STATUS_ALLOC_FAILED HIPBLAS_STATUS_ALLOC_FAILED
++#define CUBLAS_STATUS_INVALID_VALUE HIPBLAS_STATUS_INVALID_VALUE
++#define CUBLAS_STATUS_ARCH_MISMATCH HIPBLAS_STATUS_ARCH_MISMATCH
++#define CUBLAS_STATUS_MAPPING_ERROR HIPBLAS_STATUS_MAPPING_ERROR
++#define CUBLAS_STATUS_EXECUTION_FAILED HIPBLAS_STATUS_EXECUTION_FAILED
++#define CUBLAS_STATUS_INTERNAL_ERROR HIPBLAS_STATUS_INTERNAL_ERROR
++#define CUBLAS_STATUS_NOT_SUPPORTED HIPBLAS_STATUS_NOT_SUPPORTED
++#endif
++
++#define __shfl_xor_sync(mask, var, laneMask, width) __shfl_xor(var, laneMask, width)
++#define cudaDeviceCanAccessPeer hipDeviceCanAccessPeer
++#define cudaDeviceDisablePeerAccess hipDeviceDisablePeerAccess
++#define cudaDeviceEnablePeerAccess hipDeviceEnablePeerAccess
++#define cudaDeviceProp hipDeviceProp_t
++#define cudaDeviceSynchronize hipDeviceSynchronize
++#define cudaError_t hipError_t
++#define cudaErrorPeerAccessAlreadyEnabled hipErrorPeerAccessAlreadyEnabled
++#define cudaErrorPeerAccessNotEnabled hipErrorPeerAccessNotEnabled
++#define cudaEventCreateWithFlags hipEventCreateWithFlags
++#define cudaEventDisableTiming hipEventDisableTiming
++#define cudaEventRecord hipEventRecord
++#define cudaEventSynchronize hipEventSynchronize
++#define cudaEvent_t hipEvent_t
++#define cudaEventDestroy hipEventDestroy
++#define cudaFree hipFree
++#define cudaFreeHost hipHostFree
++#define cudaGetDevice hipGetDevice
++#define cudaGetDeviceCount hipGetDeviceCount
++#define cudaGetDeviceProperties hipGetDeviceProperties
++#define cudaGetErrorString hipGetErrorString
++#define cudaGetLastError hipGetLastError
++#define cudaHostRegister hipHostRegister
++#define cudaHostRegisterPortable hipHostRegisterPortable
++#define cudaHostRegisterReadOnly hipHostRegisterReadOnly
++#define cudaHostUnregister hipHostUnregister
++#define cudaLaunchHostFunc hipLaunchHostFunc
++#define cudaMalloc hipMalloc
++#define cudaMallocHost(ptr, size) hipHostMalloc(ptr, size, hipHostMallocDefault)
++#define cudaMemcpy hipMemcpy
++#define cudaMemcpyAsync hipMemcpyAsync
++#define cudaMemcpyPeerAsync hipMemcpyPeerAsync
++#define cudaMemcpy2DAsync hipMemcpy2DAsync
++#define cudaMemcpyDeviceToDevice hipMemcpyDeviceToDevice
++#define cudaMemcpyDeviceToHost hipMemcpyDeviceToHost
++#define cudaMemcpyHostToDevice hipMemcpyHostToDevice
++#define cudaMemcpyKind hipMemcpyKind
++#define cudaMemset hipMemset
++#define cudaMemsetAsync hipMemsetAsync
++#define cudaMemGetInfo hipMemGetInfo
++#define cudaOccupancyMaxPotentialBlockSize hipOccupancyMaxPotentialBlockSize
++#define cudaSetDevice hipSetDevice
++#define cudaStreamCreateWithFlags hipStreamCreateWithFlags
++#define cudaStreamDestroy hipStreamDestroy
++#define cudaStreamFireAndForget hipStreamFireAndForget
++#define cudaStreamNonBlocking hipStreamNonBlocking
++#define cudaStreamPerThread hipStreamPerThread
++#define cudaStreamSynchronize hipStreamSynchronize
++#define cudaStreamWaitEvent(stream, event, flags) hipStreamWaitEvent(stream, event, flags)
++#define cudaStream_t hipStream_t
++#define cudaSuccess hipSuccess
++#define __trap abort
++
++#elif defined(GGML_USE_TINYBLAS)
++#include <cuda_runtime.h>
++#include <cuda.h>
++#include <cuda_fp16.h>
++#include <cuda_bf16.h>
++#include "tinyblas.cu"
++
++#define CUBLAS_COMPUTE_16F TINYBLAS_COMPUTE_16F
++#define CUBLAS_COMPUTE_32F TINYBLAS_COMPUTE_32F
++#define CUBLAS_OP_N TINYBLAS_OP_N
++#define CUBLAS_OP_T TINYBLAS_OP_T
++#define CUDA_R_16F TINYBLAS_R_16F
++#define CUDA_R_32F TINYBLAS_R_32F
++#define CUBLAS_GEMM_DEFAULT TINYBLAS_GEMM_DEFAULT
++#define CUBLAS_GEMM_DEFAULT_TENSOR_OP TINYBLAS_GEMM_DEFAULT
++#define CUBLAS_STATUS_SUCCESS TINYBLAS_STATUS_SUCCESS
++#define cublasGemmAlgo_t tinyblasGemmAlgo_t
++#define cublasOperation_t tinyblasOperation_t
++#define cublasComputeType_t tinyblasComputeType_t
++#define cublasHandle_t tinyblasHandle_t
++#define cublasStatus_t tinyblasStatus_t
++#define cublasSgemm tinyblasSgemm
++#define cublasGemmEx tinyblasGemmEx
++#define cublasCreate tinyblasCreate
++#define cublasDestroy tinyblasDestroy
++#define cublasSetStream tinyblasSetStream
++#define cublasGemmBatchedEx tinyblasGemmBatchedEx
++#define cublasGemmStridedBatchedEx tinyblasGemmStridedBatchedEx
++#define cublasGetStatusString tinyblasGetStatusString
++#define cudaDataType_t tinyblasDataType_t
++#define cublasSetMathMode(handle, mode) CUBLAS_STATUS_SUCCESS
++
++#else
++#include <cuda_runtime.h>
++#include <cuda.h>
++#include <cublas_v2.h>
++#include <cuda_fp16.h>
++#include <cuda_bf16.h>
++
++#if CUDART_VERSION < 11020
++#define CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED CU_DEVICE_ATTRIBUTE_VIRTUAL_ADDRESS_MANAGEMENT_SUPPORTED
++#define CUBLAS_TF32_TENSOR_OP_MATH CUBLAS_TENSOR_OP_MATH
++#define CUBLAS_COMPUTE_16F CUDA_R_16F
++#define CUBLAS_COMPUTE_32F CUDA_R_32F
++#define cublasComputeType_t cudaDataType_t
++#endif // CUDART_VERSION < 11020
++
++#endif // defined(GGML_USE_HIPBLAS)
++
++#include "ggml-backend-impl.h"
++
++
++-[[noreturn]]
++static void exit_(int rc) {
++#define exit exit_
++#if defined(__GNUC__) || defined(__llvm__)
++    __builtin_unreachable();
++#elif defined(_MSC_VER)
++    __assume(0);
++#endif
++    for (;;);
++}
++
++// printf() and fprintf() runtime bridge
++// this is needed so text gets printed on windows
++// it also helps ensure the atomicity of log lines
++static void ggml_cuda_print(const char *fmt, ...) {
++#define GGML_CUDA_PRINT_BUFSIZ 512
++#define fflush(_) (void)0
++#define printf(...) ggml_cuda_print(__VA_ARGS__)
++#define fprintf(_, ...) ggml_cuda_print(__VA_ARGS__)
++    int len;
++    va_list va;
++    char buf[GGML_CUDA_PRINT_BUFSIZ];
++    va_start(va, fmt);
++    len = vsnprintf(buf, GGML_CUDA_PRINT_BUFSIZ, fmt, va);
++    va_end(va);
++    if (len < 0)
++        len = strnlen(buf, GGML_CUDA_PRINT_BUFSIZ);
++    if (len >= GGML_CUDA_PRINT_BUFSIZ) {
++        len = GGML_CUDA_PRINT_BUFSIZ;
++        buf[len - 4] = '.';
++        buf[len - 3] = '.';
++        buf[len - 2] = '.';
++        buf[len - 1] = '\n';
++    }
++}
++
++#ifdef GGML_USE_TINYBLAS
++#define BLAS_NAME "tinyBLAS"
++#else
++#define BLAS_NAME GGML_CUBLAS_NAME
++#endif
++
++// define this if you want to always fallback to MMQ kernels and not use cuBLAS for matrix multiplication
++// on modern hardware, using cuBLAS is recommended as it utilizes F16 tensor cores which are very performant
++// for large computational tasks. the drawback is that this requires some extra amount of VRAM:
++// -  7B quantum model: +100-200 MB
++// - 13B quantum model: +200-400 MB
++//
++// [jart] https://github.com/Mozilla-Ocho/llamafile/issues/403#issuecomment-2103687594
++//
++// TODO(jart): oops looks like we can't use this anymore, because my
++//             five year old NVIDIA GeForce RTX 2080 Ti card stopped
++//             working with "ggml-cuda.cu:11460: ERROR: CUDA kernel
++//             mul_mat_q has no device code compatible with CUDA arch
++//             700. ggml-cuda.cu was compiled for: 600,700,800,900"!
++//
++#ifdef GGML_USE_TINYBLAS
++// #define GGML_CUDA_FORCE_MMQ // [jart] want this
++#endif
++
++GGML_CALL bool ggml_cuda_link(const struct ggml_backend_api *backend_api) {
++        fprintf(stderr, "%s: welcome to " GGML_CUDA_NAME " SDK with " BLAS_NAME "\n", __func__);
++#ifdef __HIP_PLATFORM_AMD__
++    // cargo culting workaround below
++#ifndef GGML_USE_TINYBLAS
++    rocblas_initialize();
++    cudaDeviceSynchronize();
++#endif
++#endif
++    int device_count;
++    return cudaGetDeviceCount(&device_count) == cudaSuccess && device_count > 0;
++}
+ 
+ #define STRINGIZE_IMPL(...) #__VA_ARGS__
+ #define STRINGIZE(...) STRINGIZE_IMPL(__VA_ARGS__)
+@@ -107,7 +354,7 @@
+ 
+ #define GGML_CUDA_MAX_STREAMS 8
+ 
+-[[noreturn]]
++-[[noreturn]]
+ void ggml_cuda_error(const char * stmt, const char * func, const char * file, int line, const char * msg);
+ 
+ #define CUDA_CHECK_GEN(err, success, error_fn)                                      \
+@@ -120,9 +367,13 @@ void ggml_cuda_error(const char * stmt, const char * func, const char * file, in
+ 
+ #define CUDA_CHECK(err) CUDA_CHECK_GEN(err, cudaSuccess, cudaGetErrorString)
+ 
+-#if CUDART_VERSION >= 12000 || defined(GGML_USE_MUSA)
++#if CUDART_VERSION >= 12000 || defined(GGML_USE_MUSA) || defined(GGML_USE_TINYBLAS)
+     static const char * cublas_get_error_str(const cublasStatus_t err) {
++#ifndef GGML_USE_MUSA
+         return cublasGetStatusString(err);
++#else
++        return mublasStatus_to_string(err);
++#endif // GGML_USE_MUSA
+     }
+ #else
+     static const char * cublas_get_error_str(const cublasStatus_t err) {
+@@ -164,7 +415,129 @@ typedef half2 dfloat2;
+ #else
+ typedef float dfloat; // dequantize float
+ typedef float2 dfloat2;
+-#endif // GGML_CUDA_F16
++#endif //GGML_CUDA_F16
++
++#if defined(GGML_USE_MUSA)
++#ifndef __has_builtin
++    #define __has_builtin(x) 0
++#endif
++
++typedef uint8_t uint8x4_t __attribute__((ext_vector_type(4)));
++
++static __device__ __forceinline__ int __vsub4_musa(const int a, const int b) {
++    return __vsubss4(a, b);
++}
++
++static __device__ __forceinline__ unsigned int __vcmpeq4_musa(unsigned int a, unsigned int b) {
++    const uint8x4_t& va = reinterpret_cast<const uint8x4_t&>(a);
++    const uint8x4_t& vb = reinterpret_cast<const uint8x4_t&>(b);
++    unsigned int c;
++    uint8x4_t& vc = reinterpret_cast<uint8x4_t&>(c);
++#pragma unroll
++    for (int i = 0; i < 4; ++i) {
++        vc[i] = va[i] == vb[i] ? 0xff : 0x00;
++    }
++    return c;
++}
++
++static __device__ __forceinline__ unsigned int __vcmpne4_musa(unsigned int a, unsigned int b) {
++    const uint8x4_t& va = reinterpret_cast<const uint8x4_t&>(a);
++    const uint8x4_t& vb = reinterpret_cast<const uint8x4_t&>(b);
++    unsigned int c;
++    uint8x4_t& vc = reinterpret_cast<uint8x4_t&>(c);
++#pragma unroll
++    for (int i = 0; i < 4; ++i) {
++        vc[i] = va[i] == vb[i] ? 0x00 : 0xff;
++    }
++    return c;
++}
++#endif // defined(GGML_USE_MUSA)
++
++#if defined(GGML_USE_HIPBLAS)
++#define __CUDA_ARCH__ 1300
++
++#if defined(__gfx1100__) || defined(__gfx1101__) || defined(__gfx1102__) || defined(__gfx1103__) || \
++    defined(__gfx1150__) || defined(__gfx1151__)
++#define RDNA3
++#endif
++
++#if defined(__gfx1030__) || defined(__gfx1031__) || defined(__gfx1032__) || defined(__gfx1033__) || \
++    defined(__gfx1034__) || defined(__gfx1035__) || defined(__gfx1036__) || defined(__gfx1037__)
++#define RDNA2
++#endif
++
++#if defined(__gfx1010__) || defined(__gfx1012__)
++#define RDNA1
++#endif
++
++#ifndef __has_builtin
++    #define __has_builtin(x) 0
++#endif
++
++typedef int8_t int8x4_t __attribute__((ext_vector_type(4)));
++typedef uint8_t uint8x4_t __attribute__((ext_vector_type(4)));
++static __device__ __forceinline__ int __vsubss4(const int a, const int b) {
++    const int8x4_t va = reinterpret_cast<const int8x4_t&>(a);
++    const int8x4_t vb = reinterpret_cast<const int8x4_t&>(b);
++#if __has_builtin(__builtin_elementwise_sub_sat)
++    const int8x4_t c = __builtin_elementwise_sub_sat(va, vb);
++    return reinterpret_cast<const int &>(c);
++#else
++    int8x4_t c;
++    int16_t tmp;
++#pragma unroll
++    for (int i = 0; i < 4; i++) {
++        tmp = va[i] - vb[i];
++        if(tmp > std::numeric_limits<int8_t>::max()) tmp = std::numeric_limits<int8_t>::max();
++        if(tmp < std::numeric_limits<int8_t>::min()) tmp = std::numeric_limits<int8_t>::min();
++        c[i] = tmp;
++    }
++    return reinterpret_cast<int &>(c);
++#endif // __has_builtin(__builtin_elementwise_sub_sat)
++}
++
++static __device__ __forceinline__ int __vsub4(const int a, const int b) {
++    return __vsubss4(a, b);
++}
++
++static __device__ __forceinline__ unsigned int __vcmpeq4(unsigned int a, unsigned int b) {
++    const uint8x4_t& va = reinterpret_cast<const uint8x4_t&>(a);
++    const uint8x4_t& vb = reinterpret_cast<const uint8x4_t&>(b);
++    unsigned int c;
++    uint8x4_t& vc = reinterpret_cast<uint8x4_t&>(c);
++#pragma unroll
++    for (int i = 0; i < 4; ++i) {
++        vc[i] = va[i] == vb[i] ? 0xff : 0x00;
++    }
++    return c;
++}
++
++static __device__ __forceinline__ unsigned int __vcmpne4(unsigned int a, unsigned int b) {
++    const uint8x4_t& va = reinterpret_cast<const uint8x4_t&>(a);
++    const uint8x4_t& vb = reinterpret_cast<const uint8x4_t&>(b);
++    unsigned int c;
++    uint8x4_t& vc = reinterpret_cast<uint8x4_t&>(c);
++#pragma unroll
++    for (int i = 0; i < 4; ++i) {
++        vc[i] = va[i] == vb[i] ? 0x00 : 0xff;
++    }
++    return c;
++}
++
++#if defined(__HIP_PLATFORM_AMD__) && HIP_VERSION < 50600000
++// __shfl_xor() for half2 was added in ROCm 5.6
++static __device__ __forceinline__ half2 __shfl_xor(half2 var, int laneMask, int width) {
++    typedef union half2_b32 {
++        half2 val;
++        int   b32;
++    } half2_b32_t;
++    half2_b32_t tmp;
++    tmp.val = var;
++    tmp.b32 = __shfl_xor(tmp.b32, laneMask, width);
++    return tmp.val;
++}
++#endif // defined(__HIP_PLATFORM_AMD__) && HIP_VERSION < 50600000
++#endif // defined(GGML_USE_HIPBLAS)
+ 
+ #if (defined(GGML_USE_HIP) && defined(__HIP_PLATFORM_AMD__)) || __CUDA_ARCH__ >= CC_PASCAL
+ #define FP16_AVAILABLE
+@@ -405,6 +778,12 @@ struct ggml_cuda_type_traits<GGML_TYPE_F16> {
+     static constexpr int qr = 1;
+ };
+ 
++template<> // [jart] bf16
++struct ggml_cuda_type_traits<GGML_TYPE_BF16> {
++    static constexpr int qk = 1;
++    static constexpr int qr = 1;
++};
++
+ template<>
+ struct ggml_cuda_type_traits<GGML_TYPE_Q4_0> {
+     static constexpr int qk = QK4_0;
+@@ -2406,6 +2785,9 @@ to_fp32_cuda_t ggml_get_to_fp32_cuda(ggml_type type) {
+             return dequantize_row_iq3_s_cuda;
+         case GGML_TYPE_F16:
+             return convert_unary_cuda<half>;
++        case GGML_TYPE_BF16:
++            // [jart] bf16 https://github.com/ggerganov/llama.cpp/pull/7488
++            return convert_unary_cuda<__nv_bfloat16>;
+         default:
+             return nullptr;
+     }
+@@ -2567,6 +2949,27 @@ static __device__ void cpy_1_f16_f32(const char * cxi, char * cdsti) {
+     *dsti = *xi;
+ }
+ 
++// [jart] bf16
++static __device__ void cpy_1_f32_bf16(const char * cxi, char * cdsti) {
++    const float * xi = (const float *) cxi;
++    __nv_bfloat16 * dsti = (__nv_bfloat16 *) cdsti;
++    *dsti = (__nv_bfloat16)(*xi);
++}
++
++// [jart] bf16
++static __device__ void cpy_1_bf16_bf16(const char * cxi, char * cdsti) {
++    const __nv_bfloat16 * xi = (const __nv_bfloat16 *) cxi;
++    __nv_bfloat16 * dsti = (__nv_bfloat16 *) cdsti;
++    *dsti = *xi;
++}
++
++// [jart] bf16
++static __device__ void cpy_1_bf16_f32(const char * cxi, char * cdsti) {
++    const __nv_bfloat16 * xi = (const __nv_bfloat16 *) cxi;
++    float * dsti = (float *) cdsti;
++    *dsti = *xi;
++}
++
+ template <cpy_kernel_t cpy_1>
+ static __global__ void cpy_f32_f16(const char * cx, char * cdst, const int ne,
+                                    const int ne00, const int ne01, const int ne02, const int nb00, const int nb01, const int nb02,
+@@ -2872,6 +3275,16 @@ static void ggml_cpy_f16_f32_cuda(
+         (cx, cdst, ne, ne00, ne01, ne02, nb00, nb01, nb02, nb03, ne10, ne11, ne12, nb10, nb11, nb12, nb13);
+ }
+ 
++static void ggml_cpy_bf16_f32_cuda( // [jart]
++    const char * cx, char * cdst, const int ne,
++    const int ne00, const int ne01, const int ne02, const int nb00, const int nb01, const int nb02,
++    const int nb03, const int ne10, const int ne11, const int ne12, const int nb10, const int nb11, const int nb12, const int nb13, cudaStream_t stream) {
++
++    const int num_blocks = (ne + CUDA_CPY_BLOCK_SIZE - 1) / CUDA_CPY_BLOCK_SIZE;
++    cpy_f32_f16<cpy_1_bf16_f32><<<num_blocks, CUDA_CPY_BLOCK_SIZE, 0, stream>>>
++        (cx, cdst, ne, ne00, ne01, ne02, nb00, nb01, nb02, nb03, ne10, ne11, ne12, nb10, nb11, nb12, nb13);
++}
++
+ static void ggml_cpy_f32_f32_cuda(
+     const char * cx, char * cdst, const int ne,
+     const int ne00, const int ne01, const int ne02, const int nb00, const int nb01, const int nb02,
+@@ -2892,6 +3305,16 @@ static void ggml_cpy_f32_f16_cuda(
+         (cx, cdst, ne, ne00, ne01, ne02, nb00, nb01, nb02, nb03, ne10, ne11, ne12, nb10, nb11, nb12, nb13);
+ }
+ 
++static void ggml_cpy_f32_bf16_cuda( // [jart]
++    const char * cx, char * cdst, const int ne,
++    const int ne00, const int ne01, const int ne02, const int nb00, const int nb01, const int nb02,
++    const int nb03, const int ne10, const int ne11, const int ne12, const int nb10, const int nb11, const int nb12, const int nb13, cudaStream_t stream) {
++
++    const int num_blocks = (ne + CUDA_CPY_BLOCK_SIZE - 1) / CUDA_CPY_BLOCK_SIZE;
++    cpy_f32_f16<cpy_1_f32_bf16><<<num_blocks, CUDA_CPY_BLOCK_SIZE, 0, stream>>>
++        (cx, cdst, ne, ne00, ne01, ne02, nb00, nb01, nb02, nb03, ne10, ne11, ne12, nb10, nb11, nb12, nb13);
++}
++
+ static void ggml_cpy_f32_q8_0_cuda(
+     const char * cx, char * cdst, const int ne,
+     const int ne00, const int ne01, const int ne02, const int nb00, const int nb01, const int nb02,
+@@ -2978,6 +3401,16 @@ static void ggml_cpy_f16_f16_cuda(
+         (cx, cdst, ne, ne00, ne01, ne02, nb00, nb01, nb02, nb03, ne10, ne11, ne12, nb10, nb11, nb12, nb13);
+ }
+ 
++static void ggml_cpy_bf16_bf16_cuda( // [jart]
++    const char * cx, char * cdst, const int ne,
++    const int ne00, const int ne01, const int ne02, const int nb00, const int nb01, const int nb02,
++    const int nb03, const int ne10, const int ne11, const int ne12, const int nb10, const int nb11, const int nb12, const int nb13, cudaStream_t stream) {
++
++    const int num_blocks = (ne + CUDA_CPY_BLOCK_SIZE - 1) / CUDA_CPY_BLOCK_SIZE;
++    cpy_f32_f16<cpy_1_bf16_bf16><<<num_blocks, CUDA_CPY_BLOCK_SIZE, 0, stream>>>
++        (cx, cdst, ne, ne00, ne01, ne02, nb00, nb01, nb02, nb03, ne10, ne11, ne12, nb10, nb11, nb12, nb13);
++}
++
+ void ggml_cuda_cpy(ggml_backend_cuda_context & ctx, const ggml_tensor * src0, ggml_tensor * src1) {
+     const int64_t ne = ggml_nelements(src0);
+     GGML_ASSERT(ne == ggml_nelements(src1));
+@@ -3037,6 +3470,12 @@ void ggml_cuda_cpy(ggml_backend_cuda_context & ctx, const ggml_tensor * src0, gg
+         ggml_cpy_f16_f16_cuda (src0_ddc, src1_ddc, ne, ne00, ne01, ne02, nb00, nb01, nb02, nb03, ne10, ne11, ne12, nb10, nb11, nb12, nb13, main_stream);
+     } else if (src0->type == GGML_TYPE_F16 && src1->type == GGML_TYPE_F32) {
+         ggml_cpy_f16_f32_cuda (src0_ddc, src1_ddc, ne, ne00, ne01, ne02, nb00, nb01, nb02, nb03, ne10, ne11, ne12, nb10, nb11, nb12, nb13, main_stream);
++    } else if (src0->type == GGML_TYPE_BF16 && src1->type == GGML_TYPE_BF16) { // [jart]
++        ggml_cpy_bf16_bf16_cuda (src0_ddc, src1_ddc, ne, ne00, ne01, ne02, nb00, nb01, nb02, nb03, ne10, ne11, ne12, nb10, nb11, nb12, nb13, main_stream);
++    } else if (src0->type == GGML_TYPE_BF16 && src1->type == GGML_TYPE_F32) { // [jart]
++        ggml_cpy_bf16_f32_cuda (src0_ddc, src1_ddc, ne, ne00, ne01, ne02, nb00, nb01, nb02, nb03, ne10, ne11, ne12, nb10, nb11, nb12, nb13, main_stream);
++    } else if (src0->type == GGML_TYPE_F32 && src1->type == GGML_TYPE_BF16) { // [jart]
++        ggml_cpy_f32_bf16_cuda (src0_ddc, src1_ddc, ne, ne00, ne01, ne02, nb00, nb01, nb02, nb03, ne10, ne11, ne12, nb10, nb11, nb12, nb13, main_stream);
+     } else {
+         GGML_ABORT("%s: unsupported type combination (%s to %s)\n", __func__,
+                 ggml_type_name(src0->type), ggml_type_name(src1->type));
+@@ -3073,6 +3512,12 @@ void* ggml_cuda_cpy_fn(const ggml_tensor * src0, ggml_tensor * src1) {
+         return (void*) cpy_f32_f16<cpy_1_f32_f16>;
+     } else if (src0->type == GGML_TYPE_F16 && src1->type == GGML_TYPE_F32) {
+         return (void*) cpy_f32_f16<cpy_1_f16_f32>;
++    } else if (src0->type == GGML_TYPE_F32 && src1->type == GGML_TYPE_BF16) {
++        return (void*) cpy_f32_f16<cpy_1_f32_bf16>; // [jart]
++    } else if (src0->type == GGML_TYPE_BF16 && src1->type == GGML_TYPE_BF16) {
++        return (void*) cpy_f32_f16<cpy_1_f32_bf16>; // [jart]
++    } else if (src0->type == GGML_TYPE_BF16 && src1->type == GGML_TYPE_F32) {
++        return (void*) cpy_f32_f16<cpy_1_bf16_f32>; // [jart]
+     } else {
+         GGML_ABORT("%s: unsupported type combination (%s to %s)\n", __func__,
+                 ggml_type_name(src0->type), ggml_type_name(src1->type));
+@@ -6816,6 +7261,9 @@ static void ggml_cuda_flash_attn_ext_wmma_f16(ggml_backend_cuda_context & ctx, g
+         case 256:
+             ggml_cuda_flash_attn_ext_wmma_f16_case<256, cols_per_block, half>(ctx, dst);
+             break;
++        case GGML_TYPE_BF16: // [jart] bf16 https://github.com/ggerganov/llama.cpp/pull/7488
++            convert_mul_mat_vec_bf16_cuda(src0_dd_i, src1_dfloat, dst_dd_i, ne00, row_diff, stream);
++            break;
+         default:
+             GGML_ABORT("fatal error");
+             break;
+@@ -8043,6 +8491,8 @@ void ggml_cuda_op_im2col(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
+     }
+ }
+ 
++#ifndef GGML_MINIMIZE_CODE_SIZE
++
+ ////////////////////////////////////////////////////////////////////////////////
+ //
+ // ROLLUP mmq.cu
+@@ -11195,6 +11645,7 @@ extern DECL_MMQ_CASE(GGML_TYPE_Q3_K);
+ extern DECL_MMQ_CASE(GGML_TYPE_Q4_K);
+ extern DECL_MMQ_CASE(GGML_TYPE_Q5_K);
+ extern DECL_MMQ_CASE(GGML_TYPE_Q6_K);
++#ifndef GGML_NO_IQUANTS
+ extern DECL_MMQ_CASE(GGML_TYPE_IQ2_XXS);
+ extern DECL_MMQ_CASE(GGML_TYPE_IQ2_XS);
+ extern DECL_MMQ_CASE(GGML_TYPE_IQ2_S);
+@@ -11203,6 +11654,7 @@ extern DECL_MMQ_CASE(GGML_TYPE_IQ3_S);
+ extern DECL_MMQ_CASE(GGML_TYPE_IQ1_S);
+ extern DECL_MMQ_CASE(GGML_TYPE_IQ4_NL);
+ extern DECL_MMQ_CASE(GGML_TYPE_IQ4_XS);
++#endif // GGML_NO_IQUANTS
+ 
+ // -------------------------------------------------------------------------------------------------------------------------
+ 
+@@ -11365,6 +11817,8 @@ bool ggml_cuda_should_use_mmq(enum ggml_type type, int cc, int64_t ne11) {
+     return (cc < CC_RDNA3 && cc != CC_CDNA && cc != CC_VEGA20) || ne11 < MMQ_DP4A_MAX_BATCH_SIZE;
+ }
+ 
++#endif // GGML_MINIMIZE_CODE_SIZE
++
+ ////////////////////////////////////////////////////////////////////////////////
+ //
+ // ROLLUP mmvq.cu
+@@ -11771,6 +12225,7 @@ void ggml_cuda_op_mul_mat_vec_q(
+         case GGML_TYPE_Q6_K:
+             mul_mat_vec_q6_K_q8_1_cuda(src0_dd_i, src1_ddq_i, dst_dd_i, ne00, row_diff, src1_padded_row_size, src1_ncols, nrows_dst, stream);
+             break;
++#ifndef GGML_NO_IQUANTS
+         case GGML_TYPE_IQ2_XXS:
+             mul_mat_vec_iq2_xxs_q8_1_cuda(src0_dd_i, src1_ddq_i, dst_dd_i, ne00, row_diff, src1_padded_row_size, src1_ncols, nrows_dst, stream);
+             break;
+@@ -11798,6 +12253,7 @@ void ggml_cuda_op_mul_mat_vec_q(
+         case GGML_TYPE_IQ3_S:
+             mul_mat_vec_iq3_s_q8_1_cuda(src0_dd_i, src1_ddq_i, dst_dd_i, ne00, row_diff, src1_padded_row_size, src1_ncols, nrows_dst, stream);
+             break;
++#endif // GGML_NO_IQUANTS
+         default:
+             GGML_ABORT("fatal error");
+             break;
+@@ -13782,7 +14238,7 @@ void ggml_cuda_op_rwkv_wkv6(ggml_backend_cuda_context & ctx, ggml_tensor * dst);
+ 
+ static_assert(sizeof(half) == sizeof(ggml_fp16_t), "wrong fp16 size");
+ 
+-[[noreturn]]
++-[[noreturn]]
+ void ggml_cuda_error(const char * stmt, const char * func, const char * file, int line, const char * msg) {
+     int id = -1; // in case cudaGetDevice fails
+     cudaGetDevice(&id);
+@@ -13846,8 +14302,8 @@ static ggml_cuda_device_info ggml_cuda_init() {
+ #ifdef __HIP_PLATFORM_AMD__
+     // Workaround for a rocBLAS bug when using multiple graphics cards:
+     // https://github.com/ROCmSoftwarePlatform/rocBLAS/issues/1346
+-    rocblas_initialize();
+-    CUDA_CHECK(cudaDeviceSynchronize());
++    // rocblas_initialize(); // [jart] already called
++    // CUDA_CHECK(cudaDeviceSynchronize());
+ #endif
+ 
+     ggml_cuda_device_info info = {};
+@@ -15882,9 +16338,11 @@ static bool ggml_cuda_compute_forward(ggml_backend_cuda_context & ctx, struct gg
+         case GGML_OP_ARGSORT:
+             ggml_cuda_op_argsort(ctx, dst);
+             break;
++#ifndef GGML_MINIMIZE_CODE_SIZE
+         case GGML_OP_FLASH_ATTN_EXT:
+             ggml_cuda_flash_attn_ext(ctx, dst);
+             break;
++#endif
+         case GGML_OP_CROSS_ENTROPY_LOSS:
+             ggml_cuda_cross_entropy_loss(ctx, dst);
+             break;
+@@ -15972,6 +16430,7 @@ static bool ggml_backend_cuda_cpy_tensor_async(ggml_backend_t backend_src, ggml_
+     }
+ 
+     if (backend_src != backend_dst) {
++
+         // copy on src stream
+         if (cuda_ctx_src->device == cuda_ctx_dst->device) {
+             CUDA_CHECK(cudaMemcpyAsync(dst->data, src->data, ggml_nbytes(dst), cudaMemcpyDeviceToDevice, cuda_ctx_src->stream()));
+@@ -16573,6 +17032,7 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
+                 switch (a->type) {
+                     case GGML_TYPE_F32:
+                     case GGML_TYPE_F16:
++                    case GGML_TYPE_BF16: // [jart]
+                     case GGML_TYPE_Q4_0:
+                     case GGML_TYPE_Q4_1:
+                     case GGML_TYPE_Q5_0:
+@@ -16609,6 +17069,7 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
+             {
+                 switch (op->src[0]->type) {
+                     case GGML_TYPE_F16:
++                    case GGML_TYPE_BF16: // [jart]
+                     case GGML_TYPE_F32:
+                     case GGML_TYPE_Q4_0:
+                     case GGML_TYPE_Q4_1:
+@@ -16660,6 +17121,15 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
+                 if (src0_type == src1_type && ggml_is_contiguous(op->src[0]) && ggml_is_contiguous(op->src[1])) {
+                     return true;
+                 }
++                if (src0_type == GGML_TYPE_BF16 && src1_type == GGML_TYPE_BF16) {
++                    return true;
++                }
++                if (src0_type == GGML_TYPE_BF16 && src1_type == GGML_TYPE_F32) {
++                    return true;
++                }
++                if (src0_type == GGML_TYPE_F32 && src1_type == GGML_TYPE_BF16) {
++                    return true;
++                }
+                 return false;
+             } break;
+         case GGML_OP_DUP:
+@@ -16738,6 +17208,9 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
+         case GGML_OP_FLASH_ATTN_EXT: {
+ #ifndef FLASH_ATTN_AVAILABLE
+             return false;
++#endif
++#if defined(GGML_MINIMIZE_CODE_SIZE)
++            return false;
+ #endif
+             if (op->src[1]->type == GGML_TYPE_BF16 || op->src[2]->type == GGML_TYPE_BF16) {
+                 return false;
+@@ -16754,6 +17227,7 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
+             const int cc = ggml_cuda_info().devices[dev_ctx->device].cc;
+             return cc >= CC_VOLTA && cc < CC_OFFSET_AMD && op->src[1]->type == GGML_TYPE_F16 && op->src[2]->type == GGML_TYPE_F16;
+         }
++#endif
+         case GGML_OP_CROSS_ENTROPY_LOSS:
+         case GGML_OP_CROSS_ENTROPY_LOSS_BACK:
+         case GGML_OP_OPT_STEP_ADAMW:
+@@ -18393,6 +18867,8 @@ void ggml_cuda_cross_entropy_loss_back(ggml_backend_cuda_context & ctx, ggml_ten
+     cross_entropy_loss_back_f32<<<blocks_num, blocks_dim, shmem, stream>>>(src0_d, src1_d, opt0_d, dst_d, ne00);
+ }
+ 
++#ifndef GGML_MINIMIZE_CODE_SIZE
++
+ ////////////////////////////////////////////////////////////////////////////////
+ //
+ // ROLLUP sum.cu
+@@ -18770,6 +19246,10 @@ void ggml_cuda_argmax(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
+     argmax_f32<<<blocks_num, blocks_dim, 0, stream>>>(src0_d, dst_d, ne00);
+ }
+ 
++#endif // GGML_MINIMIZE_CODE_SIZE
++
++#ifndef GGML_NO_IQUANTS
++
+ ////////////////////////////////////////////////////////////////////////////////
+ //
+ // ROLLUP count-equal.cu
