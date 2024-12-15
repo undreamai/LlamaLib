@@ -82,22 +82,23 @@ jobs:
         id: cpu-cores
         uses: SimenB/github-actions-cpu-cores@v2
 
+      - name: Set name
+        id: set_name
+        shell: bash
+        run: |
+          LIBRARY_SUFFIX="${{ env.PLATFORM }}"
+          if [ "${{ matrix.build }}" != "" ];then LIBRARY_SUFFIX="$LIBRARY_SUFFIX-${{ matrix.build }}"; fi
+          NAME=undreamai-${{ github.ref_name }}-llamacpp-$LIBRARY_SUFFIX.zip
+          echo "LIBRARY_SUFFIX=$LIBRARY_SUFFIX" >> $GITHUB_ENV
+          echo "UPLOAD_NAME=$NAME" >> $GITHUB_ENV
+          echo "UPLOAD_PATH=$NAME" >> $GITHUB_ENV
+
       - name: Build
         id: cmake_build
         run: |
           cd build
-          cmake .. -DLIBRARY_SUFFIX="${{ env.PLATFORM }}-${{ matrix.build }}" ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+          cmake .. -DLIBRARY_SUFFIX="${{ env.LIBRARY_SUFFIX }}" ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
-
-      - name: Set upload name
-        id: set_upload_name
-        shell: bash
-        run: |
-          NAME=undreamai-${{ github.ref_name }}-llamacpp-${{ env.PLATFORM }}
-          if [ "${{ matrix.build }}" != "" ];then NAME=$NAME-${{ matrix.build }}; fi
-          NAME=$NAME.zip
-          echo "UPLOAD_NAME=$NAME" >> $GITHUB_ENV
-          echo "UPLOAD_PATH=$NAME" >> $GITHUB_ENV
 
 ################################ Linux ################################
 
@@ -153,7 +154,7 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts_unix
         run: |
-          rm build/libs/undreamai_test
+          rm -f build/libs/undreamai_test
           zip -j ${{ env.UPLOAD_NAME }} build/licenses/* build/libs/*
 
 ################################ macOS ################################
@@ -270,11 +271,6 @@ jobs:
           cmake .. -DLIBRARY_SUFFIX="${{ env.PLATFORM }}" -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-23 -DCMAKE_C_FLAGS=-march=armv8.4a+dotprod ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
           cmake --build . --config Release -j $(nproc)
 
-      - name: Delete server
-        id: remove_server
-        run: |
-          rm build/libs/undreamai_server
-
 ################################ iOS ################################
 
       - id: cmake_build_ios
@@ -289,7 +285,17 @@ jobs:
       - id: pack_artifacts_ios
         name: Pack artifacts
         run: |
-          zip -j ${{ env.UPLOAD_NAME }} build/licenses/* build/libs/Release/libundreamai_iOS.dylib
+          zip -j ${{ env.UPLOAD_NAME }} build/licenses/* build/libundreamai_ios.a
+
+      - id: link_libraries_ios
+        name: Link libraries
+        run: |
+            mkdir build/combo
+            cd build/combo
+            for f in `find .. -name "*.a"`;do ar -x $f;done
+            mv ../libundreamai_iOS.a ../libundreamai_iOS.a.orig
+            ld -r -o ../libundreamai_iOS.a *.o
+            nm -u ../libundreamai_iOS.a
 
 ################################ Release ################################
 
