@@ -713,13 +713,15 @@ std::string LLM::handle_completions(json data, StringWrapper* stringWrapper, htt
                 on_complete(true);
             } else {
                 const auto chunked_content_provider = [task_ids, this](size_t, httplib::DataSink & sink) {
-                    handle_completions_streaming(task_ids, nullptr, &sink);
-                    static const std::string ev_done = "data: [DONE]\n\n";
-                    if(&sink != nullptr){
-                        sink.write(ev_done.data(), ev_done.size());
-                        sink.done();
+                    bool ok = true;
+                    try {
+                        handle_completions_streaming(task_ids, nullptr, &sink);
+                    } catch (const SinkException& e) {
+                        ok = false;
                     }
-                    return true;
+                    ctx_server.queue_results.remove_waiting_task_ids(task_ids);
+                    if(ok && &sink != nullptr){ sink.done(); }
+                    return ok;
                 };
                 res->set_chunked_content_provider("text/event-stream", chunked_content_provider, on_complete);
             }
