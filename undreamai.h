@@ -1,5 +1,6 @@
 #pragma once
 #include "stringwrapper.h"
+#include "log.hpp"
 #include "server.cpp"
 
 #include <setjmp.h>
@@ -15,16 +16,12 @@
     #include <openssl/err.h>
     #include <openssl/ssl.h>
 #endif
-#define LOG_ERROR(  MSG, ...) server_log_callback("ERR",  __func__, __LINE__, MSG, __VA_ARGS__)
-#define LOG_WARNING(MSG, ...) server_log_callback("WARN", __func__, __LINE__, MSG, __VA_ARGS__)
-#define LOG_INFO(   MSG, ...) server_log_callback("INFO", __func__, __LINE__, MSG, __VA_ARGS__)
 
 int exit_code = 1;
 int warning_code = -1;
 int status;
 std::string status_message;
 sigjmp_buf point;
-StringWrapper* logStringWrapper;
 
 class LLM {
     public:

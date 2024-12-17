@@ -1,5 +1,5 @@
 diff --git a/examples/server/server.cpp b/examples/server/server.cpp
-index f9d20fee..b31d241c 100644
+index 9c86407c..16160e65 100644
 --- a/examples/server/server.cpp
 +++ b/examples/server/server.cpp
 @@ -651,16 +651,24 @@ struct server_context {
@@ -43,8 +43,47 @@ index f9d20fee..b31d241c 100644
      // own arguments required by this example
      common_params params;
  
+diff --git a/examples/server/utils.hpp b/examples/server/utils.hpp
+index 1665e9dc..56d24e3b 100644
+--- a/examples/server/utils.hpp
++++ b/examples/server/utils.hpp
+@@ -25,20 +25,20 @@
+ 
+ using json = nlohmann::ordered_json;
+ 
+-#define SLT_INF(slot, fmt, ...) LOG_INF("slot %12.*s: id %2d | task %d | " fmt, 12, __func__, (slot).id, (slot).id_task, __VA_ARGS__)
+-#define SLT_WRN(slot, fmt, ...) LOG_WRN("slot %12.*s: id %2d | task %d | " fmt, 12, __func__, (slot).id, (slot).id_task, __VA_ARGS__)
+-#define SLT_ERR(slot, fmt, ...) LOG_ERR("slot %12.*s: id %2d | task %d | " fmt, 12, __func__, (slot).id, (slot).id_task, __VA_ARGS__)
+-#define SLT_DBG(slot, fmt, ...) LOG_DBG("slot %12.*s: id %2d | task %d | " fmt, 12, __func__, (slot).id, (slot).id_task, __VA_ARGS__)
+-
+-#define SRV_INF(fmt, ...) LOG_INF("srv  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
+-#define SRV_WRN(fmt, ...) LOG_WRN("srv  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
+-#define SRV_ERR(fmt, ...) LOG_ERR("srv  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
+-#define SRV_DBG(fmt, ...) LOG_DBG("srv  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
+-
+-#define QUE_INF(fmt, ...) LOG_INF("que  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
+-#define QUE_WRN(fmt, ...) LOG_WRN("que  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
+-#define QUE_ERR(fmt, ...) LOG_ERR("que  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
+-#define QUE_DBG(fmt, ...) LOG_DBG("que  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
++// #define SLT_INF(slot, fmt, ...) LOG_INF("slot %12.*s: id %2d | task %d | " fmt, 12, __func__, (slot).id, (slot).id_task, __VA_ARGS__)
++// #define SLT_WRN(slot, fmt, ...) LOG_WRN("slot %12.*s: id %2d | task %d | " fmt, 12, __func__, (slot).id, (slot).id_task, __VA_ARGS__)
++// #define SLT_ERR(slot, fmt, ...) LOG_ERR("slot %12.*s: id %2d | task %d | " fmt, 12, __func__, (slot).id, (slot).id_task, __VA_ARGS__)
++// #define SLT_DBG(slot, fmt, ...) LOG_DBG("slot %12.*s: id %2d | task %d | " fmt, 12, __func__, (slot).id, (slot).id_task, __VA_ARGS__)
++
++// #define SRV_INF(fmt, ...) LOG_INF("srv  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
++// #define SRV_WRN(fmt, ...) LOG_WRN("srv  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
++// #define SRV_ERR(fmt, ...) LOG_ERR("srv  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
++// #define SRV_DBG(fmt, ...) LOG_DBG("srv  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
++
++// #define QUE_INF(fmt, ...) LOG_INF("que  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
++// #define QUE_WRN(fmt, ...) LOG_WRN("que  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
++// #define QUE_ERR(fmt, ...) LOG_ERR("que  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
++// #define QUE_DBG(fmt, ...) LOG_DBG("que  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
+ 
+ // https://community.openai.com/t/openai-chat-list-of-error-codes-and-types/357791/11
+ enum error_type {
 diff --git a/ggml/include/ggml.h b/ggml/include/ggml.h
-index 9843b09f..590f9bb2 100644
+index 65cb92c4..fa5bb0a8 100644
 --- a/ggml/include/ggml.h
 +++ b/ggml/include/ggml.h
 @@ -318,7 +318,7 @@
@@ -57,10 +96,10 @@ index 9843b09f..590f9bb2 100644
  
      enum ggml_status {
 diff --git a/ggml/src/CMakeLists.txt b/ggml/src/CMakeLists.txt
-index 071508dd..5141fea0 100644
+index 9022aa3a..ee8cb9cc 100644
 --- a/ggml/src/CMakeLists.txt
 +++ b/ggml/src/CMakeLists.txt
-@@ -203,7 +203,7 @@ endif()
+@@ -204,7 +204,7 @@ endif()
  # ggml
  
  if (GGML_BACKEND_DL AND NOT BUILD_SHARED_LIBS)
@@ -70,7 +109,7 @@ index 071508dd..5141fea0 100644
  
  add_library(ggml-base
 diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-index 49527fdf..255fc3d6 100644
+index 849c1192..1346b7f1 100644
 --- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 +++ b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 @@ -55,7 +55,7 @@ static_assert(K_QUANTS_PER_ITERATION == 1 || K_QUANTS_PER_ITERATION == 2, "K_QUA
@@ -83,7 +122,7 @@ index 49527fdf..255fc3d6 100644
      } while (0)
  
 diff --git a/ggml/src/ggml.c b/ggml/src/ggml.c
-index 1a2318cb..efa4869a 100644
+index 1a9a7efa..48b6de63 100644
 --- a/ggml/src/ggml.c
 +++ b/ggml/src/ggml.c
 @@ -174,7 +174,7 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {

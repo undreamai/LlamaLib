@@ -2,31 +2,6 @@
 
 //============================= ERROR HANDLING =============================//
 
-void server_log_callback(const char * level, const char * function, int line, const char * message, const json & extra) {
-    std::stringstream ss_tid;
-    ss_tid << std::this_thread::get_id();
-    json log = json{
-        {"tid",       ss_tid.str()},
-        {"timestamp", time(nullptr)},
-    };
-
-    log.merge_patch({
-        {"level",    level},
-        {"function", function},
-        {"line",     line},
-        {"msg",      message},
-    });
-
-    if (!extra.empty()) {
-        log.merge_patch(extra);
-    }
-
-    std::string str = log.dump(-1, ' ', false, json::error_handler_t::replace);
-    printf("%s\n", str.c_str());
-    if(logStringWrapper != nullptr) logStringWrapper->AddContent(str+"\n");
-    fflush(stdout);
-}
-
 void fail(std::string message, int code=1) {
     status = code;
     status_message = message;
