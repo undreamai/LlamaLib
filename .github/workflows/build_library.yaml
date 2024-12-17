@@ -15,7 +15,7 @@ jobs:
 
   archchecker_linux_build:
     name: Build ArchChecker Linux
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     env:
         UPLOAD_NAME: linux-archchecker
