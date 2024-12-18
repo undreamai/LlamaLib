@@ -2,31 +2,6 @@
 
 //============================= ERROR HANDLING =============================//
 
-void server_log_callback(const char * level, const char * function, int line, const char * message, const json & extra) {
-    std::stringstream ss_tid;
-    ss_tid << std::this_thread::get_id();
-    json log = json{
-        {"tid",       ss_tid.str()},
-        {"timestamp", time(nullptr)},
-    };
-
-    log.merge_patch({
-        {"level",    level},
-        {"function", function},
-        {"line",     line},
-        {"msg",      message},
-    });
-
-    if (!extra.empty()) {
-        log.merge_patch(extra);
-    }
-
-    std::string str = log.dump(-1, ' ', false, json::error_handler_t::replace);
-    printf("%s\n", str.c_str());
-    if(logStringWrapper != nullptr) logStringWrapper->AddContent(str+"\n");
-    fflush(stdout);
-}
-
 void fail(std::string message, int code=1) {
     status = code;
     status_message = message;
@@ -738,13 +713,15 @@ std::string LLM::handle_completions(json data, StringWrapper* stringWrapper, htt
                 on_complete(true);
             } else {
                 const auto chunked_content_provider = [task_ids, this](size_t, httplib::DataSink & sink) {
-                    handle_completions_streaming(task_ids, nullptr, &sink);
-                    static const std::string ev_done = "data: [DONE]\n\n";
-                    if(&sink != nullptr){
-                        sink.write(ev_done.data(), ev_done.size());
-                        sink.done();
+                    bool ok = true;
+                    try {
+                        handle_completions_streaming(task_ids, nullptr, &sink);
+                    } catch (const SinkException& e) {
+                        ok = false;
                     }
-                    return true;
+                    ctx_server.queue_results.remove_waiting_task_ids(task_ids);
+                    if(ok && &sink != nullptr){ sink.done(); }
+                    return ok;
                 };
                 res->set_chunked_content_provider("text/event-stream", chunked_content_provider, on_complete);
             }

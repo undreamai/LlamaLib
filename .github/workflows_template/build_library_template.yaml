@@ -7,7 +7,7 @@ on:
 
 env:
   LLAMACPP_VERSION: b4218
-  CMAKE_COMMON_JOBS: '-DLLAMA_BUILD_COMMON=ON -DGGML_STATIC=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DBUILD_UNDREAMAI_SERVER=ON -DBUILD_SHARED_LIBS=OFF'
+  CMAKE_COMMON_JOBS: '-DLLAMA_BUILD_COMMON=ON -DGGML_STATIC=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DBUILD_SHARED_LIBS=OFF'
   CMAKE_COMMON_DIR: -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs
 
 jobs:
@@ -15,7 +15,7 @@ jobs:
 
   archchecker_linux_build:
     name: Build ArchChecker Linux
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     env:
         UPLOAD_NAME: linux-archchecker
@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     env:
-      CMAKE_COMMON: '-DGGML_NATIVE=OFF -DLLAMA_SERVER_SSL=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON'
+      CMAKE_COMMON: '-DBUILD_UNDREAMAI_BINARIES=ON -DGGML_NATIVE=OFF -DLLAMA_SERVER_SSL=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON'
       PLATFORM: linux
 
     strategy:
@@ -64,8 +64,14 @@ jobs:
             defines: '-DGGML_VULKAN=ON'
           - build: 'cuda-cu11.7.1'
             defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda" -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
+            tinyBLAS: 'ON'
           - build: 'cuda-cu12.2.0'
             defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda" -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
+            tinyBLAS: 'ON'
+          - build: 'cuda-cu11.7.1-full'
+            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
+          - build: 'cuda-cu12.2.0-full'
+            defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
             
     steps:
         @@setup_libs_linux@@
@@ -73,16 +79,17 @@ jobs:
         @@checkout@@
         @@setup_llama_cpp@@
         @@add_licenses@@
+        @@set_name@@
 
         @@setup_vulkan_linux@@
-        @@set_cuda_var_linux@@
+        @@set_cuda_var@@
         @@setup_cuda_linux@@
         @@link_cuda_linux@@
 
-        @@cmake_build_linux@@
+        @@cpu-cores@@
+        @@cmake_build@@
         @@test_build_unix@@
 
-        @@set_upload_name_unix@@
         @@pack_artifacts_unix@@
         @@upload@@
 
@@ -91,14 +98,13 @@ jobs:
     container: rocm/dev-ubuntu-22.04:5.5
 
     env:
-        CMAKE_COMMON: '-DGGML_HIPBLAS=ON -DAMDGPU_TARGETS="gfx1030,gfx1031,gfx1032,gfx1100,gfx1101,gfx1102" -DGGML_NATIVE=OFF -DLLAMA_SERVER_SSL=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON'
+        CMAKE_COMMON: '-DBUILD_UNDREAMAI_BINARIES=ON -DGGML_HIPBLAS=ON -DAMDGPU_TARGETS="gfx1030,gfx1031,gfx1032,gfx1100,gfx1101,gfx1102" -DGGML_NATIVE=OFF -DLLAMA_SERVER_SSL=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON'
         PLATFORM: linux
 
     strategy:
       matrix:
         include:
           - build: 'hip'
-            defines: '-DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
 
     steps:
         @@setup_libs_linux@@
@@ -106,13 +112,13 @@ jobs:
         @@checkout@@
         @@setup_llama_cpp@@
         @@add_licenses@@
+        @@set_name@@
 
         @@setup_hip_linux@@
 
         @@set_build_params_hip_linux@@
-        @@cmake_build_linux@@
+        @@cmake_build@@
 
-        @@set_upload_name_unix@@
         @@pack_artifacts_unix@@
         @@upload@@
 
@@ -122,7 +128,7 @@ jobs:
     runs-on: macos-14
 
     env:
-        CMAKE_COMMON: '-DLLAMA_SERVER_SSL=ON'
+        CMAKE_COMMON: '-DBUILD_UNDREAMAI_BINARIES=ON -DLLAMA_SERVER_SSL=ON -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_CURL=ON'
         PLATFORM: macos-arm64
 
     strategy:
@@ -135,22 +141,23 @@ jobs:
 
     steps:
         @@setup_libs_macos@@
+        @@set_name@@
 
         @@checkout@@
         @@setup_llama_cpp@@
         @@add_licenses@@
 
-        @@cmake_build_macos@@
+        @@cpu-cores@@
+        @@cmake_build@@
 
-        @@set_upload_name_unix@@
         @@pack_artifacts_unix@@
         @@upload@@
 
   macOS-x64-build:
-    runs-on: macos-12
+    runs-on: macos-13
 
     env:
-        CMAKE_COMMON: '-DLLAMA_SERVER_SSL=ON'
+        CMAKE_COMMON: '-DBUILD_UNDREAMAI_BINARIES=ON -DLLAMA_SERVER_SSL=ON -DLLAMA_FATAL_WARNINGS=ON -DLLAMA_CURL=ON'
         PLATFORM: macos-x64
 
     strategy:
@@ -167,11 +174,12 @@ jobs:
         @@checkout@@
         @@setup_llama_cpp@@
         @@add_licenses@@
+        @@set_name@@
 
-        @@cmake_build_macos@@
+        @@cpu-cores@@
+        @@cmake_build@@
         @@test_build_unix@@
 
-        @@set_upload_name_unix@@
         @@pack_artifacts_unix@@
         @@upload@@
 
@@ -182,7 +190,7 @@ jobs:
     runs-on: windows-2019
 
     env:
-      CMAKE_COMMON: '-DGGML_NATIVE=OFF -DLLAMA_SERVER_SSL=ON'
+      CMAKE_COMMON: '-DBUILD_UNDREAMAI_BINARIES=ON -DGGML_NATIVE=OFF -DLLAMA_SERVER_SSL=ON'
       VULKAN_VERSION: 1.3.261.1
       PLATFORM: windows
 
@@ -201,24 +209,31 @@ jobs:
             defines: '-DGGML_VULKAN=ON'
           - build: 'cuda-cu11.7.1'
             defines: '-DGGML_CUDA=ON -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
+            tinyBLAS: 'ON'
           - build: 'cuda-cu12.2.0'
             defines: '-DGGML_CUDA=ON -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
+            tinyBLAS: 'ON'
+          - build: 'cuda-cu11.7.1-full'
+            defines: '-DGGML_CUDA=ON'
+          - build: 'cuda-cu12.2.0-full'
+            defines: '-DGGML_CUDA=ON'
 
     steps:
         @@checkout@@
         @@setup_llama_cpp@@
         @@add_licenses@@
+        @@set_name@@
 
         @@setup_vulcan_windows@@
         @@setup_openssl_windows@@
-        @@set_cuda_var_windows@@
+        @@set_cuda_var@@
         @@setup_cuda_windows@@
 
         @@cpu-cores@@
-        @@cmake_build_windows@@
+        @@cmake_build@@
 
         @@move_files_windows@@
-        @@set_upload_name_windows@@
+        @@copy_cuda_dlls@@
         @@pack_artifacts_windows@@
         @@upload@@
 
@@ -226,21 +241,21 @@ jobs:
     runs-on: windows-2019
 
     env:
-      CMAKE_COMMON: '-DGGML_HIPBLAS=ON -DAMDGPU_TARGETS="gfx1030,gfx1031,gfx1032,gfx1100,gfx1101,gfx1102" -DGGML_NATIVE=OFF -DLLAMA_SERVER_SSL=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs'
+      CMAKE_COMMON: '-DBUILD_UNDREAMAI_BINARIES=ON -DGGML_HIPBLAS=ON -DAMDGPU_TARGETS="gfx1030,gfx1031,gfx1032,gfx1100,gfx1101,gfx1102" -DGGML_NATIVE=OFF -DLLAMA_SERVER_SSL=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs'
       PLATFORM: windows
     
     strategy:
       matrix:
         include:
           - build: 'hip'
-            defines: '-DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
 
     steps:
         @@checkout@@
         @@setup_llama_cpp@@
         @@add_licenses@@
+        @@set_name@@
 
-        @@set_cuda_var_windows@@
+        @@set_cuda_var@@
         @@setup_openssl_windows@@
         @@setup_hip_windows@@
 
@@ -248,7 +263,6 @@ jobs:
         @@cmake_build_hip_windows@@
 
         @@move_files_windows@@
-        @@set_upload_name_windows@@
         @@pack_artifacts_windows@@
         @@upload@@
 
@@ -258,7 +272,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     env:
-      CMAKE_COMMON: '-DGGML_NATIVE=OFF -DGGML_OPENMP=OFF'
+      CMAKE_COMMON: '-DBUILD_UNDREAMAI_BINARIES=OFF -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF'
       VULKAN_VERSION: 1.3.261.1
       PLATFORM: android
 
@@ -268,12 +282,11 @@ jobs:
         @@checkout@@
         @@setup_llama_cpp@@
         @@add_licenses@@
+        @@set_name@@
 
         @@set_ndk_var_linux@@
         @@cmake_build_android@@
 
-        @@set_upload_name_unix@@
-        @@remove_server@@
         @@pack_artifacts_unix@@
         @@upload@@
 
@@ -283,8 +296,8 @@ jobs:
     runs-on: macos-14
 
     env:
-      CMAKE_COMMON: '-DGGML_METAL_EMBED_LIBRARY=ON -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=ggml'
-      PLATFORM: iOS
+      CMAKE_COMMON: '-DBUILD_UNDREAMAI_BINARIES=OFF -DGGML_METAL_EMBED_LIBRARY=ON -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=ggml'
+      PLATFORM: ios
 
     steps:
         @@setup_libs_macos@@
@@ -292,10 +305,11 @@ jobs:
         @@checkout@@
         @@setup_llama_cpp@@
         @@add_licenses@@
+        @@set_name@@
 
-        @@cmake_build_ios@@
+        @@cmake_build@@
+        @@link_libraries_ios@@
 
-        @@set_upload_name_unix@@
         @@pack_artifacts_ios@@
         @@upload@@
 
