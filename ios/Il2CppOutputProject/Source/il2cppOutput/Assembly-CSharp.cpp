@@ -1641,7 +1641,7 @@ struct ChatBot_t59C854FE12297451D62BF64C074A173585B7EABC  : public MonoBehaviour
 	BubbleUI_t8C6DF9BF685F8E257CF3EDD556447655612E9A64 ___aiUI;
 	bool ___warmUpDone;
 	int32_t ___lastBubbleOutsideFOV;
-	float ___preProgress;
+	int32_t ___preProgress;
 	bool ___onValidateWarning;
 };
 struct FunctionCalling_t2E9A88F94C573B46C1FBF9E5AF8ADFC5DED67FE5  : public MonoBehaviour_t532A11E69716D348D8AA7F854AFCBFCB8AD17F71
@@ -2683,7 +2683,7 @@ inline void AsyncVoidMethodBuilder_Start_TisU3CStartU3Ed__19_t8728404CC167DC1417
 	((  void (*) (AsyncVoidMethodBuilder_t253E37B63E7E7B504878AE6563347C147F98EF2D*, U3CStartU3Ed__19_t8728404CC167DC14176F6CAF34334D40E1AE83E8*, const RuntimeMethod*))AsyncVoidMethodBuilder_Start_TisU3CStartU3Ed__19_t8728404CC167DC14176F6CAF34334D40E1AE83E8_mA315094944268677C28E3CEF8E82D26250E1FA23_gshared)(__this, ___0_stateMachine, method);
 }
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* InputBubble_GetText_mEB3F05E7B73E7BC7F449140D40D18C9B64D4637E (InputBubble_t3A6CD82EE049AB9FF0488818EC21C572B0CCA6F9* __this, const RuntimeMethod* method) ;
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* Single_ToString_mE282EDA9CA4F7DF88432D807732837A629D04972 (float* __this, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* Int32_ToString_m030E01C24E294D6762FB0B6F37CB541581F55CA5 (int32_t* __this, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* String_Concat_m8855A6DE10F84DA7F4EC113CADDB59873A25573B (String_t* ___0_str0, String_t* ___1_str1, String_t* ___2_str2, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void InputBubble_SetText_m5E25875EEE288F9B13B350CE7E94CEED45BFE7F0 (InputBubble_t3A6CD82EE049AB9FF0488818EC21C572B0CCA6F9* __this, String_t* ___0_text, const RuntimeMethod* method) ;
 inline void List_1_Add_mA83412A04E340FC2BEDD992FD86F6317F17328C0_inline (List_1_t07904BD9FB379246EC1F813BCB2EC0DB8EFA37CE* __this, Bubble_t512C66BD623D8B6994BDB65556154897930F8950* ___0_item, const RuntimeMethod* method)
@@ -3078,7 +3078,6 @@ inline void AsyncTaskMethodBuilder_Start_TisU3CWarmUpU3Ed__10_t259FACE32932EE991
 {
 	((  void (*) (AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06*, U3CWarmUpU3Ed__10_t259FACE32932EE99113A8780685D11414E6DB70A*, const RuntimeMethod*))AsyncTaskMethodBuilder_Start_TisU3CWarmUpU3Ed__10_t259FACE32932EE99113A8780685D11414E6DB70A_mF601D82EA6C0E8E43E46BE3FD6D261B569115E2B_gshared)(__this, ___0_stateMachine, method);
 }
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* Int32_ToString_m030E01C24E294D6762FB0B6F37CB541581F55CA5 (int32_t* __this, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Scrollbar_set_size_m5376982465D6013425FAB0CA8EFC620C3E1458FB (Scrollbar_t7CDC9B956698D9385A11E4C12964CD51477072C3* __this, float ___0_value, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MobileDemo_AIReplyComplete_m954A0836B56B6BCC2DCF4611281868B16298F4ED (MobileDemo_t60B2990CF0940649311B1C2192F8982A4B59ACF1* __this, const RuntimeMethod* method) ;
 inline void AsyncTaskMethodBuilder_AwaitUnsafeOnCompleted_TisTaskAwaiter_1_t1F3F1A2BD44A71ED705D6586CA2594868672DE35_TisU3CDownloadThenWarmupU3Ed__9_tFBE2B934DD3DEC8A464634110517DF9EEF50229E_mD796DF7E6405514D75D7473430CF407BD95B3175 (AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06* __this, TaskAwaiter_1_t1F3F1A2BD44A71ED705D6586CA2594868672DE35* ___0_awaiter, U3CDownloadThenWarmupU3Ed__9_tFBE2B934DD3DEC8A464634110517DF9EEF50229E* ___1_stateMachine, const RuntimeMethod* method)
@@ -4570,7 +4569,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatBot_Start_mC2FC76E466BDA95E96E5611D1
 		return;
 	}
 }
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatBot_AddText_mB468DF663F1C03730D126FEC078EB827E8375D64 (ChatBot_t59C854FE12297451D62BF64C074A173585B7EABC* __this, float ___0_progress, const RuntimeMethod* method) 
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatBot_AddText_mB468DF663F1C03730D126FEC078EB827E8375D64 (ChatBot_t59C854FE12297451D62BF64C074A173585B7EABC* __this, float ___0_progressF, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
 	if (!s_Il2CppMethodInitialized)
@@ -4578,14 +4577,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatBot_AddText_mB468DF663F1C03730D126FE
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&_stringLiteral9A46A4E05DC55D2AE3E353F19FEB8BBB7ECFE727);
 		s_Il2CppMethodInitialized = true;
 	}
+	int32_t V_0 = 0;
 	{
-		float L_0 = ___0_progress;
-		___0_progress = ((float)il2cpp_codegen_multiply(L_0, (100.0f)));
-		float L_1 = ___0_progress;
-		float L_2 = __this->___preProgress;
-		if ((!(((float)((float)il2cpp_codegen_subtract(L_1, L_2))) > ((float)(5.0f)))))
+		float L_0 = ___0_progressF;
+		V_0 = il2cpp_codegen_cast_double_to_int<int32_t>(((float)il2cpp_codegen_multiply(L_0, (100.0f))));
+		int32_t L_1 = V_0;
+		int32_t L_2 = __this->___preProgress;
+		if ((((int32_t)((int32_t)il2cpp_codegen_subtract(L_1, L_2))) <= ((int32_t)5)))
 		{
-			goto IL_0046;
+			goto IL_0042;
 		}
 	}
 	{
@@ -4595,16 +4595,16 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatBot_AddText_mB468DF663F1C03730D126FE
 		String_t* L_5;
 		L_5 = InputBubble_GetText_mEB3F05E7B73E7BC7F449140D40D18C9B64D4637E(L_4, NULL);
 		String_t* L_6;
-		L_6 = Single_ToString_mE282EDA9CA4F7DF88432D807732837A629D04972((&___0_progress), NULL);
+		L_6 = Int32_ToString_m030E01C24E294D6762FB0B6F37CB541581F55CA5((&V_0), NULL);
 		String_t* L_7;
 		L_7 = String_Concat_m8855A6DE10F84DA7F4EC113CADDB59873A25573B(L_5, L_6, _stringLiteral9A46A4E05DC55D2AE3E353F19FEB8BBB7ECFE727, NULL);
 		NullCheck(L_3);
 		InputBubble_SetText_m5E25875EEE288F9B13B350CE7E94CEED45BFE7F0(L_3, L_7, NULL);
-		float L_8 = ___0_progress;
+		int32_t L_8 = V_0;
 		__this->___preProgress = L_8;
 	}
 
-IL_0046:
+IL_0042:
 	{
 		return;
 	}

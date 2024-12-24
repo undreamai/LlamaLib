@@ -6636,7 +6636,7 @@ struct ChatBot_t59C854FE12297451D62BF64C074A173585B7EABC  : public MonoBehaviour
 	BubbleUI_t8C6DF9BF685F8E257CF3EDD556447655612E9A64 ___aiUI;
 	bool ___warmUpDone;
 	int32_t ___lastBubbleOutsideFOV;
-	float ___preProgress;
+	int32_t ___preProgress;
 	bool ___onValidateWarning;
 };
 struct FunctionCalling_t2E9A88F94C573B46C1FBF9E5AF8ADFC5DED67FE5  : public MonoBehaviour_t532A11E69716D348D8AA7F854AFCBFCB8AD17F71
