@@ -19,7 +19,6 @@
 		56C56C9817D6015200616839 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 56C56C9717D6015100616839 /* Images.xcassets */; };
 		574A8D1BFDF4103B13A6538A /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21ECD27EDF8EB21168769097 /* GameController.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		63ACF7178776C648B96974EB /* baselib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CD8D832DF5E49F3229DE515 /* baselib.a */; };
-		69FA4336B3BD9DE6476221E4 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62B64E99A994E9ABBF65AECA /* Accelerate.framework */; };
 		7F4E05AB2717219200A2CBE4 /* libGameAssembly.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F4E05A02717216D00A2CBE4 /* libGameAssembly.a */; };
 		826E40C67FAA509B29A0EFA3 /* IUnityGraphics.h in Headers */ = {isa = PBXBuildFile; fileRef = 30347B5D7991A325732A4F10 /* IUnityGraphics.h */; };
 		862C245020AEC7AC006FB4AD /* UnityWebRequest.mm in Sources */ = {isa = PBXBuildFile; fileRef = 862C244F20AEC7AC006FB4AD /* UnityWebRequest.mm */; };
@@ -101,7 +100,8 @@
 		9E277B346B541C2D072C5489 /* IUnityGraphicsMetal.h in Headers */ = {isa = PBXBuildFile; fileRef = 894C1B251937BE1BC2B4D36C /* IUnityGraphicsMetal.h */; };
 		AF3F0F5597A0749485B362BF /* libusearch_static_c.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C03F1CB080514F1A6A7438DB /* libusearch_static_c.a */; };
 		BEE3E21D322649C83B0DD4DC /* LaunchScreen-iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5A3A1B4C3FB1FC90023B942E /* LaunchScreen-iPhone.storyboard */; };
-		D2214FAF9BBD8FC71547EA5E /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62B64E99A994E9ABBF65AECA /* Accelerate.framework */; };
+		CACB4102BF8DDCF0AE446C2F /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1534BD38195664376172A37 /* Accelerate.framework */; };
+		E82D42E98A677A31033987B0 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1534BD38195664376172A37 /* Accelerate.framework */; };
 		F5C03E9DD3BF40D8EC0F4404 /* LaunchScreen-iPhonePortrait.png in Resources */ = {isa = PBXBuildFile; fileRef = 681AA63C19788ACA381FB8C1 /* LaunchScreen-iPhonePortrait.png */; };
 /* End PBXBuildFile section */
 
@@ -290,7 +290,6 @@
 		6189F3F814EA67BAEB8664B9 /* Generics__57.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Generics__57.cpp; path = Il2CppOutputProject/Source/il2cppOutput/Generics__57.cpp; sourceTree = SOURCE_ROOT; };
 		6268E9B44CD8602C2A9D5536 /* GenericMethods__4.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GenericMethods__4.cpp; path = Il2CppOutputProject/Source/il2cppOutput/GenericMethods__4.cpp; sourceTree = SOURCE_ROOT; };
 		62B31F6AE6313940631A3B13 /* Il2CppInteropDataTable.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Il2CppInteropDataTable.cpp; path = Il2CppOutputProject/Source/il2cppOutput/Il2CppInteropDataTable.cpp; sourceTree = SOURCE_ROOT; };
-		62B64E99A994E9ABBF65AECA /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		62CBF79C3A505CA169C0A2F8 /* UnityEngine.InputLegacyModule_CodeGen.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = UnityEngine.InputLegacyModule_CodeGen.c; path = Il2CppOutputProject/Source/il2cppOutput/UnityEngine.InputLegacyModule_CodeGen.c; sourceTree = SOURCE_ROOT; };
 		64E2DA6CA86A91002CE87FE3 /* UnityEngine.UIElementsModule__6.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = UnityEngine.UIElementsModule__6.cpp; path = Il2CppOutputProject/Source/il2cppOutput/UnityEngine.UIElementsModule__6.cpp; sourceTree = SOURCE_ROOT; };
 		64E52B1EC636E618B7604298 /* GenericMethods__13.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GenericMethods__13.cpp; path = Il2CppOutputProject/Source/il2cppOutput/GenericMethods__13.cpp; sourceTree = SOURCE_ROOT; };
@@ -463,6 +462,7 @@
 		9D25ABA0213FB47800354C27 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9DA3B0432174CB96001678C7 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		9EA3E57A19EDE7497E36F3DF /* UnityEngine.GameCenterModule_CodeGen.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = UnityEngine.GameCenterModule_CodeGen.c; path = Il2CppOutputProject/Source/il2cppOutput/UnityEngine.GameCenterModule_CodeGen.c; sourceTree = SOURCE_ROOT; };
+		A1534BD38195664376172A37 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		A39A600A7B98C2458EAED5FA /* UnityEngine.VRModule.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = UnityEngine.VRModule.cpp; path = Il2CppOutputProject/Source/il2cppOutput/UnityEngine.VRModule.cpp; sourceTree = SOURCE_ROOT; };
 		A4591E5013E0219646DFFBD4 /* UnityEngine.GameCenterModule.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = UnityEngine.GameCenterModule.cpp; path = Il2CppOutputProject/Source/il2cppOutput/UnityEngine.GameCenterModule.cpp; sourceTree = SOURCE_ROOT; };
 		A504EDDC3C17119152F24F7F /* GenericMethods__3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GenericMethods__3.cpp; path = Il2CppOutputProject/Source/il2cppOutput/GenericMethods__3.cpp; sourceTree = SOURCE_ROOT; };
@@ -594,7 +594,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D2214FAF9BBD8FC71547EA5E /* Accelerate.framework in Frameworks */,
+				E82D42E98A677A31033987B0 /* Accelerate.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -642,7 +642,7 @@
 				0454082A972112339493889D /* libundreamai_ios.a in Frameworks */,
 				63ACF7178776C648B96974EB /* baselib.a in Frameworks */,
 				574A8D1BFDF4103B13A6538A /* GameController.framework in Frameworks */,
-				69FA4336B3BD9DE6476221E4 /* Accelerate.framework in Frameworks */,
+				CACB4102BF8DDCF0AE446C2F /* Accelerate.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -736,7 +736,7 @@
 				56BCBA380FCF049A0030C3B2 /* SystemConfiguration.framework */,
 				830B5C100E5ED4C100C7819F /* UIKit.framework */,
 				9D0A618A21BFE7F30094DC33 /* libiconv.2.tbd */,
-				62B64E99A994E9ABBF65AECA /* Accelerate.framework */,
+				A1534BD38195664376172A37 /* Accelerate.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
