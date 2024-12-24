@@ -18,7 +18,7 @@ jobs:
 
       - name: Download Google Drive folder
         run: |
-          gdown "https://drive.google.com/uc?export=download&id=1zp3LI9SngUqHU9RRM-SaQA7SH1eP2hLM" -O ios.zip
+          gdown "https://drive.google.com/uc?export=download&id=13dalrd0LRj7j3VJY9AG0J7lT622uMQTv" -O ios.zip
 
       - name: Extract the ZIP file
         run: |
