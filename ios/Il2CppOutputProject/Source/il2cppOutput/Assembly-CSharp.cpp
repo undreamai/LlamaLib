@@ -3218,13 +3218,13 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MobileDemo_onInputFieldSubmit_m5833CD02A
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CSubmitMessageU3Ed__13_MoveNext_m588601D7323A6CC7CECE5A2C58516F3B5C56C991 (U3CSubmitMessageU3Ed__13_tE034306CBF59F90C72633C51C347B7C2D22256F3* __this, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CSubmitMessageU3Ed__13_SetStateMachine_m3AF4ECB62F26AE314D4A66B357A39F57620CE7FF (U3CSubmitMessageU3Ed__13_tE034306CBF59F90C72633C51C347B7C2D22256F3* __this, RuntimeObject* ___0_stateMachine, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TouchScreenKeyboard_tE87B78A3DAED69816B44C99270A734682E093E7A* TouchScreenKeyboard_Open_m7E1514D1FA05AB51D07B91DD111DE80D0AC278FC (String_t* ___0_text, int32_t ___1_keyboardType, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void WaitForSeconds__ctor_m579F95BADEDBAB4B3A7E302C6EE3995926EF2EFC (WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3* __this, float ___0_seconds, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Il2CppChar String_get_Chars_mC49DF0CD2D3BE7BE97B3AD9C995BE3094F8E36D3 (String_t* __this, int32_t ___0_index, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* TouchScreenKeyboard_get_text_m74593E81B017446204A9DB1F7359922A2C005B1E (TouchScreenKeyboard_tE87B78A3DAED69816B44C99270A734682E093E7A* __this, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* Char_ToString_m2A308731F9577C06AF3C0901234E2EAC8327410C (Il2CppChar* __this, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TouchScreenKeyboard_set_text_m0A8AA05F4D9D27E8764955F0041452145B6C6FBB (TouchScreenKeyboard_tE87B78A3DAED69816B44C99270A734682E093E7A* __this, String_t* ___0_value, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool Char_IsPunctuation_m619E42D942E22C9BA1DDB8E704BECA546C376473 (Il2CppChar ___0_c, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool Char_IsWhiteSpace_m02AEC6EA19513CAFC6882CFCA54C45794D2B5924 (Il2CppChar ___0_c, const RuntimeMethod* method) ;
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void WaitForSeconds__ctor_m579F95BADEDBAB4B3A7E302C6EE3995926EF2EFC (WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3* __this, float ___0_seconds, const RuntimeMethod* method) ;
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR int32_t String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline (String_t* __this, const RuntimeMethod* method) ;
 inline void TaskCompletionSource_1__ctor_mBAB8D6EFEAD1AA6482D19D7CE639528BE66AF646 (TaskCompletionSource_1_t486CD8AD64929E5C47B9FE9AD7AE2CB00B5BAB14* __this, const RuntimeMethod* method)
 {
@@ -10246,15 +10246,19 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool U3CTypeTextU3Ed__25_MoveNext_m5CA849CF27
 		{
 			case 0:
 			{
-				goto IL_0022;
+				goto IL_0026;
 			}
 			case 1:
 			{
-				goto IL_00c8;
+				goto IL_0057;
 			}
 			case 2:
 			{
-				goto IL_0113;
+				goto IL_00ec;
+			}
+			case 3:
+			{
+				goto IL_0137;
 			}
 		}
 	}
@@ -10262,7 +10266,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool U3CTypeTextU3Ed__25_MoveNext_m5CA849CF27
 		return (bool)0;
 	}
 
-IL_0022:
+IL_0026:
 	{
 		__this->___U3CU3E1__state = (-1);
 		MobileDemo_t60B2990CF0940649311B1C2192F8982A4B59ACF1* L_3 = V_1;
@@ -10271,119 +10275,130 @@ IL_0022:
 		NullCheck(L_3);
 		L_3->___keyboard = L_4;
 		Il2CppCodeGenWriteBarrier((void**)(&L_3->___keyboard), (void*)L_4);
-		String_t* L_5 = __this->___text;
-		__this->___U3CU3E7__wrap1 = L_5;
-		Il2CppCodeGenWriteBarrier((void**)(&__this->___U3CU3E7__wrap1), (void*)L_5);
-		__this->___U3CU3E7__wrap2 = 0;
-		goto IL_00dd;
-	}
-
-IL_0052:
-	{
-		String_t* L_6 = __this->___U3CU3E7__wrap1;
-		int32_t L_7 = __this->___U3CU3E7__wrap2;
-		NullCheck(L_6);
-		Il2CppChar L_8;
-		L_8 = String_get_Chars_mC49DF0CD2D3BE7BE97B3AD9C995BE3094F8E36D3(L_6, L_7, NULL);
-		V_2 = L_8;
-		MobileDemo_t60B2990CF0940649311B1C2192F8982A4B59ACF1* L_9 = V_1;
-		NullCheck(L_9);
-		TouchScreenKeyboard_tE87B78A3DAED69816B44C99270A734682E093E7A* L_10 = L_9->___keyboard;
-		TouchScreenKeyboard_tE87B78A3DAED69816B44C99270A734682E093E7A* L_11 = L_10;
-		NullCheck(L_11);
-		String_t* L_12;
-		L_12 = TouchScreenKeyboard_get_text_m74593E81B017446204A9DB1F7359922A2C005B1E(L_11, NULL);
-		il2cpp_codegen_runtime_class_init_inline(il2cpp_defaults.char_class);
-		String_t* L_13;
-		L_13 = Char_ToString_m2A308731F9577C06AF3C0901234E2EAC8327410C((&V_2), NULL);
-		String_t* L_14;
-		L_14 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(L_12, L_13, NULL);
-		NullCheck(L_11);
-		TouchScreenKeyboard_set_text_m0A8AA05F4D9D27E8764955F0041452145B6C6FBB(L_11, L_14, NULL);
-		Il2CppChar L_15 = V_2;
-		bool L_16;
-		L_16 = Char_IsPunctuation_m619E42D942E22C9BA1DDB8E704BECA546C376473(L_15, NULL);
-		if (L_16)
-		{
-			goto IL_0091;
-		}
-	}
-	{
-		Il2CppChar L_17 = V_2;
-		il2cpp_codegen_runtime_class_init_inline(il2cpp_defaults.char_class);
-		bool L_18;
-		L_18 = Char_IsWhiteSpace_m02AEC6EA19513CAFC6882CFCA54C45794D2B5924(L_17, NULL);
-		if (!L_18)
-		{
-			goto IL_00cf;
-		}
-	}
-
-IL_0091:
-	{
-		MobileDemo_t60B2990CF0940649311B1C2192F8982A4B59ACF1* L_19 = V_1;
-		NullCheck(L_19);
-		float L_20 = L_19->___typingSpeed;
-		MobileDemo_t60B2990CF0940649311B1C2192F8982A4B59ACF1* L_21 = V_1;
-		NullCheck(L_21);
-		Random_t79716069EDE67D1D7734F60AE402D0CA3FB6B4C8* L_22 = L_21->___rnd;
-		NullCheck(L_22);
-		int32_t L_23;
-		L_23 = VirtualFuncInvoker2< int32_t, int32_t, int32_t >::Invoke(6, L_22, ((int32_t)-20), ((int32_t)20));
-		WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3* L_24 = (WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3*)il2cpp_codegen_object_new(WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3_il2cpp_TypeInfo_var);
-		WaitForSeconds__ctor_m579F95BADEDBAB4B3A7E302C6EE3995926EF2EFC(L_24, ((float)il2cpp_codegen_multiply(L_20, ((float)il2cpp_codegen_add((1.0f), ((float)(((float)L_23)/(100.0f))))))), NULL);
-		__this->___U3CU3E2__current = L_24;
-		Il2CppCodeGenWriteBarrier((void**)(&__this->___U3CU3E2__current), (void*)L_24);
+		WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3* L_5 = (WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3*)il2cpp_codegen_object_new(WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3_il2cpp_TypeInfo_var);
+		WaitForSeconds__ctor_m579F95BADEDBAB4B3A7E302C6EE3995926EF2EFC(L_5, (0.5f), NULL);
+		__this->___U3CU3E2__current = L_5;
+		Il2CppCodeGenWriteBarrier((void**)(&__this->___U3CU3E2__current), (void*)L_5);
 		__this->___U3CU3E1__state = 1;
 		return (bool)1;
 	}
 
-IL_00c8:
+IL_0057:
+	{
+		__this->___U3CU3E1__state = (-1);
+		String_t* L_6 = __this->___text;
+		__this->___U3CU3E7__wrap1 = L_6;
+		Il2CppCodeGenWriteBarrier((void**)(&__this->___U3CU3E7__wrap1), (void*)L_6);
+		__this->___U3CU3E7__wrap2 = 0;
+		goto IL_0101;
+	}
+
+IL_0076:
+	{
+		String_t* L_7 = __this->___U3CU3E7__wrap1;
+		int32_t L_8 = __this->___U3CU3E7__wrap2;
+		NullCheck(L_7);
+		Il2CppChar L_9;
+		L_9 = String_get_Chars_mC49DF0CD2D3BE7BE97B3AD9C995BE3094F8E36D3(L_7, L_8, NULL);
+		V_2 = L_9;
+		MobileDemo_t60B2990CF0940649311B1C2192F8982A4B59ACF1* L_10 = V_1;
+		NullCheck(L_10);
+		TouchScreenKeyboard_tE87B78A3DAED69816B44C99270A734682E093E7A* L_11 = L_10->___keyboard;
+		TouchScreenKeyboard_tE87B78A3DAED69816B44C99270A734682E093E7A* L_12 = L_11;
+		NullCheck(L_12);
+		String_t* L_13;
+		L_13 = TouchScreenKeyboard_get_text_m74593E81B017446204A9DB1F7359922A2C005B1E(L_12, NULL);
+		il2cpp_codegen_runtime_class_init_inline(il2cpp_defaults.char_class);
+		String_t* L_14;
+		L_14 = Char_ToString_m2A308731F9577C06AF3C0901234E2EAC8327410C((&V_2), NULL);
+		String_t* L_15;
+		L_15 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(L_13, L_14, NULL);
+		NullCheck(L_12);
+		TouchScreenKeyboard_set_text_m0A8AA05F4D9D27E8764955F0041452145B6C6FBB(L_12, L_15, NULL);
+		Il2CppChar L_16 = V_2;
+		bool L_17;
+		L_17 = Char_IsPunctuation_m619E42D942E22C9BA1DDB8E704BECA546C376473(L_16, NULL);
+		if (L_17)
+		{
+			goto IL_00b5;
+		}
+	}
+	{
+		Il2CppChar L_18 = V_2;
+		il2cpp_codegen_runtime_class_init_inline(il2cpp_defaults.char_class);
+		bool L_19;
+		L_19 = Char_IsWhiteSpace_m02AEC6EA19513CAFC6882CFCA54C45794D2B5924(L_18, NULL);
+		if (!L_19)
+		{
+			goto IL_00f3;
+		}
+	}
+
+IL_00b5:
+	{
+		MobileDemo_t60B2990CF0940649311B1C2192F8982A4B59ACF1* L_20 = V_1;
+		NullCheck(L_20);
+		float L_21 = L_20->___typingSpeed;
+		MobileDemo_t60B2990CF0940649311B1C2192F8982A4B59ACF1* L_22 = V_1;
+		NullCheck(L_22);
+		Random_t79716069EDE67D1D7734F60AE402D0CA3FB6B4C8* L_23 = L_22->___rnd;
+		NullCheck(L_23);
+		int32_t L_24;
+		L_24 = VirtualFuncInvoker2< int32_t, int32_t, int32_t >::Invoke(6, L_23, ((int32_t)-20), ((int32_t)20));
+		WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3* L_25 = (WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3*)il2cpp_codegen_object_new(WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3_il2cpp_TypeInfo_var);
+		WaitForSeconds__ctor_m579F95BADEDBAB4B3A7E302C6EE3995926EF2EFC(L_25, ((float)il2cpp_codegen_multiply(L_21, ((float)il2cpp_codegen_add((1.0f), ((float)(((float)L_24)/(100.0f))))))), NULL);
+		__this->___U3CU3E2__current = L_25;
+		Il2CppCodeGenWriteBarrier((void**)(&__this->___U3CU3E2__current), (void*)L_25);
+		__this->___U3CU3E1__state = 2;
+		return (bool)1;
+	}
+
+IL_00ec:
 	{
 		__this->___U3CU3E1__state = (-1);
 	}
 
-IL_00cf:
-	{
-		int32_t L_25 = __this->___U3CU3E7__wrap2;
-		__this->___U3CU3E7__wrap2 = ((int32_t)il2cpp_codegen_add(L_25, 1));
-	}
-
-IL_00dd:
+IL_00f3:
 	{
 		int32_t L_26 = __this->___U3CU3E7__wrap2;
-		String_t* L_27 = __this->___U3CU3E7__wrap1;
-		NullCheck(L_27);
-		int32_t L_28;
-		L_28 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_27, NULL);
-		if ((((int32_t)L_26) < ((int32_t)L_28)))
+		__this->___U3CU3E7__wrap2 = ((int32_t)il2cpp_codegen_add(L_26, 1));
+	}
+
+IL_0101:
+	{
+		int32_t L_27 = __this->___U3CU3E7__wrap2;
+		String_t* L_28 = __this->___U3CU3E7__wrap1;
+		NullCheck(L_28);
+		int32_t L_29;
+		L_29 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_28, NULL);
+		if ((((int32_t)L_27) < ((int32_t)L_29)))
 		{
-			goto IL_0052;
+			goto IL_0076;
 		}
 	}
 	{
 		__this->___U3CU3E7__wrap1 = (String_t*)NULL;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___U3CU3E7__wrap1), (void*)(String_t*)NULL);
-		WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3* L_29 = (WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3*)il2cpp_codegen_object_new(WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3_il2cpp_TypeInfo_var);
-		WaitForSeconds__ctor_m579F95BADEDBAB4B3A7E302C6EE3995926EF2EFC(L_29, (0.5f), NULL);
-		__this->___U3CU3E2__current = L_29;
-		Il2CppCodeGenWriteBarrier((void**)(&__this->___U3CU3E2__current), (void*)L_29);
-		__this->___U3CU3E1__state = 2;
+		WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3* L_30 = (WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3*)il2cpp_codegen_object_new(WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3_il2cpp_TypeInfo_var);
+		WaitForSeconds__ctor_m579F95BADEDBAB4B3A7E302C6EE3995926EF2EFC(L_30, (0.5f), NULL);
+		__this->___U3CU3E2__current = L_30;
+		Il2CppCodeGenWriteBarrier((void**)(&__this->___U3CU3E2__current), (void*)L_30);
+		__this->___U3CU3E1__state = 3;
 		return (bool)1;
 	}
 
-IL_0113:
+IL_0137:
 	{
 		__this->___U3CU3E1__state = (-1);
-		MobileDemo_t60B2990CF0940649311B1C2192F8982A4B59ACF1* L_30 = V_1;
-		NullCheck(L_30);
-		InputField_tABEA115F23FBD374EBE80D4FAC1D15BD6E37A140* L_31 = L_30->___playerText;
+		MobileDemo_t60B2990CF0940649311B1C2192F8982A4B59ACF1* L_31 = V_1;
 		NullCheck(L_31);
-		InputField_DeactivateInputField_m58D0B3BF095094A0963A9CE8BABF1979F7D1254D(L_31, NULL);
-		MobileDemo_t60B2990CF0940649311B1C2192F8982A4B59ACF1* L_32 = V_1;
+		InputField_tABEA115F23FBD374EBE80D4FAC1D15BD6E37A140* L_32 = L_31->___playerText;
 		NullCheck(L_32);
-		L_32->___keyboard = (TouchScreenKeyboard_tE87B78A3DAED69816B44C99270A734682E093E7A*)NULL;
-		Il2CppCodeGenWriteBarrier((void**)(&L_32->___keyboard), (void*)(TouchScreenKeyboard_tE87B78A3DAED69816B44C99270A734682E093E7A*)NULL);
+		InputField_DeactivateInputField_m58D0B3BF095094A0963A9CE8BABF1979F7D1254D(L_32, NULL);
+		MobileDemo_t60B2990CF0940649311B1C2192F8982A4B59ACF1* L_33 = V_1;
+		NullCheck(L_33);
+		L_33->___keyboard = (TouchScreenKeyboard_tE87B78A3DAED69816B44C99270A734682E093E7A*)NULL;
+		Il2CppCodeGenWriteBarrier((void**)(&L_33->___keyboard), (void*)(TouchScreenKeyboard_tE87B78A3DAED69816B44C99270A734682E093E7A*)NULL);
 		return (bool)0;
 	}
 }
