@@ -10334,8 +10334,13 @@ IL_0113:
 		__this->___U3CU3E1__state = (-1);
 		MobileDemo_t60B2990CF0940649311B1C2192F8982A4B59ACF1* L_30 = V_1;
 		NullCheck(L_30);
-		L_30->___keyboard = (TouchScreenKeyboard_tE87B78A3DAED69816B44C99270A734682E093E7A*)NULL;
-		Il2CppCodeGenWriteBarrier((void**)(&L_30->___keyboard), (void*)(TouchScreenKeyboard_tE87B78A3DAED69816B44C99270A734682E093E7A*)NULL);
+		InputField_tABEA115F23FBD374EBE80D4FAC1D15BD6E37A140* L_31 = L_30->___playerText;
+		NullCheck(L_31);
+		InputField_DeactivateInputField_m58D0B3BF095094A0963A9CE8BABF1979F7D1254D(L_31, NULL);
+		MobileDemo_t60B2990CF0940649311B1C2192F8982A4B59ACF1* L_32 = V_1;
+		NullCheck(L_32);
+		L_32->___keyboard = (TouchScreenKeyboard_tE87B78A3DAED69816B44C99270A734682E093E7A*)NULL;
+		Il2CppCodeGenWriteBarrier((void**)(&L_32->___keyboard), (void*)(TouchScreenKeyboard_tE87B78A3DAED69816B44C99270A734682E093E7A*)NULL);
 		return (bool)0;
 	}
 }
