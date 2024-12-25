@@ -191,6 +191,7 @@ struct Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4;
 struct TileBase_t07019BD771D35E8EA68118157D6EEE4C770CF0F9;
 struct Tilemap_t18C4166D0AC702D5BFC0C411FA73C4B61D9D1751;
 struct Toggle_tBF13F3EBA485E06826FD8A38F4B4C1380DF21A1F;
+struct TouchScreenKeyboard_tE87B78A3DAED69816B44C99270A734682E093E7A;
 struct Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1;
 struct Type_t;
 struct UnityWebRequest_t6233B8E22992FC2364A831C1ACB033EF3260C39F;
@@ -776,16 +777,16 @@ struct Time_t99142530A23A50FA80D849F6980E4BC026B53D3E  : public RuntimeObject
 struct BindingsMarshaller_t45B5A44FA460EBE2B7151D997ED2C42B85E3CE1C  : public RuntimeObject
 {
 };
-struct U3CTypeTextU3Ed__24_t2BAEA454C50A1546186750C8D0088F0F6865EF6B  : public RuntimeObject
+struct U3CTypeTextU3Ed__25_tDD07961038C25F9F37BC8ECBD9567750B72CB320  : public RuntimeObject
 {
 	int32_t ___U3CU3E1__state;
 	RuntimeObject* ___U3CU3E2__current;
-	String_t* ___text;
 	MobileDemo_t60B2990CF0940649311B1C2192F8982A4B59ACF1* ___U3CU3E4__this;
+	String_t* ___text;
 	String_t* ___U3CU3E7__wrap1;
 	int32_t ___U3CU3E7__wrap2;
 };
-struct U3CWaitForCoroutineU3Ed__26_t672BFCB4D92C39C2E90FEF5830BB505D36D1A7DA  : public RuntimeObject
+struct U3CWaitForCoroutineU3Ed__27_t294CE7BE61AF7CA3C6B5F57162407BE25B3344BB  : public RuntimeObject
 {
 	int32_t ___U3CU3E1__state;
 	RuntimeObject* ___U3CU3E2__current;
@@ -5006,7 +5007,7 @@ struct U3CStartU3Ed__7_t62510F4A1E4F1483A388B7C9317BD991B88F76C4
 	KnowledgeBaseGame_tF10196BB1AA5405064DFE4066BFB6723598085AB* ___U3CU3E4__this;
 	TaskAwaiter_t9B661AC8C2EFA6BAB94C77BB24A5DDA82D61F833 ___U3CU3Eu__1;
 };
-struct U3CStartU3Ed__11_t524FA6DB45B8DEC7C7623F65E2DE604D192BC108 
+struct U3CStartU3Ed__12_t4668A1879D73C8444317A848E710BA6CA7362A82 
 {
 	int32_t ___U3CU3E1__state;
 	AsyncVoidMethodBuilder_t253E37B63E7E7B504878AE6563347C147F98EF2D ___U3CU3Et__builder;
@@ -6234,7 +6235,7 @@ struct U3CInitRAGU3Ed__9_tEF67A1C800ABD569A6446D88AF42A6A5C976D9ED
 	KnowledgeBaseGame_tF10196BB1AA5405064DFE4066BFB6723598085AB* ___U3CU3E4__this;
 	TaskAwaiter_t9B661AC8C2EFA6BAB94C77BB24A5DDA82D61F833 ___U3CU3Eu__1;
 };
-struct U3CDownloadThenWarmupU3Ed__13_t6745DA0740AA3ACBE5AA4BFD9CCBEDA3A0C24A9E 
+struct U3CDownloadThenWarmupU3Ed__14_t66DFC3F9D10C5E3A8A24ECBE4379CA07BD516489 
 {
 	int32_t ___U3CU3E1__state;
 	AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06 ___U3CU3Et__builder;
@@ -6242,7 +6243,7 @@ struct U3CDownloadThenWarmupU3Ed__13_t6745DA0740AA3ACBE5AA4BFD9CCBEDA3A0C24A9E
 	TaskAwaiter_1_t1F3F1A2BD44A71ED705D6586CA2594868672DE35 ___U3CU3Eu__1;
 	TaskAwaiter_t9B661AC8C2EFA6BAB94C77BB24A5DDA82D61F833 ___U3CU3Eu__2;
 };
-struct U3CSubmitMessageU3Ed__12_tA00B62E4A29E81A36A5DBB5F5B0F2D14B5D7AFAA 
+struct U3CSubmitMessageU3Ed__13_tE034306CBF59F90C72633C51C347B7C2D22256F3 
 {
 	int32_t ___U3CU3E1__state;
 	AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06 ___U3CU3Et__builder;
@@ -6250,7 +6251,7 @@ struct U3CSubmitMessageU3Ed__12_tA00B62E4A29E81A36A5DBB5F5B0F2D14B5D7AFAA
 	String_t* ___message;
 	TaskAwaiter_t9B661AC8C2EFA6BAB94C77BB24A5DDA82D61F833 ___U3CU3Eu__1;
 };
-struct U3CTypeTextTaskU3Ed__25_t629674D0A74C7BB810F14014826C2C41FB17673B 
+struct U3CTypeTextTaskU3Ed__26_t499F1A473CD9B696047657E653FA60F40419F1DE 
 {
 	int32_t ___U3CU3E1__state;
 	AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06 ___U3CU3Et__builder;
@@ -6258,7 +6259,7 @@ struct U3CTypeTextTaskU3Ed__25_t629674D0A74C7BB810F14014826C2C41FB17673B
 	String_t* ___text;
 	TaskAwaiter_1_t1F3F1A2BD44A71ED705D6586CA2594868672DE35 ___U3CU3Eu__1;
 };
-struct U3CWarmUpU3Ed__14_t8E870C172F309BCAC6BD6A3A92F7C97822EB4B26 
+struct U3CWarmUpU3Ed__15_t890A6D63005869DCFE720D8E5FE3D6B65F4CCC42 
 {
 	int32_t ___U3CU3E1__state;
 	AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06 ___U3CU3Et__builder;
@@ -6721,6 +6722,7 @@ struct MobileDemo_t60B2990CF0940649311B1C2192F8982A4B59ACF1  : public MonoBehavi
 	float ___typingSpeed;
 	Random_t79716069EDE67D1D7734F60AE402D0CA3FB6B4C8* ___rnd;
 	Task_t751C4CC3ECD055BABA8A0B6A5DFBB4283DCA8572* ___replyTask;
+	TouchScreenKeyboard_tE87B78A3DAED69816B44C99270A734682E093E7A* ___keyboard;
 	bool ___onValidateWarning;
 	bool ___onValidateInfo;
 };
@@ -7374,19 +7376,19 @@ const Il2CppTypeDefinitionSizes g_typeDefinitionSize5461 = { sizeof(KnowledgeBas
 extern const Il2CppTypeDefinitionSizes g_typeDefinitionSize5462;
 const Il2CppTypeDefinitionSizes g_typeDefinitionSize5462 = { sizeof(KnowledgeBaseGameUI_t0D6ADA486C54E260E561AE75C90469D257D7BF99), -1, 0, 0 };
 extern const Il2CppTypeDefinitionSizes g_typeDefinitionSize5463;
-const Il2CppTypeDefinitionSizes g_typeDefinitionSize5463 = { sizeof(U3CDownloadThenWarmupU3Ed__13_t6745DA0740AA3ACBE5AA4BFD9CCBEDA3A0C24A9E)+ sizeof(RuntimeObject), -1, 0, 0 };
+const Il2CppTypeDefinitionSizes g_typeDefinitionSize5463 = { sizeof(U3CDownloadThenWarmupU3Ed__14_t66DFC3F9D10C5E3A8A24ECBE4379CA07BD516489)+ sizeof(RuntimeObject), -1, 0, 0 };
 extern const Il2CppTypeDefinitionSizes g_typeDefinitionSize5464;
-const Il2CppTypeDefinitionSizes g_typeDefinitionSize5464 = { sizeof(U3CStartU3Ed__11_t524FA6DB45B8DEC7C7623F65E2DE604D192BC108)+ sizeof(RuntimeObject), -1, 0, 0 };
+const Il2CppTypeDefinitionSizes g_typeDefinitionSize5464 = { sizeof(U3CStartU3Ed__12_t4668A1879D73C8444317A848E710BA6CA7362A82)+ sizeof(RuntimeObject), -1, 0, 0 };
 extern const Il2CppTypeDefinitionSizes g_typeDefinitionSize5465;
-const Il2CppTypeDefinitionSizes g_typeDefinitionSize5465 = { sizeof(U3CSubmitMessageU3Ed__12_tA00B62E4A29E81A36A5DBB5F5B0F2D14B5D7AFAA)+ sizeof(RuntimeObject), -1, 0, 0 };
+const Il2CppTypeDefinitionSizes g_typeDefinitionSize5465 = { sizeof(U3CSubmitMessageU3Ed__13_tE034306CBF59F90C72633C51C347B7C2D22256F3)+ sizeof(RuntimeObject), -1, 0, 0 };
 extern const Il2CppTypeDefinitionSizes g_typeDefinitionSize5466;
-const Il2CppTypeDefinitionSizes g_typeDefinitionSize5466 = { sizeof(U3CTypeTextU3Ed__24_t2BAEA454C50A1546186750C8D0088F0F6865EF6B), -1, 0, 0 };
+const Il2CppTypeDefinitionSizes g_typeDefinitionSize5466 = { sizeof(U3CTypeTextU3Ed__25_tDD07961038C25F9F37BC8ECBD9567750B72CB320), -1, 0, 0 };
 extern const Il2CppTypeDefinitionSizes g_typeDefinitionSize5467;
-const Il2CppTypeDefinitionSizes g_typeDefinitionSize5467 = { sizeof(U3CTypeTextTaskU3Ed__25_t629674D0A74C7BB810F14014826C2C41FB17673B)+ sizeof(RuntimeObject), -1, 0, 0 };
+const Il2CppTypeDefinitionSizes g_typeDefinitionSize5467 = { sizeof(U3CTypeTextTaskU3Ed__26_t499F1A473CD9B696047657E653FA60F40419F1DE)+ sizeof(RuntimeObject), -1, 0, 0 };
 extern const Il2CppTypeDefinitionSizes g_typeDefinitionSize5468;
-const Il2CppTypeDefinitionSizes g_typeDefinitionSize5468 = { sizeof(U3CWaitForCoroutineU3Ed__26_t672BFCB4D92C39C2E90FEF5830BB505D36D1A7DA), -1, 0, 0 };
+const Il2CppTypeDefinitionSizes g_typeDefinitionSize5468 = { sizeof(U3CWaitForCoroutineU3Ed__27_t294CE7BE61AF7CA3C6B5F57162407BE25B3344BB), -1, 0, 0 };
 extern const Il2CppTypeDefinitionSizes g_typeDefinitionSize5469;
-const Il2CppTypeDefinitionSizes g_typeDefinitionSize5469 = { sizeof(U3CWarmUpU3Ed__14_t8E870C172F309BCAC6BD6A3A92F7C97822EB4B26)+ sizeof(RuntimeObject), -1, 0, 0 };
+const Il2CppTypeDefinitionSizes g_typeDefinitionSize5469 = { sizeof(U3CWarmUpU3Ed__15_t890A6D63005869DCFE720D8E5FE3D6B65F4CCC42)+ sizeof(RuntimeObject), -1, 0, 0 };
 extern const Il2CppTypeDefinitionSizes g_typeDefinitionSize5470;
 const Il2CppTypeDefinitionSizes g_typeDefinitionSize5470 = { sizeof(MobileDemo_t60B2990CF0940649311B1C2192F8982A4B59ACF1), -1, 0, 0 };
 extern const Il2CppTypeDefinitionSizes g_typeDefinitionSize5471;

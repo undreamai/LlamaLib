@@ -29865,6 +29865,48 @@ IL_001c:
 		return L_9;
 	}
 }
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TouchScreenKeyboard_tE87B78A3DAED69816B44C99270A734682E093E7A* TouchScreenKeyboard_Open_m7E1514D1FA05AB51D07B91DD111DE80D0AC278FC (String_t* ___0_text, int32_t ___1_keyboardType, const RuntimeMethod* method) 
+{
+	static bool s_Il2CppMethodInitialized;
+	if (!s_Il2CppMethodInitialized)
+	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&_stringLiteralDA39A3EE5E6B4B0D3255BFEF95601890AFD80709);
+		s_Il2CppMethodInitialized = true;
+	}
+	int32_t V_0 = 0;
+	String_t* V_1 = NULL;
+	bool V_2 = false;
+	bool V_3 = false;
+	bool V_4 = false;
+	bool V_5 = false;
+	TouchScreenKeyboard_tE87B78A3DAED69816B44C99270A734682E093E7A* V_6 = NULL;
+	{
+		V_0 = 0;
+		V_1 = _stringLiteralDA39A3EE5E6B4B0D3255BFEF95601890AFD80709;
+		V_2 = (bool)0;
+		V_3 = (bool)0;
+		V_4 = (bool)0;
+		V_5 = (bool)1;
+		String_t* L_0 = ___0_text;
+		int32_t L_1 = ___1_keyboardType;
+		bool L_2 = V_5;
+		bool L_3 = V_4;
+		bool L_4 = V_3;
+		bool L_5 = V_2;
+		String_t* L_6 = V_1;
+		int32_t L_7 = V_0;
+		TouchScreenKeyboard_tE87B78A3DAED69816B44C99270A734682E093E7A* L_8;
+		L_8 = TouchScreenKeyboard_Open_m2E1E3A71919EE30C51539DF8A037B74BE2D78065(L_0, L_1, L_2, L_3, L_4, L_5, L_6, L_7, NULL);
+		V_6 = L_8;
+		goto IL_0026;
+	}
+
+IL_0026:
+	{
+		TouchScreenKeyboard_tE87B78A3DAED69816B44C99270A734682E093E7A* L_9 = V_6;
+		return L_9;
+	}
+}
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* TouchScreenKeyboard_get_text_m74593E81B017446204A9DB1F7359922A2C005B1E (TouchScreenKeyboard_tE87B78A3DAED69816B44C99270A734682E093E7A* __this, const RuntimeMethod* method) 
 {
 	ManagedSpanWrapper_tE7FC4BBB631B130757F8DEB15853D98FD3D5DC0E V_0;
