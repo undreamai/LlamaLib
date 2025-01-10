@@ -96,9 +96,26 @@ index 65cb92c4..fa5bb0a8 100644
  
      enum ggml_status {
 diff --git a/ggml/src/CMakeLists.txt b/ggml/src/CMakeLists.txt
-index 9022aa3a..ee8cb9cc 100644
+index 9022aa3a..7c9c7834 100644
 --- a/ggml/src/CMakeLists.txt
 +++ b/ggml/src/CMakeLists.txt
+@@ -155,11 +155,11 @@ endif()
+ # Somehow in OpenBSD whenever POSIX conformance is specified
+ # some string functions rely on locale_t availability,
+ # which was introduced in POSIX.1-2008, forcing us to go higher
+-if (CMAKE_SYSTEM_NAME MATCHES "OpenBSD")
+-    add_compile_definitions(_XOPEN_SOURCE=700)
+-else()
+-    add_compile_definitions(_XOPEN_SOURCE=600)
+-endif()
++#if (CMAKE_SYSTEM_NAME MATCHES "OpenBSD")
++#    add_compile_definitions(_XOPEN_SOURCE=700)
++#else()
++#    add_compile_definitions(_XOPEN_SOURCE=600)
++#endif()
+ 
+ # Data types, macros and functions related to controlling CPU affinity and
+ # some memory allocation are available on Linux through GNU extensions in libc
 @@ -204,7 +204,7 @@ endif()
  # ggml
  
@@ -108,6 +125,21 @@ index 9022aa3a..ee8cb9cc 100644
  endif()
  
  add_library(ggml-base
+diff --git a/ggml/src/ggml-metal/ggml-metal.m b/ggml/src/ggml-metal/ggml-metal.m
+index ae6b25ed..5c27541a 100644
+--- a/ggml/src/ggml-metal/ggml-metal.m
++++ b/ggml/src/ggml-metal/ggml-metal.m
+@@ -1923,8 +1923,8 @@ static void ggml_metal_encode_node(
+                 GGML_ASSERT(ne12 % ne02 == 0);
+                 GGML_ASSERT(ne13 % ne03 == 0);
+ 
+-                const uint r2 = ne12/ne02;
+-                const uint r3 = ne13/ne03;
++                const uint32_t r2 = ne12/ne02;
++                const uint32_t r3 = ne13/ne03;
+ 
+                 // find the break-even point where the matrix-matrix kernel becomes more efficient compared
+                 // to the matrix-vector kernel
 diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 index 849c1192..1346b7f1 100644
 --- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
