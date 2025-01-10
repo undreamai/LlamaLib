@@ -1032,15 +1032,15 @@ jobs:
             mkdir build/combo
             cd build/combo
             for f in `find .. -name "*.a"`;do ar -x $f;done
-            mv ../libundreamai_iOS.a ../libundreamai_iOS.a.orig
-            ld -r -o ../libundreamai_iOS.a *.o
-            nm -u ../libundreamai_iOS.a
+            mv ../libundreamai_${{ env.PLATFORM }}.a ../libundreamai_${{ env.PLATFORM }}.a.orig
+            ld -r -o ../libundreamai_${{ env.PLATFORM }}.a *.o
+            nm -u ../libundreamai_${{ env.PLATFORM }}.a
 
 
         - id: pack_artifacts_ios
           name: Pack artifacts
           run: |
-            zip -j ${{ env.UPLOAD_NAME }} build/licenses/* build/libundreamai_ios.a
+            zip -j ${{ env.UPLOAD_NAME }} build/licenses/* build/libundreamai_${{ env.PLATFORM }}.a
 
         - id: upload
           name: Upload Artifacts
@@ -1129,15 +1129,15 @@ jobs:
             mkdir build/combo
             cd build/combo
             for f in `find .. -name "*.a"`;do ar -x $f;done
-            mv ../libundreamai_iOS.a ../libundreamai_iOS.a.orig
-            ld -r -o ../libundreamai_iOS.a *.o
-            nm -u ../libundreamai_iOS.a
+            mv ../libundreamai_${{ env.PLATFORM }}.a ../libundreamai_${{ env.PLATFORM }}.a.orig
+            ld -r -o ../libundreamai_${{ env.PLATFORM }}.a *.o
+            nm -u ../libundreamai_${{ env.PLATFORM }}.a
 
 
         - id: pack_artifacts_ios
           name: Pack artifacts
           run: |
-            zip -j ${{ env.UPLOAD_NAME }} build/licenses/* build/libundreamai_ios.a
+            zip -j ${{ env.UPLOAD_NAME }} build/licenses/* build/libundreamai_${{ env.PLATFORM }}.a
 
         - id: upload
           name: Upload Artifacts
