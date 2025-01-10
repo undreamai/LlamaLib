@@ -303,6 +303,30 @@ jobs:
         @@pack_artifacts_ios@@
         @@upload@@
 
+################################ visionOS ################################
+
+  visionos-build:
+    runs-on: macos-14
+
+    env:
+      CMAKE_COMMON: '-DBUILD_UNDREAMAI_BINARIES=OFF -DGGML_METAL_EMBED_LIBRARY=ON -DCMAKE_SYSTEM_NAME=visionOS -DCMAKE_OSX_DEPLOYMENT_TARGET=1.0 -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=ggml'
+      PLATFORM: visionos
+
+    steps:
+        @@setup_libs_macos@@
+
+        @@checkout@@
+        @@setup_llama_cpp@@
+        @@add_licenses@@
+        @@set_name@@
+
+        @@cmake_build@@
+        @@link_libraries_ios@@
+
+        @@pack_artifacts_ios@@
+        @@upload@@
+
+
 ################################ Release ################################
 
   create_release:
@@ -319,6 +343,7 @@ jobs:
       - windows-hip
       - android-build
       - ios-build
+      - visionos-build
     steps:
         @@checkout@@
         @@download_artifacts@@

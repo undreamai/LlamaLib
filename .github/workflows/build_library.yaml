@@ -1040,6 +1040,104 @@ jobs:
             path: ${{ env.UPLOAD_PATH }}
 
 
+################################ visionOS ################################
+
+  visionos-build:
+    runs-on: macos-14
+
+    env:
+      CMAKE_COMMON: '-DBUILD_UNDREAMAI_BINARIES=OFF -DGGML_METAL_EMBED_LIBRARY=ON -DCMAKE_SYSTEM_NAME=visionOS -DCMAKE_OSX_DEPLOYMENT_TARGET=1.0 -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=ggml'
+      PLATFORM: visionos
+
+    steps:
+        - continue-on-error: true
+          id: setup_libs_macos
+          name: Dependencies
+          run: |
+            echo "Architecture: $(uname -m)"
+            echo "Operating System: $(uname -s)"
+            brew update
+
+
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
+
+        - id: setup_llama_cpp
+          name: Setup llama.cpp
+          run: |
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+        
+            git apply ../llama.cpp.patch
+            if [[ "${{ matrix.tinyBLAS }}" != "" ]]; then
+              echo "tinyBLAS"
+              mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
+              rm -r ggml/src/ggml-cuda
+              cp -R ../tinyBLAS ggml/src/ggml-cuda
+              mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
+            fi
+        
+            for f in examples/server/public/*;do
+                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
+            done
+          shell: bash
+
+        - id: add_licenses
+          name: Add licenses
+          run: |
+            mkdir -p build/licenses build/libs
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+            if [[ "${{ matrix.tinyBLAS }}" != "" ]]; then
+              curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+            fi
+          shell: bash
+
+        - id: set_name
+          name: Set name
+          run: |
+            LIBRARY_SUFFIX="${{ env.PLATFORM }}"
+            if [ "${{ matrix.build }}" != "" ];then LIBRARY_SUFFIX="$LIBRARY_SUFFIX-${{ matrix.build }}"; fi
+            NAME=undreamai-${{ github.ref_name }}-llamacpp-$LIBRARY_SUFFIX.zip
+            echo "LIBRARY_SUFFIX=$LIBRARY_SUFFIX" >> $GITHUB_ENV
+            echo "UPLOAD_NAME=$NAME" >> $GITHUB_ENV
+            echo "UPLOAD_PATH=$NAME" >> $GITHUB_ENV
+          shell: bash
+
+
+        - id: cmake_build
+          name: Build
+          run: |
+            cd build
+            cmake .. -DLIBRARY_SUFFIX="${{ env.LIBRARY_SUFFIX }}" ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+            cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
+
+        - id: link_libraries_ios
+          name: Link libraries
+          run: |
+            mkdir build/combo
+            cd build/combo
+            for f in `find .. -name "*.a"`;do ar -x $f;done
+            mv ../libundreamai_iOS.a ../libundreamai_iOS.a.orig
+            ld -r -o ../libundreamai_iOS.a *.o
+            nm -u ../libundreamai_iOS.a
+
+
+        - id: pack_artifacts_ios
+          name: Pack artifacts
+          run: |
+            zip -j ${{ env.UPLOAD_NAME }} build/licenses/* build/libundreamai_ios.a
+
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_PATH }}
+
+
+
 ################################ Release ################################
 
   create_release:
@@ -1056,6 +1154,7 @@ jobs:
       - windows-hip
       - android-build
       - ios-build
+      - visionos-build
     steps:
         - id: checkout
           name: Clone
