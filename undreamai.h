@@ -40,10 +40,10 @@ class LLM {
         std::string handle_template();
         std::string handle_tokenize(json body);
         std::string handle_detokenize(json body);
-        std::string handle_embeddings (json data, httplib::Response* res=nullptr);
+        std::string handle_embeddings (json data, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = []() { return true; });
         std::string handle_lora_adapters_apply (json data, httplib::Response* res=nullptr);
         std::string handle_lora_adapters_list ();
-        std::string handle_completions(json data, StringWrapper* stringWrapper=nullptr, httplib::Response* res=nullptr);
+        std::string handle_completions(json data, StringWrapper* stringWrapper=nullptr, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = []() { return true; });
         std::string handle_slots_action(json data, httplib::Response* res=nullptr);
         void handle_cancel_action(int id_slot);
 
