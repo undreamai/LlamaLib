@@ -1,9 +1,9 @@
 diff --git a/examples/server/server.cpp b/examples/server/server.cpp
-index 9c86407c..16160e65 100644
+index b1cde2d7..58551e38 100644
 --- a/examples/server/server.cpp
 +++ b/examples/server/server.cpp
-@@ -651,16 +651,24 @@ struct server_context {
- 
+@@ -1725,16 +1725,24 @@ struct server_context {
+     ~server_context() {
          // Clear any sampling context
          for (server_slot & slot : slots) {
 -            common_sampler_free(slot.smpl);
@@ -34,7 +34,7 @@ index 9c86407c..16160e65 100644
          }
  
          llama_batch_free(batch);
-@@ -2403,7 +2411,7 @@ inline void signal_handler(int signal) {
+@@ -3285,7 +3293,7 @@ inline void signal_handler(int signal) {
      shutdown_handler(signal);
  }
  
@@ -44,10 +44,10 @@ index 9c86407c..16160e65 100644
      common_params params;
  
 diff --git a/examples/server/utils.hpp b/examples/server/utils.hpp
-index 1665e9dc..56d24e3b 100644
+index c5987250..f86626f6 100644
 --- a/examples/server/utils.hpp
 +++ b/examples/server/utils.hpp
-@@ -25,20 +25,20 @@
+@@ -29,20 +29,20 @@
  
  using json = nlohmann::ordered_json;
  
@@ -80,13 +80,13 @@ index 1665e9dc..56d24e3b 100644
 +// #define QUE_ERR(fmt, ...) LOG_ERR("que  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
 +// #define QUE_DBG(fmt, ...) LOG_DBG("que  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
  
- // https://community.openai.com/t/openai-chat-list-of-error-codes-and-types/357791/11
- enum error_type {
+ template <typename T>
+ static T json_value(const json & body, const std::string & key, const T & default_value) {
 diff --git a/ggml/include/ggml.h b/ggml/include/ggml.h
-index 65cb92c4..fa5bb0a8 100644
+index 1198dc1f..828d62d1 100644
 --- a/ggml/include/ggml.h
 +++ b/ggml/include/ggml.h
-@@ -318,7 +318,7 @@
+@@ -314,7 +314,7 @@
  extern "C" {
  #endif
  
@@ -96,10 +96,10 @@ index 65cb92c4..fa5bb0a8 100644
  
      enum ggml_status {
 diff --git a/ggml/src/CMakeLists.txt b/ggml/src/CMakeLists.txt
-index 9022aa3a..ee8cb9cc 100644
+index 8d2b948f..4aa5e918 100644
 --- a/ggml/src/CMakeLists.txt
 +++ b/ggml/src/CMakeLists.txt
-@@ -204,7 +204,7 @@ endif()
+@@ -199,7 +199,7 @@ endif()
  # ggml
  
  if (GGML_BACKEND_DL AND NOT BUILD_SHARED_LIBS)
@@ -109,10 +109,10 @@ index 9022aa3a..ee8cb9cc 100644
  
  add_library(ggml-base
 diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-index 849c1192..1346b7f1 100644
+index a9d6b923..8754c984 100644
 --- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 +++ b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-@@ -55,7 +55,7 @@ static_assert(K_QUANTS_PER_ITERATION == 1 || K_QUANTS_PER_ITERATION == 2, "K_QUA
+@@ -48,7 +48,7 @@
          if (err_ != vk::Result::eSuccess) {                         \
              fprintf(stderr, "ggml_vulkan: %s error %s at %s:%d\n",  \
                  #err, to_string(err_).c_str(), __FILE__, __LINE__); \
@@ -122,10 +122,10 @@ index 849c1192..1346b7f1 100644
      } while (0)
  
 diff --git a/ggml/src/ggml.c b/ggml/src/ggml.c
-index 1a9a7efa..48b6de63 100644
+index 92c4294c..8b3d2a7d 100644
 --- a/ggml/src/ggml.c
 +++ b/ggml/src/ggml.c
-@@ -174,7 +174,7 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {
+@@ -177,7 +177,7 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {
      fprintf(stderr, "\n");
  
      ggml_print_backtrace();
