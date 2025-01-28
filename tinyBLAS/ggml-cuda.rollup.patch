@@ -1,5 +1,5 @@
 diff --git a/rollup b/rollup_patched
-index 0510447d..848d43df 100644
+index 522d7dad..ae49ba61 100644
 --- a/rollup
 +++ b/rollup_patched
 @@ -1,3 +1,6 @@
@@ -372,10 +372,10 @@ index 0510447d..848d43df 100644
 +#endif // defined(__HIP_PLATFORM_AMD__) && HIP_VERSION < 50600000
 +#endif // defined(GGML_USE_HIPBLAS)
  
- #if (defined(GGML_USE_HIP) && defined(__HIP_PLATFORM_AMD__)) || __CUDA_ARCH__ >= CC_PASCAL
+ #if (defined(GGML_USE_HIP) && defined(__HIP_PLATFORM_AMD__)) || __CUDA_ARCH__ >= GGML_CUDA_CC_PASCAL
  #define FP16_AVAILABLE
 @@ -198,7 +500,7 @@ static constexpr bool int8_mma_available(const int cc) {
-     return cc < CC_OFFSET_AMD && cc >= CC_TURING;
+     return cc < GGML_CUDA_CC_OFFSET_AMD && cc >= GGML_CUDA_CC_TURING;
  }
  
 -[[noreturn]]
@@ -705,7 +705,7 @@ index 0510447d..848d43df 100644
  ////////////////////////////////////////////////////////////////////////////////
  //
  // ROLLUP template-instances/mmq-instance-q2_k.cu
-@@ -18775,7 +19185,6 @@ void ggml_cuda_argmax(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
+@@ -18773,7 +19183,6 @@ void ggml_cuda_argmax(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
  ////////////////////////////////////////////////////////////////////////////////
  
  
