@@ -391,17 +391,7 @@ void LLM::stop_service(){
     try {
         LOG_INFO("shutting down tasks", {});
         ctx_server.queue_tasks.terminate();
-
-        server_task_result res;
-        res.stop     = true;
-        res.error    = false;
-
-        for(int id_task:ctx_server.queue_results.waiting_task_ids){
-            res.id       = id_task;
-            res.data     = format_error_response("shutting down task " + std::to_string(id_task), ERROR_TYPE_INVALID_REQUEST);
-            ctx_server.queue_results.send(res);
-        }
-
+        ctx_server.cancel_tasks(ctx_server.queue_results.waiting_task_ids);
         if(llama_backend_has_init) llama_backend_free();
         LOG_INFO("service stopped", {});
     } catch(...) {
@@ -545,6 +535,7 @@ std::string LLM::handle_embeddings(
     httplib::Response* res,
     std::function<bool()> is_connection_closed
 ) {
+    oaicompat_type oaicompat = OAICOMPAT_TYPE_NONE;
     // an input prompt can be a string or a list of tokens (integer)
     json prompt;
     if (body.count("input") != 0) {
@@ -564,8 +555,8 @@ std::string LLM::handle_embeddings(
         if (format == "base64") {
             use_base64 = true;
         } else if (format != "float") {
-            res_error(res, format_error_response("The format to return the embeddings in. Can be either float or base64", ERROR_TYPE_INVALID_REQUEST));
-            return;
+            handle_error(*res, format_error_response("The format to return the embeddings in. Can be either float or base64", ERROR_TYPE_INVALID_REQUEST));
+            return "";
         }
     }
 
@@ -573,8 +564,8 @@ std::string LLM::handle_embeddings(
     for (const auto & tokens : tokenized_prompts) {
         // this check is necessary for models that do not add BOS token to the input
         if (tokens.empty()) {
-            res_error(res, format_error_response("Input content cannot be empty", ERROR_TYPE_INVALID_REQUEST));
-            return;
+            handle_error(*res, format_error_response("Input content cannot be empty", ERROR_TYPE_INVALID_REQUEST));
+            return "";
         }
     }
 
@@ -626,7 +617,7 @@ std::string LLM::handle_embeddings(
 std::string LLM::handle_lora_adapters_apply(json body, httplib::Response* res) {
     if (!body.is_array()) {
         if(res != nullptr) handle_error (*res, format_error_response("Request body must be an array", ERROR_TYPE_INVALID_REQUEST));
-        return;
+        return "";
     }
 
     std::vector<common_adapter_lora_info> lora(ctx_server.params_base.lora_adapters);
@@ -638,7 +629,7 @@ std::string LLM::handle_lora_adapters_apply(json body, httplib::Response* res) {
     }
 
     // set value
-    for (const auto & entry : data) {
+    for (const auto & entry : body) {
         int id      = json_value(entry, "id", -1);
         float scale = json_value(entry, "scale", 0.0f);
         if (0 <= id && id < max_idx) {
@@ -684,116 +675,62 @@ std::string LLM::handle_lora_adapters_list(){
     return result.dump();
 }
 
-const std::vector<server_task> create_tasks_inference(httplib::Response & res, json & data)
-{
-    server_task_type type = SERVER_TASK_TYPE_COMPLETION;
-    oaicompat_type oaicompat = AICOMPAT_TYPE_NONE;
-
-    auto completion_id = gen_chatcmplid();
-    std::vector<server_task> tasks;
-
-    try {
-        std::vector<llama_tokens> tokenized_prompts = tokenize_input_prompts(ctx_server.vocab, data.at("prompt"), true, true);
-        tasks.reserve(tokenized_prompts.size());
-        for (size_t i = 0; i < tokenized_prompts.size(); i++) {
-            server_task task = server_task(type);
-
-            task.id    = ctx_server.queue_tasks.get_new_id();
-            task.index = i;
-
-            task.prompt_tokens    = std::move(tokenized_prompts[i]);
-            task.params           = server_task::params_from_json_cmpl(
-                                        ctx_server.ctx,
-                                        ctx_server.params_base,
-                                        data);
-            task.id_selected_slot = json_value(data, "id_slot", -1);
-
-            // OAI-compat
-            task.params.oaicompat         = oaicompat;
-            task.params.oaicompat_cmpl_id = completion_id;
-            // oaicompat_model is already populated by params_from_json_cmpl
-
-            tasks.push_back(task);
-        }
-    } catch (const std::exception & e) {
-        res_error(res, format_error_response(e.what(), ERROR_TYPE_INVALID_REQUEST));
-    }
-    return tasks;
+static bool server_sent_event_with_stringswrapper(
+    StringWrapper* stringWrapper,
+    httplib::DataSink* sink,
+    std::string* result_data,
+    const std::string str
+) {
+    *result_data += str;
+    if (stringWrapper != nullptr) stringWrapper->SetContent(*result_data);
+    if (sink != nullptr) return sink->write(str.c_str(), str.size());
+    return true;
 }
 
-std::string LLM::handle_completions_non_streaming(
-    std::unordered_set<int> task_ids,
-    httplib::Response* res,
-    std::function<bool()> is_connection_closed,
+static bool server_sent_event_with_stringswrapper(
+    StringWrapper* stringWrapper,
+    httplib::DataSink* sink,
+    std::string* result_data,
+    const char* event,
+    const json& data
 ) {
-    std::string result_data = "";
-    ctx_server.receive_multi_results(task_ids, [&](std::vector<server_task_result_ptr> & results) {
-        if (results.size() == 1) {
-            // single result
-            result_data = results[0]->to_json();
-            // res_ok(res, results[0]->to_json());
-        } else {
-            // multiple results (multitask)
-            json arr = json::array();
-            for (const auto & res : results) {
-                arr.push_back(res.data);
-            }
-            result_data = safe_json_to_str(arr);
-        }
-        if(res != nullptr) res_ok(*res, result_data);
-    }, [&](const json & error_data) {
-        LOG_ERROR("Error processing handle_completions_non_streaming request", {});
-        if(res != nullptr) handle_error(*res, error_data);
-    }, is_connection_closed);
-    return result_data;
+    const std::string str = std::string(event) + ": " + safe_json_to_str(data) + "\n\n";
+    return server_sent_event_with_stringswrapper(stringWrapper, sink, result_data, str);
 }
 
 class SinkException : public std::exception {};
 
-std::string handle_completions_streaming_send_event(
-    std::string result_data,
-    const char * event,
-    StringWrapper* stringWrapper,
-    httplib::DataSink* sink,
-    json res_json
-) {
-    const std::string str =
-        std::string(event) + ": " +
-        data.dump(-1, ' ', false, json::error_handler_t::replace) +
-        "\n\n"; // required by RFC 8895 - A message is terminated by a blank line (two line terminators in a row).
-
-    LOG_DBG("data stream, to_send: %s", str.c_str());
-    if (sink != nullptr && !sink->write(str.c_str(), str.size())) {
-        throw SinkException();
-    }
-    result_data += str;
-    if(stringWrapper != nullptr) stringWrapper->SetContent(result_data);
-    return result_data;
-}
-
-std::string LLM::handle_completions_streaming(
+bool LLM::handle_completions_streaming(
     std::unordered_set<int> task_ids,
     StringWrapper* stringWrapper,
-    httplib::DataSink* sink
+    httplib::DataSink* sink,
+    std::string* result_data,
+    oaicompat_type oaicompat,
+    std::function<bool()> is_connection_closed
 ) {
-    std::string result_data = "";
-    ctx_server.receive_cmpl_results_stream(task_ids, [&](const server_task_result & result) -> bool {        
+    ctx_server.receive_cmpl_results_stream(task_ids, [&](server_task_result_ptr & result) -> bool {
         json res_json = result->to_json();
         if (res_json.is_array()) {
             for (const auto & res : res_json) {
-                result_data = handle_completions_streaming_send_event(result_data, "data", stringWrapper, sink, res);
+                if (!server_sent_event_with_stringswrapper(stringWrapper, sink, result_data, "data", res)){
+                    // sending failed (HTTP connection closed), cancel the generation
+                    return false;
+                }
             }
             return true;
         } else {
-            result_data = handle_completions_streaming_send_event(result_data, "data", stringWrapper, sink, res_json);
+            return server_sent_event_with_stringswrapper(stringWrapper, sink, result_data, "data", res_json);
         }
     }, [&](const json & error_data) {
-        result_data = handle_completions_streaming_send_event(result_data, "error", stringWrapper, sink, error_data);
-    }, [&sink]() {
-        // note: do not use req.is_connection_closed here because req is already destroyed
-        return !sink.is_writable();
-    });
-    return result_data;
+        return server_sent_event_with_stringswrapper(stringWrapper, sink, result_data, "error", error_data);
+    }, is_connection_closed
+    );
+    if (oaicompat != OAICOMPAT_TYPE_NONE) {
+        static const std::string ev_done = "data: [DONE]\n\n";
+        server_sent_event_with_stringswrapper(stringWrapper, sink, result_data, ev_done);
+    }
+    if (sink != nullptr) sink->done();
+    return true;
 }
 
 std::string LLM::handle_completions(
@@ -806,7 +743,47 @@ std::string LLM::handle_completions(
     clear_status();
     std::string result_data = "";
     try {
-        std::vector<server_task> tasks = create_tasks_inference(*res, data);
+        server_task_type type = SERVER_TASK_TYPE_COMPLETION;
+        oaicompat_type oaicompat = OAICOMPAT_TYPE_NONE;
+
+        // GGML_ASSERT(type == SERVER_TASK_TYPE_COMPLETION || type == SERVER_TASK_TYPE_INFILL);
+
+        if (ctx_server.params_base.embedding) {
+            handle_error(*res, format_error_response("This server does not support completions. Start it without `--embeddings`", ERROR_TYPE_NOT_SUPPORTED));
+            return "";
+        }
+
+        auto completion_id = gen_chatcmplid();
+        std::vector<server_task> tasks;
+
+        try {
+            std::vector<llama_tokens> tokenized_prompts = tokenize_input_prompts(ctx_server.vocab, data.at("prompt"), true, true);
+            tasks.reserve(tokenized_prompts.size());
+            for (size_t i = 0; i < tokenized_prompts.size(); i++) {
+                server_task task = server_task(type);
+
+                task.id    = ctx_server.queue_tasks.get_new_id();
+                task.index = i;
+
+                task.prompt_tokens    = std::move(tokenized_prompts[i]);
+                task.params           = server_task::params_from_json_cmpl(
+                                            ctx_server.ctx,
+                                            ctx_server.params_base,
+                                            data);
+                task.id_selected_slot = json_value(data, "id_slot", -1);
+
+                // OAI-compat
+                task.params.oaicompat         = oaicompat;
+                task.params.oaicompat_cmpl_id = completion_id;
+                // oaicompat_model is already populated by params_from_json_cmpl
+
+                tasks.push_back(task);
+            }
+        } catch (const std::exception & e) {
+            handle_error(*res, format_error_response(e.what(), ERROR_TYPE_INVALID_REQUEST));
+            return "";
+        }
+
         ctx_server.queue_results.add_waiting_tasks(tasks);
         ctx_server.queue_tasks.post(tasks);
 
@@ -814,26 +791,35 @@ std::string LLM::handle_completions(
         const auto task_ids = server_task::get_list_id(tasks);
 
         if (!stream) {
-            result_data = handle_completions_non_streaming(task_ids, res);
+            ctx_server.receive_multi_results(task_ids, [&](std::vector<server_task_result_ptr> & results) {
+                json result_json;
+                if (results.size() == 1) {
+                    // single result
+                    result_json = results[0]->to_json();
+                } else {
+                    // multiple results (multitask)
+                    result_json = json::array();
+                    for (auto & res : results) {
+                        result_json.push_back(res->to_json());
+                    }
+                }
+                if(res != nullptr) res_ok(*res, result_json);
+                result_data = safe_json_to_str(result_json);
+            }, [&](const json & error_data) {
+                if(res != nullptr) handle_error(*res, error_data);
+            }, is_connection_closed);
+
             ctx_server.queue_results.remove_waiting_task_ids(task_ids);
         } else {
             auto on_complete = [task_ids, this] (bool) {
                 ctx_server.queue_results.remove_waiting_task_ids(task_ids);
             };
             if(res == nullptr){
-                result_data = handle_completions_streaming(task_ids, stringWrapper, nullptr);
+                handle_completions_streaming(task_ids, stringWrapper, nullptr, &result_data, oaicompat);
                 on_complete(true);
             } else {
-                const auto chunked_content_provider = [task_ids, this](size_t, httplib::DataSink & sink) {
-                    bool ok = true;
-                    try {
-                        handle_completions_streaming(task_ids, nullptr, &sink);
-                    } catch (const SinkException& e) {
-                        ok = false;
-                    }
-                    ctx_server.queue_results.remove_waiting_task_ids(task_ids);
-                    if(ok && &sink != nullptr){ sink.done(); }
-                    return ok;
+                const auto chunked_content_provider = [task_ids, this, oaicompat, &result_data](size_t, httplib::DataSink & sink) {
+                    return handle_completions_streaming(task_ids, nullptr, &sink, &result_data, oaicompat, [&sink]() {return !sink.is_writable();});
                 };
                 res->set_chunked_content_provider("text/event-stream", chunked_content_provider, on_complete);
             }
@@ -844,12 +830,16 @@ std::string LLM::handle_completions(
     return result_data;
 }
 
-std::string LLM::handle_slots_action(json data, httplib::Response* res) {
+std::string LLM::handle_slots_action(
+    json data,
+    httplib::Response* res
+) {
     if (setjmp(point) != 0) return "";
     clear_status();
     std::string result_data = "";
     try {
         server_task_type task_type;
+        std::string action = data.at("action");
         if (action == "save") {
             task_type = SERVER_TASK_TYPE_SLOT_SAVE;
         } else if (action == "restore") {
@@ -860,15 +850,7 @@ std::string LLM::handle_slots_action(json data, httplib::Response* res) {
             throw std::runtime_error("Invalid action" + action);
         }
 
-        std::string id_slot_str = req.path_params.at("id_slot");
-        int id_slot;
-
-        try {
-            id_slot = std::stoi(id_slot_str);
-        } catch (const std::exception &) {
-            res_error(res, format_error_response("Invalid slot ID", ERROR_TYPE_INVALID_REQUEST));
-            return;
-        }
+        int id_slot = json_value(data, "id_slot", 0);
 
         server_task task(task_type);
         task.id = ctx_server.queue_tasks.get_new_id();
@@ -888,7 +870,7 @@ std::string LLM::handle_slots_action(json data, httplib::Response* res) {
 
         json result_json = result->to_json();
         result_data = result_json.dump();
-        if (result.error) {
+        if (result->is_error()) {
             LOG_ERROR("Error processing handle_slots_action", result_data);
             if(res != nullptr) handle_error(*res, result_json);
         } else {
