@@ -40,6 +40,27 @@ std::string trim(const std::string &s) {
     return ltrim(rtrim(s));
 }
 
+std::string concatenate_streaming_result(std::string input)
+{
+    std::vector<std::string> contents;
+    std::istringstream stream(input);
+    std::string line;
+
+    std::string output = "";
+    while (std::getline(stream, line)) {
+        if (line.find("data: ") == 0) {
+            std::string json_str = line.substr(6);
+            try {
+                json parsed = json::parse(json_str);
+                output += parsed["content"];
+            } catch (const json::exception& e) {
+                std::cerr << "JSON parse error: " << e.what() << std::endl;
+            }
+        }
+    }
+    return output;
+}
+
 int main(int argc, char ** argv) {
     LLM* llm;
     StringWrapper* stringWrapper = StringWrapper_Construct();
@@ -54,14 +75,18 @@ int main(int argc, char ** argv) {
     std::string reply;
     int id_slot = 0;
 
+    std::cout<<"******* LLM_Construct *******"<<std::endl;
     llm = LLM_Construct(command.c_str());
 
     std::thread t([&]() {LLM_Start(llm);return 1;});
+    std::cout<<"******* LLM_Started *******"<<std::endl;
     while(!LLM_Started(llm)){}
     
+    std::cout<<"******* LLM_SetTemplate *******"<<std::endl;
     LLM_SetTemplate(llm, "mistral");
     assert(llm->chatTemplate == "mistral");
     
+    std::cout<<"******* LLM_Tokenize *******"<<std::endl;
     data["content"] = prompt;
     LLM_Tokenize(llm, data.dump().c_str(), stringWrapper);
     reply = GetFromStringWrapper(stringWrapper);
@@ -69,11 +94,13 @@ int main(int argc, char ** argv) {
     ASSERT(reply_data.count("tokens") > 0);
     ASSERT(reply_data["tokens"].size() > 0);
 
+    std::cout<<"******* LLM_Detokenize *******"<<std::endl;
     LLM_Detokenize(llm, reply.c_str(), stringWrapper);
     reply = GetFromStringWrapper(stringWrapper);
     reply_data = json::parse(reply);
     ASSERT(trim(reply_data["content"]) == data["content"]);
 
+    std::cout<<"******* LLM_Completion *******"<<std::endl;
     data.clear();
     data["id_slot"] = id_slot;
     data["prompt"] = prompt;
@@ -83,7 +110,9 @@ int main(int argc, char ** argv) {
     data["n_keep"] = 30;
     LLM_Completion(llm, data.dump().c_str(), stringWrapper);
     reply = GetFromStringWrapper(stringWrapper);
+    std::cout<<reply<<std::endl;
     reply_data = json::parse(reply);
+    std::cout<<reply_data.count("content")<<std::endl;
     ASSERT(reply_data.count("content") > 0);
 
     data["prompt"] = prompt + std::string(reply_data["content"]);
@@ -94,11 +123,13 @@ int main(int argc, char ** argv) {
     std::cout << std::abs((float)data["n_predict"] - reply_data["tokens"].size()) << std::endl;
     ASSERT(std::abs((float)data["n_predict"] - reply_data["tokens"].size()) < 4);
 
+    std::cout<<"******* LLM_Completion 2 *******"<<std::endl;
     LLM_Completion(llm, data.dump().c_str(), stringWrapper);
     reply = GetFromStringWrapper(stringWrapper);
     reply_data = json::parse(reply);
     ASSERT(reply_data.count("content") > 0);
 
+    std::cout<<"******* LLM_Embeddings *******"<<std::endl;
     data["content"] = prompt;
     LLM_Embeddings(llm, data.dump().c_str(), stringWrapper);
     reply = GetFromStringWrapper(stringWrapper);
@@ -106,11 +137,13 @@ int main(int argc, char ** argv) {
     std::cout << reply_data["embedding"].size() << std::endl;
     ASSERT(reply_data["embedding"].size() > 1000);
 
+    std::cout<<"******* LLM_Lora_List *******"<<std::endl;
     LLM_Lora_List(llm, stringWrapper);
     reply = GetFromStringWrapper(stringWrapper);
     reply_data = json::parse(reply);
     ASSERT(reply_data.size() == 0);
 
+    std::cout<<"******* LLM_Cancel *******"<<std::endl;
     LLM_Cancel(llm, id_slot);
 
     /*
@@ -129,9 +162,12 @@ int main(int argc, char ** argv) {
     std::remove(filename.c_str());
     */
 
+    std::cout<<"******* LLM_StopServer *******"<<std::endl;
     LLM_StopServer(llm);
+    std::cout<<"******* LLM_Stop *******"<<std::endl;
     LLM_Stop(llm);
     t.join();
+    std::cout<<"******* LLM_Delete *******"<<std::endl;
     LLM_Delete(llm);
 
     return 0;

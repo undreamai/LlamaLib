@@ -23,6 +23,11 @@ int status;
 std::string status_message;
 sigjmp_buf point;
 
+static bool always_true()
+{
+    return false;
+}
+
 class LLM {
     public:
         LLM(std::string params_string);
@@ -40,10 +45,10 @@ class LLM {
         std::string handle_template();
         std::string handle_tokenize(json body);
         std::string handle_detokenize(json body);
-        std::string handle_embeddings (json data, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = []() { return true; });
+        std::string handle_embeddings (json data, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_true);
         std::string handle_lora_adapters_apply (json data, httplib::Response* res=nullptr);
         std::string handle_lora_adapters_list ();
-        std::string handle_completions(json data, StringWrapper* stringWrapper=nullptr, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = []() { return true; });
+        std::string handle_completions(json data, StringWrapper* stringWrapper=nullptr, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_true);
         std::string handle_slots_action(json data, httplib::Response* res=nullptr);
         void handle_cancel_action(int id_slot);
 
@@ -67,8 +72,14 @@ class LLM {
 
         void parse_args(std::string params_string);
         void init(int argc, char ** argv);
-        std::string handle_completions_non_streaming(std::unordered_set<int> id_tasks, httplib::Response* res=nullptr);
-        std::string handle_completions_streaming(std::unordered_set<int> id_tasks, StringWrapper* stringWrapper=nullptr, httplib::DataSink* sink=nullptr);
+        bool handle_completions_streaming(
+            std::unordered_set<int> id_tasks,
+            StringWrapper* stringWrapper=nullptr,
+            httplib::DataSink* sink=nullptr,
+            std::string* result_data=nullptr,
+            oaicompat_type oaicompat=OAICOMPAT_TYPE_NONE,
+            std::function<bool()> is_connection_closed = always_true
+        );
         bool middleware_validate_api_key(const httplib::Request & req, httplib::Response & res);
 };
 

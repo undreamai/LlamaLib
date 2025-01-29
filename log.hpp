@@ -24,8 +24,12 @@ void server_log_callback(const char * level, const char * function, int line, co
     }
 
     std::string str = log.dump(-1, ' ', false, json::error_handler_t::replace);
-    printf("%s\n", str.c_str());
-    if(level != "DEBUG" && logStringWrapper != nullptr) logStringWrapper->AddContent(str+"\n");
+    
+    if(level != "DEBUG")
+    {
+        printf("%s\n", str.c_str());
+        if(logStringWrapper != nullptr) logStringWrapper->AddContent(str+"\n");
+    }
     fflush(stdout);
 }
 
