@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.14)
 project("undreamai" C CXX)
 
+set(CMAKE_CUDA_ARCHITECTURES "52;61;70;75;86;89")
+
 add_subdirectory("llama.cpp")
 if(DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
     set_property(DIRECTORY llama.cpp PROPERTY CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
@@ -30,7 +32,6 @@ foreach (target common ggml-cuda ggml-hip ggml-musa)
 endforeach()
 
 set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} /Zm1000")
-set(CMAKE_CUDA_ARCHITECTURES "52;61;70;75;86;89")
 
 set(LIBRARY undreamai)
 if(DEFINED LIBRARY_SUFFIX)
