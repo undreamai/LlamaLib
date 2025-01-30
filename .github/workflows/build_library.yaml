@@ -101,12 +101,12 @@ jobs:
           - build: 'cuda-cu11.7.1'
             defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda" -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
             tinyBLAS: 'ON'
-          - build: 'cuda-cu12.2.0'
+          - build: 'cuda-cu12.4.0'
             defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda" -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
             tinyBLAS: 'ON'
           - build: 'cuda-cu11.7.1-full'
             defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
-          - build: 'cuda-cu12.2.0-full'
+          - build: 'cuda-cu12.4.0-full'
             defines: '-DGGML_CUDA=ON -DCUDAToolkit_ROOT="$GITHUB_WORKSPACE/build/cuda"'
             
     steps:
@@ -569,12 +569,12 @@ jobs:
           - build: 'cuda-cu11.7.1'
             defines: '-DGGML_CUDA=ON -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
             tinyBLAS: 'ON'
-          - build: 'cuda-cu12.2.0'
+          - build: 'cuda-cu12.4.0'
             defines: '-DGGML_CUDA=ON -DGGML_MINIMIZE_CODE_SIZE=ON -DGGML_NO_IQUANTS=ON'
             tinyBLAS: 'ON'
           - build: 'cuda-cu11.7.1-full'
             defines: '-DGGML_CUDA=ON'
-          - build: 'cuda-cu12.2.0-full'
+          - build: 'cuda-cu12.4.0-full'
             defines: '-DGGML_CUDA=ON'
 
     steps:
