@@ -30,6 +30,7 @@ foreach (target common ggml-cuda ggml-hip ggml-musa)
 endforeach()
 
 set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} /Zm1000")
+set(CMAKE_CUDA_ARCHITECTURES "52;61;70;75;86;89")
 
 set(LIBRARY undreamai)
 if(DEFINED LIBRARY_SUFFIX)
