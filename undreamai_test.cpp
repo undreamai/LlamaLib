@@ -85,6 +85,7 @@ int main(int argc, char ** argv) {
     std::cout<<"******* LLM_SetTemplate *******"<<std::endl;
     LLM_SetTemplate(llm, "mistral");
     assert(llm->chatTemplate == "mistral");
+
     
     std::cout<<"******* LLM_Tokenize *******"<<std::endl;
     data["content"] = prompt;
@@ -110,9 +111,7 @@ int main(int argc, char ** argv) {
     data["n_keep"] = 30;
     LLM_Completion(llm, data.dump().c_str(), stringWrapper);
     reply = GetFromStringWrapper(stringWrapper);
-    std::cout<<reply<<std::endl;
     reply_data = json::parse(reply);
-    std::cout<<reply_data.count("content")<<std::endl;
     ASSERT(reply_data.count("content") > 0);
 
     data["prompt"] = prompt + std::string(reply_data["content"]);
@@ -124,18 +123,18 @@ int main(int argc, char ** argv) {
     ASSERT(std::abs((float)data["n_predict"] - reply_data["tokens"].size()) < 4);
 
     std::cout<<"******* LLM_Completion 2 *******"<<std::endl;
+    data["stream"] = true;
     LLM_Completion(llm, data.dump().c_str(), stringWrapper);
     reply = GetFromStringWrapper(stringWrapper);
-    reply_data = json::parse(reply);
-    ASSERT(reply_data.count("content") > 0);
+    reply_data = concatenate_streaming_result(reply);
+    ASSERT(reply_data != "");
 
     std::cout<<"******* LLM_Embeddings *******"<<std::endl;
     data["content"] = prompt;
     LLM_Embeddings(llm, data.dump().c_str(), stringWrapper);
     reply = GetFromStringWrapper(stringWrapper);
     reply_data = json::parse(reply);
-    std::cout << reply_data["embedding"].size() << std::endl;
-    ASSERT(reply_data["embedding"].size() > 1000);
+    ASSERT(reply_data["embedding"].size() == llm->model_meta()["n_embd"]);
 
     std::cout<<"******* LLM_Lora_List *******"<<std::endl;
     LLM_Lora_List(llm, stringWrapper);

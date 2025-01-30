@@ -535,7 +535,7 @@ std::string LLM::handle_embeddings(
     httplib::Response* res,
     std::function<bool()> is_connection_closed
 ) {
-    oaicompat_type oaicompat = OAICOMPAT_TYPE_NONE;
+    oaicompat_type oaicompat = OAICOMPAT_TYPE_EMBEDDING;
     // an input prompt can be a string or a list of tokens (integer)
     json prompt;
     if (body.count("input") != 0) {
@@ -594,7 +594,8 @@ std::string LLM::handle_embeddings(
         std::unordered_set<int> task_ids = server_task::get_list_id(tasks);
         ctx_server.receive_multi_results(task_ids, [&](std::vector<server_task_result_ptr> & results) {
             for (auto & res : results) {
-                GGML_ASSERT(dynamic_cast<server_task_result_embd*>(res.get()) != nullptr);
+                server_task_result_embd* res_embd = dynamic_cast<server_task_result_embd*>(res.get());
+                GGML_ASSERT(res_embd != nullptr);
                 responses.push_back(res->to_json());
             }
         }, [&](const json & error_data) {
@@ -610,8 +611,14 @@ std::string LLM::handle_embeddings(
     }
 
     // write JSON response
-    json root = json(responses);
-    return responses[0].dump();
+    json root = oaicompat == OAICOMPAT_TYPE_EMBEDDING
+        ? format_embeddings_response_oaicompat(body, responses, use_base64)
+        : json(responses);
+
+    // take the pooled data
+    root = root["data"][0];
+    if(res != nullptr) res_ok(*res, root);
+    return safe_json_to_str(root);
 };
 
 std::string LLM::handle_lora_adapters_apply(json body, httplib::Response* res) {
@@ -895,6 +902,11 @@ void LLM::handle_cancel_action(int id_slot) {
     } catch(...) {
         handle_exception();
     }
+}
+
+json LLM::model_meta()
+{
+    return ctx_server.model_meta();
 }
 
 //============================= API IMPLEMENTATION =============================//

@@ -59,6 +59,7 @@ class LLM {
         void set_template(const char* chatTemplate);
         void set_SSL(const char* SSL_cert, const char* SSL_key);
         bool is_running();
+        json model_meta();
 
     private:
         common_params params;
