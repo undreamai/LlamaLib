@@ -5902,7 +5902,7 @@ void launch_fattn(
 
 
 
-#if CUDART_VERSION >= 11800
+#if CUDART_VERSION >= 11080
 
 static __device__ __forceinline__ int ggml_cuda_movmatrix(const int x) {
     int ret = 0;
@@ -5936,7 +5936,7 @@ static __device__ __forceinline__ int ggml_cuda_movmatrix(const int x) {
     return ret_low | ret_high;
 }
 
-#endif // CUDART_VERSION >= 11800
+#endif // CUDART_VERSION >= 11080
 
 
 template <typename T>
