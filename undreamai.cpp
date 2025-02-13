@@ -170,10 +170,12 @@ void LLM::init(int argc, char ** argv){
 
         LOG_INFO("model loaded", {});
 
-        ctx_server.queue_tasks.on_new_task(std::bind(
-            &server_context::process_single_task, &ctx_server, std::placeholders::_1));
-        ctx_server.queue_tasks.on_update_slots(std::bind(
-            &server_context::update_slots, &ctx_server));
+        ctx_server.queue_tasks.on_new_task([this](const server_task & task) {
+            this->ctx_server.process_single_task(task);
+        });
+        ctx_server.queue_tasks.on_update_slots([this]() {
+            this->ctx_server.update_slots();
+        });
     } catch(...) {
         handle_exception(1);
     }
@@ -233,9 +235,13 @@ void LLM::start_server(){
             message = "Unknown Exception";
         }
 
-        json formatted_error = format_error_response(message, ERROR_TYPE_SERVER);
-        LOG_WARNING("got exception: %s\n", formatted_error.dump().c_str());
-        res_error(res, formatted_error);
+        try {
+            json formatted_error = format_error_response(message, ERROR_TYPE_SERVER);
+            LOG_WARNING("got exception: %s\n", formatted_error.dump().c_str());
+            res_error(res, formatted_error);
+        } catch (const std::exception & e) {
+            LOG_ERROR("got exception: %s\n", e.what());
+        }
     });
 
     svr->set_error_handler([&res_error](const httplib::Request &, httplib::Response & res) {
@@ -385,15 +391,36 @@ std::string LLM::get_status_message(){
 void LLM::start_service(){
     LOG_INFO("starting service", {});
     ctx_server.queue_tasks.start_loop();
+    LOG_INFO("stopped service loop", {});
 }
 
 void LLM::stop_service(){
     try {
         LOG_INFO("shutting down tasks", {});
+
+        // hack completion slots to think task is completed
+        for (auto & slot : ctx_server.slots) {
+            if (slot.task_type == SERVER_TASK_TYPE_COMPLETION)
+            {
+                slot.params.stream = false;
+                slot.i_batch = -1;
+                slot.params.n_predict = 1;
+            } else {
+                slot.release();
+            }
+        }
+        LOG_INFO("Wait until tasks are finished", {});
+
+        // wait until tasks are completed
+        while (!ctx_server.queue_tasks.queue_tasks.empty()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
+        LOG_INFO("Tasks are finished", {});
+
         ctx_server.queue_tasks.terminate();
-        ctx_server.cancel_tasks(ctx_server.queue_results.waiting_task_ids);
         if(llama_backend_has_init) llama_backend_free();
         LOG_INFO("service stopped", {});
+
     } catch(...) {
         handle_exception();
     }
@@ -947,7 +974,12 @@ LLM* LLM_Construct(const char* params_string) {
 }
 
 const void LLM_Delete(LLM* llm) {
-    if (llm != nullptr) delete llm;
+    if (llm != nullptr)
+    {
+        LOG_INFO("Deleting LLM service", {});
+        delete llm;
+        llm = nullptr;
+    }
 }
 
 const void LLM_StartServer(LLM* llm) {
