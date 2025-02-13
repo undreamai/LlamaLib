@@ -600,7 +600,6 @@ index 6412186c..07ba578d 100644
                  switch (a->type) {
                      case GGML_TYPE_F32:
                      case GGML_TYPE_F16:
-+                    case GGML_TYPE_BF16: // [jart]
                      case GGML_TYPE_Q4_0:
                      case GGML_TYPE_Q4_1:
                      case GGML_TYPE_Q5_0:
