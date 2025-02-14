@@ -36,7 +36,7 @@ f2(){
     files=`cat files`" "`cat files files.new |sort |uniq -u`
     python3 $TINYBLAS_DIR/rollup.py $files > rollup
     cp rollup rollup_patched
-    patch rollup_patched -i $TINYBLAS_DIR/ggml-cuda.rollup.patch
+    patch rollup_patched -i $TINYBLAS_DIR/ggml-cuda.cu.rollup.patch
 }
 
 f3(){
@@ -50,7 +50,7 @@ f3d(){
 f4(){
     cp rollup_patched $TINYBLAS_DIR/ggml-cuda.cu
     cp rollup $TINYBLAS_DIR/ggml-cuda.cu.rollup
-    git diff --no-index rollup rollup_patched > $TINYBLAS_DIR/ggml-cuda.rollup.patch
+    git diff --no-index rollup rollup_patched > $TINYBLAS_DIR/ggml-cuda.cu.rollup.patch
 }
 
 f5()
@@ -59,6 +59,6 @@ f5()
     cd $BASE_DIR
     sed -i "s/^\( *LLAMACPP_VERSION: *\).*/\1$commit/" .github/workflows_template/build_library_template.yaml
     sed -i "s/^\( *LLAMACPP_VERSION: *\).*/\1$commit/" .github/workflows/build_library.yaml
-    git add .github/workflows/build_library.yaml .github/workflows_template/build_library_template.yaml tinyBLAS/ggml-cuda.cu tinyBLAS/ggml-cuda.cu.rollup tinyBLAS/ggml-cuda.rollup.patch
+    git add .github/workflows/build_library.yaml .github/workflows_template/build_library_template.yaml tinyBLAS/ggml-cuda.cu tinyBLAS/ggml-cuda.cu.rollup tinyBLAS/ggml-cuda.cu.rollup.patch
     git commit -m $commit
 }
