@@ -5925,8 +5925,6 @@ void launch_fattn(
     CUDA_CHECK(cudaGetLastError());
 }
 
-#ifndef GGML_MINIMIZE_CODE_SIZE
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // ROLLUP fattn-mma-f16.cuh
@@ -6849,6 +6847,8 @@ static __device__ __forceinline__ void flash_attn_ext_f16_process_tile(
    NO_DEVICE_CODE;
 #endif // NEW_MMA_AVAILABLE
 }
+
+#ifndef GGML_MINIMIZE_CODE_SIZE
 
 template<int D, int ncols, int nwarps, int KQ_stride, bool use_logit_softcap>
 #if !(defined(GGML_USE_HIP) && defined(__HIP_PLATFORM_AMD__))
