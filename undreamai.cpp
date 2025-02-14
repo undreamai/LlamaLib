@@ -931,9 +931,9 @@ void LLM::handle_cancel_action(int id_slot) {
     }
 }
 
-json LLM::model_meta()
+int LLM::embedding_size()
 {
-    return ctx_server.model_meta();
+    return ctx_server.model_meta()["n_embd"];
 }
 
 //============================= API IMPLEMENTATION =============================//
