@@ -134,7 +134,7 @@ int main(int argc, char ** argv) {
     LLM_Embeddings(llm, data.dump().c_str(), stringWrapper);
     reply = GetFromStringWrapper(stringWrapper);
     reply_data = json::parse(reply);
-    ASSERT(reply_data["embedding"].size() == llm->embedding_size());
+    ASSERT(reply_data["embedding"].size() == LLM_Embedding_Size(llm));
 
     std::cout<<"******* LLM_Lora_List *******"<<std::endl;
     LLM_Lora_List(llm, stringWrapper);

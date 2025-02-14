@@ -122,5 +122,7 @@ extern "C" {
     UNDREAMAI_API const void LLM_Slot(LLM* llm, const char* json_data, StringWrapper* wrapper);
     UNDREAMAI_API const void LLM_Cancel(LLM* llm, int id_slot);
     UNDREAMAI_API const int LLM_Status(LLM* llm, StringWrapper* wrapper);
+
     UNDREAMAI_API const int LLM_Test();
+    UNDREAMAI_API const int LLM_Embedding_Size(LLM* llm);
 };

@@ -1055,3 +1055,7 @@ const int LLM_Status(LLM* llm, StringWrapper* wrapper) {
 const int LLM_Test() {
     return 100;
 }
+
+const int LLM_Embedding_Size(LLM* llm) {
+    return llm->embedding_size();
+}
