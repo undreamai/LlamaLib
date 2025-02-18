@@ -317,7 +317,7 @@ void LLM::start_server(){
     };
 
     const auto handle_embeddings_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return res_ok(res, handle_embeddings(handle_post(req, res), &res, req.is_connection_closed));
+        return handle_embeddings(handle_post(req, res), &res, req.is_connection_closed);
     };
 
     const auto handle_lora_adapters_list_post = [this](const httplib::Request & req, httplib::Response & res) {
@@ -325,11 +325,11 @@ void LLM::start_server(){
     };
 
     const auto handle_lora_adapters_apply_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return res_ok(res, handle_lora_adapters_apply(handle_post(req, res), &res));
+        return handle_lora_adapters_apply(handle_post(req, res), &res);
     };
 
     const auto handle_slots_action_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return res_ok(res, handle_slots_action(handle_post(req, res), &res));
+        return handle_slots_action(handle_post(req, res), &res);
     };
 
     //
@@ -643,9 +643,9 @@ std::string LLM::handle_embeddings(
         : json(responses);
 
     // take the pooled data
-    root = root["data"][0];
+    root = safe_json_to_str(root["data"][0]);
     if(res != nullptr) res_ok(*res, root);
-    return safe_json_to_str(root);
+    return root;
 };
 
 std::string LLM::handle_lora_adapters_apply(json body, httplib::Response* res) {
@@ -709,19 +709,9 @@ std::string LLM::handle_lora_adapters_list(){
     return result.dump();
 }
 
-static bool server_sent_event_with_stringswrapper(
-    StringWrapper* stringWrapper,
-    httplib::DataSink* sink,
-    std::string* result_data,
-    const std::string str
-) {
-    *result_data += str;
-    if (stringWrapper != nullptr) stringWrapper->SetContent(*result_data);
-    if (sink != nullptr) return sink->write(str.c_str(), str.size());
-    return true;
-}
+class SinkException : public std::exception {};
 
-static bool server_sent_event_with_stringswrapper(
+static void server_sent_event_with_stringswrapper(
     StringWrapper* stringWrapper,
     httplib::DataSink* sink,
     std::string* result_data,
@@ -729,10 +719,12 @@ static bool server_sent_event_with_stringswrapper(
     const json& data
 ) {
     const std::string str = std::string(event) + ": " + safe_json_to_str(data) + "\n\n";
-    return server_sent_event_with_stringswrapper(stringWrapper, sink, result_data, str);
+    *result_data += str;
+    if (stringWrapper != nullptr) stringWrapper->SetContent(*result_data);
+    if (sink != nullptr){
+        if (!sink->write(str.c_str(), str.size())) throw SinkException();
+    }
 }
-
-class SinkException : public std::exception {};
 
 std::string LLM::handle_completions_streaming(
     std::unordered_set<int> task_ids,
@@ -746,17 +738,14 @@ std::string LLM::handle_completions_streaming(
         json res_json = result->to_json();
         if (res_json.is_array()) {
             for (const auto & res : res_json) {
-                if (!server_sent_event_with_stringswrapper(stringWrapper, sink, &result_data, "data", res)){
-                    // sending failed (HTTP connection closed), cancel the generation
-                    return false;
-                }
+                server_sent_event_with_stringswrapper(stringWrapper, sink, &result_data, "data", res);
             }
-            return true;
         } else {
-            return server_sent_event_with_stringswrapper(stringWrapper, sink, &result_data, "data", res_json);
+            server_sent_event_with_stringswrapper(stringWrapper, sink, &result_data, "data", res_json);
         }
+        return true;
     }, [&](const json & error_data) {
-        return server_sent_event_with_stringswrapper(stringWrapper, sink, &result_data, "error", error_data);
+        server_sent_event_with_stringswrapper(stringWrapper, sink, &result_data, "error", error_data);
     }, is_connection_closed
     );
     if (sink != nullptr) sink->done();
@@ -849,8 +838,15 @@ std::string LLM::handle_completions(
                 on_complete(true);
             } else {
                 const auto chunked_content_provider = [task_ids, this, oaicompat](size_t, httplib::DataSink & sink) {
-                    handle_completions_streaming(task_ids, nullptr, &sink, oaicompat, [&sink]() {return !sink.is_writable();});
-                    return true;
+                    bool ok = true;
+                    try {
+                        handle_completions_streaming(task_ids, nullptr, &sink, oaicompat, [&sink]() {return !sink.is_writable();});
+                    } catch (const SinkException& e) {
+                        ok = false;
+                    }
+                    // ctx_server.queue_results.remove_waiting_task_ids(task_ids);
+                    if(ok && &sink != nullptr){ sink.done(); }
+                    return ok;
                 };
                 res->set_chunked_content_provider("text/event-stream", chunked_content_provider, on_complete);
             }
