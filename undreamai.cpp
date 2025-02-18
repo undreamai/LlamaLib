@@ -187,14 +187,14 @@ const json handle_post(const httplib::Request & req, httplib::Response & res) {
 };
 
 void res_ok(httplib::Response & res, std::string data){
-    res.set_content(safe_json_to_str(data), MIMETYPE_JSON);
+    res.set_content(data, MIMETYPE_JSON);
     res.status = 200;
 };
 
 void handle_error(httplib::Response & res, const json error_data){
     json final_response {{"error", error_data}};
-    res.set_content(safe_json_to_str(final_response), MIMETYPE_JSON);
-    res.status = json_value(error_data, "code", 500);
+    res.set_content(final_response, MIMETYPE_JSON);
+    res.status = 500;
 }
 
 void LLM::start_server(){
@@ -734,37 +734,33 @@ static bool server_sent_event_with_stringswrapper(
 
 class SinkException : public std::exception {};
 
-bool LLM::handle_completions_streaming(
+std::string LLM::handle_completions_streaming(
     std::unordered_set<int> task_ids,
     StringWrapper* stringWrapper,
     httplib::DataSink* sink,
-    std::string* result_data,
     oaicompat_type oaicompat,
     std::function<bool()> is_connection_closed
 ) {
+    std::string result_data = "";
     ctx_server.receive_cmpl_results_stream(task_ids, [&](server_task_result_ptr & result) -> bool {
         json res_json = result->to_json();
         if (res_json.is_array()) {
             for (const auto & res : res_json) {
-                if (!server_sent_event_with_stringswrapper(stringWrapper, sink, result_data, "data", res)){
+                if (!server_sent_event_with_stringswrapper(stringWrapper, sink, &result_data, "data", res)){
                     // sending failed (HTTP connection closed), cancel the generation
                     return false;
                 }
             }
             return true;
         } else {
-            return server_sent_event_with_stringswrapper(stringWrapper, sink, result_data, "data", res_json);
+            return server_sent_event_with_stringswrapper(stringWrapper, sink, &result_data, "data", res_json);
         }
     }, [&](const json & error_data) {
-        return server_sent_event_with_stringswrapper(stringWrapper, sink, result_data, "error", error_data);
+        return server_sent_event_with_stringswrapper(stringWrapper, sink, &result_data, "error", error_data);
     }, is_connection_closed
     );
-    if (oaicompat != OAICOMPAT_TYPE_NONE) {
-        static const std::string ev_done = "data: [DONE]\n\n";
-        server_sent_event_with_stringswrapper(stringWrapper, sink, result_data, ev_done);
-    }
     if (sink != nullptr) sink->done();
-    return true;
+    return result_data;
 }
 
 std::string LLM::handle_completions(
@@ -837,8 +833,8 @@ std::string LLM::handle_completions(
                         result_json.push_back(res->to_json());
                     }
                 }
-                if(res != nullptr) res_ok(*res, result_json);
                 result_data = safe_json_to_str(result_json);
+                if(res != nullptr) res_ok(*res, result_data);
             }, [&](const json & error_data) {
                 if(res != nullptr) handle_error(*res, error_data);
             }, is_connection_closed);
@@ -849,11 +845,12 @@ std::string LLM::handle_completions(
                 ctx_server.queue_results.remove_waiting_task_ids(task_ids);
             };
             if(res == nullptr){
-                handle_completions_streaming(task_ids, stringWrapper, nullptr, &result_data, oaicompat);
+                result_data = handle_completions_streaming(task_ids, stringWrapper, nullptr, oaicompat);
                 on_complete(true);
             } else {
-                const auto chunked_content_provider = [task_ids, this, oaicompat, &result_data](size_t, httplib::DataSink & sink) {
-                    return handle_completions_streaming(task_ids, nullptr, &sink, &result_data, oaicompat, [&sink]() {return !sink.is_writable();});
+                const auto chunked_content_provider = [task_ids, this, oaicompat](size_t, httplib::DataSink & sink) {
+                    handle_completions_streaming(task_ids, nullptr, &sink, oaicompat, [&sink]() {return !sink.is_writable();});
+                    return true;
                 };
                 res->set_chunked_content_provider("text/event-stream", chunked_content_provider, on_complete);
             }

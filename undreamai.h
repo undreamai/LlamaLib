@@ -74,11 +74,10 @@ class LLM {
 
         void parse_args(std::string params_string);
         void init(int argc, char ** argv);
-        bool handle_completions_streaming(
+        std::string handle_completions_streaming(
             std::unordered_set<int> id_tasks,
             StringWrapper* stringWrapper=nullptr,
             httplib::DataSink* sink=nullptr,
-            std::string* result_data=nullptr,
             oaicompat_type oaicompat=OAICOMPAT_TYPE_NONE,
             std::function<bool()> is_connection_closed = always_true
         );
