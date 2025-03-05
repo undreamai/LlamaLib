@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Specify Version
-version=v1.1.10
+version=v1.2.3
 
 # Create a server directory and navigate into it
 mkdir -p server
