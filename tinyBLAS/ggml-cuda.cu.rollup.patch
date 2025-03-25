@@ -1,5 +1,5 @@
 diff --git a/rollup b/rollup_patched
-index d42eb19f..ed3b5783 100644
+index 6e6116a9..9db446c6 100644
 --- a/rollup
 +++ b/rollup_patched
 @@ -1,3 +1,6 @@
@@ -576,7 +576,7 @@ index d42eb19f..ed3b5783 100644
  void ggml_cuda_error(const char * stmt, const char * func, const char * file, int line, const char * msg) {
      int id = -1; // in case cudaGetDevice fails
      (void)cudaGetDevice(&id);
-@@ -17118,9 +17499,11 @@ static bool ggml_cuda_compute_forward(ggml_backend_cuda_context & ctx, struct gg
+@@ -17113,9 +17494,11 @@ static bool ggml_cuda_compute_forward(ggml_backend_cuda_context & ctx, struct gg
          case GGML_OP_ARGSORT:
              ggml_cuda_op_argsort(ctx, dst);
              break;
@@ -588,7 +588,7 @@ index d42eb19f..ed3b5783 100644
          case GGML_OP_CROSS_ENTROPY_LOSS:
              ggml_cuda_cross_entropy_loss(ctx, dst);
              break;
-@@ -17211,6 +17594,7 @@ static bool ggml_backend_cuda_cpy_tensor_async(ggml_backend_t backend_src, ggml_
+@@ -17206,6 +17589,7 @@ static bool ggml_backend_cuda_cpy_tensor_async(ggml_backend_t backend_src, ggml_
      }
  
      if (backend_src != backend_dst) {
@@ -596,7 +596,7 @@ index d42eb19f..ed3b5783 100644
          // copy on src stream
          if (cuda_ctx_src->device == cuda_ctx_dst->device) {
              CUDA_CHECK(cudaMemcpyAsync(dst->data, src->data, ggml_nbytes(dst), cudaMemcpyDeviceToDevice, cuda_ctx_src->stream()));
-@@ -17878,6 +18262,7 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
+@@ -17873,6 +18257,7 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
              {
                  switch (op->src[0]->type) {
                      case GGML_TYPE_F16:
@@ -604,7 +604,7 @@ index d42eb19f..ed3b5783 100644
                      case GGML_TYPE_F32:
                      case GGML_TYPE_Q4_0:
                      case GGML_TYPE_Q4_1:
-@@ -17933,6 +18318,15 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
+@@ -17928,6 +18313,15 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
                  if (src0_type == src1_type && ggml_is_contiguous(op->src[0]) && ggml_is_contiguous(op->src[1])) {
                      return true;
                  }
@@ -620,7 +620,7 @@ index d42eb19f..ed3b5783 100644
                  return false;
              } break;
          case GGML_OP_DUP:
-@@ -18028,6 +18422,9 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
+@@ -18023,6 +18417,9 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
          case GGML_OP_FLASH_ATTN_EXT: {
  #ifndef FLASH_ATTN_AVAILABLE
              return false;
@@ -630,7 +630,7 @@ index d42eb19f..ed3b5783 100644
  #endif
              if (op->src[1]->type == GGML_TYPE_BF16 || op->src[2]->type == GGML_TYPE_BF16) {
                  return false;
-@@ -18295,6 +18692,8 @@ ggml_backend_t ggml_backend_cuda_init(int device) {
+@@ -18290,6 +18687,8 @@ ggml_backend_t ggml_backend_cuda_init(int device) {
  
  GGML_BACKEND_DL_IMPL(ggml_backend_cuda_reg)
  
@@ -639,7 +639,7 @@ index d42eb19f..ed3b5783 100644
  ////////////////////////////////////////////////////////////////////////////////
  //
  // ROLLUP fattn-wmma-f16.cu
-@@ -19957,6 +20356,11 @@ DECL_FATTN_MMA_F16_CASE(112, 8);
+@@ -19952,6 +20351,11 @@ DECL_FATTN_MMA_F16_CASE(112, 8);
  DECL_FATTN_MMA_F16_CASE(128, 8);
  DECL_FATTN_MMA_F16_CASE(256, 8);
  
@@ -651,7 +651,7 @@ index d42eb19f..ed3b5783 100644
  ////////////////////////////////////////////////////////////////////////////////
  //
  // ROLLUP template-instances/mmq-instance-iq1_s.cu
-@@ -20045,6 +20449,8 @@ DECL_MMQ_CASE(GGML_TYPE_IQ4_NL);
+@@ -20040,6 +20444,8 @@ DECL_MMQ_CASE(GGML_TYPE_IQ4_NL);
  
  DECL_MMQ_CASE(GGML_TYPE_IQ4_XS);
  
@@ -660,7 +660,7 @@ index d42eb19f..ed3b5783 100644
  ////////////////////////////////////////////////////////////////////////////////
  //
  // ROLLUP template-instances/mmq-instance-q2_k.cu
-@@ -20745,7 +21151,6 @@ void ggml_cuda_argmax(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
+@@ -20740,7 +21146,6 @@ void ggml_cuda_argmax(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
  ////////////////////////////////////////////////////////////////////////////////
  
  
