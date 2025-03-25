@@ -18,7 +18,6 @@
 #include <map>
 #include <memory>
 #include <mutex>
-#include <rocwmma/rocwmma.hpp>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -19241,6 +19240,7 @@ GGML_BACKEND_DL_IMPL(ggml_backend_cuda_reg)
 namespace wmma = nvcuda::wmma;
 #elif defined(GGML_HIP_ROCWMMA_FATTN) && defined(FP16_MMA_AVAILABLE)
 #undef HIP_ENABLE_WARP_SYNC_BUILTINS // conflicts with rocWMMA headers
+#include <rocwmma/rocwmma.hpp>
 namespace wmma = rocwmma;
 #endif // !(defined(GGML_USE_HIP) && defined(__HIP_PLATFORM_AMD__))
 #endif // FP16_MMA_AVAILABLE
