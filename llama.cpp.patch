@@ -1,8 +1,8 @@
 diff --git a/examples/server/server.cpp b/examples/server/server.cpp
-index b1cde2d7..58551e38 100644
+index 18caa912..6c85f67c 100644
 --- a/examples/server/server.cpp
 +++ b/examples/server/server.cpp
-@@ -1725,16 +1725,24 @@ struct server_context {
+@@ -1826,16 +1826,24 @@ struct server_context {
      ~server_context() {
          // Clear any sampling context
          for (server_slot & slot : slots) {
@@ -34,7 +34,7 @@ index b1cde2d7..58551e38 100644
          }
  
          llama_batch_free(batch);
-@@ -3285,7 +3293,7 @@ inline void signal_handler(int signal) {
+@@ -3386,7 +3394,7 @@ inline void signal_handler(int signal) {
      shutdown_handler(signal);
  }
  
@@ -44,10 +44,10 @@ index b1cde2d7..58551e38 100644
      common_params params;
  
 diff --git a/examples/server/utils.hpp b/examples/server/utils.hpp
-index c5987250..f86626f6 100644
+index 58cdd6af..f181b61d 100644
 --- a/examples/server/utils.hpp
 +++ b/examples/server/utils.hpp
-@@ -29,20 +29,20 @@
+@@ -26,20 +26,20 @@
  
  using json = nlohmann::ordered_json;
  
@@ -83,7 +83,7 @@ index c5987250..f86626f6 100644
  template <typename T>
  static T json_value(const json & body, const std::string & key, const T & default_value) {
 diff --git a/ggml/include/ggml.h b/ggml/include/ggml.h
-index 1198dc1f..828d62d1 100644
+index cb3edb10..e6a278a2 100644
 --- a/ggml/include/ggml.h
 +++ b/ggml/include/ggml.h
 @@ -314,7 +314,7 @@
@@ -96,10 +96,27 @@ index 1198dc1f..828d62d1 100644
  
      enum ggml_status {
 diff --git a/ggml/src/CMakeLists.txt b/ggml/src/CMakeLists.txt
-index 8d2b948f..4aa5e918 100644
+index 1e4c2422..6e6ca673 100644
 --- a/ggml/src/CMakeLists.txt
 +++ b/ggml/src/CMakeLists.txt
-@@ -199,7 +199,7 @@ endif()
+@@ -139,11 +139,11 @@ endif()
+ # Somehow in OpenBSD whenever POSIX conformance is specified
+ # some string functions rely on locale_t availability,
+ # which was introduced in POSIX.1-2008, forcing us to go higher
+-if (CMAKE_SYSTEM_NAME MATCHES "OpenBSD")
+-    add_compile_definitions(_XOPEN_SOURCE=700)
+-else()
+-    add_compile_definitions(_XOPEN_SOURCE=600)
+-endif()
++# if (CMAKE_SYSTEM_NAME MATCHES "OpenBSD")
++#     add_compile_definitions(_XOPEN_SOURCE=700)
++# else()
++#     add_compile_definitions(_XOPEN_SOURCE=600)
++# endif()
+ 
+ # Data types, macros and functions related to controlling CPU affinity and
+ # some memory allocation are available on Linux through GNU extensions in libc
+@@ -183,7 +183,7 @@ endif()
  # ggml
  
  if (GGML_BACKEND_DL AND NOT BUILD_SHARED_LIBS)
@@ -109,10 +126,10 @@ index 8d2b948f..4aa5e918 100644
  
  add_library(ggml-base
 diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-index a9d6b923..8754c984 100644
+index 37fa8eec..14ad55f6 100644
 --- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 +++ b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-@@ -48,7 +48,7 @@
+@@ -49,7 +49,7 @@
          if (err_ != vk::Result::eSuccess) {                         \
              fprintf(stderr, "ggml_vulkan: %s error %s at %s:%d\n",  \
                  #err, to_string(err_).c_str(), __FILE__, __LINE__); \
@@ -122,10 +139,10 @@ index a9d6b923..8754c984 100644
      } while (0)
  
 diff --git a/ggml/src/ggml.c b/ggml/src/ggml.c
-index 92c4294c..8b3d2a7d 100644
+index 2e081d59..553c2b39 100644
 --- a/ggml/src/ggml.c
 +++ b/ggml/src/ggml.c
-@@ -177,7 +177,7 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {
+@@ -181,7 +181,7 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {
      fprintf(stderr, "\n");
  
      ggml_print_backtrace();
