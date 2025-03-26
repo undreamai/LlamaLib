@@ -123,7 +123,7 @@ jobs:
             cd llama.cpp
             git checkout ${{ env.LLAMACPP_VERSION }}
         
-            git apply ../llama.cpp.patch
+            git apply ../fixes/llama.cpp.patch
             if [[ "${{ matrix.tinyBLAS }}" != "" ]]; then
               echo "tinyBLAS"
               mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
@@ -260,7 +260,7 @@ jobs:
             cd llama.cpp
             git checkout ${{ env.LLAMACPP_VERSION }}
         
-            git apply ../llama.cpp.patch
+            git apply ../fixes/llama.cpp.patch
             if [[ "${{ matrix.tinyBLAS }}" != "" ]]; then
               echo "tinyBLAS"
               mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
@@ -378,7 +378,7 @@ jobs:
             cd llama.cpp
             git checkout ${{ env.LLAMACPP_VERSION }}
         
-            git apply ../llama.cpp.patch
+            git apply ../fixes/llama.cpp.patch
             if [[ "${{ matrix.tinyBLAS }}" != "" ]]; then
               echo "tinyBLAS"
               mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
@@ -465,7 +465,7 @@ jobs:
             cd llama.cpp
             git checkout ${{ env.LLAMACPP_VERSION }}
         
-            git apply ../llama.cpp.patch
+            git apply ../fixes/llama.cpp.patch
             if [[ "${{ matrix.tinyBLAS }}" != "" ]]; then
               echo "tinyBLAS"
               mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
@@ -579,7 +579,7 @@ jobs:
             cd llama.cpp
             git checkout ${{ env.LLAMACPP_VERSION }}
         
-            git apply ../llama.cpp.patch
+            git apply ../fixes/llama.cpp.patch
             if [[ "${{ matrix.tinyBLAS }}" != "" ]]; then
               echo "tinyBLAS"
               mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
@@ -735,7 +735,7 @@ jobs:
             cd llama.cpp
             git checkout ${{ env.LLAMACPP_VERSION }}
         
-            git apply ../llama.cpp.patch
+            git apply ../fixes/llama.cpp.patch
             if [[ "${{ matrix.tinyBLAS }}" != "" ]]; then
               echo "tinyBLAS"
               mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
@@ -879,7 +879,7 @@ jobs:
             cd llama.cpp
             git checkout ${{ env.LLAMACPP_VERSION }}
         
-            git apply ../llama.cpp.patch
+            git apply ../fixes/llama.cpp.patch
             if [[ "${{ matrix.tinyBLAS }}" != "" ]]; then
               echo "tinyBLAS"
               mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
@@ -973,7 +973,7 @@ jobs:
             cd llama.cpp
             git checkout ${{ env.LLAMACPP_VERSION }}
         
-            git apply ../llama.cpp.patch
+            git apply ../fixes/llama.cpp.patch
             if [[ "${{ matrix.tinyBLAS }}" != "" ]]; then
               echo "tinyBLAS"
               mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
@@ -1070,7 +1070,7 @@ jobs:
             cd llama.cpp
             git checkout ${{ env.LLAMACPP_VERSION }}
         
-            git apply ../llama.cpp.patch
+            git apply ../fixes/llama.cpp.patch
             if [[ "${{ matrix.tinyBLAS }}" != "" ]]; then
               echo "tinyBLAS"
               mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
