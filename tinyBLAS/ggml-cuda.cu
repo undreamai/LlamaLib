@@ -626,6 +626,10 @@ static __device__ void no_device_code(
     __trap();
 
     GGML_UNUSED(no_device_code); // suppress unused function warning
+
+#if defined(GGML_USE_MUSA)
+    __builtin_unreachable();
+#endif // defined(GGML_USE_MUSA)
 }
 
 #ifdef __CUDA_ARCH__
@@ -1867,7 +1871,7 @@ static __global__ void concat_f32_dim1(const float * x, const float * y, float *
         blockIdx.y * ne0 +
         blockIdx.z * ne0 * gridDim.y;
 
-    if (blockIdx.y < ne01) { // src0
+    if (blockIdx.y < (unsigned)ne01) { // src0
         int offset_src =
             nidx +
             blockIdx.y * ne0 +
@@ -1893,7 +1897,7 @@ static __global__ void concat_f32_dim2(const float * x, const float * y, float *
         blockIdx.y * ne0 +
         blockIdx.z * ne0 * gridDim.y;
 
-    if (blockIdx.z < ne02) { // src0
+    if (blockIdx.z < (unsigned)ne02) { // src0
         int offset_src =
             nidx +
             blockIdx.y * ne0 +
@@ -2760,7 +2764,7 @@ static __global__ void convert_unary(const void * __restrict__ vx, dst_t * __res
         return;
     }
 
-    const src_t * x = (src_t *) vx;
+    const src_t * x = (const src_t *) vx;
 
     y[i] = x[i];
 }
@@ -2922,6 +2926,10 @@ static  __global__ void conv_transpose_1d_kernel(
         }
     }
     dst[global_index] = accumulator;
+    GGML_UNUSED(p0); GGML_UNUSED(d0); GGML_UNUSED(src0_ne3);
+    GGML_UNUSED(src1_ne3); GGML_UNUSED(dst_ne3);
+    GGML_UNUSED(src1_ne1); GGML_UNUSED(dst_ne1);
+    GGML_UNUSED(src1_ne2); GGML_UNUSED(dst_ne2);
 }
 
 static void conv_transpose_1d_f32_f32_cuda(
@@ -2963,8 +2971,6 @@ void ggml_cuda_op_conv_transpose_1d(ggml_backend_cuda_context & ctx, ggml_tensor
     const int p0 = 0;//opts[3];
     const int d0 = 1;//opts[4];
 
-    const int64_t kernel_size = ggml_nelements(src0);
-    const int64_t input_size = ggml_nelements(src1);
     const int64_t output_size = ggml_nelements(dst);
 
     conv_transpose_1d_f32_f32_cuda(s0, p0, d0, output_size,
@@ -3795,7 +3801,7 @@ static __global__ void mul_mat_vec(
         __syncthreads();
     }
 
-    float sumf;
+    float sumf = 0.0f;
 
     if constexpr (std::is_same<T, half>::value) {
         const half2 * x2 = (const half2 *) x;
@@ -5525,14 +5531,14 @@ static __device__ __forceinline__ void quantize_q8_1_to_shared(
 
     float vals[sizeof(int)] = {0.0f};
 #pragma unroll
-    for (int l = 0; l < sizeof(int); ++l) {
+    for (int l = 0; l < int(sizeof(int)); ++l) {
         vals[l] = scale * x[4*threadIdx.x + l];
     }
 
     float amax = fabsf(vals[0]);
     float sum  = vals[0];
 #pragma unroll
-    for (int l = 1; l < sizeof(int); ++l) {
+    for (int l = 1; l < int(sizeof(int)); ++l) {
         amax = fmaxf(amax, fabsf(vals[l]));
         sum += vals[l];
     }
@@ -5548,7 +5554,7 @@ static __device__ __forceinline__ void quantize_q8_1_to_shared(
 
     if (d != 0.0f) {
 #pragma unroll
-        for (int l = 0; l < sizeof(int); ++l) {
+        for (int l = 0; l < int(sizeof(int)); ++l) {
             q8[l] = roundf(vals[l] / d);
         }
     }
@@ -5848,7 +5854,7 @@ static __global__ void flash_attn_combine_results(
     float VKQ_denominator = 0.0f;
     for (int l = 0; l < parallel_blocks; ++l) {
         const float diff = meta[l].x - kqmax;
-        const float KQ_max_scale = expf(diff);
+        float KQ_max_scale = expf(diff);
         const uint32_t ftz_mask = 0xFFFFFFFF * (diff > SOFTMAX_FTZ_THRESHOLD);
         *((uint32_t *) &KQ_max_scale) &= ftz_mask;
 
@@ -5859,6 +5865,7 @@ static __global__ void flash_attn_combine_results(
     dst[blockIdx.z*D + tid] = VKQ_numerator / VKQ_denominator;
 }
 
+[[noreturn]]
 static void on_no_fattn_vec_case(const int D) {
     if (D == 64) {
         fprintf(stderr, "Unsupported KV type combination for head_size 64.\n");
@@ -6171,6 +6178,7 @@ static __device__ __forceinline__ int ggml_cuda_movmatrix(const int x) {
     asm("movmatrix.sync.aligned.m8n8.trans.b16 %0, %1;"
         : "=r"(ret) : "r"(x));
 #else
+    GGML_UNUSED(x);
     NO_DEVICE_CODE;
 #endif // defined(NEW_MMA_AVAILABLE)
     return ret;
@@ -6323,6 +6331,7 @@ namespace ggml_cuda_mma {
             : "l"(xs));
 #else
         load_generic(xs0, stride);
+        GGML_UNUSED(t);
 #endif // NEW_MMA_AVAILABLE
     }
 
@@ -6943,6 +6952,15 @@ static __device__ __forceinline__ void flash_attn_ext_f16_iter(
 #endif // CP_ASYNC_AVAILABLE
 
 #else
+    GGML_UNUSED(Q_f2); GGML_UNUSED(K_h2); GGML_UNUSED(V_h2);
+    GGML_UNUSED(mask_h2); GGML_UNUSED(dstk); GGML_UNUSED(dstk_fixup);
+    GGML_UNUSED(scale); GGML_UNUSED(slope); GGML_UNUSED(logit_softcap);
+    GGML_UNUSED(ne01); GGML_UNUSED(ne02); GGML_UNUSED(stride_KV);
+    GGML_UNUSED(stride_mask); GGML_UNUSED(jt); GGML_UNUSED(tile_K);
+    GGML_UNUSED(stride_mask); GGML_UNUSED(jt); GGML_UNUSED(tile_K);
+    GGML_UNUSED(tile_V); GGML_UNUSED(tile_mask); GGML_UNUSED(Q_B);
+    GGML_UNUSED(VKQ_C); GGML_UNUSED(KQ_max); GGML_UNUSED(KQ_rowsum);
+    GGML_UNUSED(kb0);
     NO_DEVICE_CODE;
 #endif // NEW_MMA_AVAILABLE
 }
@@ -7334,6 +7352,12 @@ static __device__ __forceinline__ void flash_attn_ext_f16_process_tile(
         __syncthreads();
     }
 #else
+    GGML_UNUSED(Q_f2); GGML_UNUSED(K_h2); GGML_UNUSED(V_h2);
+    GGML_UNUSED(mask_h2); GGML_UNUSED(dstk); GGML_UNUSED(dstk_fixup);
+    GGML_UNUSED(scale); GGML_UNUSED(slope); GGML_UNUSED(logit_softcap);
+    GGML_UNUSED(ne01); GGML_UNUSED(ne02); GGML_UNUSED(stride_Q1);
+    GGML_UNUSED(stride_Q2); GGML_UNUSED(stride_KV); GGML_UNUSED(stride_mask);
+    GGML_UNUSED(jt); GGML_UNUSED(kb0_start); GGML_UNUSED(kb0_stop);
     NO_DEVICE_CODE;
 #endif // NEW_MMA_AVAILABLE
 }
@@ -7468,6 +7492,16 @@ static __global__ void flash_attn_ext_f16(
         (Q_f2, K_h2, V_h2, mask_h2, dstk, dst_meta, scale, slope, logit_softcap,
          ne01, ne02, stride_Q1, stride_Q2, stride_KV, stride_mask, jt, kb0_start_kernel, kb0_stop_kernel);
 #else
+    GGML_UNUSED(Q); GGML_UNUSED(K); GGML_UNUSED(V); GGML_UNUSED(mask);
+    GGML_UNUSED(dst); GGML_UNUSED(dst_meta); GGML_UNUSED(scale);
+    GGML_UNUSED(max_bias); GGML_UNUSED(m0); GGML_UNUSED(m1);
+    GGML_UNUSED(n_head_log2); GGML_UNUSED(logit_softcap); GGML_UNUSED(ne00);
+    GGML_UNUSED(ne01); GGML_UNUSED(ne02); GGML_UNUSED(ne03); GGML_UNUSED(ne10);
+    GGML_UNUSED(ne11); GGML_UNUSED(ne12); GGML_UNUSED(ne13); GGML_UNUSED(ne31);
+    GGML_UNUSED(nb31); GGML_UNUSED(nb01); GGML_UNUSED(nb02); GGML_UNUSED(nb03);
+    GGML_UNUSED(nb11); GGML_UNUSED(nb12); GGML_UNUSED(nb13); GGML_UNUSED(nb21);
+    GGML_UNUSED(nb22); GGML_UNUSED(nb23); GGML_UNUSED(ne0); GGML_UNUSED(ne1);
+    GGML_UNUSED(ne2); GGML_UNUSED(ne3);
     NO_DEVICE_CODE;
 #endif // defined(FLASH_ATTN_AVAILABLE) && defined(NEW_MMA_AVAILABLE)
 }
@@ -7522,41 +7556,41 @@ void ggml_cuda_flash_attn_ext_mma_f16_case(ggml_backend_cuda_context & ctx, ggml
     extern DECL_FATTN_MMA_F16_CASE(D, (ncols)/4, 4); \
     extern DECL_FATTN_MMA_F16_CASE(D, (ncols)/8, 8); \
 
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 64,   8);
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 80,   8);
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 96,   8);
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(112,   8);
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(128,   8);
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(256,   8);
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 64,   8)
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 80,   8)
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 96,   8)
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(112,   8)
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(128,   8)
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(256,   8)
 
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 64,  16);
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 80,  16);
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 96,  16);
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(112,  16);
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(128,  16);
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(256,  16);
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 64,  16)
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 80,  16)
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 96,  16)
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(112,  16)
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(128,  16)
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(256,  16)
 
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 64,  32);
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 80,  32);
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 96,  32);
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(112,  32);
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(128,  32);
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(256,  32);
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 64,  32)
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 80,  32)
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 96,  32)
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(112,  32)
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(128,  32)
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(256,  32)
 
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 64,  64);
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 80,  64);
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 96,  64);
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(112,  64);
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(128,  64);
-DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(256,  64);
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 64,  64)
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 80,  64)
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 96,  64)
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(112,  64)
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(128,  64)
+DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(256,  64)
 
 // Kernels with ncols == 128 are only 4% faster due to register pressure.
-// DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 64, 128);
-// DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 80, 128);
-// DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 96, 128);
-// DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(112, 128);
-// DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(128, 128);
-// DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(256, 128); // Needs too much shared memory.
+// DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 64, 128)
+// DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 80, 128)
+// DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2( 96, 128)
+// DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(112, 128)
+// DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(128, 128)
+// DECL_FATTN_MMA_F16_CASE_ALL_NCOLS2(256, 128) // Needs too much shared memory.
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -7874,7 +7908,19 @@ static __global__ void flash_attn_vec_ext_f16(
         dst_meta[((ic0 + tid)*gridDim.z + blockIdx.z) * gridDim.y + blockIdx.y] = make_float2(kqmax[tid], kqsum[tid]);
     }
 #else
-   NO_DEVICE_CODE;
+    GGML_UNUSED(Q); GGML_UNUSED(K); GGML_UNUSED(V); GGML_UNUSED(mask);
+    GGML_UNUSED(dst); GGML_UNUSED(dst_meta); GGML_UNUSED(scale);
+    GGML_UNUSED(max_bias); GGML_UNUSED(m0); GGML_UNUSED(m1);
+    GGML_UNUSED(n_head_log2); GGML_UNUSED(logit_softcap);
+    GGML_UNUSED(ne00); GGML_UNUSED(ne01); GGML_UNUSED(ne02);
+    GGML_UNUSED(ne03); GGML_UNUSED(ne10); GGML_UNUSED(ne11);
+    GGML_UNUSED(ne12); GGML_UNUSED(ne13); GGML_UNUSED(ne31);
+    GGML_UNUSED(nb31); GGML_UNUSED(nb01); GGML_UNUSED(nb02);
+    GGML_UNUSED(nb03); GGML_UNUSED(nb11); GGML_UNUSED(nb12);
+    GGML_UNUSED(nb13); GGML_UNUSED(nb21); GGML_UNUSED(nb22);
+    GGML_UNUSED(nb23); GGML_UNUSED(ne0); GGML_UNUSED(ne1);
+    GGML_UNUSED(ne2); GGML_UNUSED(ne3);
+    NO_DEVICE_CODE;
 #endif // defined(FLASH_ATTN_AVAILABLE) && defined(FP16_AVAILABLE)
 }
 
@@ -8288,6 +8334,16 @@ static __global__ void flash_attn_vec_ext_f32(
         dst_meta[((ic0 + tid)*gridDim.z + blockIdx.z) * gridDim.y + blockIdx.y] = make_float2(kqmax[tid], kqsum[tid]);
     }
 #else
+    GGML_UNUSED(Q); GGML_UNUSED(K); GGML_UNUSED(V); GGML_UNUSED(mask);
+    GGML_UNUSED(dst); GGML_UNUSED(dst_meta); GGML_UNUSED(scale);
+    GGML_UNUSED(max_bias); GGML_UNUSED(m0); GGML_UNUSED(m1);
+    GGML_UNUSED(n_head_log2); GGML_UNUSED(logit_softcap); GGML_UNUSED(ne00);
+    GGML_UNUSED(ne01); GGML_UNUSED(ne02); GGML_UNUSED(ne03); GGML_UNUSED(ne10);
+    GGML_UNUSED(ne11); GGML_UNUSED(ne12); GGML_UNUSED(ne13); GGML_UNUSED(ne31);
+    GGML_UNUSED(nb31); GGML_UNUSED(nb01); GGML_UNUSED(nb02); GGML_UNUSED(nb03);
+    GGML_UNUSED(nb11); GGML_UNUSED(nb12); GGML_UNUSED(nb13); GGML_UNUSED(nb21);
+    GGML_UNUSED(nb22); GGML_UNUSED(nb23); GGML_UNUSED(ne0); GGML_UNUSED(ne1);
+    GGML_UNUSED(ne2); GGML_UNUSED(ne3);
     NO_DEVICE_CODE;
 #endif // FLASH_ATTN_AVAILABLE
 }
@@ -9031,7 +9087,19 @@ static __global__ void flash_attn_tile_ext_f16(
         }
     }
 #else
-   NO_DEVICE_CODE;
+    GGML_UNUSED(Q); GGML_UNUSED(K); GGML_UNUSED(V); GGML_UNUSED(mask);
+    GGML_UNUSED(dst); GGML_UNUSED(dst_meta); GGML_UNUSED(scale);
+    GGML_UNUSED(max_bias); GGML_UNUSED(m0); GGML_UNUSED(m1);
+    GGML_UNUSED(n_head_log2); GGML_UNUSED(logit_softcap);
+    GGML_UNUSED(ne00); GGML_UNUSED(ne01); GGML_UNUSED(ne02);
+    GGML_UNUSED(ne03); GGML_UNUSED(ne10); GGML_UNUSED(ne11);
+    GGML_UNUSED(ne12); GGML_UNUSED(ne13); GGML_UNUSED(ne31);
+    GGML_UNUSED(nb31); GGML_UNUSED(nb01); GGML_UNUSED(nb02);
+    GGML_UNUSED(nb03); GGML_UNUSED(nb11); GGML_UNUSED(nb12);
+    GGML_UNUSED(nb13); GGML_UNUSED(nb21); GGML_UNUSED(nb22);
+    GGML_UNUSED(nb23); GGML_UNUSED(ne0); GGML_UNUSED(ne1);
+    GGML_UNUSED(ne2); GGML_UNUSED(ne3);
+    NO_DEVICE_CODE;
 #endif // defined(FLASH_ATTN_AVAILABLE) && defined(FP16_AVAILABLE)
 }
 
@@ -9379,6 +9447,18 @@ static __global__ void flash_attn_tile_ext_f32(
         }
     }
 #else
+    GGML_UNUSED(Q); GGML_UNUSED(K); GGML_UNUSED(V); GGML_UNUSED(mask);
+    GGML_UNUSED(dst); GGML_UNUSED(dst_meta); GGML_UNUSED(scale);
+    GGML_UNUSED(max_bias); GGML_UNUSED(m0); GGML_UNUSED(m1);
+    GGML_UNUSED(n_head_log2); GGML_UNUSED(logit_softcap);
+    GGML_UNUSED(ne00); GGML_UNUSED(ne01); GGML_UNUSED(ne02);
+    GGML_UNUSED(ne03); GGML_UNUSED(ne10); GGML_UNUSED(ne11);
+    GGML_UNUSED(ne12); GGML_UNUSED(ne13); GGML_UNUSED(ne31);
+    GGML_UNUSED(nb31); GGML_UNUSED(nb01); GGML_UNUSED(nb02);
+    GGML_UNUSED(nb03); GGML_UNUSED(nb11); GGML_UNUSED(nb12);
+    GGML_UNUSED(nb13); GGML_UNUSED(nb21); GGML_UNUSED(nb22);
+    GGML_UNUSED(nb23); GGML_UNUSED(ne0); GGML_UNUSED(ne1);
+    GGML_UNUSED(ne2); GGML_UNUSED(ne3);
     NO_DEVICE_CODE;
 #endif // FLASH_ATTN_AVAILABLE
 }
@@ -10767,7 +10847,7 @@ static __device__ __forceinline__ void vec_dot_q8_0_16_q8_1_mma(
         }
     }
 #else
-    GGML_UNUSED(x); GGML_UNUSED(y); GGML_UNUSED(sum);
+    GGML_UNUSED(x); GGML_UNUSED(y); GGML_UNUSED(sum); GGML_UNUSED(k00);
     NO_DEVICE_CODE;
 #endif // NEW_MMA_AVAILABLE
 }
@@ -10846,7 +10926,7 @@ static __device__ __forceinline__ void vec_dot_q2_K_q8_1_dp4a(
     }
 
 #pragma unroll
-    for (int k01 = 0; k01 < WARP_SIZE; k01 += QR2_K*VDR_Q2_K_Q8_1_MMQ) {
+    for (int k01 = 0; k01 < WARP_SIZE/2; k01 += QR2_K*VDR_Q2_K_Q8_1_MMQ) {
         const int k0 = k00 + k01;
 
 #pragma unroll
@@ -10857,19 +10937,34 @@ static __device__ __forceinline__ void vec_dot_q2_K_q8_1_dp4a(
             for (int i0 = 0; i0 < mmq_y; i0 += WARP_SIZE) {
                 const int i = i0 + threadIdx.x;
 
-                if (k01 < WARP_SIZE/2) {
-                    constexpr int ns = 2;
-                    sum[j0/nwarps*mmq_y/WARP_SIZE + i0/WARP_SIZE] += vec_dot_q2_K_q8_1_impl_mmq<ns>(
-                        &x_qs[i*(2*WARP_SIZE + 1) + k0], &y_qs[j*MMQ_TILE_Y_K + k01],
-                        &x_dm[i*(WARP_SIZE + 1) + k0/4], k01 < WARP_SIZE/2 ? y_df[j0/nwarps].x : y_df[j0/nwarps].y,
-                        &y_ds[j*MMQ_TILE_Y_K + (1 + k01/QI8_1)]);
-                } else {
-                    constexpr int ns = 1;
-                    sum[j0/nwarps*mmq_y/WARP_SIZE + i0/WARP_SIZE] += vec_dot_q2_K_q8_1_impl_mmq<ns>(
-                        &x_qs[i*(2*WARP_SIZE + 1) + k0], &y_qs[j*MMQ_TILE_Y_K + k01],
-                        &x_dm[i*(WARP_SIZE + 1) + k0/4], k01 < WARP_SIZE/2 ? y_df[j0/nwarps].x : y_df[j0/nwarps].y,
-                        &y_ds[j*MMQ_TILE_Y_K + (1 + k01/QI8_1)]);
-                }
+                constexpr int ns = 2;
+                sum[j0/nwarps*mmq_y/WARP_SIZE + i0/WARP_SIZE] += vec_dot_q2_K_q8_1_impl_mmq<ns>(
+                    &x_qs[i*(2*WARP_SIZE + 1) + k0], &y_qs[j*MMQ_TILE_Y_K + k01],
+                    &x_dm[i*(WARP_SIZE + 1) + k0/4], k01 < WARP_SIZE/2 ? y_df[j0/nwarps].x : y_df[j0/nwarps].y,
+                    &y_ds[j*MMQ_TILE_Y_K + (1 + k01/QI8_1)]);
+            }
+        }
+    }
+
+    // Some compilers fail to unroll the loop over k01 if there is a conditional statement for ns in the inner loop.
+    // As a workaround 2 separate loops are used instead.
+#pragma unroll
+    for (int k01 = WARP_SIZE/2; k01 < WARP_SIZE; k01 += QR2_K*VDR_Q2_K_Q8_1_MMQ) {
+        const int k0 = k00 + k01;
+
+#pragma unroll
+        for (int j0 = 0; j0 < mmq_x; j0 += nwarps) {
+            const int j = j0 + threadIdx.y;
+
+#pragma unroll
+            for (int i0 = 0; i0 < mmq_y; i0 += WARP_SIZE) {
+                const int i = i0 + threadIdx.x;
+
+                constexpr int ns = 1;
+                sum[j0/nwarps*mmq_y/WARP_SIZE + i0/WARP_SIZE] += vec_dot_q2_K_q8_1_impl_mmq<ns>(
+                    &x_qs[i*(2*WARP_SIZE + 1) + k0], &y_qs[j*MMQ_TILE_Y_K + k01],
+                    &x_dm[i*(WARP_SIZE + 1) + k0/4], k01 < WARP_SIZE/2 ? y_df[j0/nwarps].x : y_df[j0/nwarps].y,
+                    &y_ds[j*MMQ_TILE_Y_K + (1 + k01/QI8_1)]);
             }
         }
     }
@@ -10998,7 +11093,7 @@ static __device__ __forceinline__ void vec_dot_q2_K_q8_1_mma(
         }
     }
 #else
-    GGML_UNUSED(x); GGML_UNUSED(y); GGML_UNUSED(sum);
+    GGML_UNUSED(x); GGML_UNUSED(y); GGML_UNUSED(sum); GGML_UNUSED(k00);
     NO_DEVICE_CODE;
 #endif // NEW_MMA_AVAILABLE
 }
@@ -11075,7 +11170,7 @@ template <int mmq_y, int nwarps, bool need_check> static __device__ __forceinlin
         const float d = bxi->d;
 
 #pragma unroll
-        for (int l = 0; l < sizeof(int); ++l) {
+        for (int l = 0; l < int(sizeof(int)); ++l) {
             x_df[i*MMQ_MMA_TILE_X_K_Q3_K + sizeof(int)*(threadIdx.x % (WARP_SIZE/8)) + l] = d*sc8[l];
         }
 #else
@@ -11198,7 +11293,7 @@ template <int mmq_y, int nwarps, bool need_check> static __device__ __forceinlin
         const half2 dm = bxi->dm * make_half2(1.0f, -1.0f);
 
 #pragma unroll
-        for (int l = 0; l < sizeof(int); ++l) {
+        for (int l = 0; l < int(sizeof(int)); ++l) {
             x_dm[i*MMQ_MMA_TILE_X_K_Q8_1 + sizeof(int)*ksc + l] = dm*make_half2(sc8[l], m8[l]);
         }
     }
@@ -11339,7 +11434,7 @@ template <int mmq_y, int nwarps, bool need_check> static __device__ __forceinlin
         const half2 dm = bxi->dm * make_half2(1.0f, -1.0f);
 
 #pragma unroll
-        for (int l = 0; l < sizeof(int); ++l) {
+        for (int l = 0; l < int(sizeof(int)); ++l) {
             x_dm[i*MMQ_MMA_TILE_X_K_Q8_1 + sizeof(int)*ksc + l] = dm*make_half2(sc8[l], m8[l]);
         }
     }
@@ -11632,7 +11727,7 @@ static __device__ __forceinline__ void vec_dot_q6_K_q8_1_mma(
         }
     }
 #else
-    GGML_UNUSED(x); GGML_UNUSED(y); GGML_UNUSED(sum);
+    GGML_UNUSED(x); GGML_UNUSED(y); GGML_UNUSED(sum); GGML_UNUSED(k00);
     NO_DEVICE_CODE;
 #endif // NEW_MMA_AVAILABLE
 }
@@ -12392,6 +12487,8 @@ static __device__ void mul_mat_q_process_tile(
     } else {
         write_back(sum, dst + jt*mmq_x*ne0 + it*mmq_y, ne0, tile_x_max_i, tile_y_max_j);
     }
+
+    GGML_UNUSED(ne00); GGML_UNUSED(ne10);
 }
 
 
@@ -12517,7 +12614,7 @@ static __global__ void mul_mat_q_stream_k_fixup(
         const int it = (kbc_stop - jt*(blocks_per_ne00*nty)) / blocks_per_ne00;
 
         // Skip fixup tile if it's unrelated to the output tile assigned to this CUDA block:
-        if (it != blockIdx.x || jt != blockIdx.y) {
+        if ((unsigned)it != blockIdx.x || (unsigned)jt != blockIdx.y) {
             continue;
         }
 
@@ -12647,7 +12744,6 @@ static void launch_mul_mat_q(ggml_backend_cuda_context & ctx, const mmq_args & a
 template <ggml_type type>
 void mul_mat_q_case(ggml_backend_cuda_context & ctx, const mmq_args & args, cudaStream_t stream) {
     const int id    = ggml_cuda_get_device();
-    const int nsm   = ggml_cuda_info().devices[id].nsm;
     const int cc    = ggml_cuda_info().devices[id].cc;
     const int smpbo = ggml_cuda_info().devices[id].smpbo;
 
@@ -13092,7 +13188,7 @@ static __global__ void mul_mat_vec_q(
     constexpr int blocks_per_iter = vdr * nwarps*warp_size / qi;
 
     // partial sum for each thread
-    float tmp[ncols_y][rows_per_cuda_block] = {0.0f};
+    float tmp[ncols_y][rows_per_cuda_block] = {{0.0f}};
 
     const block_q8_1 * y = (const block_q8_1 *) vy;
 
@@ -13138,10 +13234,12 @@ static __global__ void mul_mat_vec_q(
             tmp[j][i] = warp_reduce_sum<warp_size>(tmp[j][i]);
         }
 
-        if (threadIdx.x < rows_per_cuda_block && (rows_per_cuda_block == 1 || row0 + threadIdx.x < nrows_dst)) {
+        if (threadIdx.x < rows_per_cuda_block && (rows_per_cuda_block == 1 || row0 + threadIdx.x < (unsigned)nrows_dst)) {
             dst[j*nrows_dst + row0 + threadIdx.x] = tmp[j][threadIdx.x];
         }
     }
+
+    GGML_UNUSED(nrows_x);
 }
 
 static std::pair<dim3, dim3> calc_launch_params(const int ncols_y, const int nrows_x, const int warp_size, const mmvq_parameter_table_id table_id) {
@@ -13963,7 +14061,7 @@ static __global__ void pad_f32(const float * x, float * dst, const int ne0, cons
         nidx +
         blockIdx.y * ne0 +
         blockIdx.z * ne0 * gridDim.y;
-    if (nidx < ne00 && blockIdx.y < ne01 && blockIdx.z < ne02*ne03) {
+    if (nidx < ne00 && blockIdx.y < (unsigned)ne01 && blockIdx.z < (unsigned)(ne02*ne03)) {
         int offset_src =
             nidx +
             blockIdx.y * ne00 +
@@ -15637,7 +15735,7 @@ static __global__ void upscale_f32(const float * x, float * dst,
     int i02 = i12 / sf2;
     int i03 = i13 / sf3;
 
-    dst[index] = *(float *)((char *)x + i03 * nb03 + i02 * nb02 + i01 * nb01 + i00 * nb00);
+    dst[index] = *( (const float *)((const char *)x + i03 * nb03 + i02 * nb02 + i01 * nb01 + i00 * nb00) );
 }
 
 static void upscale_f32_cuda(const float * x, float * dst,
@@ -19666,7 +19764,17 @@ static __global__ void flash_attn_ext_f16(
         dst_meta[((ic0 + j_VKQ)*gridDim.z + blockIdx.z) * gridDim.y + blockIdx.y] = dst_meta_val;
     }
 #else
-   NO_DEVICE_CODE;
+    GGML_UNUSED(Q); GGML_UNUSED(K); GGML_UNUSED(V); GGML_UNUSED(mask);
+    GGML_UNUSED(dst); GGML_UNUSED(dst_meta); GGML_UNUSED(scale);
+    GGML_UNUSED(max_bias); GGML_UNUSED(m0); GGML_UNUSED(m1);
+    GGML_UNUSED(n_head_log2); GGML_UNUSED(logit_softcap);
+    GGML_UNUSED(ne00); GGML_UNUSED(ne01); GGML_UNUSED(ne02); GGML_UNUSED(ne03);
+    GGML_UNUSED(ne10); GGML_UNUSED(ne11); GGML_UNUSED(ne12); GGML_UNUSED(ne13);
+    GGML_UNUSED(ne31); GGML_UNUSED(nb31); GGML_UNUSED(nb01); GGML_UNUSED(nb02);
+    GGML_UNUSED(nb03); GGML_UNUSED(nb11); GGML_UNUSED(nb12); GGML_UNUSED(nb13);
+    GGML_UNUSED(nb21); GGML_UNUSED(nb22); GGML_UNUSED(nb23);
+    GGML_UNUSED(ne0); GGML_UNUSED(ne1); GGML_UNUSED(ne2); GGML_UNUSED(ne3);
+    NO_DEVICE_CODE;
 #endif // defined(FLASH_ATTN_AVAILABLE) && (__CUDA_ARCH__ == GGML_CUDA_CC_VOLTA || (defined(GGML_HIP_ROCWMMA_FATTN) && defined(FP16_MMA_AVAILABLE)))
 }
 
