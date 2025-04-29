@@ -1,5 +1,5 @@
 diff --git a/rollup b/rollup_patched
-index 7560541a..7845e801 100644
+index 0552844c..270dda9b 100644
 --- a/rollup
 +++ b/rollup_patched
 @@ -1,3 +1,6 @@
@@ -506,7 +506,7 @@ index 7560541a..7845e801 100644
  ////////////////////////////////////////////////////////////////////////////////
  //
  // ROLLUP getrows.cu
-@@ -12618,6 +12976,7 @@ extern DECL_MMQ_CASE(GGML_TYPE_Q3_K);
+@@ -12622,6 +12980,7 @@ extern DECL_MMQ_CASE(GGML_TYPE_Q3_K);
  extern DECL_MMQ_CASE(GGML_TYPE_Q4_K);
  extern DECL_MMQ_CASE(GGML_TYPE_Q5_K);
  extern DECL_MMQ_CASE(GGML_TYPE_Q6_K);
@@ -514,7 +514,7 @@ index 7560541a..7845e801 100644
  extern DECL_MMQ_CASE(GGML_TYPE_IQ2_XXS);
  extern DECL_MMQ_CASE(GGML_TYPE_IQ2_XS);
  extern DECL_MMQ_CASE(GGML_TYPE_IQ2_S);
-@@ -12626,6 +12985,7 @@ extern DECL_MMQ_CASE(GGML_TYPE_IQ3_S);
+@@ -12630,6 +12989,7 @@ extern DECL_MMQ_CASE(GGML_TYPE_IQ3_S);
  extern DECL_MMQ_CASE(GGML_TYPE_IQ1_S);
  extern DECL_MMQ_CASE(GGML_TYPE_IQ4_NL);
  extern DECL_MMQ_CASE(GGML_TYPE_IQ4_XS);
@@ -522,7 +522,7 @@ index 7560541a..7845e801 100644
  
  // -------------------------------------------------------------------------------------------------------------------------
  
-@@ -12699,6 +13059,7 @@ void ggml_cuda_op_mul_mat_q(
+@@ -12703,6 +13063,7 @@ void ggml_cuda_op_mul_mat_q(
          case GGML_TYPE_Q6_K:
              mul_mat_q_case<GGML_TYPE_Q6_K>(ctx, args, stream);
              break;
@@ -530,7 +530,7 @@ index 7560541a..7845e801 100644
          case GGML_TYPE_IQ2_XXS:
              mul_mat_q_case<GGML_TYPE_IQ2_XXS>(ctx, args, stream);
              break;
-@@ -12723,6 +13084,7 @@ void ggml_cuda_op_mul_mat_q(
+@@ -12727,6 +13088,7 @@ void ggml_cuda_op_mul_mat_q(
          case GGML_TYPE_IQ4_NL:
              mul_mat_q_case<GGML_TYPE_IQ4_NL>(ctx, args, stream);
              break;
@@ -538,7 +538,7 @@ index 7560541a..7845e801 100644
          default:
              GGML_ABORT("fatal error");
              break;
-@@ -13253,6 +13615,7 @@ static void mul_mat_vec_q_switch_type(
+@@ -13261,6 +13623,7 @@ static void mul_mat_vec_q_switch_type(
                   nsamples_x, nsamples_dst, stride_sample_x, stride_sample_y, stride_sample_dst,
                   stream);
              break;
@@ -546,7 +546,7 @@ index 7560541a..7845e801 100644
          case GGML_TYPE_IQ2_XXS:
              mul_mat_vec_q_switch_ncols_dst<GGML_TYPE_IQ2_XXS>
                  (vx, vy, ids, dst, ncols_x, nrows_x, ncols_dst, stride_row_x, stride_col_y, stride_col_dst,
-@@ -13316,6 +13679,7 @@ static void mul_mat_vec_q_switch_type(
+@@ -13324,6 +13687,7 @@ static void mul_mat_vec_q_switch_type(
                   nsamples_x, nsamples_dst, stride_sample_x, stride_sample_y, stride_sample_dst,
                   stream);
              break;
@@ -554,7 +554,7 @@ index 7560541a..7845e801 100644
          default:
              GGML_ABORT("fatal error");
              break;
-@@ -15738,7 +16102,7 @@ void ggml_cuda_op_gated_linear_attn(ggml_backend_cuda_context & ctx, ggml_tensor
+@@ -15746,7 +16110,7 @@ void ggml_cuda_op_gated_linear_attn(ggml_backend_cuda_context & ctx, ggml_tensor
  
  static_assert(sizeof(half) == sizeof(ggml_fp16_t), "wrong fp16 size");
  
@@ -563,7 +563,7 @@ index 7560541a..7845e801 100644
  void ggml_cuda_error(const char * stmt, const char * func, const char * file, int line, const char * msg) {
      int id = -1; // in case cudaGetDevice fails
      (void)cudaGetDevice(&id);
-@@ -18010,9 +18374,11 @@ static bool ggml_cuda_compute_forward(ggml_backend_cuda_context & ctx, struct gg
+@@ -18018,9 +18382,11 @@ static bool ggml_cuda_compute_forward(ggml_backend_cuda_context & ctx, struct gg
          case GGML_OP_ARGSORT:
              ggml_cuda_op_argsort(ctx, dst);
              break;
@@ -575,7 +575,7 @@ index 7560541a..7845e801 100644
          case GGML_OP_CROSS_ENTROPY_LOSS:
              ggml_cuda_cross_entropy_loss(ctx, dst);
              break;
-@@ -18106,6 +18472,7 @@ static bool ggml_backend_cuda_cpy_tensor_async(ggml_backend_t backend_src, ggml_
+@@ -18114,6 +18480,7 @@ static bool ggml_backend_cuda_cpy_tensor_async(ggml_backend_t backend_src, ggml_
      }
  
      if (backend_src != backend_dst) {
@@ -583,7 +583,7 @@ index 7560541a..7845e801 100644
          // copy on src stream
          if (cuda_ctx_src->device == cuda_ctx_dst->device) {
              CUDA_CHECK(cudaMemcpyAsync(dst->data, src->data, ggml_nbytes(dst), cudaMemcpyDeviceToDevice, cuda_ctx_src->stream()));
-@@ -18732,6 +19099,7 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
+@@ -18740,6 +19107,7 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
              {
                  switch (op->src[0]->type) {
                      case GGML_TYPE_F16:
@@ -591,7 +591,7 @@ index 7560541a..7845e801 100644
                      case GGML_TYPE_F32:
                      case GGML_TYPE_Q4_0:
                      case GGML_TYPE_Q4_1:
-@@ -18802,6 +19170,15 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
+@@ -18810,6 +19178,15 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
                  if (src0_type == src1_type && ggml_is_contiguous(op->src[0]) && ggml_is_contiguous(op->src[1])) {
                      return true;
                  }
@@ -607,7 +607,7 @@ index 7560541a..7845e801 100644
                  return false;
              } break;
          case GGML_OP_DUP:
-@@ -19182,6 +19559,8 @@ ggml_backend_t ggml_backend_cuda_init(int device) {
+@@ -19190,6 +19567,8 @@ ggml_backend_t ggml_backend_cuda_init(int device) {
  
  GGML_BACKEND_DL_IMPL(ggml_backend_cuda_reg)
  
@@ -616,7 +616,7 @@ index 7560541a..7845e801 100644
  ////////////////////////////////////////////////////////////////////////////////
  //
  // ROLLUP fattn-wmma-f16.cu
-@@ -19199,6 +19578,7 @@ GGML_BACKEND_DL_IMPL(ggml_backend_cuda_reg)
+@@ -19207,6 +19586,7 @@ GGML_BACKEND_DL_IMPL(ggml_backend_cuda_reg)
  namespace wmma = nvcuda::wmma;
  #elif defined(GGML_HIP_ROCWMMA_FATTN) && defined(FP16_MMA_AVAILABLE)
  #undef HIP_ENABLE_WARP_SYNC_BUILTINS // conflicts with rocWMMA headers
@@ -624,7 +624,7 @@ index 7560541a..7845e801 100644
  namespace wmma = rocwmma;
  #endif // !(defined(GGML_USE_HIP) && defined(__HIP_PLATFORM_AMD__))
  #endif // FP16_MMA_AVAILABLE
-@@ -20829,6 +21209,11 @@ DECL_FATTN_MMA_F16_CASE(112, 4, 2);
+@@ -20837,6 +21217,11 @@ DECL_FATTN_MMA_F16_CASE(112, 4, 2);
  DECL_FATTN_MMA_F16_CASE(128, 4, 2);
  DECL_FATTN_MMA_F16_CASE(256, 4, 2);
  
@@ -636,7 +636,7 @@ index 7560541a..7845e801 100644
  ////////////////////////////////////////////////////////////////////////////////
  //
  // ROLLUP template-instances/fattn-mma-f16-instance-ncols1_4-ncols2_4.cu
-@@ -21109,6 +21494,8 @@ DECL_MMQ_CASE(GGML_TYPE_IQ4_NL);
+@@ -21117,6 +21502,8 @@ DECL_MMQ_CASE(GGML_TYPE_IQ4_NL);
  
  DECL_MMQ_CASE(GGML_TYPE_IQ4_XS);
  
@@ -645,7 +645,7 @@ index 7560541a..7845e801 100644
  ////////////////////////////////////////////////////////////////////////////////
  //
  // ROLLUP template-instances/mmq-instance-q2_k.cu
-@@ -21919,7 +22306,6 @@ void ggml_cuda_argmax(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
+@@ -21927,7 +22314,6 @@ void ggml_cuda_argmax(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
  ////////////////////////////////////////////////////////////////////////////////
  
  
