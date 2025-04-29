@@ -3390,6 +3390,9 @@ void ggml_cuda_cpy_dest_ptrs_copy(ggml_cuda_graph * cuda_graph, char ** host_des
     // copy destination pointers to GPU
     CUDA_CHECK(cudaMemcpyAsync(cuda_graph->dest_ptrs_d, host_dest_ptrs, host_dest_ptrs_size*sizeof(char *), cudaMemcpyHostToDevice, stream));
     cuda_graph->graph_cpynode_index = 0; // reset index
+#else
+    GGML_UNUSED(cuda_graph); GGML_UNUSED(host_dest_ptrs);
+    GGML_UNUSED(host_dest_ptrs_size); GGML_UNUSED(stream);
 #endif
 }
 
@@ -5318,7 +5321,7 @@ static __device__ __forceinline__ T vec_dot_fattn_vec_KQ_q4_0(
     T sum = 0.0f;
 
 #pragma unroll
-    for (int k_KQ_0 = 0; k_KQ_0 < D/sizeof(int); k_KQ_0 += warp_size) {
+    for (int k_KQ_0 = 0; k_KQ_0 < int(D/sizeof(int)); k_KQ_0 += warp_size) {
         const int k_KQ = k_KQ_0 + threadIdx.x;
 
         const int ib    = k_KQ /  QI8_1;
@@ -5358,7 +5361,7 @@ static __device__ __forceinline__ T vec_dot_fattn_vec_KQ_q4_1(
     T sum = 0.0f;
 
 #pragma unroll
-    for (int k_KQ_0 = 0; k_KQ_0 < D/sizeof(int); k_KQ_0 += warp_size) {
+    for (int k_KQ_0 = 0; k_KQ_0 < int(D/sizeof(int)); k_KQ_0 += warp_size) {
         const int k_KQ = k_KQ_0 + threadIdx.x;
 
         const int ib    = k_KQ /  QI8_1;
@@ -5402,7 +5405,7 @@ static __device__ __forceinline__ T vec_dot_fattn_vec_KQ_q5_0(
     T sum = 0.0f;
 
 #pragma unroll
-    for (int k_KQ_0 = 0; k_KQ_0 < D/sizeof(int); k_KQ_0 += warp_size) {
+    for (int k_KQ_0 = 0; k_KQ_0 < int(D/sizeof(int)); k_KQ_0 += warp_size) {
         const int k_KQ = k_KQ_0 + threadIdx.x;
 
         const int ib    = k_KQ /  QI8_1;
@@ -5449,7 +5452,7 @@ static __device__ __forceinline__ T vec_dot_fattn_vec_KQ_q5_1(
     T sum = 0.0f;
 
 #pragma unroll
-    for (int k_KQ_0 = 0; k_KQ_0 < D/sizeof(int); k_KQ_0 += warp_size) {
+    for (int k_KQ_0 = 0; k_KQ_0 < int(D/sizeof(int)); k_KQ_0 += warp_size) {
         const int k_KQ = k_KQ_0 + threadIdx.x;
 
         const int ib    = k_KQ /  QI8_1;
@@ -5500,7 +5503,7 @@ static __device__ __forceinline__ T vec_dot_fattn_vec_KQ_q8_0(
     T sum = 0.0f;
 
 #pragma unroll
-    for (int k_KQ_0 = 0; k_KQ_0 < D/sizeof(int); k_KQ_0 += warp_size) {
+    for (int k_KQ_0 = 0; k_KQ_0 < int(D/sizeof(int)); k_KQ_0 += warp_size) {
         const int k_KQ = k_KQ_0 + threadIdx.x;
 
         const int ib  = k_KQ / QI8_0;
@@ -8142,6 +8145,18 @@ static __global__ void flash_attn_vec_ext_f32(
 
     // Skip unused kernel variants for faster compilation:
     if (use_logit_softcap && !(D == 128 || D == 256)) {
+        GGML_UNUSED(Q); GGML_UNUSED(K); GGML_UNUSED(V); GGML_UNUSED(mask);
+        GGML_UNUSED(dst); GGML_UNUSED(dst_meta); GGML_UNUSED(scale);
+        GGML_UNUSED(max_bias); GGML_UNUSED(m0); GGML_UNUSED(m1);
+        GGML_UNUSED(n_head_log2); GGML_UNUSED(logit_softcap);
+        GGML_UNUSED(ne00); GGML_UNUSED(ne01); GGML_UNUSED(ne02);
+        GGML_UNUSED(ne03); GGML_UNUSED(ne10); GGML_UNUSED(ne11);
+        GGML_UNUSED(ne12); GGML_UNUSED(ne13); GGML_UNUSED(ne31);
+        GGML_UNUSED(nb31); GGML_UNUSED(nb01); GGML_UNUSED(nb02);
+        GGML_UNUSED(nb03); GGML_UNUSED(nb11); GGML_UNUSED(nb12);
+        GGML_UNUSED(nb13); GGML_UNUSED(nb21); GGML_UNUSED(nb22);
+        GGML_UNUSED(nb23); GGML_UNUSED(ne0); GGML_UNUSED(ne1);
+        GGML_UNUSED(ne2); GGML_UNUSED(ne3);
         NO_DEVICE_CODE;
         return;
     }
@@ -8211,7 +8226,7 @@ static __global__ void flash_attn_vec_ext_f32(
             // Set memory to zero if out of bounds:
             if (ncols > 2 && ic0 + j >= ne01) {
 #pragma unroll
-                for (int i0 = 0; i0 < D/sizeof(int); i0 += WARP_SIZE) {
+                for (int i0 = 0; i0 < int(D/sizeof(int)); i0 += WARP_SIZE) {
                     const int i = i0 + threadIdx.x;
 
                     tmp_q_i32[i] = 0;
@@ -8224,7 +8239,7 @@ static __global__ void flash_attn_vec_ext_f32(
 
             const float * Q_f = (const float *) (Q + j*nb01);
 #pragma unroll
-            for (int i0 = 0; i0 < D/sizeof(int); i0 += WARP_SIZE) {
+            for (int i0 = 0; i0 < int(D/sizeof(int)); i0 += WARP_SIZE) {
                 quantize_q8_1_to_shared<float2>(Q_f + 4*i0, scale, tmp_q_i32, tmp_q_ds);
             }
         }
@@ -8237,7 +8252,7 @@ static __global__ void flash_attn_vec_ext_f32(
             float2 * tmp_q_ds  = (float2 *) (tmp_q_i32 + D/sizeof(int));
 
 #pragma unroll
-            for (int i0 = 0; i0 < D/sizeof(int); i0 += WARP_SIZE) {
+            for (int i0 = 0; i0 < int(D/sizeof(int)); i0 += WARP_SIZE) {
                 const int i = i0 + threadIdx.x;
 
                 Q_i32[j][i0/WARP_SIZE] = tmp_q_i32[i];
@@ -9258,6 +9273,18 @@ static __global__ void flash_attn_tile_ext_f32(
     return;
 #endif // FP16_MMA_AVAILABLE
     if (use_logit_softcap && !(D == 128 || D == 256)) {
+        GGML_UNUSED(Q); GGML_UNUSED(K); GGML_UNUSED(V); GGML_UNUSED(mask);
+        GGML_UNUSED(dst); GGML_UNUSED(dst_meta); GGML_UNUSED(scale);
+        GGML_UNUSED(max_bias); GGML_UNUSED(m0); GGML_UNUSED(m1);
+        GGML_UNUSED(n_head_log2); GGML_UNUSED(logit_softcap);
+        GGML_UNUSED(ne00); GGML_UNUSED(ne01); GGML_UNUSED(ne02);
+        GGML_UNUSED(ne03); GGML_UNUSED(ne10); GGML_UNUSED(ne11);
+        GGML_UNUSED(ne12); GGML_UNUSED(ne13); GGML_UNUSED(ne31);
+        GGML_UNUSED(nb31); GGML_UNUSED(nb01); GGML_UNUSED(nb02);
+        GGML_UNUSED(nb03); GGML_UNUSED(nb11); GGML_UNUSED(nb12);
+        GGML_UNUSED(nb13); GGML_UNUSED(nb21); GGML_UNUSED(nb22);
+        GGML_UNUSED(nb23); GGML_UNUSED(ne0); GGML_UNUSED(ne1);
+        GGML_UNUSED(ne2); GGML_UNUSED(ne3);
         NO_DEVICE_CODE;
         return;
     }
