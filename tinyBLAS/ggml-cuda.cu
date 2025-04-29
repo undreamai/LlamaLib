@@ -3063,27 +3063,6 @@ static __device__ void cpy_1_f16_f32(const char * cxi, char * cdsti) {
     *dsti = *xi;
 }
 
-// [jart] bf16
-static __device__ void cpy_1_f32_bf16(const char * cxi, char * cdsti) {
-    const float * xi = (const float *) cxi;
-    __nv_bfloat16 * dsti = (__nv_bfloat16 *) cdsti;
-    *dsti = (__nv_bfloat16)(*xi);
-}
-
-// [jart] bf16
-static __device__ void cpy_1_bf16_bf16(const char * cxi, char * cdsti) {
-    const __nv_bfloat16 * xi = (const __nv_bfloat16 *) cxi;
-    __nv_bfloat16 * dsti = (__nv_bfloat16 *) cdsti;
-    *dsti = *xi;
-}
-
-// [jart] bf16
-static __device__ void cpy_1_bf16_f32(const char * cxi, char * cdsti) {
-    const __nv_bfloat16 * xi = (const __nv_bfloat16 *) cxi;
-    float * dsti = (float *) cdsti;
-    *dsti = *xi;
-}
-
 template <cpy_kernel_t cpy_1>
 static __global__ void cpy_f32_f16(const char * cx, char * cdst_direct, const int ne,
                                    const int ne00, const int ne01, const int ne02, const int nb00, const int nb01, const int nb02,
@@ -3429,16 +3408,6 @@ static void ggml_cpy_f16_f32_cuda(
         (cx, cdst, ne, ne00, ne01, ne02, nb00, nb01, nb02, nb03, ne10, ne11, ne12, nb10, nb11, nb12, nb13, cdst_indirect, graph_cpynode_index++);
 }
 
-static void ggml_cpy_bf16_f32_cuda( // [jart]
-    const char * cx, char * cdst, const int ne,
-    const int ne00, const int ne01, const int ne02, const int nb00, const int nb01, const int nb02,
-    const int nb03, const int ne10, const int ne11, const int ne12, const int nb10, const int nb11, const int nb12, const int nb13, cudaStream_t stream) {
-
-    const int num_blocks = (ne + CUDA_CPY_BLOCK_SIZE - 1) / CUDA_CPY_BLOCK_SIZE;
-    cpy_f32_f16<cpy_1_bf16_f32><<<num_blocks, CUDA_CPY_BLOCK_SIZE, 0, stream>>>
-        (cx, cdst, ne, ne00, ne01, ne02, nb00, nb01, nb02, nb03, ne10, ne11, ne12, nb10, nb11, nb12, nb13);
-}
-
 static void ggml_cpy_f32_f32_cuda(
     const char * cx, char * cdst, const int ne,
     const int ne00, const int ne01, const int ne02, const int nb00, const int nb01, const int nb02,
@@ -3752,12 +3721,6 @@ void* ggml_cuda_cpy_fn(const ggml_tensor * src0, ggml_tensor * src1) {
         return (void*) cpy_f32_f16<cpy_1_f32_f16>;
     } else if (src0->type == GGML_TYPE_F16 && src1->type == GGML_TYPE_F32) {
         return (void*) cpy_f32_f16<cpy_1_f16_f32>;
-    } else if (src0->type == GGML_TYPE_F32 && src1->type == GGML_TYPE_BF16) {
-        return (void*) cpy_f32_f16<cpy_1_f32_bf16>; // [jart]
-    } else if (src0->type == GGML_TYPE_BF16 && src1->type == GGML_TYPE_BF16) {
-        return (void*) cpy_f32_f16<cpy_1_f32_bf16>; // [jart]
-    } else if (src0->type == GGML_TYPE_BF16 && src1->type == GGML_TYPE_F32) {
-        return (void*) cpy_f32_f16<cpy_1_bf16_f32>; // [jart]
     } else {
         GGML_ABORT("%s: unsupported type combination (%s to %s)\n", __func__,
                 ggml_type_name(src0->type), ggml_type_name(src1->type));
