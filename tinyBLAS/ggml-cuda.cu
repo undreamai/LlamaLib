@@ -3018,7 +3018,7 @@ void ggml_cuda_op_conv_transpose_1d(ggml_backend_cuda_context & ctx, ggml_tensor
 
 #define CUDA_CPY_BLOCK_SIZE 64
 
-void ggml_cuda_cpy(ggml_backend_cuda_context & ctx, const ggml_tensor * src0, ggml_tensor * src1);
+void ggml_cuda_cpy(ggml_backend_cuda_context & ctx, const ggml_tensor * src0, ggml_tensor * src1,  bool disable_indirection = false);
 
 void ggml_cuda_dup(ggml_backend_cuda_context & ctx, ggml_tensor * dst);
 
@@ -3617,17 +3617,7 @@ static void ggml_cpy_f16_f16_cuda(
         (cx, cdst, ne, ne00, ne01, ne02, nb00, nb01, nb02, nb03, ne10, ne11, ne12, nb10, nb11, nb12, nb13, cdst_indirect, graph_cpynode_index++);
 }
 
-static void ggml_cpy_bf16_bf16_cuda( // [jart]
-    const char * cx, char * cdst, const int ne,
-    const int ne00, const int ne01, const int ne02, const int nb00, const int nb01, const int nb02,
-    const int nb03, const int ne10, const int ne11, const int ne12, const int nb10, const int nb11, const int nb12, const int nb13, cudaStream_t stream) {
-
-    const int num_blocks = (ne + CUDA_CPY_BLOCK_SIZE - 1) / CUDA_CPY_BLOCK_SIZE;
-    cpy_f32_f16<cpy_1_bf16_bf16><<<num_blocks, CUDA_CPY_BLOCK_SIZE, 0, stream>>>
-        (cx, cdst, ne, ne00, ne01, ne02, nb00, nb01, nb02, nb03, ne10, ne11, ne12, nb10, nb11, nb12, nb13);
-}
-
-void ggml_cuda_cpy(ggml_backend_cuda_context & ctx, const ggml_tensor * src0, ggml_tensor * src1) {
+void ggml_cuda_cpy(ggml_backend_cuda_context & ctx, const ggml_tensor * src0, ggml_tensor * src1, bool disable_indirection_for_this_node) {
     const int64_t ne = ggml_nelements(src0);
     GGML_ASSERT(ne == ggml_nelements(src1));
 
@@ -3664,7 +3654,7 @@ void ggml_cuda_cpy(ggml_backend_cuda_context & ctx, const ggml_tensor * src0, gg
     char ** dest_ptrs_d = nullptr;
     int graph_cpynode_index = -1;
 #if defined(GGML_CUDA_USE_GRAPHS) || defined(GGML_HIP_GRAPHS)
-    if(ctx.cuda_graph->use_cpy_indirection) {
+    if(ctx.cuda_graph->use_cpy_indirection && !disable_indirection_for_this_node) {
         dest_ptrs_d = ctx.cuda_graph->dest_ptrs_d;
         graph_cpynode_index = ctx.cuda_graph->graph_cpynode_index;
     }
@@ -3712,7 +3702,7 @@ void ggml_cuda_cpy(ggml_backend_cuda_context & ctx, const ggml_tensor * src0, gg
                 ggml_type_name(src0->type), ggml_type_name(src1->type));
     }
 #if defined(GGML_CUDA_USE_GRAPHS) || defined(GGML_HIP_GRAPHS)
-    if(ctx.cuda_graph->use_cpy_indirection) {
+    if(ctx.cuda_graph->use_cpy_indirection && !disable_indirection_for_this_node) {
         ctx.cuda_graph->graph_cpynode_index = graph_cpynode_index;
     }
 #endif
@@ -3721,7 +3711,8 @@ void ggml_cuda_cpy(ggml_backend_cuda_context & ctx, const ggml_tensor * src0, gg
 
 void ggml_cuda_dup(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
     const ggml_tensor * src0 = dst->src[0];
-    ggml_cuda_cpy(ctx, src0, dst);
+    bool disable_indirection = true;
+    ggml_cuda_cpy(ctx, src0, dst, disable_indirection);
 }
 
 void* ggml_cuda_cpy_fn(const ggml_tensor * src0, ggml_tensor * src1) {
@@ -18418,7 +18409,7 @@ static bool check_node_graph_compatibility_and_refresh_copy_ops(ggml_backend_cud
 #endif
         }
 
-        if (node->op == GGML_OP_MUL_MAT_ID || node->op == GGML_OP_CONT || node->op == GGML_OP_DUP) {
+        if (node->op == GGML_OP_MUL_MAT_ID) {
             use_cuda_graph = false; // This node type is not supported by CUDA graph capture
 #ifndef NDEBUG
             GGML_LOG_DEBUG("%s: disabling CUDA graphs due to unsupported node type\n", __func__);
