@@ -1,5 +1,5 @@
 diff --git a/rollup b/rollup_patched
-index c0091eff..6ef8363c 100644
+index 2bd8f4a0..b2089491 100644
 --- a/rollup
 +++ b/rollup_patched
 @@ -1,3 +1,6 @@
