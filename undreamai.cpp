@@ -170,8 +170,8 @@ void LLM::init(int argc, char ** argv){
 
         LOG_INFO("model loaded", {});
 
-        ctx_server.queue_tasks.on_new_task([this](const server_task & task) {
-            this->ctx_server.process_single_task(task);
+        ctx_server.queue_tasks.on_new_task([&ctx_server](server_task && task) {
+            ctx_server.process_single_task(std::move(task));
         });
         ctx_server.queue_tasks.on_update_slots([this]() {
             this->ctx_server.update_slots();
@@ -256,13 +256,23 @@ void LLM::start_server(){
     svr->set_write_timeout(params.timeout_write);
 
     bool was_bound = false;
-    if (params.port == 0) {
-        int bound_port = svr->bind_to_any_port(params.hostname);
-        if ((was_bound = (bound_port >= 0))) {
-            params.port = bound_port;
-        }
+    if (string_ends_with(std::string(params.hostname), ".sock")) {
+        LOG_INF("%s: setting address family to AF_UNIX\n", __func__);
+        svr->set_address_family(AF_UNIX);
+        // bind_to_port requires a second arg, any value other than 0 should
+        // simply get ignored
+        was_bound = svr->bind_to_port(params.hostname, 8080);
     } else {
-        was_bound = svr->bind_to_port(params.hostname, params.port);
+        LOG_INF("%s: binding port with default address family\n", __func__);
+        // bind HTTP listen port
+        if (params.port == 0) {
+            int bound_port = svr->bind_to_any_port(params.hostname);
+            if ((was_bound = (bound_port >= 0))) {
+                params.port = bound_port;
+            }
+        } else {
+            was_bound = svr->bind_to_port(params.hostname, params.port);
+        }
     }
 
     if (!was_bound) {
@@ -599,6 +609,7 @@ std::string LLM::handle_embeddings(
     // create and queue the task
     json responses = json::array();
     bool error = false;
+    std::unordered_set<int> task_ids;
     {
         std::vector<server_task> tasks;
         for (size_t i = 0; i < tokenized_prompts.size(); i++) {
@@ -611,27 +622,27 @@ std::string LLM::handle_embeddings(
             // OAI-compat
             task.params.oaicompat = oaicompat;
 
-            tasks.push_back(task);
+            tasks.push_back(std::move(task));
         }
 
+        task_ids = server_task::get_list_id(tasks);
         ctx_server.queue_results.add_waiting_tasks(tasks);
-        ctx_server.queue_tasks.post(tasks);
-
-        // get the result
-        std::unordered_set<int> task_ids = server_task::get_list_id(tasks);
-        ctx_server.receive_multi_results(task_ids, [&](std::vector<server_task_result_ptr> & results) {
-            for (auto & res : results) {
-                server_task_result_embd* res_embd = dynamic_cast<server_task_result_embd*>(res.get());
-                GGML_ASSERT(res_embd != nullptr);
-                responses.push_back(res->to_json());
-            }
-        }, [&](const json & error_data) {
-            handle_error(*res, error_data);
-            error = true;
-        }, is_connection_closed);
-
-        ctx_server.queue_results.remove_waiting_task_ids(task_ids);
+        ctx_server.queue_tasks.post(std::move(tasks));
     }
+
+    // get the result
+    ctx_server.receive_multi_results(task_ids, [&](std::vector<server_task_result_ptr> & results) {
+        for (auto & res : results) {
+            server_task_result_embd* res_embd = dynamic_cast<server_task_result_embd*>(res.get());
+            GGML_ASSERT(res_embd != nullptr);
+            responses.push_back(res->to_json());
+        }
+    }, [&](const json & error_data) {
+        handle_error(*res, error_data);
+        error = true;
+    }, is_connection_closed);
+
+    ctx_server.queue_results.remove_waiting_task_ids(task_ids);
 
     if (error) {
         return "";
@@ -680,7 +691,7 @@ std::string LLM::handle_lora_adapters_apply(json body, httplib::Response* res) {
     task.id = ctx_server.queue_tasks.get_new_id();
     task.set_lora = lora;
     ctx_server.queue_results.add_waiting_task_id(task.id);
-    ctx_server.queue_tasks.post(task);
+    ctx_server.queue_tasks.post(std::move(task));
 
     server_task_result_ptr result = ctx_server.queue_results.recv(task.id);
     ctx_server.queue_results.remove_waiting_task_id(task.id);
@@ -773,9 +784,10 @@ std::string LLM::handle_completions(
         }
 
         auto completion_id = gen_chatcmplid();
-        std::vector<server_task> tasks;
+        std::unordered_set<int> task_ids;
 
         try {
+            std::vector<server_task> tasks;
             std::vector<llama_tokens> tokenized_prompts = tokenize_input_prompts(ctx_server.vocab, data.at("prompt"), true, true);
             tasks.reserve(tokenized_prompts.size());
             for (size_t i = 0; i < tokenized_prompts.size(); i++) {
@@ -796,18 +808,18 @@ std::string LLM::handle_completions(
                 task.params.oaicompat_cmpl_id = completion_id;
                 // oaicompat_model is already populated by params_from_json_cmpl
 
-                tasks.push_back(task);
+                tasks.push_back(std::move(task));
             }
+
+            task_ids = server_task::get_list_id(tasks);
+            ctx_server.queue_results.add_waiting_tasks(tasks);
+            ctx_server.queue_tasks.post(std::move(tasks));
         } catch (const std::exception & e) {
             handle_error(*res, format_error_response(e.what(), ERROR_TYPE_INVALID_REQUEST));
             return "";
         }
 
-        ctx_server.queue_results.add_waiting_tasks(tasks);
-        ctx_server.queue_tasks.post(tasks);
-
         bool stream = json_value(data, "stream", false);
-        const auto task_ids = server_task::get_list_id(tasks);
 
         if (!stream) {
             ctx_server.receive_multi_results(task_ids, [&](std::vector<server_task_result_ptr> & results) {
@@ -890,7 +902,7 @@ std::string LLM::handle_slots_action(
         }
 
         ctx_server.queue_results.add_waiting_task_id(task.id);
-        ctx_server.queue_tasks.post(task);
+        ctx_server.queue_tasks.post(std::move(task));
 
         server_task_result_ptr result = ctx_server.queue_results.recv(task.id);
         ctx_server.queue_results.remove_waiting_task_id(task.id);
