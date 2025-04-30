@@ -170,8 +170,8 @@ void LLM::init(int argc, char ** argv){
 
         LOG_INFO("model loaded", {});
 
-        ctx_server.queue_tasks.on_new_task([&ctx_server](server_task && task) {
-            ctx_server.process_single_task(std::move(task));
+        ctx_server.queue_tasks.on_new_task([this](server_task && task) {
+            this->ctx_server.process_single_task(std::move(task));
         });
         ctx_server.queue_tasks.on_update_slots([this]() {
             this->ctx_server.update_slots();
