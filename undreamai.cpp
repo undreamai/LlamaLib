@@ -170,8 +170,8 @@ void LLM::init(int argc, char ** argv){
 
         LOG_INFO("model loaded", {});
 
-        ctx_server.queue_tasks.on_new_task([this](server_task && task) {
-            this->ctx_server.process_single_task(std::move(task));
+        ctx_server.queue_tasks.on_new_task([this](const server_task & task) {
+            this->ctx_server.process_single_task(task);
         });
         ctx_server.queue_tasks.on_update_slots([this]() {
             this->ctx_server.update_slots();
@@ -622,12 +622,12 @@ std::string LLM::handle_embeddings(
             // OAI-compat
             task.params.oaicompat = oaicompat;
 
-            tasks.push_back(std::move(task));
+            tasks.push_back(task);
         }
 
         task_ids = server_task::get_list_id(tasks);
         ctx_server.queue_results.add_waiting_tasks(tasks);
-        ctx_server.queue_tasks.post(std::move(tasks));
+        ctx_server.queue_tasks.post(tasks);
     }
 
     // get the result
@@ -691,7 +691,7 @@ std::string LLM::handle_lora_adapters_apply(json body, httplib::Response* res) {
     task.id = ctx_server.queue_tasks.get_new_id();
     task.set_lora = lora;
     ctx_server.queue_results.add_waiting_task_id(task.id);
-    ctx_server.queue_tasks.post(std::move(task));
+    ctx_server.queue_tasks.post(task);
 
     server_task_result_ptr result = ctx_server.queue_results.recv(task.id);
     ctx_server.queue_results.remove_waiting_task_id(task.id);
@@ -808,12 +808,12 @@ std::string LLM::handle_completions(
                 task.params.oaicompat_cmpl_id = completion_id;
                 // oaicompat_model is already populated by params_from_json_cmpl
 
-                tasks.push_back(std::move(task));
+                tasks.push_back(task);
             }
 
             task_ids = server_task::get_list_id(tasks);
             ctx_server.queue_results.add_waiting_tasks(tasks);
-            ctx_server.queue_tasks.post(std::move(tasks));
+            ctx_server.queue_tasks.post(tasks);
         } catch (const std::exception & e) {
             handle_error(*res, format_error_response(e.what(), ERROR_TYPE_INVALID_REQUEST));
             return "";
@@ -902,7 +902,7 @@ std::string LLM::handle_slots_action(
         }
 
         ctx_server.queue_results.add_waiting_task_id(task.id);
-        ctx_server.queue_tasks.post(std::move(task));
+        ctx_server.queue_tasks.post(task);
 
         server_task_result_ptr result = ctx_server.queue_results.recv(task.id);
         ctx_server.queue_results.remove_waiting_task_id(task.id);
