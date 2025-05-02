@@ -79,3 +79,12 @@ if (BUILD_UNDREAMAI_BINARIES)
         target_compile_definitions(${SERVER} PRIVATE CPPHTTPLIB_OPENSSL_SUPPORT)
     endif()
 endif()
+
+
+set(DYNAMIC undreamai_dynamic)
+add_executable(${DYNAMIC} undreamai_dynamic.cpp log.hpp stringwrapper.cpp)
+install(TARGETS ${DYNAMIC} RUNTIME)
+target_include_directories(${DYNAMIC} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} llama.cpp/examples/server llama.cpp)
+target_link_libraries(${DYNAMIC} PRIVATE ${LIBRARY} common ${CMAKE_THREAD_LIBS_INIT})
+target_compile_features(${DYNAMIC} PRIVATE cxx_std_11)
+add_compile_definitions(${DYNAMIC} PRIVATE UNDREAMAI_EXPORTS)
