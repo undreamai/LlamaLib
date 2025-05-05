@@ -197,6 +197,19 @@ void handle_error(httplib::Response & res, const json error_data){
     res.status = 500;
 }
 
+void LLM::release_slot(server_slot slot)
+{
+    if (slot.task_type == SERVER_TASK_TYPE_COMPLETION)
+    {
+        slot.params.stream = false;
+        slot.i_batch = -1;
+        slot.params.n_predict = 1;
+    }
+    else {
+        slot.release();
+    }
+}
+
 void LLM::start_server(){
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
     if (params.ssl_file_key != "" && params.ssl_file_cert != "") {
@@ -409,15 +422,8 @@ void LLM::stop_service(){
         LOG_INFO("shutting down tasks", {});
 
         // hack completion slots to think task is completed
-        for (auto & slot : ctx_server.slots) {
-            if (slot.task_type == SERVER_TASK_TYPE_COMPLETION)
-            {
-                slot.params.stream = false;
-                slot.i_batch = -1;
-                slot.params.n_predict = 1;
-            } else {
-                slot.release();
-            }
+        for (server_slot & slot : ctx_server.slots) {
+            release_slot(slot);
         }
         LOG_INFO("Wait until tasks are finished", {});
 
@@ -927,7 +933,7 @@ void LLM::handle_cancel_action(int id_slot) {
     try {
         for (auto & slot : ctx_server.slots) {
             if (slot.id == id_slot) {
-                slot.release();
+                release_slot(slot);
                 break;
             }
         }
