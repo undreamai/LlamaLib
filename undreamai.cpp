@@ -27,42 +27,80 @@ void clear_status() {
     if (status < 0) init_status();
 }
 
-static void handle_signal_code(int sig){
+static void crash_signal_handler(int sig){
     fail("Severe error occured", sig);
     longjmp(point, 1);
 }
 
 static void handle_terminate(){
-    handle_signal_code(1);
+    crash_signal_handler(1);
+}
+
+void sigint_signal_handler(int sig) {
+    std::vector<LLM*> instances_copy;
+    {
+        std::lock_guard<std::mutex> lock(llm_mutex);
+        instances_copy = llm_instances;
+    }
+
+    for (auto* inst : instances_copy) {
+        inst->stop_service();
+        inst->stop_server();
+    }
 }
 
 #ifdef _WIN32
+BOOL WINAPI console_ctrl_handler(DWORD ctrl_type) {
+    if (ctrl_type == CTRL_C_EVENT || ctrl_type == CTRL_CLOSE_EVENT) {
+        sigint_signal_handler(SIGINT);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 void set_error_handlers() {
     init_status();
 
-    signal(SIGSEGV, handle_signal_code);
-    signal(SIGFPE, handle_signal_code);
+    // crash signals
+    signal(SIGSEGV, crash_signal_handler);
+    signal(SIGFPE, crash_signal_handler);
+
+    // graceful shutdown signals
+    signal(SIGINT, sigint_signal_handler);
+    signal(SIGTERM, sigint_signal_handler);
+    SetConsoleCtrlHandler(console_ctrl_handler, TRUE);
 
     std::set_terminate(handle_terminate);
 }
+
 #else
 static void handle_signal(int sig, siginfo_t *dont_care, void *dont_care_either)
 {
-    handle_signal_code(sig);
+    crash_signal_handler(sig);
 }
 
 void set_error_handlers() {
     init_status();
-    struct sigaction sa;
 
+    // crash signals
+    struct sigaction sa;
     memset(&sa, 0, sizeof(sa));
     sigemptyset(&sa.sa_mask);
-
     sa.sa_flags     = SA_NODEFER;
     sa.sa_sigaction = handle_signal;
 
     sigaction(SIGSEGV, &sa, NULL);
     sigaction(SIGFPE, &sa, NULL);
+
+    // graceful shutdown signals
+    struct sigaction sa_shutdown;
+    memset(&sa_shutdown, 0, sizeof(sa_shutdown));
+    sa_shutdown.sa_handler = sigint_signal_handler;
+    sigemptyset(&sa_shutdown.sa_mask);
+    sa_shutdown.sa_flags = 0;
+
+    sigaction(SIGINT, &sa_shutdown, NULL);
+    sigaction(SIGTERM, &sa_shutdown, NULL);
 
     std::set_terminate(handle_terminate);
 }
@@ -411,7 +449,23 @@ std::string LLM::get_status_message(){
     return status_message;
 }
 
+void LLM::register_signal_handling() {
+    std::lock_guard<std::mutex> lock(llm_mutex);
+    if (std::find(llm_instances.begin(), llm_instances.end(), this) == llm_instances.end()) {
+        llm_instances.push_back(this);
+    }
+}
+
+void LLM::unregister_signal_handling() {
+    std::lock_guard<std::mutex> lock(llm_mutex);
+    llm_instances.erase(
+        std::remove(llm_instances.begin(), llm_instances.end(), this),
+        llm_instances.end()
+    );
+}
+
 void LLM::start_service(){
+    register_signal_handling();
     LOG_INFO("starting service", {});
     ctx_server.queue_tasks.start_loop();
     LOG_INFO("stopped service loop", {});
@@ -437,6 +491,8 @@ void LLM::stop_service(){
         ctx_server.queue_tasks.terminate();
         if(llama_backend_has_init) llama_backend_free();
         LOG_INFO("service stopped", {});
+
+        unregister_signal_handling();
 
     } catch(...) {
         handle_exception();
