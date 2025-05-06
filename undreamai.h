@@ -32,7 +32,6 @@ class LLM {
     public:
         LLM(std::string params_string);
         LLM(int argc, char ** argv);
-        std::string chatTemplate;
 
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
         static EVP_PKEY *load_key(const std::string& key_str);
@@ -42,7 +41,6 @@ class LLM {
         int get_status();
         std::string get_status_message();
         
-        std::string handle_template();
         std::string handle_tokenize(json body);
         std::string handle_detokenize(json body);
         std::string handle_embeddings (json data, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_true);
@@ -56,7 +54,6 @@ class LLM {
         void stop_server();
         void start_service();
         void stop_service();
-        void set_template(const char* chatTemplate);
         void set_SSL(const char* SSL_cert, const char* SSL_key);
         bool is_running();
 
@@ -116,7 +113,6 @@ extern "C" {
     UNDREAMAI_API const void LLM_Stop(LLM* llm);
     UNDREAMAI_API const void LLM_StartServer(LLM* llm);
     UNDREAMAI_API const void LLM_StopServer(LLM* llm);
-    UNDREAMAI_API const void LLM_SetTemplate(LLM* llm, const char* chatTemplate);
     UNDREAMAI_API const void LLM_SetSSL(LLM* llm, const char* SSL_cert, const char* SSL_key);
     UNDREAMAI_API const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
     UNDREAMAI_API const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
