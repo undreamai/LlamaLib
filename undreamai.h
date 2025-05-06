@@ -82,7 +82,12 @@ class LLM {
             std::function<bool()> is_connection_closed = always_true
         );
         bool middleware_validate_api_key(const httplib::Request & req, httplib::Response & res);
+        void register_signal_handling();
+        void unregister_signal_handling();
 };
+
+static std::vector<LLM*> llm_instances;
+static std::mutex llm_mutex;
 
 #ifdef _WIN32
     #ifdef UNDREAMAI_EXPORTS
