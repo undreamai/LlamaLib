@@ -38,7 +38,7 @@ LLM_FUNCTIONS(DECLARE_TYPEDEF)
 
 // 2. Accessor declarations
 #define DECLARE_ACCESSOR(name, ret, ...) \
-    extern "C" __attribute__((visibility("default"))) name##_Fn get_##name(LLMBackend* backend);
+    extern "C" UNDREAMAI_API name##_Fn get_##name(LLMBackend* backend);
 LLM_FUNCTIONS(DECLARE_ACCESSOR)
 #undef DECLARE_ACCESSOR
 
