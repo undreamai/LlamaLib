@@ -363,10 +363,17 @@ void LLM::start_server(){
         handle_post(req, res);
         return res_ok(res, handle_template());
     };
-
+    
     const auto handle_completions_post = [this, &res_error](const httplib::Request & req, httplib::Response & res) {
         json data = handle_post(req, res);
-        handle_completions(data, nullptr, &res, req.is_connection_closed);
+        handle_completions(data, nullptr, &res, req.is_connection_closed, OAICOMPAT_TYPE_NONE);
+    };
+    
+    const auto handle_chat_completions_post = [this, &res_error](const httplib::Request & req, httplib::Response & res) {
+        json body = handle_post(req, res);
+        json data = oaicompat_completion_params_parse(body, params.use_jinja, params.reasoning_format, ctx_server.chat_templates.get());
+        LOG_DEBUG("formatted prompt", data);
+        handle_completions(data, nullptr, &res, req.is_connection_closed, OAICOMPAT_TYPE_CHAT);
     };
 
     const auto handle_tokenize_post = [this](const httplib::Request & req, httplib::Response & res) {
@@ -400,6 +407,8 @@ void LLM::start_server(){
     // register API routes
     svr->Post("/completion",          handle_completions_post); // legacy
     svr->Post("/completions",         handle_completions_post);
+    svr->Post("/chat/completions",    handle_chat_completions_post);
+    svr->Post("/v1/chat/completions", handle_chat_completions_post);
     svr->Post("/template",            handle_template_post);
     svr->Post("/tokenize",            handle_tokenize_post);
     svr->Post("/detokenize",          handle_detokenize_post);
@@ -830,14 +839,14 @@ std::string LLM::handle_completions(
     json data,
     StringWrapper* stringWrapper,
     httplib::Response* res,
-    std::function<bool()> is_connection_closed
+    std::function<bool()> is_connection_closed,
+    oaicompat_type oaicompat
 ) {
     if (setjmp(point) != 0) return "";
     clear_status();
     std::string result_data = "";
     try {
         server_task_type type = SERVER_TASK_TYPE_COMPLETION;
-        oaicompat_type oaicompat = OAICOMPAT_TYPE_NONE;
 
         // GGML_ASSERT(type == SERVER_TASK_TYPE_COMPLETION || type == SERVER_TASK_TYPE_INFILL);
 
@@ -920,7 +929,13 @@ std::string LLM::handle_completions(
                         ok = false;
                     }
                     // ctx_server.queue_results.remove_waiting_task_ids(task_ids);
-                    if(ok && &sink != nullptr){ sink.done(); }
+                    if(ok && &sink != nullptr){
+                        if (oaicompat != OAICOMPAT_TYPE_NONE) {
+                            static const std::string ev_done = "data: [DONE]\n\n";
+                            sink.write(ev_done.data(), ev_done.size());
+                        }
+                        sink.done(); 
+                    }
                     return ok;
                 };
                 res->set_chunked_content_provider("text/event-stream", chunked_content_provider, on_complete);
