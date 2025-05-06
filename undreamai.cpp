@@ -358,11 +358,6 @@ void LLM::start_server(){
         }
         return httplib::Server::HandlerResponse::Unhandled;
     });
-
-    const auto handle_template_post = [this](const httplib::Request & req, httplib::Response & res) {
-        handle_post(req, res);
-        return res_ok(res, handle_template());
-    };
     
     const auto handle_completions_post = [this, &res_error](const httplib::Request & req, httplib::Response & res) {
         json data = handle_post(req, res);
@@ -409,7 +404,6 @@ void LLM::start_server(){
     svr->Post("/completions",         handle_completions_post);
     svr->Post("/chat/completions",    handle_chat_completions_post);
     svr->Post("/v1/chat/completions", handle_chat_completions_post);
-    svr->Post("/template",            handle_template_post);
     svr->Post("/tokenize",            handle_tokenize_post);
     svr->Post("/detokenize",          handle_detokenize_post);
     svr->Post("/embedding",           handle_embeddings_post); // legacy
@@ -512,10 +506,6 @@ bool LLM::is_running(){
     return ctx_server.queue_tasks.running;
 }
 
-void LLM::set_template(const char* chatTemplate){
-    this->chatTemplate = chatTemplate;
-}
-
 void LLM::set_SSL(const char* SSL_cert, const char* SSL_key){
 #ifndef CPPHTTPLIB_OPENSSL_SUPPORT
     throw std::runtime_error("SSL is not supported in this build");
@@ -560,20 +550,6 @@ bool LLM::middleware_validate_api_key(const httplib::Request & req, httplib::Res
     LOG_WARNING("Unauthorized: Invalid API Key\n", {});
 
     return false;
-}
-
-std::string LLM::handle_template() {
-    if (setjmp(point) != 0) return "";
-    clear_status();
-    try {
-        json data = json {
-            {"template", chatTemplate}
-        };
-        return data.dump();
-    } catch(...) {
-        handle_exception();
-    }
-    return chatTemplate;
 }
 
 std::string LLM::handle_tokenize(json body) {
@@ -1083,10 +1059,6 @@ const bool LLM_Started(LLM* llm) {
 
 const void LLM_Stop(LLM* llm) {
     llm->stop_service();
-}
-
-const void LLM_SetTemplate(LLM* llm, const char* chatTemplate){
-    llm->set_template(chatTemplate);
 }
 
 const void LLM_SetSSL(LLM* llm, const char* SSL_cert, const char* SSL_key){
