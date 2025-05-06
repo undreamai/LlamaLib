@@ -371,6 +371,12 @@ void LLM::start_server(){
         handle_completions(data, nullptr, &res, req.is_connection_closed, OAICOMPAT_TYPE_CHAT);
     };
 
+    const auto handle_apply_template_post = [this](const httplib::Request& req, httplib::Response& res) {
+        json body = handle_post(req, res);
+        json data = oaicompat_completion_params_parse(body, params.use_jinja, params.reasoning_format, ctx_server.chat_templates.get());
+        return res_ok(res, safe_json_to_str({ { "prompt", std::move(data.at("prompt")) } }));
+    };
+
     const auto handle_tokenize_post = [this](const httplib::Request & req, httplib::Response & res) {
         return res_ok(res, handle_tokenize(handle_post(req, res)));
     };
@@ -406,6 +412,7 @@ void LLM::start_server(){
     svr->Post("/v1/chat/completions", handle_chat_completions_post);
     svr->Post("/tokenize",            handle_tokenize_post);
     svr->Post("/detokenize",          handle_detokenize_post);
+    svr->Post("/apply-template",      handle_apply_template_post);
     svr->Post("/embedding",           handle_embeddings_post); // legacy
     svr->Post("/embeddings",          handle_embeddings_post);
     svr->Get ("/lora-adapters",       handle_lora_adapters_list_post);
