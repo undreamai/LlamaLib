@@ -48,7 +48,7 @@ class LLM {
         std::string handle_embeddings (json data, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_true);
         std::string handle_lora_adapters_apply (json data, httplib::Response* res=nullptr);
         std::string handle_lora_adapters_list ();
-        std::string handle_completions(json data, StringWrapper* stringWrapper=nullptr, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_true);
+        std::string handle_completions(json data, StringWrapper* stringWrapper=nullptr, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_true, oaicompat_type oaicompat = OAICOMPAT_TYPE_NONE);
         std::string handle_slots_action(json data, httplib::Response* res=nullptr);
         void handle_cancel_action(int id_slot);
 
