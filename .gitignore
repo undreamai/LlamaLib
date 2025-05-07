@@ -1,4 +1,4 @@
 .vs
 .vscode
-build
+build*
 llama.cpp
