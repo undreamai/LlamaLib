@@ -1,14 +1,9 @@
 #include "dynamic_loader.h"
 
 int main(int argc, char** argv) {
-    std::string libPath = "undreamai_windows-avx2.dll"; // or .dll / .dylib based on platform
+    std::cout << GetPossibleArchitectures() << "\n";
+    std::cout << GetPossibleArchitectures(true) << "\n";
 
-    LLMBackend backend = {};
-    LibHandle handle = nullptr;
-    if (!load_llm_backend(libPath, backend, handle)) {
-        std::cerr << "Failed to load backend: " << libPath << "\n";
-        return 1;
-    }
 
     std::string command = "";
     for (int i = 1; i < argc; ++i) {
@@ -16,8 +11,30 @@ int main(int argc, char** argv) {
         if (i < argc - 1) command += " ";
     }
 
-    LLM* llm = backend.LLM_Construct(command.c_str());
+
+
+    set_error_handlers();  // Set up crash signal handlers
+
+    LLMBackend backend;
+    LibHandle handle = nullptr;
+    LLM* llm = nullptr;
+    std::vector<std::string> possible_backends = {
+        "libundreamai_avx2.dll",
+        "undreamai_windows-hip.dll",
+        "undreamai_windows-avx2.dll",
+    };
+
+
+    int result = tryLoadingBackend(possible_backends, command, backend, handle, llm);
+    if (result == 0) {
+        std::cout << "Successfully loaded and ran model." << std::endl;
+    }
+    else {
+        std::cout << "Failed to load any backend." << std::endl;
+    }
+
     backend.LLM_StartServer(llm);
     backend.LLM_Start(llm);
     return 0;
 }
+
