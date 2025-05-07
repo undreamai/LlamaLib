@@ -11,10 +11,6 @@ int main(int argc, char** argv) {
         if (i < argc - 1) command += " ";
     }
 
-
-
-    set_error_handlers();  // Set up crash signal handlers
-
     LLMBackend backend;
     LibHandle handle = nullptr;
     LLM* llm = nullptr;
