@@ -3,7 +3,7 @@
 #include "FeatureDetector/src/x86/cpu_x86.h"
 
 #ifdef _WIN32
-    #ifdef ARCHCHECKER_EXPORTS
+    #ifdef UNDREAMAI_EXPORTS
         #define ARCHCHECKER_API __declspec(dllexport)
     #else
         #define ARCHCHECKER_API __declspec(dllimport)
