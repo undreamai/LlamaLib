@@ -2,38 +2,11 @@
 
 //============================= ERROR HANDLING =============================//
 
-void fail(std::string message, int code=1) {
-    status = code;
-    status_message = message;
-}
+sigjmp_buf sigjmp_buf_point;
 
-void handle_exception(int code=-1) {
-    try {
-        throw;
-    } catch(const std::exception& ex) {
-        fail(ex.what(), code);
-    } catch(...) {
-        fail("Caught unknown exception", code);
-    }
-}
-
-
-void init_status() {
-    status = 0;
-    status_message = "";
-}
-
-void clear_status() {
-    if (status < 0) init_status();
-}
-
-static void crash_signal_handler(int sig){
-    fail("Severe error occured", sig);
-    longjmp(point, 1);
-}
-
-static void handle_terminate(){
-    crash_signal_handler(1);
+void crash_signal_handler(int sig) {
+    fail("Severe error occurred", sig);
+    siglongjmp(sigjmp_buf_point, 1);
 }
 
 void sigint_signal_handler(int sig) {
@@ -48,63 +21,6 @@ void sigint_signal_handler(int sig) {
         inst->stop_server();
     }
 }
-
-#ifdef _WIN32
-BOOL WINAPI console_ctrl_handler(DWORD ctrl_type) {
-    if (ctrl_type == CTRL_C_EVENT || ctrl_type == CTRL_CLOSE_EVENT) {
-        sigint_signal_handler(SIGINT);
-        return TRUE;
-    }
-    return FALSE;
-}
-
-void set_error_handlers() {
-    init_status();
-
-    // crash signals
-    signal(SIGSEGV, crash_signal_handler);
-    signal(SIGFPE, crash_signal_handler);
-
-    // graceful shutdown signals
-    signal(SIGINT, sigint_signal_handler);
-    signal(SIGTERM, sigint_signal_handler);
-    SetConsoleCtrlHandler(console_ctrl_handler, TRUE);
-
-    std::set_terminate(handle_terminate);
-}
-
-#else
-static void handle_signal(int sig, siginfo_t *dont_care, void *dont_care_either)
-{
-    crash_signal_handler(sig);
-}
-
-void set_error_handlers() {
-    init_status();
-
-    // crash signals
-    struct sigaction sa;
-    memset(&sa, 0, sizeof(sa));
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags     = SA_NODEFER;
-    sa.sa_sigaction = handle_signal;
-
-    sigaction(SIGSEGV, &sa, NULL);
-    sigaction(SIGFPE, &sa, NULL);
-
-    // graceful shutdown signals
-    struct sigaction sa_shutdown;
-    memset(&sa_shutdown, 0, sizeof(sa_shutdown));
-    sa_shutdown.sa_handler = sigint_signal_handler;
-    sigemptyset(&sa_shutdown.sa_mask);
-    sa_shutdown.sa_flags = 0;
-
-    sigaction(SIGINT, &sa_shutdown, NULL);
-    sigaction(SIGTERM, &sa_shutdown, NULL);
-
-    std::set_terminate(handle_terminate);
-}
-#endif
 
 //============================= LLM IMPLEMENTATION =============================//
 
@@ -170,7 +86,7 @@ LLM::LLM(int argc, char ** argv){
 
 void LLM::init(int argc, char ** argv){
     set_error_handlers();
-    if (setjmp(point) != 0) return;
+    if (setjmp(sigjmp_buf_point) != 0) return;
     try{
         ctx_server.batch = { 0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
@@ -560,7 +476,7 @@ bool LLM::middleware_validate_api_key(const httplib::Request & req, httplib::Res
 }
 
 std::string LLM::handle_tokenize(json body) {
-    if (setjmp(point) != 0) return "";
+    if (setjmp(sigjmp_buf_point) != 0) return "";
     clear_status();
     try {
         json tokens_response = json::array();
@@ -605,7 +521,7 @@ std::string LLM::handle_tokenize(json body) {
 }
 
 std::string LLM::handle_detokenize(json body) {
-    if (setjmp(point) != 0) return "";
+    if (setjmp(sigjmp_buf_point) != 0) return "";
     clear_status();
     try {
         std::string content;
@@ -825,7 +741,7 @@ std::string LLM::handle_completions(
     std::function<bool()> is_connection_closed,
     oaicompat_type oaicompat
 ) {
-    if (setjmp(point) != 0) return "";
+    if (setjmp(sigjmp_buf_point) != 0) return "";
     clear_status();
     std::string result_data = "";
     try {
@@ -934,7 +850,7 @@ std::string LLM::handle_slots_action(
     json data,
     httplib::Response* res
 ) {
-    if (setjmp(point) != 0) return "";
+    if (setjmp(sigjmp_buf_point) != 0) return "";
     clear_status();
     std::string result_data = "";
     try {
@@ -983,7 +899,7 @@ std::string LLM::handle_slots_action(
 }
 
 void LLM::handle_cancel_action(int id_slot) {
-    if (setjmp(point) != 0) return;
+    if (setjmp(sigjmp_buf_point) != 0) return;
     clear_status();
     try {
         for (auto & slot : ctx_server.slots) {
