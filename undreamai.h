@@ -2,26 +2,11 @@
 #include "stringwrapper.h"
 #include "log.hpp"
 #include "server.cpp"
-
-#include <setjmp.h>
-#include <signal.h>
-#ifdef _WIN32
-    // Define custom equivalent for Windows (using SEH)
-    #include <windows.h>
-    #define sigjmp_buf jmp_buf
-    #define sigsetjmp(jb, savemask) setjmp(jb)
-    #define siglongjmp longjmp
-#endif
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
     #include <openssl/err.h>
     #include <openssl/ssl.h>
 #endif
-
-int exit_code = 1;
-int warning_code = -1;
-int status;
-std::string status_message;
-sigjmp_buf point;
+#include "error_handling.h"
 
 static bool always_true()
 {
