@@ -125,4 +125,8 @@ extern "C" {
 
     UNDREAMAI_API const int LLM_Test();
     UNDREAMAI_API const int LLM_Embedding_Size(LLM* llm);
+	
+#ifdef _DEBUG
+    UNDREAMAI_API const bool LLM_IsDebuggerAttached(void);
+#endif
 };
