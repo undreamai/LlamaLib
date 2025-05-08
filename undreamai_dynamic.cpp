@@ -19,8 +19,8 @@ int main(int argc, char** argv) {
         std::cout << "Failed to load any backend." << std::endl;
     }
 
-    backend.LLM_StartServer(backend.llm);
-    backend.LLM_Start(backend.llm);
+    LLM_StartServer(&backend);
+    LLM_Start(&backend);
     return 0;
 }
 
