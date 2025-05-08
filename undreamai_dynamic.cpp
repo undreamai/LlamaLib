@@ -1,10 +1,6 @@
 #include "dynamic_loader.h"
 
 int main(int argc, char** argv) {
-    std::cout << GetPossibleArchitectures() << "\n";
-    std::cout << GetPossibleArchitectures(true) << "\n";
-
-
     std::string command = "";
     for (int i = 1; i < argc; ++i) {
         command += argv[i];
@@ -14,14 +10,8 @@ int main(int argc, char** argv) {
     LLMBackend backend;
     LibHandle handle = nullptr;
     LLM* llm = nullptr;
-    std::vector<std::string> possible_backends = {
-        "libundreamai_avx2.dll",
-        "undreamai_windows-hip.dll",
-        "undreamai_windows-avx2.dll",
-    };
 
-
-    int result = tryLoadingBackend(possible_backends, command, backend, handle, llm);
+    int result = load_backends_fallback(NO_GPU, command, backend);
     if (result == 0) {
         std::cout << "Successfully loaded and ran model." << std::endl;
     }
@@ -29,8 +19,8 @@ int main(int argc, char** argv) {
         std::cout << "Failed to load any backend." << std::endl;
     }
 
-    backend.LLM_StartServer(llm);
-    backend.LLM_Start(llm);
+    backend.LLM_StartServer(backend.llm);
+    backend.LLM_Start(backend.llm);
     return 0;
 }
 

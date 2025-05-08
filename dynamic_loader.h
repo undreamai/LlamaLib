@@ -8,6 +8,10 @@
 #include <sstream>
 #include <vector>
 
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#endif
+
 #if defined(_WIN32)
 #include <windows.h>
 using LibHandle = HMODULE;
@@ -79,11 +83,20 @@ struct LLMBackend {
     LLM_FUNCTIONS(DECLARE_FIELD)
 #undef DECLARE_FIELD
 
-    void* handle = nullptr;
+    LibHandle handle = nullptr;
+    LLM* llm = nullptr;
+};
+
+
+enum GPU {
+    NO_GPU = 0,
+    TINYBLAS = 1,
+    CUDA = 2
 };
 
 // Loader utilities
-LOADER_API const char* GetPossibleArchitectures(bool gpu = false);
-bool load_llm_backend(const std::string& path, LLMBackend& backend, LibHandle& handle_out);
-int tryLoadingBackend(const std::vector<std::string>& backends, std::string command, LLMBackend& backend, LibHandle& handle_out, LLM*& llm);
-void unload_llm_backend(LibHandle handle);
+const std::vector<std::string> get_possible_architectures_array(GPU gpu);
+LOADER_API const char* get_possible_architectures(GPU gpu);
+LOADER_API bool load_llm_backend(const std::string& path, LLMBackend& backend);
+LOADER_API int load_backends_fallback(GPU gpu, std::string command, LLMBackend& backend);
+LOADER_API void unload_llm_backend(LLMBackend& backend);
