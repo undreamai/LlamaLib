@@ -1187,25 +1187,49 @@ jobs:
           name: Clone
           uses: actions/checkout@v4
 
+        - id: set_release_prefix
+          name: Set prefix
+          run: |
+            echo "PREFIX=undreamai-${{ github.ref_name }}-llamacpp" >> $GITHUB_ENV
+          shell: bash
+
         - id: download_artifacts
           name: Download Artifacts
           uses: actions/download-artifact@v4
           with:
             path: artifacts
 
+        - id: unzip_artifacts
+          name: Unzip artifacts
+          run: |
+            cd artifacts
+            ls -R
+        
+            for d in `ls | grep ${{ env.PREFIX }}`;do
+              cd $d; unzip $d; rm $d; cd ..;
+              new_name=`echo $d | sed -e "s:${{ env.PREFIX }}-::g" | sed -e 's:.zip::g'`
+              mv $d $new_name;
+              echo $new_name >> bundle
+            done
+
+        - id: combine_macos_libraries
+          name: Merge macOS libraries
+          run: |
+            cd artifacts
+            for acc in acc no_acc;do
+                mkdir macos-$acc
+                lipo -create -output macos-$acc/libundreamai_macos-$acc.dylib macos-x64-$acc/libundreamai_macos-x64-$acc.dylib macos-arm64-$acc/libundreamai_macos-arm64-$acc.dylib
+                cp `ls macos-x64-$acc/* | grep -v ".dylib"` macos-$acc
+                rm -r macos-x64-$acc macos-arm64-$acc
+                sed -i.bak "/macos-x64-$acc/d" bundle
+                sed -i.bak "/macos-arm64-$acc/d" bundle
+                echo macos-$acc >> bundle
+            done
+
         - id: merge_artifacts
           name: Merge artifacts
           run: |
             cd artifacts
-            ls -R
-            PREFIX=undreamai-${{ github.ref_name }}-llamacpp
-        
-            for d in `ls | grep $PREFIX`;do
-              cd $d; unzip $d; rm $d; cd ..;
-              new_name=`echo $d | sed -e "s:$PREFIX-::g" | sed -e 's:.zip::g'`
-              mv $d $new_name;
-              echo $new_name >> bundle
-            done
         
             servers=`find . -name undreamai_server*`
             if [ "$servers" != "" ];then
