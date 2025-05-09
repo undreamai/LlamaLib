@@ -331,7 +331,7 @@ jobs:
 
   create_release:
     name: Create Release
-    runs-on: ubuntu-latest
+    runs-on: macos-14
     needs:
       - archchecker_linux_build
       - archchecker_windows_build
