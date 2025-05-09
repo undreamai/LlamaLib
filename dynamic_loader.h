@@ -41,14 +41,19 @@ struct LLM;
 struct LLMBackend;
 
 // Function lists
-#define BACKEND_FUNCTIONS(X) \
-    X(Logging, void, StringWrapper*) \
+
+#define BACKEND_FUNCTIONS_WITH_NOLLM_NOARGS(X) \
     X(StopLogging, void) \
     X(StringWrapper_Construct, StringWrapper*) \
+
+#define BACKEND_FUNCTIONS_WITH_NOLLM_ONEARG(X) \
+    X(Logging, void, StringWrapper*) \
     X(StringWrapper_Delete, void, StringWrapper*) \
     X(StringWrapper_GetStringSize, int, StringWrapper*) \
-    X(StringWrapper_GetString, void, StringWrapper*, char*, int, bool) \
     X(LLM_Construct, LLM*, const char*)
+
+#define BACKEND_FUNCTIONS_WITH_NOLLM_FOURARGS(X) \
+    X(StringWrapper_GetString, void, StringWrapper*, char*, int, bool)
 
 #define BACKEND_FUNCTIONS_WITH_LLM_NOARGS(X) \
     X(LLM_Delete, void, LLM*) \
@@ -74,54 +79,60 @@ struct LLMBackend;
     X(LLM_Slot, void, LLM*, const char*, StringWrapper*)
 
 #define BACKEND_FUNCTIONS_ALL(X) \
-    BACKEND_FUNCTIONS(X) \
+    BACKEND_FUNCTIONS_WITH_NOLLM_NOARGS(X) \
+    BACKEND_FUNCTIONS_WITH_NOLLM_ONEARG(X) \
+    BACKEND_FUNCTIONS_WITH_NOLLM_FOURARGS(X) \
     BACKEND_FUNCTIONS_WITH_LLM_NOARGS(X) \
     BACKEND_FUNCTIONS_WITH_LLM_ONEARG(X) \
     BACKEND_FUNCTIONS_WITH_LLM_TWOARGS(X)
-
 
 // Typedefs
 #define DECLARE_TYPEDEF(name, ret, ...) typedef ret (*name##_Fn)(__VA_ARGS__);
     BACKEND_FUNCTIONS_ALL(DECLARE_TYPEDEF)
 #undef DECLARE_TYPEDEF
 
-// Backend struct
 struct LLMBackend {
-#define DECLARE_FIELD(name, ret, ...) name##_Fn name;
-    BACKEND_FUNCTIONS_ALL(DECLARE_FIELD)
+#define DECLARE_FIELD(name, ret, ...) name##_Fn name##_fn;
+        BACKEND_FUNCTIONS_ALL(DECLARE_FIELD)
 #undef DECLARE_FIELD
 
-        LibHandle handle = nullptr;
+    LibHandle handle = nullptr;
     LLM* llm = nullptr;
+
+#define DECLARE_METHOD_NOLLM_NOARGS(name, ret) \
+    inline ret name() { return name##_fn(); }
+
+#define DECLARE_METHOD_NOLLM_ONEARG(name, ret, arg1_type) \
+    inline ret name(arg1_type arg1) { return name##_fn(arg1); }
+
+#define DECLARE_METHOD_WITH_NOLLM_FOURARGS(name, ret, arg1_type, arg2_type, arg3_type, arg4_type) \
+    inline ret name(arg1_type arg1, arg2_type arg2, arg3_type arg3, arg4_type arg4) { return name##_fn(arg1, arg2, arg3, arg4); }
+
+#define DECLARE_METHOD_LLM_NOARGS(name, ret, ...) \
+    inline ret name() { return name##_fn(llm); }
+
+#define DECLARE_METHOD_LLM_ONEARG(name, ret, _, arg1_type) \
+    inline ret name(arg1_type arg1) { return name##_fn(llm, arg1); }
+
+#define DECLARE_METHOD_LLM_TWOARGS(name, ret, _, arg1_type, arg2_type) \
+    inline ret name(arg1_type arg1, arg2_type arg2) { return name##_fn(llm, arg1, arg2); }
+
+BACKEND_FUNCTIONS_WITH_NOLLM_NOARGS(DECLARE_METHOD_NOLLM_NOARGS)
+BACKEND_FUNCTIONS_WITH_NOLLM_ONEARG(DECLARE_METHOD_NOLLM_ONEARG)
+BACKEND_FUNCTIONS_WITH_NOLLM_FOURARGS(DECLARE_METHOD_WITH_NOLLM_FOURARGS)
+BACKEND_FUNCTIONS_WITH_LLM_NOARGS(DECLARE_METHOD_LLM_NOARGS)
+BACKEND_FUNCTIONS_WITH_LLM_ONEARG(DECLARE_METHOD_LLM_ONEARG)
+BACKEND_FUNCTIONS_WITH_LLM_TWOARGS(DECLARE_METHOD_LLM_TWOARGS)
+
+#undef DECLARE_METHOD_NOLLM_NOARGS
+#undef DECLARE_METHOD_NOLLM_ONEARG
+#undef DECLARE_METHOD_WITH_NOLLM_FOURARGS
+#undef DECLARE_METHOD_LLM_NOARGS
+#undef DECLARE_METHOD_LLM_ONEARG
+#undef DECLARE_METHOD_LLM_TWOARGS
 };
 
-
 //============================= WRAPPER FUNCTIONS =============================//
-
-#define DECLARE_WRAPPER_NOARGS(name, ret, _) \
-    inline ret name(LLMBackend* backend) { \
-        return backend->name(backend->llm); \
-    }
-
-    BACKEND_FUNCTIONS_WITH_LLM_NOARGS(DECLARE_WRAPPER_NOARGS)
-#undef DECLARE_WRAPPER_NOARGS
-
-#define DECLARE_WRAPPER_ONEARG(name, ret, llm_ptr, arg1_type) \
-    inline ret name(LLMBackend* backend, arg1_type arg1) { \
-        return backend->name(backend->llm, arg1); \
-    }
-
-        BACKEND_FUNCTIONS_WITH_LLM_ONEARG(DECLARE_WRAPPER_ONEARG)
-#undef DECLARE_WRAPPER_ONEARG
-
-#define DECLARE_WRAPPER_TWOARGS(name, ret, llm_ptr, arg1_type, arg2_type) \
-    inline ret name(LLMBackend* backend, arg1_type arg1, arg2_type arg2) { \
-        return backend->name(backend->llm, arg1, arg2); \
-    }
-
-        BACKEND_FUNCTIONS_WITH_LLM_TWOARGS(DECLARE_WRAPPER_TWOARGS)
-#undef DECLARE_WRAPPER_TWOARGS
-
 
 // GPU Enum
 enum GPU {

@@ -103,9 +103,9 @@ bool load_llm_backend(const std::string& path, LLMBackend& backend) {
     }
 
 #define LOAD_SYMBOL(name, ret, ...) \
-    backend.name = reinterpret_cast<name##_Fn>(load_symbol(handle, #name)); \
-    if (!backend.name) return false;
-
+    backend.name##_fn = reinterpret_cast<name##_Fn>(load_symbol(handle, #name)); \
+    if (!backend.name##_fn) return false;
+    
     BACKEND_FUNCTIONS_ALL(LOAD_SYMBOL)
 #undef LOAD_SYMBOL
 
@@ -114,8 +114,8 @@ bool load_llm_backend(const std::string& path, LLMBackend& backend) {
 }
 
 void unload_llm_backend(LLMBackend& backend) {
-    if (backend.llm && backend.LLM_Delete) {
-        backend.LLM_Delete(backend.llm);
+    if (backend.llm) {
+        backend.LLM_Delete();
         backend.llm = nullptr;
     }
     if (backend.handle) {
