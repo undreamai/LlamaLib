@@ -13,21 +13,21 @@ void crash_signal_handler(int sig) {
 
 void sigint_signal_handler(int sig) {}
 
-//============================= LIBRARY LOADING =============================//
+//=================================== HELPERS ===================================//
 
-inline LibHandle load_library(const char* path) {
-    return LOAD_LIB(path);
+std::string join_paths(const std::string& a, const std::string& b) {
+#ifdef _WIN32
+    const char sep = '\\';
+#else
+    const char sep = '/';
+#endif
+    if (a.empty()) return b;
+    if (b.empty()) return a;
+    if (a.back() == sep) return a + b;
+    return a + sep + b;
 }
 
-inline void* load_symbol(LibHandle handle, const char* symbol) {
-    return GET_SYM(handle, symbol);
-}
-
-inline void unload_library(LibHandle handle) {
-    CLOSE_LIB(handle);
-}
-
-const std::vector<std::string> get_possible_architectures_array(GPU gpu) {
+const std::vector<std::string> available_architectures(GPU gpu) {
     std::vector<std::string> architectures;
     std::string prefix = "undreamai_";
 
@@ -67,79 +67,102 @@ const std::vector<std::string> get_possible_architectures_array(GPU gpu) {
     return architectures;
 }
 
-const char* get_possible_architectures(GPU gpu)
-{
-    const std::vector<std::string>& backends = get_possible_architectures_array(gpu);
-    static std::string result;
+//============================= LIBRARY LOADING =============================//
 
-    std::ostringstream oss;
-    for (size_t i = 0; i < backends.size(); ++i) {
-        if (i != 0) oss << ",";
-        oss << backends[i];
-    }
-    result = oss.str();
-    return result.c_str();
+inline LibHandle load_library(const char* path) {
+    return LOAD_LIB(path);
 }
 
-bool load_library_safe(const std::string& path, LibHandle& handle_out) {
+inline void* load_symbol(LibHandle handle, const char* symbol) {
+    return GET_SYM(handle, symbol);
+}
+
+inline void unload_library(LibHandle handle) {
+    CLOSE_LIB(handle);
+}
+
+LibHandle load_library_safe(const std::string& path) {
     if (setjmp(sigjmp_buf_point) != 0) {
         std::cerr << "Error loading library: " << path << std::endl;
         return false;
     }
 
-    handle_out = load_library(path.c_str());
+    LibHandle handle_out = load_library(path.c_str());
     if (!handle_out) {
         std::cerr << "Failed to load library: " << path << std::endl;
-        return false;
     }
 
-    return true;
+    return handle_out;
 }
 
-bool load_llm_backend(const std::string& path, LLMBackend& backend) {
-    LibHandle handle;
-    if (!load_library_safe(path, handle)) {
-        return false;
+//=================================== LLMLib ===================================//
+
+LLMLib::~LLMLib() {
+    if (llm) {
+        LLM_Delete();
+        llm = nullptr;
     }
+    if (handle) {
+        unload_library(handle);
+        handle = nullptr;
+    }
+}
+
+//============================= EXTERNAL API =============================//
+
+const char* Available_Architectures(GPU gpu)
+{
+    const std::vector<std::string>& llmlibs = available_architectures(gpu);
+    static std::string result;
+
+    std::ostringstream oss;
+    for (size_t i = 0; i < llmlibs.size(); ++i) {
+        if (i != 0) oss << ",";
+        oss << llmlibs[i];
+    }
+    result = oss.str();
+    return result.c_str();
+}
+
+LLMLib* Load_LLM_Library_From_Path(const std::string& path) {
+    LibHandle handle = load_library_safe(path);
+    if (!handle) return nullptr;
+
+    LLMLib* llmlib = new LLMLib();
+    llmlib->handle = handle;
 
 #define LOAD_SYMBOL(name, ret, ...) \
-    backend.name##_fn = reinterpret_cast<name##_Fn>(load_symbol(handle, #name)); \
-    if (!backend.name##_fn) return false;
-    
-    BACKEND_FUNCTIONS_ALL(LOAD_SYMBOL)
+    llmlib->name##_fn = reinterpret_cast<name##_Fn>(load_symbol(handle, #name)); \
+    if (!llmlib->name##_fn) { \
+        std::cerr << "Missing symbol: " << #name << std::endl; \
+        return false; \
+    }
+
+LLMLIB_FUNCTIONS_ALL(LOAD_SYMBOL)
 #undef LOAD_SYMBOL
 
-        backend.handle = handle;
-    return true;
+    return llmlib;
 }
 
-void unload_llm_backend(LLMBackend& backend) {
-    if (backend.llm) {
-        backend.LLM_Delete();
-        backend.llm = nullptr;
-    }
-    if (backend.handle) {
-        unload_library(backend.handle);
-        backend.handle = nullptr;
-    }
-}
-
-int load_backends_fallback(GPU gpu, std::string command, LLMBackend& backend) {
+LLMLib* Load_LLM_Library(GPU gpu, std::string command, const std::string& baseDir) {
     set_error_handlers(true, false);
-    const std::vector<std::string>& backends = get_possible_architectures_array(gpu);
+    const std::vector<std::string>& llmlibArchs = available_architectures(gpu);
 
-    for (const auto& backendPath : backends) {
-        std::cout << "Trying " << backendPath << std::endl;
+    for (const auto& llmlibArch : llmlibArchs) {
+        std::cout << "Trying " << llmlibArch << std::endl;
+        std::string llmlibPath = join_paths(baseDir, llmlibArch);
+
         if (setjmp(sigjmp_buf_point) != 0) {
-            std::cout << "Error occurred while loading backend: " << backendPath << ", trying next." << std::endl;
+            std::cout << "Error occurred while loading llmlib: " << llmlibPath << ", trying next." << std::endl;
             continue;
         }
 
-        if (!load_llm_backend(backendPath, backend)) continue;
-        backend.llm = backend.LLM_Construct(command.c_str());
-        std::cout << "Successfully loaded backend: " << backendPath << std::endl;
-        return 0;
+        LLMLib* llmlib = Load_LLM_Library_From_Path(llmlibPath);
+        if (!llmlib) continue;
+        llmlib->llm = llmlib->LLM_Construct(command.c_str());
+        std::cout << "Successfully loaded llmlib: " << llmlibPath << std::endl;
+        return llmlib;
     }
 
-    return -1;
+    return nullptr;
 }
