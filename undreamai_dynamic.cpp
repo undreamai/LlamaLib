@@ -7,20 +7,16 @@ int main(int argc, char** argv) {
         if (i < argc - 1) command += " ";
     }
 
-    LLMBackend backend;
-    LibHandle handle = nullptr;
-    LLM* llm = nullptr;
-
-    int result = load_backends_fallback(NO_GPU, command, backend);
-    if (result == 0) {
+    LLMLib* llmlib = Load_LLM_Library(NO_GPU, command);
+    if (llmlib) {
         std::cout << "Successfully loaded and ran model." << std::endl;
     }
     else {
         std::cout << "Failed to load any backend." << std::endl;
     }
 
-    backend.LLM_StartServer();
-    backend.LLM_Start();
+    llmlib->LLM_StartServer();
+    llmlib->LLM_Start();
     return 0;
 }
 
