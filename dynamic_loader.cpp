@@ -32,7 +32,7 @@ inline bool file_exists (const std::string& name) {
     return f.good();
 }
 
-const std::vector<std::string> available_architectures(GPU gpu) {
+const std::vector<std::string> available_architectures(bool gpu) {
     std::vector<std::string> architectures;
 
     const auto add_library = [&](std::string os, std::string arch, std::string prefix, std::string suffix)
@@ -64,13 +64,9 @@ const std::vector<std::string> available_architectures(GPU gpu) {
     suffix = "so";
     os = "linux";
 #endif
-    if (gpu == TINYBLAS) {
-        add_library(os, "cuda-cu12.2.0", prefix, suffix);
-    }
-    else if (gpu == CUBLAS) {
+    if (gpu) {
         add_library(os, "cuda-cu12.2.0-full", prefix, suffix);
-    }
-    if (gpu != NO_GPU) {
+        add_library(os, "cuda-cu12.2.0", prefix, suffix);
         add_library(os, "hip", prefix, suffix);
         add_library(os, "vulkan", prefix, suffix);
     }
@@ -136,7 +132,7 @@ LLMLib::~LLMLib() {
 
 //============================= EXTERNAL API =============================//
 
-const char* Available_Architectures(GPU gpu)
+const char* Available_Architectures(bool gpu)
 {
     const std::vector<std::string>& llmlibs = available_architectures(gpu);
     static std::string result;
@@ -150,7 +146,7 @@ const char* Available_Architectures(GPU gpu)
     return result.c_str();
 }
 
-LLMLib* Load_LLM_Library_From_Path(const std::string& path, std::string command) {
+LLMLib* Load_LLM_Library_From_Path(std::string command, const std::string& path) {
     LibHandle handle = load_library_safe(path);
     if (!handle) return nullptr;
 
@@ -172,7 +168,18 @@ LLMLIB_FUNCTIONS_ALL(LOAD_SYMBOL)
     return llmlib;
 }
 
-LLMLib* Load_LLM_Library(GPU gpu, std::string command, const std::string& baseDir) {
+LLMLib* Load_LLM_Library(std::string command, const std::string& baseDir) {
+    bool gpu = false;
+
+    std::istringstream iss(command);
+    std::string arg;
+    while(iss >> arg) {
+        if (arg == "-ngl" || arg == "--gpu-layers" || arg == "--n-gpu-layers") {
+            gpu = true;
+            break;
+        }
+    }
+
     set_error_handlers(true, false);
     const std::vector<std::string>& llmlibArchs = available_architectures(gpu);
 
@@ -185,7 +192,7 @@ LLMLib* Load_LLM_Library(GPU gpu, std::string command, const std::string& baseDi
             continue;
         }
 
-        LLMLib* llmlib = Load_LLM_Library_From_Path(llmlibPath, command);
+        LLMLib* llmlib = Load_LLM_Library_From_Path(command, llmlibPath);
         if (llmlib) {
             std::cout << "Successfully loaded llmlib: " << llmlibPath << std::endl;
             return llmlib;
