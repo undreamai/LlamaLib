@@ -138,20 +138,14 @@ LLMLIB_FUNCTIONS_LLM_TWOARGS(DECLARE_METHOD_LLM_TWOARGS)
 
 //=================================== HELPERS ===================================//
 
-enum GPU {
-    NO_GPU = 0,
-    TINYBLAS = 1,
-    CUBLAS = 2
-};
-
 std::string join_paths(const std::string& a, const std::string& b);
-const std::vector<std::string> available_architectures(GPU gpu);
+const std::vector<std::string> available_architectures(bool gpu);
 
 //=================================== EXTERNAL API ===================================//
 
-LOADER_API const char* Available_Architectures(GPU gpu);
-LOADER_API LLMLib* Load_LLM_Library_From_Path(const std::string& path, std::string command);
-LOADER_API LLMLib* Load_LLM_Library(GPU gpu, std::string command, const std::string& baseDir="");
+LOADER_API const char* Available_Architectures(bool gpu);
+LOADER_API LLMLib* Load_LLM_Library_From_Path(std::string command, const std::string& path);
+LOADER_API LLMLib* Load_LLM_Library(std::string command, const std::string& baseDir="");
 
 #define EXPORT_WRAPPER_NOLLM_NOARGS(name, ret) \
 extern "C" inline LOADER_API ret LlamaLib_##name(LLMLib* llmlib) { \

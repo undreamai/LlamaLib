@@ -7,12 +7,10 @@ int main(int argc, char** argv) {
         if (i < argc - 1) command += " ";
     }
 
-    LLMLib* llmlib = Load_LLM_Library(TINYBLAS, command);
-    if (llmlib) {
-        std::cout << "Successfully loaded and ran model." << std::endl;
-    }
-    else {
+    LLMLib* llmlib = Load_LLM_Library(command);
+    if (!llmlib) {
         std::cout << "Failed to load any backend." << std::endl;
+        return 1;
     }
 
     llmlib->LLM_StartServer();
