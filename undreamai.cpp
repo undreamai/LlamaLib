@@ -3,6 +3,7 @@
 //============================= ERROR HANDLING =============================//
 
 sigjmp_buf sigjmp_buf_point;
+std::atomic_flag sigint_terminating = ATOMIC_FLAG_INIT;
 
 void crash_signal_handler(int sig) {
     fail("Severe error occurred", sig);
@@ -10,6 +11,13 @@ void crash_signal_handler(int sig) {
 }
 
 void sigint_signal_handler(int sig) {
+    if (sigint_terminating.test_and_set()) {
+        // in case it hangs, we can force terminate the server by hitting Ctrl+C twice
+        // this is for better developer experience, we can remove when the server is stable enough
+        fprintf(stderr, "Received second interrupt, terminating immediately.\n");
+        exit(1);
+    }
+
     std::vector<LLM*> instances_copy;
     {
         std::lock_guard<std::mutex> lock(llm_mutex);

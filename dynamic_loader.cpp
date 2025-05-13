@@ -14,56 +14,82 @@ void crash_signal_handler(int sig) {
 void sigint_signal_handler(int sig) {}
 
 //=================================== HELPERS ===================================//
+#ifdef _WIN32
+    const char SEP = '\\';
+#else
+    const char SEP = '/';
+#endif
 
 std::string join_paths(const std::string& a, const std::string& b) {
-#ifdef _WIN32
-    const char sep = '\\';
-#else
-    const char sep = '/';
-#endif
     if (a.empty()) return b;
     if (b.empty()) return a;
-    if (a.back() == sep) return a + b;
-    return a + sep + b;
+    if (a.back() == SEP) return a + b;
+    return a + SEP + b;
+}
+
+inline bool file_exists (const std::string& name) {
+    std::ifstream f(name.c_str());
+    return f.good();
 }
 
 const std::vector<std::string> available_architectures(GPU gpu) {
     std::vector<std::string> architectures;
-    std::string prefix = "undreamai_";
+
+    const auto add_library = [&](std::string os, std::string arch, std::string prefix, std::string suffix)
+    {
+        std::string dash_arch = arch;
+        if (arch != "") dash_arch = "-" + dash_arch;
+        std::string path = prefix + "undreamai_" + os + dash_arch + "." + suffix;
+        if (file_exists(path)) {
+            architectures.push_back(path);
+        } else {
+            path = join_paths(os + dash_arch, path);
+            if (file_exists(path)) {
+                architectures.push_back(path);
+            }
+        }
+    };
+
+    std::string prefix = "";
+    std::string suffix = "";
+    std::string os = "";
 
 #if defined(_WIN32) || defined(__linux__)
 #if defined(_WIN32)
-    prefix += "windows-";
+    prefix = "";
+    suffix = "dll";
+    os = "windows";
 #elif defined(__linux__)
-    prefix += "linux-";
+    prefix = "lib";
+    suffix = "so";
+    os = "linux";
 #endif
     if (gpu == TINYBLAS) {
-        architectures.push_back(prefix + "cuda-cu12.2.0");
+        add_library(os, "cuda-cu12.2.0", prefix, suffix);
     }
-    else if (gpu == CUDA) {
-        architectures.push_back(prefix + "cuda-cu12.2.0-full");
+    else if (gpu == CUBLAS) {
+        add_library(os, "cuda-cu12.2.0-full", prefix, suffix);
     }
     if (gpu != NO_GPU) {
-        architectures.push_back(prefix + "hip");
-        architectures.push_back(prefix + "vulkan");
+        add_library(os, "hip", prefix, suffix);
+        add_library(os, "vulkan", prefix, suffix);
     }
-    if (has_avx512()) architectures.push_back(prefix + "avx512");
-    else if (has_avx2()) architectures.push_back(prefix + "avx2");
-    else if (has_avx()) architectures.push_back(prefix + "avx");
-    architectures.push_back(prefix + "noavx");
+    if (has_avx512()) add_library(os, "avx512", prefix, suffix);
+    else if (has_avx2()) add_library(os, "avx2", prefix, suffix);
+    else if (has_avx()) add_library(os, "avx", prefix, suffix);
+    add_library(os, "noavx", prefix, suffix);
 #elif defined(__APPLE__)
 #if TARGET_OS_VISION
-    architectures.push_back(prefix + "visionos");
+    add_library("visionos", "", "lib", "a");
 #elif TARGET_OS_IOS
-    architectures.push_back(prefix + "ios");
+    add_library("ios", "", "lib", "a");
 #else
-    architectures.push_back(prefix + "macos-acc");
-    architectures.push_back(prefix + "macos-no_acc");
+    add_library("macos", "acc", "lib", "dylib");
+    add_library("macos", "no_acc", "lib", "dylib");
 #endif
 #elif defined(__ANDROID__)
-    architectures.push_back(prefix + "android");
+    add_library("android", "", "lib", "so");
 #endif
-
     return architectures;
 }
 
@@ -84,7 +110,7 @@ inline void unload_library(LibHandle handle) {
 LibHandle load_library_safe(const std::string& path) {
     if (setjmp(sigjmp_buf_point) != 0) {
         std::cerr << "Error loading library: " << path << std::endl;
-        return false;
+        return nullptr;
     }
 
     LibHandle handle_out = load_library(path.c_str());
@@ -124,7 +150,7 @@ const char* Available_Architectures(GPU gpu)
     return result.c_str();
 }
 
-LLMLib* Load_LLM_Library_From_Path(const std::string& path) {
+LLMLib* Load_LLM_Library_From_Path(const std::string& path, std::string command) {
     LibHandle handle = load_library_safe(path);
     if (!handle) return nullptr;
 
@@ -135,11 +161,13 @@ LLMLib* Load_LLM_Library_From_Path(const std::string& path) {
     llmlib->name##_fn = reinterpret_cast<name##_Fn>(load_symbol(handle, #name)); \
     if (!llmlib->name##_fn) { \
         std::cerr << "Missing symbol: " << #name << std::endl; \
-        return false; \
+        return nullptr; \
     }
 
 LLMLIB_FUNCTIONS_ALL(LOAD_SYMBOL)
 #undef LOAD_SYMBOL
+
+    llmlib->llm = llmlib->LLM_Construct(command.c_str());
 
     return llmlib;
 }
@@ -157,11 +185,11 @@ LLMLib* Load_LLM_Library(GPU gpu, std::string command, const std::string& baseDi
             continue;
         }
 
-        LLMLib* llmlib = Load_LLM_Library_From_Path(llmlibPath);
-        if (!llmlib) continue;
-        llmlib->llm = llmlib->LLM_Construct(command.c_str());
-        std::cout << "Successfully loaded llmlib: " << llmlibPath << std::endl;
-        return llmlib;
+        LLMLib* llmlib = Load_LLM_Library_From_Path(llmlibPath, command);
+        if (llmlib) {
+            std::cout << "Successfully loaded llmlib: " << llmlibPath << std::endl;
+            return llmlib;
+        }
     }
 
     return nullptr;

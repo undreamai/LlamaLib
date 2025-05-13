@@ -5,6 +5,7 @@
 #include "error_handling.h"
 
 #include <string>
+#include <fstream>
 #include <sstream>
 #include <vector>
 
@@ -140,7 +141,7 @@ LLMLIB_FUNCTIONS_LLM_TWOARGS(DECLARE_METHOD_LLM_TWOARGS)
 enum GPU {
     NO_GPU = 0,
     TINYBLAS = 1,
-    CUDA = 2
+    CUBLAS = 2
 };
 
 std::string join_paths(const std::string& a, const std::string& b);
@@ -149,7 +150,7 @@ const std::vector<std::string> available_architectures(GPU gpu);
 //=================================== EXTERNAL API ===================================//
 
 LOADER_API const char* Available_Architectures(GPU gpu);
-LOADER_API LLMLib* Load_LLM_Library_From_Path(const std::string& path);
+LOADER_API LLMLib* Load_LLM_Library_From_Path(const std::string& path, std::string command);
 LOADER_API LLMLib* Load_LLM_Library(GPU gpu, std::string command, const std::string& baseDir="");
 
 #define EXPORT_WRAPPER_NOLLM_NOARGS(name, ret) \
