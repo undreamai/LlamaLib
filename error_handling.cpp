@@ -63,7 +63,7 @@ void set_error_handlers(bool crash_handlers, bool sigint_handlers) {
 
 #else
 
-static void handle_signal(int sig, siginfo_t*, void*) {
+void handle_signal(int sig, siginfo_t*, void*) {
     crash_signal_handler(sig);
 }
 
