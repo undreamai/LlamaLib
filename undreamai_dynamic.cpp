@@ -7,7 +7,7 @@ int main(int argc, char** argv) {
         if (i < argc - 1) command += " ";
     }
 
-    LLMLib* llmlib = Load_LLM_Library(NO_GPU, command);
+    LLMLib* llmlib = Load_LLM_Library(TINYBLAS, command);
     if (llmlib) {
         std::cout << "Successfully loaded and ran model." << std::endl;
     }
