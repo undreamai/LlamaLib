@@ -1,12 +1,4 @@
 #include "LLMClient.h"
-#include "json.hpp"
-#include <thread>
-#include <chrono>
-#include <iostream>
-#include <sstream>
-#include <curl/curl.h>
-
-using json = nlohmann::json;
 
 RemoteLLMClient::RemoteLLMClient(const std::string& url_, int port_)
     : url(url_), port(port_) {
@@ -46,27 +38,4 @@ static std::string post_request(const std::string& url, int port, const std::str
         std::cout << "full_url" << std::endl;
 
     return response;
-}
-
-std::string RemoteLLMClient::build_tokenize_json(const std::string& content) {
-    json j;
-    j["content"] = content;
-    return j.dump();
-}
-
-std::vector<int> RemoteLLMClient::handle_tokenize(const std::string& query) {
-    std::cout << "handle_tokenize" << std::endl;
-    std::string payload = build_tokenize_json(query);
-    std::cout << payload << std::endl;
-    std::string result = post_request(url, port, "tokenize", payload);
-
-    std::vector<int> tokens;
-    try {
-        auto j = json::parse(result);
-        tokens = j.at("tokens").get<std::vector<int>>();
-    }
-    catch (...) {
-        tokens = {};
-    }
-    return tokens;
 }
