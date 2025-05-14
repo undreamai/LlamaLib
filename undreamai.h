@@ -1,4 +1,7 @@
 #pragma once
+
+#include "LLMFunctions.h"
+
 #include "stringwrapper.h"
 #include "log.hpp"
 #include "server.cpp"
@@ -13,7 +16,7 @@ static bool always_true()
     return false;
 }
 
-class LLM {
+class LLM : public LLMFunctions {
     public:
         LLM(std::string params_string);
         LLM(int argc, char ** argv);
@@ -26,8 +29,8 @@ class LLM {
         int get_status();
         std::string get_status_message();
         
-        std::string handle_tokenize(json body);
-        std::string handle_detokenize(json body);
+        std::string handle_tokenize_json(const json body) override;
+        std::string handle_detokenize_json(const json body) override;
         std::string handle_embeddings (json data, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_true);
         std::string handle_lora_adapters_apply (json data, httplib::Response* res=nullptr);
         std::string handle_lora_adapters_list ();
@@ -54,7 +57,6 @@ class LLM {
         std::string SSL_cert = "";
         std::string SSL_key = "";
 
-        void parse_args(std::string params_string);
         void init(int argc, char ** argv);
         std::string handle_completions_streaming(
             std::unordered_set<int> id_tasks,

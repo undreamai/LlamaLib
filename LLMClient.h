@@ -1,22 +1,32 @@
 #pragma once
 
+#include "LLMFunctions.h"
+
 #include <string>
 #include <vector>
+#include <thread>
+#include <chrono>
+#include <iostream>
+#include <sstream>
+#include <curl/curl.h>
 
-class LLMClient {
-public:
-    virtual ~LLMClient() = default;
+// DEFINE_HANDLE_JSON_JSON_FUNC(tokenize)
+//   will be translated to implementation of:
+// std::string handle_tokenize_json(const json data) override;
 
-    virtual std::vector<int> handle_tokenize(const std::string& query) = 0;
-};
+#define DEFINE_HANDLE_JSON_JSON_FUNC(FUNC_NAME)                               \
+    inline std::string handle_##FUNC_NAME##_json(const json data) override {  \
+        return post_request(url, port, #FUNC_NAME, data);                     \
+    }
 
-class RemoteLLMClient : public LLMClient {
-public:
-    RemoteLLMClient(const std::string& url, int port);
-    std::vector<int> handle_tokenize(const std::string& query) override;
-
+class RemoteLLMClient : public LLMFunctions {
 private:
-    std::string build_tokenize_json(const std::string& content);
     std::string url;
     int port;
+
+public:
+    RemoteLLMClient(const std::string& url, int port);
+
+    DEFINE_HANDLE_JSON_JSON_FUNC(tokenize)
+    DEFINE_HANDLE_JSON_JSON_FUNC(detokenize)
 };
