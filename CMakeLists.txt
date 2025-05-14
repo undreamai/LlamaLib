@@ -51,12 +51,6 @@ target_link_libraries(${LIBRARY} PRIVATE common ${CMAKE_THREAD_LIBS_INIT})
 target_compile_features(${LIBRARY} PRIVATE cxx_std_11)
 add_compile_definitions(${LIBRARY} PRIVATE UNDREAMAI_EXPORTS)
 
-if (LLAMA_SERVER_SSL)
-    set(OPENSSL_USE_STATIC_LIBS TRUE)
-    find_package(OpenSSL REQUIRED)
-    target_link_libraries(${LIBRARY} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
-    target_compile_definitions(${LIBRARY} PRIVATE CPPHTTPLIB_OPENSSL_SUPPORT)
-endif()
 
 if (BUILD_UNDREAMAI_BINARIES)
     set(TEST undreamai_test)
@@ -81,7 +75,6 @@ if (BUILD_UNDREAMAI_BINARIES)
     endif()
 endif()
 
-
 add_subdirectory(archchecker)
 set(DYNAMIC undreamai_dynamic)
 add_executable(${DYNAMIC} undreamai_dynamic.cpp stringwrapper.cpp error_handling.cpp dynamic_loader.cpp)
@@ -90,3 +83,20 @@ target_include_directories(${DYNAMIC} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} archch
 target_link_libraries(${DYNAMIC} PRIVATE FeatureDetector archchecker)
 target_compile_features(${DYNAMIC} PRIVATE cxx_std_11)
 add_compile_definitions(${DYNAMIC} PRIVATE UNDREAMAI_EXPORTS)
+
+
+if (WIN32)
+    set(CURL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/curl/include")
+    set(CURL_LIBRARY "${CMAKE_SOURCE_DIR}/curl/lib/libcurl_a.lib")
+    set(ZLIB_LIBRARY "${CMAKE_SOURCE_DIR}/curl/lib/zlibstatic.lib")
+    add_compile_definitions(CURL_STATICLIB)
+    find_package(CURL REQUIRED)
+endif()
+
+set(CLIENT undreamai_client)
+add_executable(${CLIENT} undreamai_client.cpp LLMClient.cpp)
+install(TARGETS ${CLIENT} RUNTIME)
+target_include_directories(${CLIENT} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} llama.cpp/common ${CURL_INCLUDE_DIR})
+target_link_libraries(${CLIENT} PRIVATE ${CURL_LIBRARIES} ${ZLIB_LIBRARY} ws2_32 Wldap32 crypt32 Normaliz )
+target_compile_features(${CLIENT} PRIVATE cxx_std_11)
+add_compile_definitions(${CLIENT} PRIVATE UNDREAMAI_EXPORTS)
