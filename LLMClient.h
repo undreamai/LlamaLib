@@ -27,6 +27,8 @@ private:
 public:
     RemoteLLMClient(const std::string& url, int port);
 
+    std::string post_request(const std::string& url, int port, const std::string& path, const std::string& payload);
+
     DEFINE_HANDLE_JSON_JSON_FUNC(tokenize)
     DEFINE_HANDLE_JSON_JSON_FUNC(detokenize)
 };

@@ -9,7 +9,7 @@ static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* use
     return size * nmemb;
 }
 
-static std::string post_request(const std::string& url, int port, const std::string& path, const std::string& payload) {
+std::string RemoteLLMClient::post_request(const std::string& url, int port, const std::string& path, const std::string& payload) {
     CURL* curl = curl_easy_init();
     std::string response;
 
