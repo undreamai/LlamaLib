@@ -302,7 +302,7 @@ void LLM::start_server(){
     };
 
     const auto handle_tokenize_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return res_ok(res, handle_tokenize(handle_post(req, res)));
+        return res_ok(res, handle_tokenize_json(handle_post(req, res)));
     };
 
     const auto handle_detokenize_post = [this](const httplib::Request & req, httplib::Response & res) {
@@ -483,7 +483,7 @@ bool LLM::middleware_validate_api_key(const httplib::Request & req, httplib::Res
     return false;
 }
 
-std::string LLM::handle_tokenize(json body) {
+std::string LLM::handle_tokenize_json(const json body) {
     if (setjmp(sigjmp_buf_point) != 0) return "";
     clear_status();
     try {
@@ -528,7 +528,7 @@ std::string LLM::handle_tokenize(json body) {
     return "";
 }
 
-std::string LLM::handle_detokenize(json body) {
+std::string LLM::handle_detokenize_json(const json body) {
     if (setjmp(sigjmp_buf_point) != 0) return "";
     clear_status();
     try {
@@ -997,7 +997,7 @@ const void LLM_SetSSL(LLM* llm, const char* SSL_cert, const char* SSL_key){
 }
 
 const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper){
-    wrapper->SetContent(llm->handle_tokenize(json::parse(json_data)));
+    wrapper->SetContent(llm->handle_tokenize_json(json::parse(json_data)));
 }
 
 const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper){
