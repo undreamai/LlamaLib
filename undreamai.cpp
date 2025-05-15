@@ -285,14 +285,14 @@ void LLM::start_server(){
     
     const auto handle_completions_post = [this, &res_error](const httplib::Request & req, httplib::Response & res) {
         json data = handle_post(req, res);
-        handle_completions(data, nullptr, &res, req.is_connection_closed, OAICOMPAT_TYPE_NONE);
+        handle_completions_json(data, nullptr, &res, req.is_connection_closed, OAICOMPAT_TYPE_NONE);
     };
     
     const auto handle_chat_completions_post = [this, &res_error](const httplib::Request & req, httplib::Response & res) {
         json body = handle_post(req, res);
         json data = oaicompat_completion_params_parse(body, params.use_jinja, params.reasoning_format, ctx_server.chat_templates.get());
         LOG_DEBUG("formatted prompt", data);
-        handle_completions(data, nullptr, &res, req.is_connection_closed, OAICOMPAT_TYPE_CHAT);
+        handle_completions_json(data, nullptr, &res, req.is_connection_closed, OAICOMPAT_TYPE_CHAT);
     };
 
     const auto handle_apply_template_post = [this](const httplib::Request& req, httplib::Response& res) {
@@ -310,19 +310,19 @@ void LLM::start_server(){
     };
 
     const auto handle_embeddings_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return handle_embeddings(handle_post(req, res), &res, req.is_connection_closed);
+        return handle_embeddings_json(handle_post(req, res), &res, req.is_connection_closed);
     };
 
     const auto handle_lora_adapters_list_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return res_ok(res, handle_lora_adapters_list());
+        return res_ok(res, handle_lora_adapters_list_json());
     };
 
     const auto handle_lora_adapters_apply_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return handle_lora_adapters_apply(handle_post(req, res), &res);
+        return handle_lora_adapters_apply_json(handle_post(req, res), &res);
     };
 
     const auto handle_slots_action_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return handle_slots_action(handle_post(req, res), &res);
+        return handle_slots_action_json(handle_post(req, res), &res);
     };
 
     //
@@ -483,7 +483,7 @@ bool LLM::middleware_validate_api_key(const httplib::Request & req, httplib::Res
     return false;
 }
 
-std::string LLM::handle_tokenize_json(const json body) {
+std::string LLM::handle_tokenize_json(const json& body) {
     if (setjmp(sigjmp_buf_point) != 0) return "";
     clear_status();
     try {
@@ -528,7 +528,7 @@ std::string LLM::handle_tokenize_json(const json body) {
     return "";
 }
 
-std::string LLM::handle_detokenize_json(const json body) {
+std::string LLM::handle_detokenize_json(const json& body) {
     if (setjmp(sigjmp_buf_point) != 0) return "";
     clear_status();
     try {
@@ -546,8 +546,8 @@ std::string LLM::handle_detokenize_json(const json body) {
     return "";
 }
 
-std::string LLM::handle_embeddings(
-    json body,
+std::string LLM::handle_embeddings_json(
+    const json& body,
     httplib::Response* res,
     std::function<bool()> is_connection_closed
 ) {
@@ -638,7 +638,7 @@ std::string LLM::handle_embeddings(
     return root;
 };
 
-std::string LLM::handle_lora_adapters_apply(json body, httplib::Response* res) {
+std::string LLM::handle_lora_adapters_apply_json(const json& body, httplib::Response* res) {
     if (!body.is_array()) {
         if(res != nullptr) handle_error (*res, format_error_response("Request body must be an array", ERROR_TYPE_INVALID_REQUEST));
         return "";
@@ -685,7 +685,7 @@ std::string LLM::handle_lora_adapters_apply(json body, httplib::Response* res) {
     return safe_json_to_str(result_data);
 };
 
-std::string LLM::handle_lora_adapters_list(){
+std::string LLM::handle_lora_adapters_list_json(){
     json result = json::array();
     const auto & loras = ctx_server.params_base.lora_adapters;
     for (size_t i = 0; i < loras.size(); ++i) {
@@ -742,18 +742,19 @@ std::string LLM::handle_completions_streaming(
     return result_data;
 }
 
-std::string LLM::handle_completions(
-    json data,
+std::string LLM::handle_completions_json(
+    const json& data,
     StringWrapper* stringWrapper,
     httplib::Response* res,
     std::function<bool()> is_connection_closed,
-    oaicompat_type oaicompat
+    int oaicompat_int
 ) {
     if (setjmp(sigjmp_buf_point) != 0) return "";
     clear_status();
     std::string result_data = "";
     try {
         server_task_type type = SERVER_TASK_TYPE_COMPLETION;
+        oaicompat_type oaicompat = static_cast<oaicompat_type>(oaicompat);
 
         // GGML_ASSERT(type == SERVER_TASK_TYPE_COMPLETION || type == SERVER_TASK_TYPE_INFILL);
 
@@ -854,8 +855,8 @@ std::string LLM::handle_completions(
     return result_data;
 }
 
-std::string LLM::handle_slots_action(
-    json data,
+std::string LLM::handle_slots_action_json(
+    const json& data,
     httplib::Response* res
 ) {
     if (setjmp(sigjmp_buf_point) != 0) return "";
@@ -1005,27 +1006,27 @@ const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrappe
 }
 
 const void LLM_Embeddings(LLM* llm, const char* json_data, StringWrapper* wrapper){
-    std::string result = llm->handle_embeddings(json::parse(json_data));
+    std::string result = llm->handle_embeddings_json(json::parse(json_data));
     wrapper->SetContent(result);
 }
 
 const void LLM_Lora_Weight(LLM* llm, const char* json_data, StringWrapper* wrapper) {
-    std::string result = llm->handle_lora_adapters_apply(json::parse(json_data));
+    std::string result = llm->handle_lora_adapters_apply_json(json::parse(json_data));
     wrapper->SetContent(result);
 }
 
 const void LLM_Lora_List(LLM* llm, StringWrapper* wrapper) {
-    std::string result = llm->handle_lora_adapters_list();
+    std::string result = llm->handle_lora_adapters_list_json();
     wrapper->SetContent(result);
 }
 
 const void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper){
-    std::string result = llm->handle_completions(json::parse(json_data), wrapper);
+    std::string result = llm->handle_completions_json(json::parse(json_data), wrapper);
     wrapper->SetContent(result);
 }
 
 const void LLM_Slot(LLM* llm, const char* json_data, StringWrapper* wrapper) {
-    std::string result = llm->handle_slots_action(json::parse(json_data));
+    std::string result = llm->handle_slots_action_json(json::parse(json_data));
     wrapper->SetContent(result);
 }
 

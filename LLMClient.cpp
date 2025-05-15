@@ -39,3 +39,44 @@ std::string RemoteLLMClient::post_request(const std::string& url, int port, cons
 
     return response;
 }
+
+//================ LLMFunctions ================//
+std::string RemoteLLMClient::handle_tokenize_json(const json& data)
+{
+    return post_request(url, port, "tokenize", data);
+}
+
+std::string RemoteLLMClient::handle_detokenize_json(const json& data)
+{
+    return post_request(url, port, "detokenize", data);
+}
+
+std::string RemoteLLMClient::handle_embeddings_json(const json& data, httplib::Response* res, std::function<bool()> is_connection_closed)
+{
+    return post_request(url, port, "embeddings", data);
+}
+
+std::string RemoteLLMClient::handle_lora_adapters_apply_json(const json& data, httplib::Response* res)
+{
+    throw std::exception("handle_lora_adapters_apply_json is not supported in remote client");
+}
+
+std::string RemoteLLMClient::handle_lora_adapters_list_json()
+{
+    throw std::exception("handle_lora_adapters_list_json is not supported in remote client");
+}
+
+std::string RemoteLLMClient::handle_completions_json(const json& data, StringWrapper* stringWrapper, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
+{
+    return post_request(url, port, "completion", data);
+}
+
+std::string RemoteLLMClient::handle_slots_action_json(const json& data, httplib::Response* res)
+{
+    return post_request(url, port, "slots", data);
+}
+
+void RemoteLLMClient::handle_cancel_action(int id_slot)
+{
+    throw std::exception("handle_cancel_action is not supported in remote client");
+}
