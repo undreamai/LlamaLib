@@ -11,11 +11,6 @@
 #endif
 #include "error_handling.h"
 
-static bool always_true()
-{
-    return false;
-}
-
 class LLM : public LLMFunctions {
     public:
         LLM(std::string params_string);
@@ -29,14 +24,16 @@ class LLM : public LLMFunctions {
         int get_status();
         std::string get_status_message();
         
-        std::string handle_tokenize_json(const json body) override;
-        std::string handle_detokenize_json(const json body) override;
-        std::string handle_embeddings (json data, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_true);
-        std::string handle_lora_adapters_apply (json data, httplib::Response* res=nullptr);
-        std::string handle_lora_adapters_list ();
-        std::string handle_completions(json data, StringWrapper* stringWrapper=nullptr, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_true, oaicompat_type oaicompat = OAICOMPAT_TYPE_NONE);
-        std::string handle_slots_action(json data, httplib::Response* res=nullptr);
-        void handle_cancel_action(int id_slot);
+        //================ LLMFunctions ================//
+        std::string handle_tokenize_json(const json& data) override;
+        std::string handle_detokenize_json(const json& data) override;
+        std::string handle_embeddings_json(const json& data, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_true) override;
+        std::string handle_lora_adapters_apply_json(const json& data, httplib::Response* res=nullptr) override;
+        std::string handle_lora_adapters_list_json() override;
+        std::string handle_completions_json(const json& data, StringWrapper* stringWrapper=nullptr, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0) override;
+        std::string handle_slots_action_json(const json& data, httplib::Response* res=nullptr) override;
+        void handle_cancel_action(int id_slot) override;
+        //================ LLMFunctions ================//
 
         void start_server();
         void stop_server();

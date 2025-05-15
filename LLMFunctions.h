@@ -1,57 +1,80 @@
 #pragma once
 #include <string>
 #include "json.hpp"
+#include "httplib.h"
+#include "stringwrapper.h"
 
 using json = nlohmann::ordered_json;
 
-// DEFINE_INLINE_JSON_OVERLOADS(tokenize, const std::string&, std::vector<int>)
-//   will be translated to implementation of:
-// virtual std::string handle_tokenize_json(const std::string& query);
-// virtual std::vector<int> handle_tokenize(const std::string& query);
+static bool always_true()
+{
+    return false;
+}
 
-#define DEFINE_INLINE_JSON_OVERLOADS(FUNC_NAME, INPUT_TYPE, RETURN_TYPE)           \
-    inline std::string handle_##FUNC_NAME##_json(INPUT_TYPE input) {               \
-        return handle_##FUNC_NAME##_json(build_##FUNC_NAME##_json(input));         \
-    }                                                                              \
-    inline RETURN_TYPE handle_##FUNC_NAME(INPUT_TYPE input) {                      \
-        return handle_##FUNC_NAME(build_##FUNC_NAME##_json(input));                \
-    }
+struct LoraIdScale {
+    int id;
+    float scale;
+};
 
-// DEFINE_INLINE_CHAR_JSON_OVERLOADS(tokenize, std::vector<int>)
-//   will be translated to implementation of:
-// virtual std::string handle_tokenize_json(const char* query);
-// virtual std::vector<int> handle_tokenize(const char* query);
-
-#define DEFINE_INLINE_CHAR_JSON_OVERLOADS(FUNC_NAME, RETURN_TYPE)                  \
-    inline std::string handle_##FUNC_NAME##_json(const char* input) {              \
-        return handle_##FUNC_NAME##_json(std::string(input));                      \
-    }                                                                              \
-    inline RETURN_TYPE handle_##FUNC_NAME(const char* input) {                     \
-        return handle_##FUNC_NAME(std::string(input));                             \
-    }
-
+struct LoraIdScalePath {
+    int id;
+    float scale;
+    std::string path;
+};
 
 class LLMFunctions {
 public:
     virtual ~LLMFunctions() = default;
 
-    virtual std::string handle_tokenize_json(const json data) = 0;
+    virtual std::string handle_tokenize_json(const json& data) = 0;
     virtual json build_tokenize_json(const std::string& query);
-    virtual std::vector<int> handle_tokenize(const json data);
-    DEFINE_INLINE_JSON_OVERLOADS(tokenize, const std::string&, std::vector<int>)
-    DEFINE_INLINE_CHAR_JSON_OVERLOADS(tokenize, std::vector<int>)
-        
-    virtual std::string handle_detokenize_json(const json data) = 0;
+    virtual std::vector<int> parse_tokenize_json(const json& result);
+    virtual std::vector<int> handle_tokenize(const json& data);
+    virtual std::string handle_tokenize_json(const std::string& query);
+    virtual std::vector<int> handle_tokenize(const std::string& query);
+    virtual std::string handle_tokenize_json(const char* query);
+    virtual std::vector<int> handle_tokenize(const char* query);
+
+    virtual std::string handle_detokenize_json(const json& data) = 0;
     virtual json build_detokenize_json(const std::vector<int32_t>& tokens);
-    virtual std::string handle_detokenize(const json data);
-    DEFINE_INLINE_JSON_OVERLOADS(detokenize, const std::vector<int32_t>&, std::string)
+    virtual std::string parse_detokenize_json(const json& result);
+    virtual std::string handle_detokenize_json(const std::vector<int32_t>& tokens);
+    virtual std::string handle_detokenize(const json& data);
+    virtual std::string handle_detokenize(const std::vector<int32_t>& tokens);
+
+    virtual std::string handle_embeddings_json(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true) = 0;
+    virtual json build_embeddings_json(const std::string& query);
+    virtual std::vector<float> parse_embeddings_json(const json& result);
+    virtual std::string handle_embeddings_json(const std::string& query, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true);
+    virtual std::string handle_embeddings_json(const char* query, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true);
+    virtual std::vector<float> handle_embeddings(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true);
+    virtual std::vector<float> handle_embeddings(const std::string& query, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true);
+    virtual std::vector<float> handle_embeddings(const char* query, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true);
+
+    virtual std::string handle_completions_json(const json& data, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0) = 0;
+    virtual json build_completions_json(const std::string& prompt, int id_slot, const json& params);
+    virtual std::string parse_completions_json(const json& result);
+    virtual std::string handle_completions_json(const std::string& prompt, int id_slot, const json& params, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0);
+    virtual std::string handle_completions(const json& data, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0);
+    virtual std::string handle_completions(const std::string& prompt, int id_slot, const json& params, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0);
+
+    virtual std::string handle_lora_adapters_apply_json(const json& data, httplib::Response* res = nullptr) = 0;
+    virtual json build_lora_adapters_apply_json(const std::vector<LoraIdScale>& loras);
+    virtual bool parse_lora_adapters_apply_json(const json& result);
+    virtual std::string handle_lora_adapters_apply_json(const std::vector<LoraIdScale>& loras, httplib::Response* res = nullptr);
+    virtual bool handle_lora_adapters_apply(const json& data, httplib::Response* res = nullptr);
+    virtual bool handle_lora_adapters_apply(const std::vector<LoraIdScale>& loras, httplib::Response* res = nullptr);
+
+    virtual std::string handle_lora_adapters_list_json() = 0;
+    virtual std::vector<LoraIdScalePath> parse_lora_adapters_list_json(const json& result);
+    virtual std::vector<LoraIdScalePath> handle_lora_adapters_list();
+
+    virtual std::string handle_slots_action_json(const json& data, httplib::Response* res = nullptr) = 0;
+    virtual json build_slots_action_json(int id_slot, std::string action, std::string filepath);
+    virtual std::string parse_slots_action_json(const json& result);
+    virtual std::string handle_slots_action_json(int id_slot, std::string action, std::string filepath, httplib::Response* res = nullptr);
+    virtual std::string handle_slots_action(const json& data, httplib::Response* res = nullptr);
+    virtual std::string handle_slots_action(int id_slot, std::string action, std::string filepath, httplib::Response* res = nullptr);
+
+    virtual void handle_cancel_action(int id_slot) = 0;
 };
-
-
-/* TODO
-std::string handle_embeddings(json data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true);
-std::string handle_lora_adapters_apply(json data, httplib::Response* res = nullptr);
-std::string handle_lora_adapters_list();
-std::string handle_completions(json data, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true, oaicompat_type oaicompat = OAICOMPAT_TYPE_NONE);
-std::string handle_slots_action(json data, httplib::Response* res = nullptr);
-void handle_cancel_action(int id_slot);*/
