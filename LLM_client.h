@@ -13,30 +13,24 @@
 #include <curl/curl.h>
 
 enum LLMClientMode {
-    /*LLMOBJECT,
-    LLMLIB,*/
     LOCAL,
     REMOTE
 };
 
-class LLMClient : public LLM {
+class UNDREAMAI_API LLMClient : public LLM {
 private:
     LLMClientMode mode;
-    //LLMService* llm = nullptr;
-    LLMLib* llmLib = nullptr;
+    LLM* llm = nullptr;
     std::string url;
     int port;
     StringWrapper* stringWrapper = nullptr;
 
 public:
-    LLMClient(LLMService* llm);
+    LLMClient(LLM* llm);
     LLMClient(LLMLib* llmLib);
     LLMClient(const std::string& url, int port);
 
     std::string post_request(const std::string& url, int port, const std::string& path, const std::string& payload);
-    // Method to set specific function pointers if needed
-    void setFunctionPointer(const std::string& funcName, void* funcPtr);
-
 
     //================ LLM ================//
     std::string handle_tokenize_json(const json& data) override;

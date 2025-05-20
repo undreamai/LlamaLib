@@ -22,7 +22,7 @@ struct LoraIdScalePath {
     std::string path;
 };
 
-class LLM {
+class UNDREAMAI_API LLM {
 public:
     virtual std::string handle_tokenize_json(const json& data) = 0;
     virtual json build_tokenize_json(const std::string& query);
