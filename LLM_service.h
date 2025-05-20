@@ -1,6 +1,6 @@
 #pragma once
 
-#include "LLMFunctions.h"
+#include "LLM.h"
 
 #include "stringwrapper.h"
 #include "logging.h"
@@ -15,10 +15,10 @@
 
 struct server_context;
 
-class LLM : public LLMFunctions {
+class LLMService : public LLM {
     public:
-        LLM(std::string params_string);
-        LLM(int argc, char ** argv);
+        LLMService(std::string params_string);
+        LLMService(int argc, char ** argv);
 
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
         static EVP_PKEY *load_key(const std::string& key_str);
@@ -28,7 +28,7 @@ class LLM : public LLMFunctions {
         int get_status();
         std::string get_status_message();
         
-        //================ LLMFunctions ================//
+        //================ LLM ================//
         std::string handle_tokenize_json(const json& data) override;
         std::string handle_detokenize_json(const json& data) override;
         std::string handle_embeddings_json(const json& data, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_true) override;
@@ -37,7 +37,7 @@ class LLM : public LLMFunctions {
         std::string handle_completions_json(const json& data, StringWrapper* stringWrapper=nullptr, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0) override;
         std::string handle_slots_action_json(const json& data, httplib::Response* res=nullptr) override;
         void handle_cancel_action(int id_slot) override;
-        //================ LLMFunctions ================//
+        //================ LLM ================//
 
         void start_server();
         void stop_server();
@@ -71,7 +71,7 @@ class LLM : public LLMFunctions {
         void release_slot(server_slot& slot);
 };
 
-static std::vector<LLM*> llm_instances;
+static std::vector<LLMService*> llm_instances;
 static std::mutex llm_mutex;
 
 #ifdef _WIN32
@@ -93,26 +93,26 @@ extern "C" {
 	UNDREAMAI_API const int StringWrapper_GetStringSize(StringWrapper* object);
 	UNDREAMAI_API const void StringWrapper_GetString(StringWrapper* object, char* buffer, int bufferSize, bool clear=false);
 
-    UNDREAMAI_API LLM* LLM_Construct(const char* params_string);
-    UNDREAMAI_API const void LLM_Delete(LLM* llm);
-    UNDREAMAI_API const void LLM_Start(LLM* llm);
-    UNDREAMAI_API const bool LLM_Started(LLM* llm);
-    UNDREAMAI_API const void LLM_Stop(LLM* llm);
-    UNDREAMAI_API const void LLM_StartServer(LLM* llm);
-    UNDREAMAI_API const void LLM_StopServer(LLM* llm);
-    UNDREAMAI_API const void LLM_SetSSL(LLM* llm, const char* SSL_cert, const char* SSL_key);
-    UNDREAMAI_API const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Embeddings(LLM* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Lora_Weight(LLM* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Lora_List(LLM* llm, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Slot(LLM* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Cancel(LLM* llm, int id_slot);
-    UNDREAMAI_API const int LLM_Status(LLM* llm, StringWrapper* wrapper);
+    UNDREAMAI_API LLMService* LLM_Construct(const char* params_string);
+    UNDREAMAI_API const void LLM_Delete(LLMService* llm);
+    UNDREAMAI_API const void LLM_Start(LLMService* llm);
+    UNDREAMAI_API const bool LLM_Started(LLMService* llm);
+    UNDREAMAI_API const void LLM_Stop(LLMService* llm);
+    UNDREAMAI_API const void LLM_StartServer(LLMService* llm);
+    UNDREAMAI_API const void LLM_StopServer(LLMService* llm);
+    UNDREAMAI_API const void LLM_SetSSL(LLMService* llm, const char* SSL_cert, const char* SSL_key);
+    UNDREAMAI_API const void LLM_Tokenize(LLMService* llm, const char* json_data, StringWrapper* wrapper);
+    UNDREAMAI_API const void LLM_Detokenize(LLMService* llm, const char* json_data, StringWrapper* wrapper);
+    UNDREAMAI_API const void LLM_Embeddings(LLMService* llm, const char* json_data, StringWrapper* wrapper);
+    UNDREAMAI_API const void LLM_Lora_Weight(LLMService* llm, const char* json_data, StringWrapper* wrapper);
+    UNDREAMAI_API const void LLM_Lora_List(LLMService* llm, StringWrapper* wrapper);
+    UNDREAMAI_API const void LLM_Completion(LLMService* llm, const char* json_data, StringWrapper* wrapper);
+    UNDREAMAI_API const void LLM_Slot(LLMService* llm, const char* json_data, StringWrapper* wrapper);
+    UNDREAMAI_API const void LLM_Cancel(LLMService* llm, int id_slot);
+    UNDREAMAI_API const int LLM_Status(LLMService* llm, StringWrapper* wrapper);
 
     UNDREAMAI_API const int LLM_Test();
-    UNDREAMAI_API const int LLM_Embedding_Size(LLM* llm);
+    UNDREAMAI_API const int LLM_Embedding_Size(LLMService* llm);
 	
 #ifdef _DEBUG
     UNDREAMAI_API const bool LLM_IsDebuggerAttached(void);

@@ -1,6 +1,6 @@
-#include "LLMClient.h"
+#include "LLM_client.h"
 
-LLMClient::LLMClient(LLM* llm)
+LLMClient::LLMClient(LLMService* llm)
 {
     mode = LOCAL;
     llmLib = new LLMLib(llm);
@@ -57,7 +57,7 @@ std::string LLMClient::post_request(const std::string& url, int port, const std:
     return response;
 }
 
-//================ LLMFunctions ================//
+//================ LLM ================//
 
 
 

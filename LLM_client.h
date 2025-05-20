@@ -1,7 +1,7 @@
 #pragma once
 
 #include "stringwrapper.h"
-#include "LLMFunctions.h"
+#include "LLM.h"
 #include "dynamic_loader.h"
 
 #include <string>
@@ -19,17 +19,17 @@ enum LLMClientMode {
     REMOTE
 };
 
-class LLMClient : public LLMFunctions {
+class LLMClient : public LLM {
 private:
     LLMClientMode mode;
-    //LLM* llm = nullptr;
+    //LLMService* llm = nullptr;
     LLMLib* llmLib = nullptr;
     std::string url;
     int port;
     StringWrapper* stringWrapper = nullptr;
 
 public:
-    LLMClient(LLM* llm);
+    LLMClient(LLMService* llm);
     LLMClient(LLMLib* llmLib);
     LLMClient(const std::string& url, int port);
 
@@ -38,7 +38,7 @@ public:
     void setFunctionPointer(const std::string& funcName, void* funcPtr);
 
 
-    //================ LLMFunctions ================//
+    //================ LLM ================//
     std::string handle_tokenize_json(const json& data) override;
     std::string handle_detokenize_json(const json& data) override;
     std::string handle_embeddings_json(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true) override;
@@ -47,5 +47,5 @@ public:
     std::string handle_completions_json(const json& data, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0);
     std::string handle_slots_action_json(const json& data, httplib::Response* res = nullptr) override;
     void handle_cancel_action(int id_slot) override;
-    //================ LLMFunctions ================//
+    //================ LLM ================//
 };

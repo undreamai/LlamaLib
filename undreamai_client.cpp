@@ -1,5 +1,5 @@
-#include "undreamai.h"
-#include "LLMClient.h"
+#include "LLM_service.h"
+#include "LLM_client.h"
 #include <iostream>
 
 
@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
 	//	std::cout << tokens[i] << " ";
 
 
-	LLM* llm;
+	LLMService* llm;
 	StringWrapper* stringWrapper = StringWrapper_Construct();
 	std::string prompt = "you are an artificial intelligence assistant\n\n### user: Hello, how are you?\n### assistant";
 	std::string command = "";
