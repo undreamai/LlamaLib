@@ -49,14 +49,7 @@ void StringWrapper::GetString(char* buffer, int bufferSize, bool clear){
     if(clear) Clear();
 }
 
-char* GetStringWrapperContent(StringWrapper* stringWrapper) {
-    int bufferSize(stringWrapper->GetStringSize());
-    char* content = new char[bufferSize];
-    stringWrapper->GetString(content, bufferSize);
-    return content;
-}
-
-//============================= API IMPLEMENTATION =============================//
+//============================= API =============================//
 
 StringWrapper* StringWrapper_Construct() {
     return new StringWrapper();
@@ -77,4 +70,11 @@ const int StringWrapper_GetStringSize(StringWrapper* object) {
 const void StringWrapper_GetString(StringWrapper* object, char* buffer, int bufferSize, bool clear) {
     if (object == nullptr) return;
     return object->GetString(buffer, bufferSize, clear);
+}
+
+char* GetStringWrapperContent(StringWrapper* stringWrapper) {
+    int bufferSize(stringWrapper->GetStringSize());
+    char* content = new char[bufferSize];
+    stringWrapper->GetString(content, bufferSize);
+    return content;
 }

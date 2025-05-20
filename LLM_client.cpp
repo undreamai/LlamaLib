@@ -1,20 +1,14 @@
 #include "LLM_client.h"
 
-LLMClient::LLMClient(LLMService* llm)
+LLMClient::LLMClient(LLM* llm_): llm(llm_)
 {
     mode = LOCAL;
-    llmLib = new LLMLib(llm);
     stringWrapper = new StringWrapper();
 }
 
-LLMClient::LLMClient(LLMLib* llmLib_)
-    : llmLib(llmLib_) {
-    mode = LOCAL;
-    stringWrapper = new StringWrapper();
-}
+LLMClient::LLMClient(LLMLib* llmLib) : LLMClient((LLM*) llmLib->llm) { }
 
-LLMClient::LLMClient(const std::string& url_, int port_)
-    : url(url_), port(port_) {
+LLMClient::LLMClient(const std::string& url_, int port_) : url(url_), port(port_) {
     mode = REMOTE;
     stringWrapper = new StringWrapper();
 }
@@ -59,50 +53,11 @@ std::string LLMClient::post_request(const std::string& url, int port, const std:
 
 //================ LLM ================//
 
-
-
-// Method to set specific function pointers if needed
-//void LLMClient::setFunctionPointer(const std::string& funcName, void* funcPtr) {
-//    if (!llmLib) return;
-//
-//    if (funcName == "LLM_Tokenize") {
-//        llmLib->LLM_Tokenize_fn = reinterpret_cast<LLM_Tokenize_Fn>(funcPtr);
-//    }
-//    else if (funcName == "LLM_Detokenize") {
-//        llmLib->LLM_Detokenize_fn = reinterpret_cast<LLM_Detokenize_Fn>(funcPtr);
-//    }
-//    else if (funcName == "LLM_Embeddings") {
-//        llmLib->LLM_Embeddings_fn = reinterpret_cast<LLM_Embeddings_Fn>(funcPtr);
-//    }
-//    else if (funcName == "LLM_Lora_Weight") {
-//        llmLib->LLM_Lora_Weight_fn = reinterpret_cast<LLM_Lora_Weight_Fn>(funcPtr);
-//    }
-//    else if (funcName == "LLM_Lora_List") {
-//        llmLib->LLM_Lora_List_fn = reinterpret_cast<LLM_Lora_List_Fn>(funcPtr);
-//    }
-//    else if (funcName == "LLM_Completion") {
-//        llmLib->LLM_Completion_fn = reinterpret_cast<LLM_Completion_Fn>(funcPtr);
-//    }
-//    else if (funcName == "LLM_Slot") {
-//        llmLib->LLM_Slot_fn = reinterpret_cast<LLM_Slot_Fn>(funcPtr);
-//    }
-//    else if (funcName == "LLM_Cancel") {
-//        llmLib->LLM_Cancel_fn = reinterpret_cast<LLM_Cancel_Fn>(funcPtr);
-//    }
-//    else if (funcName == "LLM_Status") {
-//        llmLib->LLM_Status_fn = reinterpret_cast<LLM_Status_Fn>(funcPtr);
-//    }
-//    else {
-//        std::cerr << "Unknown function name: " << funcName << std::endl;
-//    }
-//}
-
 std::string LLMClient::handle_tokenize_json(const json& data)
 {
     switch (mode) {
     case LOCAL:
-        llmLib->LLM_Tokenize(data.dump().c_str(), stringWrapper);
-        return GetStringWrapperContent(stringWrapper);
+        return llm->handle_tokenize_json(data);
     case REMOTE:
         return post_request(url, port, "tokenize", data);
     default:

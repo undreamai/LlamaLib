@@ -1,14 +1,34 @@
 cmake_minimum_required(VERSION 3.14)
 project("undreamai" C CXX)
 
+# Set CUDA architectures
 set(CMAKE_CUDA_ARCHITECTURES "52;61;70;75;86;89")
 
+# Add subdirectories
 add_subdirectory("llama.cpp")
 add_subdirectory("archchecker")
+
+# Output override
 if(DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
     set_property(DIRECTORY llama.cpp PROPERTY CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 endif()
 
+# Setup CURL
+if (WIN32)
+    set(CURL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/curl/include")
+    set(CURL_LIBRARY "${CMAKE_SOURCE_DIR}/curl/lib/libcurl_a.lib")
+    set(ZLIB_LIBRARY "${CMAKE_SOURCE_DIR}/curl/lib/zlibstatic.lib")
+    add_compile_definitions(CURL_STATICLIB)
+endif()
+
+find_package(CURL REQUIRED)
+
+set(CURL_LIBRARIES ${CURL_LIBRARIES} ${ZLIB_LIBRARY})
+if (WIN32)
+    set(CURL_LIBRARIES ${CURL_LIBRARIES} ws2_32 Wldap32 crypt32 Normaliz)
+endif()
+
+# llama.cpp compilation flags
 if (NOT WIN32)
     set(STATIC_FLAGS "-fPIC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${STATIC_FLAGS}")
@@ -34,10 +54,13 @@ endforeach()
 
 set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} /Zm1000")
 
-set(LIBRARY undreamai)
+
+# helper variables and functions
+set(STATIC_LIBRARY undreamai)
 if(DEFINED LIBRARY_SUFFIX)
-  set(LIBRARY "${LIBRARY}_${LIBRARY_SUFFIX}")
+  set(STATIC_LIBRARY "${STATIC_LIBRARY}_${LIBRARY_SUFFIX}")
 endif()
+set(DYNAMIC_LIBRARY "undreamai_loader")
 
 if(CMAKE_SYSTEM_NAME STREQUAL "iOS" OR CMAKE_SYSTEM_NAME STREQUAL "visionOS")
     set(LIBRARY_TYPE STATIC)
@@ -45,76 +68,40 @@ else()
     set(LIBRARY_TYPE SHARED)
 endif()
 
-add_library(${LIBRARY} ${LIBRARY_TYPE} stringwrapper.cpp logging.cpp error_handling.cpp LLM.cpp LLM_service.cpp)
-install(TARGETS ${LIBRARY} LIBRARY)
-target_include_directories(${LIBRARY} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} llama.cpp/examples/server llama.cpp)
-target_link_libraries(${LIBRARY} PRIVATE common ${CMAKE_THREAD_LIBS_INIT})
-target_compile_features(${LIBRARY} PRIVATE cxx_std_11)
-add_compile_definitions(${LIBRARY} PRIVATE UNDREAMAI_EXPORTS)
+function(common_compile_defs NAME)
+    target_compile_features(${NAME} PRIVATE cxx_std_11)
+    add_compile_definitions(${NAME} PRIVATE UNDREAMAI_EXPORTS)
+    target_include_directories(${NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} llama.cpp/common llama.cpp/examples/server llama.cpp llama.cpp/include llama.cpp/ggml/include archchecker ${CURL_INCLUDE_DIR})
+endfunction()
 
+function(create_executable NAME LIBRARY)
+    add_executable(${NAME} ${NAME}.cpp)
+    target_link_libraries(${NAME} PRIVATE ${LIBRARY})
+    common_compile_defs(${NAME})
+    install(TARGETS ${NAME} RUNTIME)
+endfunction()
 
-set(DYNAMIC_LIBRARY "undreamai_loader")
-add_library(${DYNAMIC_LIBRARY} ${LIBRARY_TYPE} stringwrapper.cpp logging.cpp error_handling.cpp LLM.cpp dynamic_loader.cpp)
+# build libraries
+add_library(${STATIC_LIBRARY} ${LIBRARY_TYPE} LLM_service.cpp LLM.cpp LLM_client.cpp stringwrapper.cpp logging.cpp error_handling.cpp)
+target_link_libraries(${STATIC_LIBRARY} PRIVATE common ${CMAKE_THREAD_LIBS_INIT} ${CURL_LIBRARIES})
+common_compile_defs(${STATIC_LIBRARY})
+install(TARGETS ${STATIC_LIBRARY} LIBRARY)
+
+add_library(${DYNAMIC_LIBRARY} ${LIBRARY_TYPE} dynamic_loader.cpp LLM.cpp LLM_client.cpp stringwrapper.cpp error_handling.cpp)
+target_link_libraries(${DYNAMIC_LIBRARY} PRIVATE common ${CURL_LIBRARIES} FeatureDetector archchecker)
+common_compile_defs(${DYNAMIC_LIBRARY})
 install(TARGETS ${DYNAMIC_LIBRARY} LIBRARY)
-target_include_directories(${DYNAMIC_LIBRARY} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} llama.cpp/common llama.cpp/examples/server llama.cpp archchecker)
-target_link_libraries(${DYNAMIC_LIBRARY} PRIVATE FeatureDetector archchecker)
-target_compile_features(${DYNAMIC_LIBRARY} PRIVATE cxx_std_11)
-add_compile_definitions(${DYNAMIC_LIBRARY} PRIVATE UNDREAMAI_EXPORTS)
-
 
 if (BUILD_UNDREAMAI_BINARIES)
-    set(TEST undreamai_test)
-    add_executable(${TEST} undreamai_test.cpp stringwrapper.cpp logging.cpp error_handling.cpp LLM.cpp LLM_service.cpp)
-    install(TARGETS ${TEST} RUNTIME)
-    target_include_directories(${TEST} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} llama.cpp/examples/server llama.cpp)
-    target_link_libraries(${TEST} PRIVATE ${LIBRARY} common ${CMAKE_THREAD_LIBS_INIT})
-    target_compile_features(${TEST} PRIVATE cxx_std_11)
-    add_compile_definitions(${TEST} PRIVATE UNDREAMAI_EXPORTS)
-
-    set(SERVER undreamai_server)
-    add_executable(${SERVER} undreamai_server.cpp stringwrapper.cpp logging.cpp error_handling.cpp LLM.cpp LLM_service.cpp)
-    install(TARGETS ${SERVER} RUNTIME)
-    target_include_directories(${SERVER} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} llama.cpp/examples/server llama.cpp)
-    target_link_libraries(${SERVER} PRIVATE ${LIBRARY} common ${CMAKE_THREAD_LIBS_INIT})
-    target_compile_features(${SERVER} PRIVATE cxx_std_11)
-    add_compile_definitions(${SERVER} PRIVATE UNDREAMAI_EXPORTS)
+    # build executables
+    create_executable(undreamai_test ${STATIC_LIBRARY})
+    create_executable(undreamai_server ${STATIC_LIBRARY})
+    create_executable(undreamai_dynamic ${DYNAMIC_LIBRARY})
+    create_executable(undreamai_client ${STATIC_LIBRARY})
 
     if (LLAMA_SERVER_SSL)
         find_package(OpenSSL REQUIRED)
-        target_link_libraries(${SERVER} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
-        target_compile_definitions(${SERVER} PRIVATE CPPHTTPLIB_OPENSSL_SUPPORT)
+        target_link_libraries(undreamai_server PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+        target_compile_definitions(undreamai_server PRIVATE CPPHTTPLIB_OPENSSL_SUPPORT)
     endif()
 endif()
-
-set(DYNAMIC undreamai_dynamic)
-add_executable(${DYNAMIC} undreamai_dynamic.cpp stringwrapper.cpp logging.cpp error_handling.cpp LLM.cpp dynamic_loader.cpp)
-install(TARGETS ${DYNAMIC} RUNTIME)
-target_include_directories(${DYNAMIC} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} archchecker)
-target_include_directories(${DYNAMIC} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} llama.cpp/common llama.cpp/examples/server llama.cpp archchecker)
-target_link_libraries(${DYNAMIC} PRIVATE FeatureDetector archchecker)
-target_compile_features(${DYNAMIC} PRIVATE cxx_std_11)
-add_compile_definitions(${DYNAMIC} PRIVATE UNDREAMAI_EXPORTS)
-
-
-if (WIN32)
-    set(CURL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/curl/include")
-    set(CURL_LIBRARY "${CMAKE_SOURCE_DIR}/curl/lib/libcurl_a.lib")
-    set(ZLIB_LIBRARY "${CMAKE_SOURCE_DIR}/curl/lib/zlibstatic.lib")
-    add_compile_definitions(CURL_STATICLIB)
-endif()
-
-find_package(CURL REQUIRED)
-
-set(CLIENT undreamai_client)
-add_executable(${CLIENT} undreamai_client.cpp stringwrapper.cpp logging.cpp error_handling.cpp LLM.cpp LLM_service.cpp LLM_client.cpp dynamic_loader.cpp)
-install(TARGETS ${CLIENT} RUNTIME)
-target_include_directories(${CLIENT} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} llama.cpp/common llama.cpp/examples/server llama.cpp llama.cpp/include llama.cpp/ggml/include archchecker ${CURL_INCLUDE_DIR})
-
-#target_link_libraries(${CLIENT} PRIVATE ${CURL_LIBRARIES} ${ZLIB_LIBRARY} FeatureDetector archchecker)
-target_link_libraries(${CLIENT} PRIVATE ${CURL_LIBRARIES} ${ZLIB_LIBRARY} FeatureDetector archchecker)
-target_link_libraries(${CLIENT} PRIVATE ${LIBRARY} common ${CMAKE_THREAD_LIBS_INIT})
-if (WIN32)
-    target_link_libraries(${CLIENT} PRIVATE ws2_32 Wldap32 crypt32 Normaliz)
-endif()
-target_compile_features(${CLIENT} PRIVATE cxx_std_11)
-add_compile_definitions(${CLIENT} PRIVATE UNDREAMAI_EXPORTS)
