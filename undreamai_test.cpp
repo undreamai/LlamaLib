@@ -10,13 +10,6 @@
         } \
     } while (false)
 
-char* GetFromStringWrapper(StringWrapper* stringWrapper){
-    int bufferSize(stringWrapper->GetStringSize());
-    char* content = new char[bufferSize];
-    stringWrapper->GetString(content, bufferSize);
-    return content;
-}
-
 // Trim from the start (left trim)
 std::string ltrim(const std::string &s) {
     std::string result = s;
@@ -85,14 +78,14 @@ int main(int argc, char ** argv) {
     std::cout<<"******* LLM_Tokenize *******"<<std::endl;
     data["content"] = prompt;
     LLM_Tokenize(llm, data.dump().c_str(), stringWrapper);
-    reply = GetFromStringWrapper(stringWrapper);
+    reply = GetStringWrapperContent(stringWrapper);
     reply_data = json::parse(reply);
     ASSERT(reply_data.count("tokens") > 0);
     ASSERT(reply_data["tokens"].size() > 0);
 
     std::cout<<"******* LLM_Detokenize *******"<<std::endl;
     LLM_Detokenize(llm, reply.c_str(), stringWrapper);
-    reply = GetFromStringWrapper(stringWrapper);
+    reply = GetStringWrapperContent(stringWrapper);
     reply_data = json::parse(reply);
     ASSERT(trim(reply_data["content"]) == data["content"]);
 
@@ -105,14 +98,14 @@ int main(int argc, char ** argv) {
     data["n_predict"] = 50;
     data["n_keep"] = 30;
     LLM_Completion(llm, data.dump().c_str(), stringWrapper);
-    reply = GetFromStringWrapper(stringWrapper);
+    reply = GetStringWrapperContent(stringWrapper);
     reply_data = json::parse(reply);
     ASSERT(reply_data.count("content") > 0);
 
     data["prompt"] = prompt + std::string(reply_data["content"]);
 
     LLM_Tokenize(llm, reply.c_str(), stringWrapper);
-    reply = GetFromStringWrapper(stringWrapper);
+    reply = GetStringWrapperContent(stringWrapper);
     reply_data = json::parse(reply);
     std::cout << std::abs((float)data["n_predict"] - reply_data["tokens"].size()) << std::endl;
     ASSERT(std::abs((float)data["n_predict"] - reply_data["tokens"].size()) < 4);
@@ -120,20 +113,20 @@ int main(int argc, char ** argv) {
     std::cout<<"******* LLM_Completion 2 *******"<<std::endl;
     data["stream"] = true;
     LLM_Completion(llm, data.dump().c_str(), stringWrapper);
-    reply = GetFromStringWrapper(stringWrapper);
+    reply = GetStringWrapperContent(stringWrapper);
     reply_data = concatenate_streaming_result(reply);
     ASSERT(reply_data != "");
 
     std::cout<<"******* LLM_Embeddings *******"<<std::endl;
     data["content"] = prompt;
     LLM_Embeddings(llm, data.dump().c_str(), stringWrapper);
-    reply = GetFromStringWrapper(stringWrapper);
+    reply = GetStringWrapperContent(stringWrapper);
     reply_data = json::parse(reply);
     ASSERT(reply_data["embedding"].size() == LLM_Embedding_Size(llm));
 
     std::cout<<"******* LLM_Lora_List *******"<<std::endl;
     LLM_Lora_List(llm, stringWrapper);
-    reply = GetFromStringWrapper(stringWrapper);
+    reply = GetStringWrapperContent(stringWrapper);
     reply_data = json::parse(reply);
     ASSERT(reply_data.size() == 0);
 

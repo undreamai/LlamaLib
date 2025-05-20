@@ -1,6 +1,8 @@
 #pragma once
 
+#include "stringwrapper.h"
 #include "LLMFunctions.h"
+#include "dynamic_loader.h"
 
 #include <string>
 #include <vector>
@@ -10,24 +12,31 @@
 #include <sstream>
 #include <curl/curl.h>
 
-// DEFINE_HANDLE_JSON_JSON_FUNC(tokenize)
-//   will be translated to implementation of:
-// std::string handle_tokenize_json(const json data) override;
+enum LLMClientMode {
+    /*LLMOBJECT,
+    LLMLIB,*/
+    LOCAL,
+    REMOTE
+};
 
-#define DEFINE_HANDLE_JSON_JSON_FUNC(FUNC_NAME)                               \
-    inline std::string handle_##FUNC_NAME##_json(const json& data) override {  \
-        return post_request(url, port, #FUNC_NAME, data);                     \
-    }
-
-class RemoteLLMClient : public LLMFunctions {
+class LLMClient : public LLMFunctions {
 private:
+    LLMClientMode mode;
+    //LLM* llm = nullptr;
+    LLMLib* llmLib = nullptr;
     std::string url;
     int port;
+    StringWrapper* stringWrapper = nullptr;
 
 public:
-    RemoteLLMClient(const std::string& url, int port);
+    LLMClient(LLM* llm);
+    LLMClient(LLMLib* llmLib);
+    LLMClient(const std::string& url, int port);
 
     std::string post_request(const std::string& url, int port, const std::string& path, const std::string& payload);
+    // Method to set specific function pointers if needed
+    void setFunctionPointer(const std::string& funcName, void* funcPtr);
+
 
     //================ LLMFunctions ================//
     std::string handle_tokenize_json(const json& data) override;
