@@ -55,4 +55,7 @@ void server_log_callback(const char* level, const char* function, int line, cons
 #define QUE_ERR(fmt, ...) QUE_LOG("ERR", fmt, __VA_ARGS__)
 #define QUE_DBG(fmt, ...) QUE_LOG("DEBUG", fmt, __VA_ARGS__)
 
-
+extern "C" {
+    UNDREAMAI_API const void Logging(StringWrapper* wrapper);
+    UNDREAMAI_API const void StopLogging();
+}

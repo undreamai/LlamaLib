@@ -241,3 +241,46 @@ std::string LLM::handle_slots_action(int id_slot, std::string action, std::strin
 {
     return handle_slots_action(build_slots_action_json(id_slot, action, filepath), res);
 }
+
+//=========================== API ===========================//
+
+const int LLM_Test() {
+    return 100;
+}
+
+const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper) {
+    wrapper->SetContent(llm->handle_tokenize_json(json::parse(json_data)));
+}
+
+const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper) {
+    wrapper->SetContent(llm->handle_detokenize(json::parse(json_data)));
+}
+
+const void LLM_Embeddings(LLM* llm, const char* json_data, StringWrapper* wrapper) {
+    std::string result = llm->handle_embeddings_json(json::parse(json_data));
+    wrapper->SetContent(result);
+}
+
+const void LLM_Lora_Weight(LLM* llm, const char* json_data, StringWrapper* wrapper) {
+    std::string result = llm->handle_lora_adapters_apply_json(json::parse(json_data));
+    wrapper->SetContent(result);
+}
+
+const void LLM_Lora_List(LLM* llm, StringWrapper* wrapper) {
+    std::string result = llm->handle_lora_adapters_list_json();
+    wrapper->SetContent(result);
+}
+
+const void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper) {
+    std::string result = llm->handle_completions_json(json::parse(json_data), wrapper);
+    wrapper->SetContent(result);
+}
+
+const void LLM_Slot(LLM* llm, const char* json_data, StringWrapper* wrapper) {
+    std::string result = llm->handle_slots_action_json(json::parse(json_data));
+    wrapper->SetContent(result);
+}
+
+const void LLM_Cancel(LLM* llm, int id_slot) {
+    llm->handle_cancel_action(id_slot);
+}

@@ -55,3 +55,26 @@ char* GetStringWrapperContent(StringWrapper* stringWrapper) {
     stringWrapper->GetString(content, bufferSize);
     return content;
 }
+
+//============================= API IMPLEMENTATION =============================//
+
+StringWrapper* StringWrapper_Construct() {
+    return new StringWrapper();
+}
+
+const void StringWrapper_Delete(StringWrapper* object) {
+    if (object != nullptr) {
+        delete object;
+        object = nullptr;
+    }
+}
+
+const int StringWrapper_GetStringSize(StringWrapper* object) {
+    if (object == nullptr) return 0;
+    return object->GetStringSize();
+}
+
+const void StringWrapper_GetString(StringWrapper* object, char* buffer, int bufferSize, bool clear) {
+    if (object == nullptr) return;
+    return object->GetString(buffer, bufferSize, clear);
+}
