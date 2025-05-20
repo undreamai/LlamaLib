@@ -19,6 +19,7 @@ class LLMService : public LLM {
     public:
         LLMService(std::string params_string);
         LLMService(int argc, char ** argv);
+        ~LLMService();
 
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
         static EVP_PKEY *load_key(const std::string& key_str);
@@ -51,7 +52,7 @@ class LLMService : public LLM {
     private:
         common_params params;
         bool llama_backend_has_init;
-        server_context* ctx_server;
+        server_context* ctx_server = nullptr;
         std::thread server_thread;
         std::unique_ptr<httplib::Server> svr;
         std::thread t;

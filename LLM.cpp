@@ -253,7 +253,7 @@ const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper)
 }
 
 const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper) {
-    wrapper->SetContent(llm->handle_detokenize(json::parse(json_data)));
+    wrapper->SetContent(llm->handle_detokenize_json(json::parse(json_data)));
 }
 
 const void LLM_Embeddings(LLM* llm, const char* json_data, StringWrapper* wrapper) {
