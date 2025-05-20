@@ -102,10 +102,19 @@ LLMService::LLMService(int argc, char ** argv){
     init(argc, argv);
 }
 
+LLMService::~LLMService() {
+    if (ctx_server != nullptr)
+    {
+        delete ctx_server;
+        ctx_server = nullptr;
+    }
+}
+
 void LLMService::init(int argc, char ** argv){
     set_error_handlers();
     if (setjmp(sigjmp_buf_point) != 0) return;
     try{
+        ctx_server = new server_context();
         ctx_server->batch = { 0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
         if (!common_params_parse(argc, argv, params, LLAMA_EXAMPLE_SERVER)) {
