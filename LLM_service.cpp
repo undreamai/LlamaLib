@@ -947,7 +947,7 @@ int LLMService::embedding_size()
     return ctx_server->model_meta()["n_embd"];
 }
 
-//============================= API IMPLEMENTATION =============================//
+//============================= API =============================//
 
 LLMService* LLM_Construct(const char* params_string) {
     return new LLMService(std::string(params_string));

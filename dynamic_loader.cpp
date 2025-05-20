@@ -118,19 +118,7 @@ LLMLib::~LLMLib() {
     }
 }
 
-LLMLib::LLMLib() {
-}
-
-
-LLMLib::LLMLib(LLMService* existing_llm) {
-    this->llm = existing_llm;
-    this->handle = nullptr;
-
-      //this->LLM_Tokenize_fn = &LLM_Tokenize; 
-      //this->LLM_Tokenize_fn = reinterpret_cast<LLM_Tokenize_Fn>(::LLM_Tokenize);
-}
-
-//============================= EXTERNAL API =============================//
+//============================= API =============================//
 
 const char* Available_Architectures(bool gpu)
 {

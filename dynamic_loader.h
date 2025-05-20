@@ -96,9 +96,8 @@ struct LLMLib;
 
 //=================================== LLMLib ===================================//
 
-struct LLMLib {
-        LLMLib::LLMLib();
-        LLMLib::LLMLib(LLMService* llm);
+class UNDREAMAI_API LLMLib {
+public:
         ~LLMLib();
 
         LibHandle handle = nullptr;
