@@ -48,3 +48,10 @@ void StringWrapper::GetString(char* buffer, int bufferSize, bool clear){
     }
     if(clear) Clear();
 }
+
+char* GetStringWrapperContent(StringWrapper* stringWrapper) {
+    int bufferSize(stringWrapper->GetStringSize());
+    char* content = new char[bufferSize];
+    stringWrapper->GetString(content, bufferSize);
+    return content;
+}

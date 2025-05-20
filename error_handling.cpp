@@ -1,8 +1,5 @@
 #include "error_handling.h"
 
-int status = 0;
-std::string status_message;
-
 void fail(std::string message, int code) {
     status = code;
     status_message = message;
@@ -95,3 +92,23 @@ void set_error_handlers(bool crash_handlers, bool sigint_handlers) {
     }
 }
 #endif
+
+void crash_signal_handler(int sig) {
+    fail("Severe error occurred", sig);
+    siglongjmp(sigjmp_buf_point, 1);
+}
+
+void sigint_signal_handler(int sig) {
+    std::lock_guard<std::mutex> lock(sigint_hook_mutex);
+    for (auto& hook : sigint_hooks) {
+        try {
+            hook(sig);
+        }
+        catch (...) {}
+    }
+}
+
+void register_sigint_hook(Hook hook) {
+    std::lock_guard<std::mutex> lock(sigint_hook_mutex);
+    sigint_hooks.push_back(std::move(hook));
+}
