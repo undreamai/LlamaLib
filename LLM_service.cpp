@@ -940,37 +940,6 @@ int LLMService::embedding_size()
 
 //============================= API IMPLEMENTATION =============================//
 
-const void Logging(StringWrapper* wrapper)
-{
-    logStringWrapper = wrapper;
-}
-
-const void StopLogging()
-{
-    logStringWrapper = nullptr;
-}
-
-StringWrapper* StringWrapper_Construct() {
-    return new StringWrapper();
-}
-
-const void StringWrapper_Delete(StringWrapper* object) {
-    if(object != nullptr){
-        delete object;
-        object = nullptr;
-    }
-}
-
-const int StringWrapper_GetStringSize(StringWrapper* object) {
-    if(object == nullptr) return 0;
-    return object->GetStringSize();
-}
-
-const void StringWrapper_GetString(StringWrapper* object, char* buffer, int bufferSize, bool clear){
-    if(object == nullptr) return;
-    return object->GetString(buffer, bufferSize, clear);
-}
-
 LLMService* LLM_Construct(const char* params_string) {
     return new LLMService(std::string(params_string));
 }
@@ -1008,50 +977,9 @@ const void LLM_SetSSL(LLMService* llm, const char* SSL_cert, const char* SSL_key
     llm->set_SSL(SSL_cert, SSL_key);
 }
 
-const void LLM_Tokenize(LLMService* llm, const char* json_data, StringWrapper* wrapper){
-    wrapper->SetContent(llm->handle_tokenize_json(json::parse(json_data)));
-}
-
-const void LLM_Detokenize(LLMService* llm, const char* json_data, StringWrapper* wrapper){
-    wrapper->SetContent(llm->handle_detokenize(json::parse(json_data)));
-}
-
-const void LLM_Embeddings(LLMService* llm, const char* json_data, StringWrapper* wrapper){
-    std::string result = llm->handle_embeddings_json(json::parse(json_data));
-    wrapper->SetContent(result);
-}
-
-const void LLM_Lora_Weight(LLMService* llm, const char* json_data, StringWrapper* wrapper) {
-    std::string result = llm->handle_lora_adapters_apply_json(json::parse(json_data));
-    wrapper->SetContent(result);
-}
-
-const void LLM_Lora_List(LLMService* llm, StringWrapper* wrapper) {
-    std::string result = llm->handle_lora_adapters_list_json();
-    wrapper->SetContent(result);
-}
-
-const void LLM_Completion(LLMService* llm, const char* json_data, StringWrapper* wrapper){
-    std::string result = llm->handle_completions_json(json::parse(json_data), wrapper);
-    wrapper->SetContent(result);
-}
-
-const void LLM_Slot(LLMService* llm, const char* json_data, StringWrapper* wrapper) {
-    std::string result = llm->handle_slots_action_json(json::parse(json_data));
-    wrapper->SetContent(result);
-}
-
-const void LLM_Cancel(LLMService* llm, int id_slot) {
-    llm->handle_cancel_action(id_slot);
-}
-
 const int LLM_Status(LLMService* llm, StringWrapper* wrapper) {
     wrapper->SetContent(llm->get_status_message());
     return llm->get_status();
-}
-
-const int LLM_Test() {
-    return 100;
 }
 
 const int LLM_Embedding_Size(LLMService* llm) {

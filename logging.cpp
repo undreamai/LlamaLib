@@ -25,3 +25,15 @@ void server_log_callback(const char* level, const char* function, int line, cons
     }
     fflush(stdout);
 }
+
+//=========================== API ===========================//
+
+const void Logging(StringWrapper* wrapper)
+{
+    logStringWrapper = wrapper;
+}
+
+const void StopLogging()
+{
+    logStringWrapper = nullptr;
+}

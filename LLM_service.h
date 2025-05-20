@@ -74,25 +74,7 @@ class LLMService : public LLM {
 static std::vector<LLMService*> llm_instances;
 static std::mutex llm_mutex;
 
-#ifdef _WIN32
-    #ifdef UNDREAMAI_EXPORTS
-        #define UNDREAMAI_API __declspec(dllexport)
-    #else
-        #define UNDREAMAI_API __declspec(dllimport)
-    #endif
-#else
-    #define UNDREAMAI_API
-#endif
-
 extern "C" {
-    UNDREAMAI_API const void Logging(StringWrapper* wrapper);
-    UNDREAMAI_API const void StopLogging();
-
-	UNDREAMAI_API StringWrapper* StringWrapper_Construct();
-	UNDREAMAI_API const void StringWrapper_Delete(StringWrapper* object);
-	UNDREAMAI_API const int StringWrapper_GetStringSize(StringWrapper* object);
-	UNDREAMAI_API const void StringWrapper_GetString(StringWrapper* object, char* buffer, int bufferSize, bool clear=false);
-
     UNDREAMAI_API LLMService* LLM_Construct(const char* params_string);
     UNDREAMAI_API const void LLM_Delete(LLMService* llm);
     UNDREAMAI_API const void LLM_Start(LLMService* llm);
@@ -101,17 +83,7 @@ extern "C" {
     UNDREAMAI_API const void LLM_StartServer(LLMService* llm);
     UNDREAMAI_API const void LLM_StopServer(LLMService* llm);
     UNDREAMAI_API const void LLM_SetSSL(LLMService* llm, const char* SSL_cert, const char* SSL_key);
-    UNDREAMAI_API const void LLM_Tokenize(LLMService* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Detokenize(LLMService* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Embeddings(LLMService* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Lora_Weight(LLMService* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Lora_List(LLMService* llm, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Completion(LLMService* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Slot(LLMService* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Cancel(LLMService* llm, int id_slot);
     UNDREAMAI_API const int LLM_Status(LLMService* llm, StringWrapper* wrapper);
-
-    UNDREAMAI_API const int LLM_Test();
     UNDREAMAI_API const int LLM_Embedding_Size(LLMService* llm);
 	
 #ifdef _DEBUG
