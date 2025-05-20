@@ -1,4 +1,4 @@
-#include "undreamai.h"
+#include "LLM_service.h"
 
 #define ASSERT(cond) \
     do { \
@@ -55,7 +55,7 @@ std::string concatenate_streaming_result(std::string input)
 }
 
 int main(int argc, char ** argv) {
-    LLM* llm;
+    LLMService* llm;
     StringWrapper* stringWrapper = StringWrapper_Construct();
     std::string prompt = "you are an artificial intelligence assistant\n\n### user: Hello, how are you?\n### assistant";
     std::string command = "";

@@ -1,4 +1,4 @@
-#include "undreamai.h"
+#include "LLM_service.h"
 #ifndef SERVER_H
 #define SERVER_H
 #include "server.cpp"
@@ -15,7 +15,7 @@ void llm_sigint_signal_handler(int sig) {
         exit(1);
     }
 
-    std::vector<LLM*> instances_copy;
+    std::vector<LLMService*> instances_copy;
     {
         std::lock_guard<std::mutex> lock(llm_mutex);
         instances_copy = llm_instances;
@@ -40,9 +40,9 @@ static SigintHookRegistrar _sigintHookRegistrarInstance;
 
 #endif
 
-//============================= LLM IMPLEMENTATION =============================//
+//============================= LLMService IMPLEMENTATION =============================//
 
-std::vector<std::string> LLM::splitArguments(const std::string& inputString) {
+std::vector<std::string> LLMService::splitArguments(const std::string& inputString) {
     std::vector<std::string> arguments;
 
     unsigned counter = 0;
@@ -66,7 +66,7 @@ std::vector<std::string> LLM::splitArguments(const std::string& inputString) {
 }
 
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-EVP_PKEY* LLM::load_key(const std::string& key_str) {
+EVP_PKEY* LLMService::load_key(const std::string& key_str) {
     BIO *bio = BIO_new_mem_buf(key_str.data(), (int) key_str.size());
     if (!bio) return NULL;
     EVP_PKEY *key = PEM_read_bio_PrivateKey(bio, NULL, 0, NULL);
@@ -74,7 +74,7 @@ EVP_PKEY* LLM::load_key(const std::string& key_str) {
     return key;
 }
 
-X509* LLM::load_cert(const std::string& cert_str) {
+X509* LLMService::load_cert(const std::string& cert_str) {
     BIO *bio = BIO_new_mem_buf(cert_str.data(), (int) cert_str.size());
     if (!bio) return NULL;
     X509 *cert = (cert_str[0] == '-')
@@ -85,7 +85,7 @@ X509* LLM::load_cert(const std::string& cert_str) {
 }
 #endif
 
-LLM::LLM(std::string params_string){
+LLMService::LLMService(std::string params_string){
     std::vector<std::string> arguments = splitArguments("llm " + params_string);
 
     // Convert vector of strings to argc and argv
@@ -98,11 +98,11 @@ LLM::LLM(std::string params_string){
     init(argc, argv);
 }
 
-LLM::LLM(int argc, char ** argv){
+LLMService::LLMService(int argc, char ** argv){
     init(argc, argv);
 }
 
-void LLM::init(int argc, char ** argv){
+void LLMService::init(int argc, char ** argv){
     set_error_handlers();
     if (setjmp(sigjmp_buf_point) != 0) return;
     try{
@@ -169,7 +169,7 @@ void handle_error(httplib::Response & res, const json error_data){
     res.status = 500;
 }
 
-void LLM::release_slot(server_slot& slot)
+void LLMService::release_slot(server_slot& slot)
 {
     if (slot.task_type == SERVER_TASK_TYPE_COMPLETION)
     {
@@ -182,7 +182,7 @@ void LLM::release_slot(server_slot& slot)
     }
 }
 
-void LLM::start_server(){
+void LLMService::start_server(){
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
     if (params.ssl_file_key != "" && params.ssl_file_cert != "") {
         LOG_INFO("Running with SSL", {{"key", params.ssl_file_key}, {"cert", params.ssl_file_cert}});
@@ -377,7 +377,7 @@ void LLM::start_server(){
     LOG_INFO("HTTP server is listening", {{"hostname", params.hostname.c_str()}, {"port", params.port}, {"threads", params.n_threads_http}});
 }
 
-void LLM::stop_server(){
+void LLMService::stop_server(){
     LOG_INFO("stopping server", {});
     if (svr.get() != nullptr) {
         svr->stop();
@@ -385,22 +385,22 @@ void LLM::stop_server(){
     }
 }
 
-int LLM::get_status(){
+int LLMService::get_status(){
     return status;
 }
 
-std::string LLM::get_status_message(){
+std::string LLMService::get_status_message(){
     return status_message;
 }
 
-void LLM::register_signal_handling() {
+void LLMService::register_signal_handling() {
     std::lock_guard<std::mutex> lock(llm_mutex);
     if (std::find(llm_instances.begin(), llm_instances.end(), this) == llm_instances.end()) {
         llm_instances.push_back(this);
     }
 }
 
-void LLM::unregister_signal_handling() {
+void LLMService::unregister_signal_handling() {
     std::lock_guard<std::mutex> lock(llm_mutex);
     llm_instances.erase(
         std::remove(llm_instances.begin(), llm_instances.end(), this),
@@ -408,14 +408,14 @@ void LLM::unregister_signal_handling() {
     );
 }
 
-void LLM::start_service(){
+void LLMService::start_service(){
     register_signal_handling();
     LOG_INFO("starting service", {});
     ctx_server->queue_tasks.start_loop();
     LOG_INFO("stopped service loop", {});
 }
 
-void LLM::stop_service(){
+void LLMService::stop_service(){
     try {
         LOG_INFO("shutting down tasks", {});
 
@@ -443,11 +443,11 @@ void LLM::stop_service(){
     }
 }
 
-bool LLM::is_running(){
+bool LLMService::is_running(){
     return ctx_server->queue_tasks.running;
 }
 
-void LLM::set_SSL(const char* SSL_cert, const char* SSL_key){
+void LLMService::set_SSL(const char* SSL_cert, const char* SSL_key){
 #ifndef CPPHTTPLIB_OPENSSL_SUPPORT
     throw std::runtime_error("SSL is not supported in this build");
 #endif
@@ -456,7 +456,7 @@ void LLM::set_SSL(const char* SSL_cert, const char* SSL_key){
 }
 
 
-bool LLM::middleware_validate_api_key(const httplib::Request & req, httplib::Response & res) {
+bool LLMService::middleware_validate_api_key(const httplib::Request & req, httplib::Response & res) {
     // TODO: should we apply API key to all endpoints, including "/health" and "/models"?
     static const std::set<std::string> public_endpoints = {
         "/health",
@@ -493,7 +493,7 @@ bool LLM::middleware_validate_api_key(const httplib::Request & req, httplib::Res
     return false;
 }
 
-std::string LLM::handle_tokenize_json(const json& body) {
+std::string LLMService::handle_tokenize_json(const json& body) {
     if (setjmp(sigjmp_buf_point) != 0) return "";
     clear_status();
     try {
@@ -538,7 +538,7 @@ std::string LLM::handle_tokenize_json(const json& body) {
     return "";
 }
 
-std::string LLM::handle_detokenize_json(const json& body) {
+std::string LLMService::handle_detokenize_json(const json& body) {
     if (setjmp(sigjmp_buf_point) != 0) return "";
     clear_status();
     try {
@@ -556,7 +556,7 @@ std::string LLM::handle_detokenize_json(const json& body) {
     return "";
 }
 
-std::string LLM::handle_embeddings_json(
+std::string LLMService::handle_embeddings_json(
     const json& body,
     httplib::Response* res,
     std::function<bool()> is_connection_closed
@@ -648,7 +648,7 @@ std::string LLM::handle_embeddings_json(
     return root;
 };
 
-std::string LLM::handle_lora_adapters_apply_json(const json& body, httplib::Response* res) {
+std::string LLMService::handle_lora_adapters_apply_json(const json& body, httplib::Response* res) {
     if (!body.is_array()) {
         if(res != nullptr) handle_error (*res, format_error_response("Request body must be an array", ERROR_TYPE_INVALID_REQUEST));
         return "";
@@ -695,7 +695,7 @@ std::string LLM::handle_lora_adapters_apply_json(const json& body, httplib::Resp
     return safe_json_to_str(result_data);
 };
 
-std::string LLM::handle_lora_adapters_list_json(){
+std::string LLMService::handle_lora_adapters_list_json(){
     json result = json::array();
     const auto & loras = ctx_server->params_base.lora_adapters;
     for (size_t i = 0; i < loras.size(); ++i) {
@@ -726,7 +726,7 @@ static void server_sent_event_with_stringswrapper(
     }
 }
 
-std::string LLM::handle_completions_streaming(
+std::string LLMService::handle_completions_streaming(
     std::unordered_set<int> task_ids,
     StringWrapper* stringWrapper,
     httplib::DataSink* sink,
@@ -751,7 +751,7 @@ std::string LLM::handle_completions_streaming(
     return result_data;
 }
 
-std::string LLM::handle_completions_json(
+std::string LLMService::handle_completions_json(
     const json& data,
     StringWrapper* stringWrapper,
     httplib::Response* res,
@@ -866,7 +866,7 @@ std::string LLM::handle_completions_json(
     return result_data;
 }
 
-std::string LLM::handle_slots_action_json(
+std::string LLMService::handle_slots_action_json(
     const json& data,
     httplib::Response* res
 ) {
@@ -918,7 +918,7 @@ std::string LLM::handle_slots_action_json(
     return result_data;
 }
 
-void LLM::handle_cancel_action(int id_slot) {
+void LLMService::handle_cancel_action(int id_slot) {
     if (setjmp(sigjmp_buf_point) != 0) return;
     clear_status();
     try {
@@ -933,7 +933,7 @@ void LLM::handle_cancel_action(int id_slot) {
     }
 }
 
-int LLM::embedding_size()
+int LLMService::embedding_size()
 {
     return ctx_server->model_meta()["n_embd"];
 }
@@ -971,11 +971,11 @@ const void StringWrapper_GetString(StringWrapper* object, char* buffer, int buff
     return object->GetString(buffer, bufferSize, clear);
 }
 
-LLM* LLM_Construct(const char* params_string) {
-    return new LLM(std::string(params_string));
+LLMService* LLM_Construct(const char* params_string) {
+    return new LLMService(std::string(params_string));
 }
 
-const void LLM_Delete(LLM* llm) {
+const void LLM_Delete(LLMService* llm) {
     if (llm != nullptr)
     {
         LOG_INFO("Deleting LLM service", {});
@@ -984,68 +984,68 @@ const void LLM_Delete(LLM* llm) {
     }
 }
 
-const void LLM_StartServer(LLM* llm) {
+const void LLM_StartServer(LLMService* llm) {
     llm->start_server();
 }
 
-const void LLM_StopServer(LLM* llm) {
+const void LLM_StopServer(LLMService* llm) {
     llm->stop_server();
 }
 
-const void LLM_Start(LLM* llm) {
+const void LLM_Start(LLMService* llm) {
     llm->start_service();
 }
 
-const bool LLM_Started(LLM* llm) {
+const bool LLM_Started(LLMService* llm) {
     return llm->is_running();
 }
 
-const void LLM_Stop(LLM* llm) {
+const void LLM_Stop(LLMService* llm) {
     llm->stop_service();
 }
 
-const void LLM_SetSSL(LLM* llm, const char* SSL_cert, const char* SSL_key){
+const void LLM_SetSSL(LLMService* llm, const char* SSL_cert, const char* SSL_key){
     llm->set_SSL(SSL_cert, SSL_key);
 }
 
-const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper){
+const void LLM_Tokenize(LLMService* llm, const char* json_data, StringWrapper* wrapper){
     wrapper->SetContent(llm->handle_tokenize_json(json::parse(json_data)));
 }
 
-const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper){
+const void LLM_Detokenize(LLMService* llm, const char* json_data, StringWrapper* wrapper){
     wrapper->SetContent(llm->handle_detokenize(json::parse(json_data)));
 }
 
-const void LLM_Embeddings(LLM* llm, const char* json_data, StringWrapper* wrapper){
+const void LLM_Embeddings(LLMService* llm, const char* json_data, StringWrapper* wrapper){
     std::string result = llm->handle_embeddings_json(json::parse(json_data));
     wrapper->SetContent(result);
 }
 
-const void LLM_Lora_Weight(LLM* llm, const char* json_data, StringWrapper* wrapper) {
+const void LLM_Lora_Weight(LLMService* llm, const char* json_data, StringWrapper* wrapper) {
     std::string result = llm->handle_lora_adapters_apply_json(json::parse(json_data));
     wrapper->SetContent(result);
 }
 
-const void LLM_Lora_List(LLM* llm, StringWrapper* wrapper) {
+const void LLM_Lora_List(LLMService* llm, StringWrapper* wrapper) {
     std::string result = llm->handle_lora_adapters_list_json();
     wrapper->SetContent(result);
 }
 
-const void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper){
+const void LLM_Completion(LLMService* llm, const char* json_data, StringWrapper* wrapper){
     std::string result = llm->handle_completions_json(json::parse(json_data), wrapper);
     wrapper->SetContent(result);
 }
 
-const void LLM_Slot(LLM* llm, const char* json_data, StringWrapper* wrapper) {
+const void LLM_Slot(LLMService* llm, const char* json_data, StringWrapper* wrapper) {
     std::string result = llm->handle_slots_action_json(json::parse(json_data));
     wrapper->SetContent(result);
 }
 
-const void LLM_Cancel(LLM* llm, int id_slot) {
+const void LLM_Cancel(LLMService* llm, int id_slot) {
     llm->handle_cancel_action(id_slot);
 }
 
-const int LLM_Status(LLM* llm, StringWrapper* wrapper) {
+const int LLM_Status(LLMService* llm, StringWrapper* wrapper) {
     wrapper->SetContent(llm->get_status_message());
     return llm->get_status();
 }
@@ -1054,6 +1054,6 @@ const int LLM_Test() {
     return 100;
 }
 
-const int LLM_Embedding_Size(LLM* llm) {
+const int LLM_Embedding_Size(LLMService* llm) {
     return llm->embedding_size();
 }
