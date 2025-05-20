@@ -17,3 +17,5 @@ class StringWrapper {
         char *content = nullptr;
         std::mutex mtx;
 };
+
+char* GetStringWrapperContent(StringWrapper* stringWrapper);

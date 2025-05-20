@@ -8,6 +8,8 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <iostream>
+#include <setjmp.h>
 
 #if defined(__APPLE__)
 #include <TargetConditionals.h>
@@ -40,7 +42,7 @@ using LibHandle = void*;
 //=================================== FUNCTION LISTS ===================================//
 
 // Forward declarations
-struct LLM;
+class LLM;
 struct LLMLib;
 
 #define LLMLIB_FUNCTIONS_NOLLM_NOARGS(X) \
@@ -95,7 +97,10 @@ struct LLMLib;
 //=================================== LLMLib ===================================//
 
 struct LLMLib {
+        LLMLib::LLMLib();
+        LLMLib::LLMLib(LLM* llm);
         ~LLMLib();
+
         LibHandle handle = nullptr;
         LLM* llm = nullptr;
 

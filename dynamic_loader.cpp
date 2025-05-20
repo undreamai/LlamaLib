@@ -1,19 +1,7 @@
 #include "dynamic_loader.h"
-#include <iostream>
-#include <setjmp.h>
-
-//============================= ERROR HANDLING =============================//
-
-sigjmp_buf sigjmp_buf_point;
-
-void crash_signal_handler(int sig) {
-    fail("Severe error occurred", sig);
-    siglongjmp(sigjmp_buf_point, 1);
-}
-
-void sigint_signal_handler(int sig) {}
 
 //=================================== HELPERS ===================================//
+
 #ifdef _WIN32
     const char SEP = '\\';
 #else
@@ -128,6 +116,18 @@ LLMLib::~LLMLib() {
         unload_library(handle);
         handle = nullptr;
     }
+}
+
+LLMLib::LLMLib() {
+}
+
+
+LLMLib::LLMLib(LLM* existing_llm) {
+    this->llm = existing_llm;
+    this->handle = nullptr;
+
+      //this->LLM_Tokenize_fn = &LLM_Tokenize; 
+      //this->LLM_Tokenize_fn = reinterpret_cast<LLM_Tokenize_Fn>(::LLM_Tokenize);
 }
 
 //============================= EXTERNAL API =============================//

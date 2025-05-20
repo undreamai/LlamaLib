@@ -3,13 +3,17 @@
 #include "LLMFunctions.h"
 
 #include "stringwrapper.h"
-#include "log.hpp"
-#include "server.cpp"
+#include "logging.h"
+//#include "server.cpp"
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
     #include <openssl/err.h>
     #include <openssl/ssl.h>
 #endif
 #include "error_handling.h"
+
+#include "common.h"
+
+struct server_context;
 
 class LLM : public LLMFunctions {
     public:
@@ -47,7 +51,7 @@ class LLM : public LLMFunctions {
     private:
         common_params params;
         bool llama_backend_has_init;
-        server_context ctx_server;
+        server_context* ctx_server;
         std::thread server_thread;
         std::unique_ptr<httplib::Server> svr;
         std::thread t;
@@ -59,7 +63,6 @@ class LLM : public LLMFunctions {
             std::unordered_set<int> id_tasks,
             StringWrapper* stringWrapper=nullptr,
             httplib::DataSink* sink=nullptr,
-            oaicompat_type oaicompat=OAICOMPAT_TYPE_NONE,
             std::function<bool()> is_connection_closed = always_true
         );
         bool middleware_validate_api_key(const httplib::Request & req, httplib::Response & res);
