@@ -122,7 +122,7 @@ LLMLib::LLMLib() {
 }
 
 
-LLMLib::LLMLib(LLM* existing_llm) {
+LLMLib::LLMLib(LLMService* existing_llm) {
     this->llm = existing_llm;
     this->handle = nullptr;
 

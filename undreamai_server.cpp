@@ -1,4 +1,4 @@
-#include "undreamai.h"
+#include "LLM_service.h"
 
 int main(int argc, char ** argv) {
     std::string command = "";
@@ -7,7 +7,7 @@ int main(int argc, char ** argv) {
         if (i < argc - 1) command += " ";
     }
 
-    LLM* llm = LLM_Construct(command.c_str());
+    LLMService* llm = LLM_Construct(command.c_str());
     LLM_StartServer(llm);
     LLM_Start(llm);
     return 0;

@@ -42,7 +42,7 @@ using LibHandle = void*;
 //=================================== FUNCTION LISTS ===================================//
 
 // Forward declarations
-class LLM;
+class LLMService;
 struct LLMLib;
 
 #define LLMLIB_FUNCTIONS_NOLLM_NOARGS(X) \
@@ -53,33 +53,33 @@ struct LLMLib;
     X(Logging, void, StringWrapper*) \
     X(StringWrapper_Delete, void, StringWrapper*) \
     X(StringWrapper_GetStringSize, int, StringWrapper*) \
-    X(LLM_Construct, LLM*, const char*)
+    X(LLM_Construct, LLMService*, const char*)
 
 #define LLMLIB_FUNCTIONS_NOLLM_FOURARGS(X) \
     X(StringWrapper_GetString, void, StringWrapper*, char*, int, bool)
 
 #define LLMLIB_FUNCTIONS_LLM_NOARGS(X) \
-    X(LLM_Delete, void, LLM*) \
-    X(LLM_Start, void, LLM*) \
-    X(LLM_Started, bool, LLM*) \
-    X(LLM_Stop, void, LLM*) \
-    X(LLM_StartServer, void, LLM*) \
-    X(LLM_StopServer, void, LLM*) \
-    X(LLM_Embedding_Size, int, LLM*)
+    X(LLM_Delete, void, LLMService*) \
+    X(LLM_Start, void, LLMService*) \
+    X(LLM_Started, bool, LLMService*) \
+    X(LLM_Stop, void, LLMService*) \
+    X(LLM_StartServer, void, LLMService*) \
+    X(LLM_StopServer, void, LLMService*) \
+    X(LLM_Embedding_Size, int, LLMService*)
 
 #define LLMLIB_FUNCTIONS_LLM_ONEARG(X) \
-    X(LLM_Lora_List, void, LLM*, StringWrapper*) \
-    X(LLM_Cancel, void, LLM*, int) \
-    X(LLM_Status, int, LLM*, StringWrapper*)
+    X(LLM_Lora_List, void, LLMService*, StringWrapper*) \
+    X(LLM_Cancel, void, LLMService*, int) \
+    X(LLM_Status, int, LLMService*, StringWrapper*)
 
 #define LLMLIB_FUNCTIONS_LLM_TWOARGS(X) \
-    X(LLM_SetSSL, void, LLM*, const char*, const char*) \
-    X(LLM_Tokenize, void, LLM*, const char*, StringWrapper*) \
-    X(LLM_Detokenize, void, LLM*, const char*, StringWrapper*) \
-    X(LLM_Embeddings, void, LLM*, const char*, StringWrapper*) \
-    X(LLM_Lora_Weight, void, LLM*, const char*, StringWrapper*) \
-    X(LLM_Completion, void, LLM*, const char*, StringWrapper*) \
-    X(LLM_Slot, void, LLM*, const char*, StringWrapper*)
+    X(LLM_SetSSL, void, LLMService*, const char*, const char*) \
+    X(LLM_Tokenize, void, LLMService*, const char*, StringWrapper*) \
+    X(LLM_Detokenize, void, LLMService*, const char*, StringWrapper*) \
+    X(LLM_Embeddings, void, LLMService*, const char*, StringWrapper*) \
+    X(LLM_Lora_Weight, void, LLMService*, const char*, StringWrapper*) \
+    X(LLM_Completion, void, LLMService*, const char*, StringWrapper*) \
+    X(LLM_Slot, void, LLMService*, const char*, StringWrapper*)
 
 #define LLMLIB_FUNCTIONS_ALL(X) \
     LLMLIB_FUNCTIONS_NOLLM_NOARGS(X) \
@@ -98,11 +98,11 @@ struct LLMLib;
 
 struct LLMLib {
         LLMLib::LLMLib();
-        LLMLib::LLMLib(LLM* llm);
+        LLMLib::LLMLib(LLMService* llm);
         ~LLMLib();
 
         LibHandle handle = nullptr;
-        LLM* llm = nullptr;
+        LLMService* llm = nullptr;
 
 #define DECLARE_FIELD(name, ret, ...) name##_Fn name##_fn;
         LLMLIB_FUNCTIONS_ALL(DECLARE_FIELD)

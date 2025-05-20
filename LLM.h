@@ -22,10 +22,8 @@ struct LoraIdScalePath {
     std::string path;
 };
 
-class LLMFunctions {
+class LLM {
 public:
-    virtual ~LLMFunctions() = default;
-
     virtual std::string handle_tokenize_json(const json& data) = 0;
     virtual json build_tokenize_json(const std::string& query);
     virtual std::vector<int> parse_tokenize_json(const json& result);
