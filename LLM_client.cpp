@@ -68,35 +68,90 @@ std::string LLMClient::handle_tokenize_json(const json& data)
 
 std::string LLMClient::handle_detokenize_json(const json& data)
 {
-    return post_request(url, port, "detokenize", data);
+    switch (mode) {
+    case LOCAL:
+        return llm->handle_detokenize_json(data);
+    case REMOTE:
+        return post_request(url, port, "detokenize", data);
+    default:
+        std::cerr << "Unknown LLM type" << std::endl;
+        return "";
+    }
 }
 
 std::string LLMClient::handle_embeddings_json(const json& data, httplib::Response* res, std::function<bool()> is_connection_closed)
 {
-    return post_request(url, port, "embeddings", data);
+    switch (mode) {
+    case LOCAL:
+        return llm->handle_embeddings_json(data, res, is_connection_closed);
+    case REMOTE:
+        return post_request(url, port, "embeddings", data);
+    default:
+        std::cerr << "Unknown LLM type" << std::endl;
+        return "";
+    }
 }
 
 std::string LLMClient::handle_lora_adapters_apply_json(const json& data, httplib::Response* res)
 {
-    throw std::exception("handle_lora_adapters_apply_json is not supported in remote client");
+    switch (mode) {
+    case LOCAL:
+        return llm->handle_lora_adapters_apply_json(data, res);
+    case REMOTE:
+        throw std::exception("handle_lora_adapters_apply_json is not supported in remote client");
+    default:
+        std::cerr << "Unknown LLM type" << std::endl;
+        return "";
+    }
 }
 
 std::string LLMClient::handle_lora_adapters_list_json()
 {
-    throw std::exception("handle_lora_adapters_list_json is not supported in remote client");
+    switch (mode) {
+    case LOCAL:
+        return llm->handle_lora_adapters_list_json();
+    case REMOTE:
+        throw std::exception("handle_lora_adapters_list_json is not supported in remote client");
+    default:
+        std::cerr << "Unknown LLM type" << std::endl;
+        return "";
+    }
 }
 
 std::string LLMClient::handle_completions_json(const json& data, StringWrapper* stringWrapper, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
 {
-    return post_request(url, port, "completion", data);
+    switch (mode) {
+    case LOCAL:
+        return llm->handle_completions_json(data, stringWrapper, res, is_connection_closed, oaicompat);
+    case REMOTE:
+        return post_request(url, port, "completion", data);
+    default:
+        std::cerr << "Unknown LLM type" << std::endl;
+        return "";
+    }
 }
 
 std::string LLMClient::handle_slots_action_json(const json& data, httplib::Response* res)
 {
-    return post_request(url, port, "slots", data);
+    switch (mode) {
+    case LOCAL:
+        return llm->handle_slots_action_json(data, res);
+    case REMOTE:
+        return post_request(url, port, "slots", data);
+    default:
+        std::cerr << "Unknown LLM type" << std::endl;
+        return "";
+    }
 }
 
 void LLMClient::handle_cancel_action(int id_slot)
 {
-    throw std::exception("handle_cancel_action is not supported in remote client");
+    switch (mode) {
+    case LOCAL:
+        llm->handle_cancel_action(id_slot);
+    case REMOTE:
+        throw std::exception("handle_cancel_action is not supported in remote client");
+    default:
+        std::cerr << "Unknown LLM type" << std::endl;
+    }
 }
