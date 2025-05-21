@@ -26,10 +26,8 @@ int main(int argc, char** argv) {
 
 	std::cout << "******* LLM_Construct *******" << std::endl;
 	llm = LLM_Construct(command.c_str());
-
-	std::thread t([&]() {LLM_Start(llm);return 1;});
+	LLM_Start(llm);
 	std::cout << "******* LLM_Started *******" << std::endl;
-	while (!LLM_Started(llm)) {}
 
 	std::cout << "******* LLM_Tokenize *******" << std::endl;
 	data["content"] = prompt;

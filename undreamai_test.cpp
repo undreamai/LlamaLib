@@ -181,21 +181,19 @@ void test_slot_save_restore(LLMService* llm, StringWrapper* wrapper) {
     std::remove(filename.c_str());
 }
 
-std::pair<LLMService*, std::thread> start_llm(const std::string& command)
+LLMService* start_llm(const std::string& command)
 {
     LLMService* llm = LLM_Construct(command.c_str());
-    std::thread t([&]() { LLM_Start(llm); return 1; });
-    while (!LLM_Started(llm)) {}
-    return { llm, std::move(t) };
+    LLM_Start(llm);
+    return llm;
 }
 
-void stop_llm(LLMService* llm, std::thread& t)
+void stop_llm(LLMService* llm)
 {
     std::cout << "******* LLM_StopServer *******" << std::endl;
     LLM_StopServer(llm);
     std::cout << "******* LLM_Stop *******" << std::endl;
     LLM_Stop(llm);
-    t.join();
     std::cout << "******* LLM_Delete *******" << std::endl;
     LLM_Delete(llm);
 }
@@ -209,10 +207,7 @@ int main(int argc, char** argv) {
     }
 
     StringWrapper* wrapper = StringWrapper_Construct();
-
-    auto res = start_llm(command);
-    LLMService* llm = res.first;
-    std::thread t = std::move(res.second);
+    LLMService* llm = start_llm(command);
 
     test_tokenization(llm, wrapper, prompt);
     test_completion(llm, wrapper, prompt, false);
@@ -222,7 +217,7 @@ int main(int argc, char** argv) {
     test_cancel(llm);
     test_slot_save_restore(llm, wrapper);
 
-    stop_llm(llm, t);
+    stop_llm(llm);
     delete wrapper;
 
     return 0;
