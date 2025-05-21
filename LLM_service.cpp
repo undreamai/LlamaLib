@@ -772,7 +772,7 @@ std::string LLMService::handle_completions_json(
     std::string result_data = "";
     try {
         server_task_type type = SERVER_TASK_TYPE_COMPLETION;
-        oaicompat_type oaicompat = static_cast<oaicompat_type>(oaicompat);
+        oaicompat_type oaicompat = static_cast<oaicompat_type>(oaicompat_int);
 
         // GGML_ASSERT(type == SERVER_TASK_TYPE_COMPLETION || type == SERVER_TASK_TYPE_INFILL);
 
