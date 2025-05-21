@@ -53,9 +53,9 @@ class UNDREAMAI_API LLMService : public LLM {
         common_params params;
         bool llama_backend_has_init;
         server_context* ctx_server = nullptr;
+        std::thread service_thread;
         std::thread server_thread;
         std::unique_ptr<httplib::Server> svr;
-        std::thread t;
         std::string SSL_cert = "";
         std::string SSL_key = "";
 
