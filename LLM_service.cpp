@@ -374,7 +374,7 @@ void LLMService::start_server(){
     svr->new_task_queue = [this] { return new httplib::ThreadPool(params.n_threads_http); };
 
     // run the HTTP server in a thread - see comment below
-    t = std::thread([&]() {
+    server_thread = std::thread([&]() {
         if (!svr->listen_after_bind()) {
             return 1;
         }
@@ -390,7 +390,7 @@ void LLMService::stop_server(){
     LOG_INFO("stopping server", {});
     if (svr.get() != nullptr) {
         svr->stop();
-        t.join();
+        server_thread.join();
     }
 }
 
@@ -418,10 +418,14 @@ void LLMService::unregister_signal_handling() {
 }
 
 void LLMService::start_service(){
-    register_signal_handling();
-    LOG_INFO("starting service", {});
-    ctx_server->queue_tasks.start_loop();
-    LOG_INFO("stopped service loop", {});
+    service_thread = std::thread([&]() {
+        register_signal_handling();
+        LOG_INFO("starting service", {});
+        ctx_server->queue_tasks.start_loop();
+        LOG_INFO("stopped service loop", {});
+        return 1; 
+    });
+    while (!is_running()) {}
 }
 
 void LLMService::stop_service(){
@@ -444,6 +448,8 @@ void LLMService::stop_service(){
         ctx_server->queue_tasks.terminate();
         if(llama_backend_has_init) llama_backend_free();
         LOG_INFO("service stopped", {});
+
+        service_thread.join();
 
         unregister_signal_handling();
 
