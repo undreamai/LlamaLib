@@ -45,8 +45,10 @@ std::string LLMClient::post_request(const std::string& url, int port, const std:
 
         curl_slist_free_all(headers);
         curl_easy_cleanup(curl);
-    }else
-        std::cout << "full_url" << std::endl;
+    }
+    else {
+        std::cerr << "CURL not supported" << std::endl;
+    }
 
     return response;
 }
@@ -149,8 +151,10 @@ void LLMClient::handle_cancel_action(int id_slot)
     switch (mode) {
     case LOCAL:
         llm->handle_cancel_action(id_slot);
+        return;
     case REMOTE:
         std::cerr << "handle_cancel_action is not supported in remote client" << std::endl;
+        return;
     default:
         std::cerr << "Unknown LLM type" << std::endl;
     }

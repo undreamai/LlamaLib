@@ -120,7 +120,7 @@ struct LLMHandle {
 
 
 void test_tokenization(LLMHandle handle, StringWrapper* wrapper) {
-    std::cout << "******* LLM_Tokenize *******" << std::endl;
+    std::cout << "LLM_Tokenize" << std::endl;
     json data, reply_data;
     std::string reply;
 
@@ -131,7 +131,7 @@ void test_tokenization(LLMHandle handle, StringWrapper* wrapper) {
     ASSERT(reply_data.count("tokens") > 0);
     ASSERT(reply_data["tokens"].size() > 0);
 
-    std::cout << "******* LLM_Detokenize *******" << std::endl;
+    std::cout << "LLM_Detokenize" << std::endl;
     CALL_LLM_FUNCTION(LLM_Detokenize, handle, reply.c_str(), wrapper);
     reply = GetStringWrapperContent(wrapper);
     reply_data = json::parse(reply);
@@ -139,9 +139,9 @@ void test_tokenization(LLMHandle handle, StringWrapper* wrapper) {
 }
 
 void test_completion(LLMHandle handle, StringWrapper* wrapper, bool stream) {
-    std::cout << "******* LLM_Completion ( ";
+    std::cout << "LLM_Completion ( ";
     if (!stream) std::cout << "no ";
-    std::cout << "streaming ) *******" << std::endl;
+    std::cout << "streaming )" << std::endl;
 
     json data;
     std::string reply;
@@ -166,7 +166,7 @@ void test_completion(LLMHandle handle, StringWrapper* wrapper, bool stream) {
 }
 
 void test_embedding(LLMHandle handle, StringWrapper* wrapper) {
-    std::cout << "******* LLM_Embeddings *******" << std::endl;
+    std::cout << "LLM_Embeddings" << std::endl;
     json data, reply_data;
     std::string reply;
 
@@ -179,7 +179,7 @@ void test_embedding(LLMHandle handle, StringWrapper* wrapper) {
 }
 
 void test_lora(LLMHandle handle, StringWrapper* wrapper) {
-    std::cout << "******* LLM_Lora_List *******" << std::endl;
+    std::cout << "LLM_Lora_List" << std::endl;
     CALL_LLM_FUNCTION(LLM_Lora_List, handle, wrapper);
     std::string reply = GetStringWrapperContent(wrapper);
     json reply_data = json::parse(reply);
@@ -187,12 +187,12 @@ void test_lora(LLMHandle handle, StringWrapper* wrapper) {
 }
 
 void test_cancel(LLMHandle handle) {
-    std::cout << "******* LLM_Cancel *******" << std::endl;
+    std::cout << "LLM_Cancel" << std::endl;
     CALL_LLM_FUNCTION(LLM_Cancel, handle, ID_SLOT);
 }
 
 void test_slot_save_restore(LLMHandle handle, StringWrapper* wrapper) {
-    std::cout << "******* LLM_Slot Save *******" << std::endl;
+    std::cout << "LLM_Slot Save" << std::endl;
     std::string filename = "test_undreamai.save";
     json data;
     json reply_data;
@@ -222,11 +222,10 @@ void test_slot_save_restore(LLMHandle handle, StringWrapper* wrapper) {
     ASSERT(f.good());
     f.close();
 
-    std::cout << "******* LLM_Slot Restore *******" << std::endl;
+    std::cout << "LLM_Slot Restore" << std::endl;
     data["action"] = "restore";
     CALL_LLM_FUNCTION(LLM_Slot, handle, data.dump().c_str(), wrapper);
     reply = GetStringWrapperContent(wrapper);
-    std::cout << reply << std::endl;
     reply_data = json::parse(reply);
     ASSERT(reply_data["filename"] == filename);
     ASSERT(reply_data["n_restored"] == n_saved);
@@ -255,11 +254,11 @@ LLMLib* start_llm_lib(std::string command)
 
 void stop_llm_service(LLMHandle handle)
 {
-    std::cout << "******* LLM_StopServer *******" << std::endl;
+    std::cout << "LLM_StopServer" << std::endl;
     CALL_LLM_PROVIDER_FUNCTION(LLM_StopServer, handle);
-    std::cout << "******* LLM_Stop *******" << std::endl;
+    std::cout << "LLM_Stop" << std::endl;
     CALL_LLM_PROVIDER_FUNCTION(LLM_Stop, handle);
-    std::cout << "******* LLM_Delete *******" << std::endl;
+    std::cout << "LLM_Delete" << std::endl;
     CALL_LLM_PROVIDER_FUNCTION(LLM_Delete, handle);
 }
 
@@ -277,6 +276,8 @@ void run_tests(LLMHandle handle)
 }
 
 int main(int argc, char** argv) {
+    SetDebugLevel(ERR);
+
     std::string command;
     for (int i = 1; i < argc; ++i) {
         command += argv[i];
@@ -286,14 +287,21 @@ int main(int argc, char** argv) {
     LLMService* llm_service = start_llm_service(command);
     EMBEDDING_SIZE = LLM_Embedding_Size(llm_service);
 
-    run_tests(LLMHandle::from_LLM(llm_service));
+    std::cout << "-------- LLM service --------" << std::endl;
+    //run_tests(LLMHandle::from_LLM(llm_service));
 
+    std::cout << "-------- LLM client --------" << std::endl;
     LLMClient llm_client(llm_service);
-    //LLM* llm = (LLM*)&llm_client;
-    run_tests(LLMHandle::from_LLM(&llm_client));
+    //run_tests(LLMHandle::from_LLM(&llm_client));
+
+    std::cout << "-------- LLM remote client --------" << std::endl;
+    LLM_StartServer(llm_service);
+    LLMClient llm_remote_client("localhost", 8080);
+    run_tests(LLMHandle::from_LLM(&llm_remote_client));
 
     stop_llm_service(LLMHandle::from_LLM_service(llm_service));
 
+    std::cout << "-------- LLM lib --------" << std::endl;
     LLMLib* llmlib = start_llm_lib(command);
     run_tests(LLMHandle::from_LLMLib(llmlib));
     stop_llm_service(LLMHandle::from_LLMLib(llmlib));
