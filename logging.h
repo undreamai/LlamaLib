@@ -6,12 +6,21 @@
 using json = nlohmann::ordered_json;
 static StringWrapper* logStringWrapper;
 
-void server_log_callback(const char* level, const char* function, int line, const char* message, const json& extra);
+enum DEBUG_LEVEL {
+    DEBUG = 0,
+    INFO,
+    WARNING,
+    ERR
+};
 
-#define LOG_INFO(   MSG, ...) server_log_callback("INFO", __func__, __LINE__, MSG, __VA_ARGS__)
-#define LOG_WARNING(MSG, ...) server_log_callback("WARN", __func__, __LINE__, MSG, __VA_ARGS__)
-#define LOG_ERROR(  MSG, ...) server_log_callback("ERR",  __func__, __LINE__, MSG, __VA_ARGS__)
-#define LOG_DEBUG(  MSG, ...) server_log_callback("DEBUG",  __func__, __LINE__, MSG, __VA_ARGS__)
+static DEBUG_LEVEL DEBUG_LEVEL_SET = INFO;
+
+void server_log_callback(const DEBUG_LEVEL level, const char* function, int line, const char* message, const json& extra);
+
+#define LOG_INFO(   MSG, ...) server_log_callback(INFO, __func__, __LINE__, MSG, __VA_ARGS__)
+#define LOG_WARNING(MSG, ...) server_log_callback(WARNING, __func__, __LINE__, MSG, __VA_ARGS__)
+#define LOG_ERROR(  MSG, ...) server_log_callback(ERR,  __func__, __LINE__, MSG, __VA_ARGS__)
+#define LOG_DEBUG(  MSG, ...) server_log_callback(DEBUG,  __func__, __LINE__, MSG, __VA_ARGS__)
 
 #define SLT_LOG(level, slot, fmt, ...)                                          \
     do {                                                                        \
@@ -22,10 +31,10 @@ void server_log_callback(const char* level, const char* function, int line, cons
         server_log_callback(level, __func__, __LINE__, formatted_msg, json{});  \
     } while (0)
 
-#define SLT_INF(slot, fmt, ...) SLT_LOG("INFO", slot, fmt, __VA_ARGS__)
-#define SLT_WRN(slot, fmt, ...) SLT_LOG("WARN", slot, fmt, __VA_ARGS__)
-#define SLT_ERR(slot, fmt, ...) SLT_LOG("ERR", slot, fmt, __VA_ARGS__)
-#define SLT_DBG(slot, fmt, ...) SLT_LOG("DEBUG", slot, fmt, __VA_ARGS__)
+#define SLT_INF(slot, fmt, ...) SLT_LOG(INFO, slot, fmt, __VA_ARGS__)
+#define SLT_WRN(slot, fmt, ...) SLT_LOG(WARNING, slot, fmt, __VA_ARGS__)
+#define SLT_ERR(slot, fmt, ...) SLT_LOG(ERR, slot, fmt, __VA_ARGS__)
+#define SLT_DBG(slot, fmt, ...) SLT_LOG(DEBUG, slot, fmt, __VA_ARGS__)
 
 #define SRV_LOG(level, fmt, ...)                                                \
     do {                                                                        \
@@ -36,10 +45,10 @@ void server_log_callback(const char* level, const char* function, int line, cons
         server_log_callback(level, __func__, __LINE__, formatted_msg, json{});  \
     } while (0)
 
-#define SRV_INF(fmt, ...) SRV_LOG("INFO", fmt, __VA_ARGS__)
-#define SRV_WRN(fmt, ...) SRV_LOG("WARN", fmt, __VA_ARGS__)
-#define SRV_ERR(fmt, ...) SRV_LOG("ERR", fmt, __VA_ARGS__)
-#define SRV_DBG(fmt, ...) SRV_LOG("DEBUG", fmt, __VA_ARGS__)
+#define SRV_INF(fmt, ...) SRV_LOG(INFO, fmt, __VA_ARGS__)
+#define SRV_WRN(fmt, ...) SRV_LOG(WARNING, fmt, __VA_ARGS__)
+#define SRV_ERR(fmt, ...) SRV_LOG(ERR, fmt, __VA_ARGS__)
+#define SRV_DBG(fmt, ...) SRV_LOG(DEBUG, fmt, __VA_ARGS__)
 
 #define QUE_LOG(level, fmt, ...)                                                \
     do {                                                                        \
@@ -50,12 +59,13 @@ void server_log_callback(const char* level, const char* function, int line, cons
         server_log_callback(level, __func__, __LINE__, formatted_msg, json{});  \
     } while (0)
 
-#define QUE_INF(fmt, ...) QUE_LOG("INFO", fmt, __VA_ARGS__)
-#define QUE_WRN(fmt, ...) QUE_LOG("WARN", fmt, __VA_ARGS__)
-#define QUE_ERR(fmt, ...) QUE_LOG("ERR", fmt, __VA_ARGS__)
-#define QUE_DBG(fmt, ...) QUE_LOG("DEBUG", fmt, __VA_ARGS__)
+#define QUE_INF(fmt, ...) QUE_LOG(INFO, fmt, __VA_ARGS__)
+#define QUE_WRN(fmt, ...) QUE_LOG(WARNING, fmt, __VA_ARGS__)
+#define QUE_ERR(fmt, ...) QUE_LOG(ERR, fmt, __VA_ARGS__)
+#define QUE_DBG(fmt, ...) QUE_LOG(DEBUG, fmt, __VA_ARGS__)
 
 extern "C" {
+    UNDREAMAI_API const void SetDebugLevel(DEBUG_LEVEL level);
     UNDREAMAI_API const void Logging(StringWrapper* wrapper);
     UNDREAMAI_API const void StopLogging();
 }
