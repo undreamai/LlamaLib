@@ -1,5 +1,7 @@
 #pragma once
+
 #include <string>
+#include "logging.h"
 #include "json.hpp"
 #include "httplib.h"
 #include "stringwrapper.h"

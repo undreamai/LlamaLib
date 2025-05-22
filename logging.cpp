@@ -1,6 +1,6 @@
 #include "logging.h"
 
-void server_log_callback(const char* level, const char* function, int line, const char* message, const json& extra) {
+void server_log_callback(const DEBUG_LEVEL level, const char* function, int line, const char* message, const json& extra) {
     json log = json{
         {"timestamp", time(nullptr)},
     };
@@ -18,8 +18,9 @@ void server_log_callback(const char* level, const char* function, int line, cons
 
     std::string str = log.dump(-1, ' ', false, json::error_handler_t::replace);
 
-    if (level != "DEBUG")
+    if (level >= DEBUG_LEVEL_SET)
     {
+        std::cout << DEBUG_LEVEL_SET << " " << level << std::endl;
         printf("%s\n", str.c_str());
         if (logStringWrapper != nullptr) logStringWrapper->AddContent(str + "\n");
     }
@@ -27,6 +28,11 @@ void server_log_callback(const char* level, const char* function, int line, cons
 }
 
 //=========================== API ===========================//
+
+const void SetDebugLevel(DEBUG_LEVEL level)
+{
+    DEBUG_LEVEL_SET = level;
+}
 
 const void Logging(StringWrapper* wrapper)
 {
