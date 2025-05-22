@@ -224,7 +224,7 @@ std::string LLM::parse_slots_action_json(const json& result)
         return result["filename"].get<std::string>();
     }
     catch (const std::exception&) {}
-    return false;
+    return "";
 }
 
 std::string LLM::handle_slots_action_json(int id_slot, std::string action, std::string filepath, httplib::Response* res)
