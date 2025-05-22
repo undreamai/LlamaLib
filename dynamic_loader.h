@@ -1,15 +1,15 @@
 #pragma once
 
-#include "stringwrapper.h"
-#include "archchecker.h"
-#include "error_handling.h"
-
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <iostream>
 #include <setjmp.h>
+
+#include "stringwrapper.h"
+#include "archchecker.h"
+#include "error_handling.h"
 
 #if defined(__APPLE__)
 #include <TargetConditionals.h>
