@@ -1,4 +1,5 @@
 #include "LLM_service.h"
+#include "LLM_client.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -9,7 +10,9 @@
 
 #include <iostream>
 
+std::string PROMPT = "you are an artificial intelligence assistant\n\n### user: Hello, how are you?\n### assistant";
 int ID_SLOT = 0;
+int EMBEDDING_SIZE;
 
 #define ASSERT(cond) \
     do { \
@@ -65,80 +68,130 @@ std::string concatenate_streaming_result(std::string input)
     return output;
 }
 
-void test_tokenization(LLMService* llm, StringWrapper* wrapper, const std::string& prompt) {
+struct LLMHandle {
+    enum class Type { Raw, Service, Lib } type;
+    union {
+        LLM* raw;
+        LLMService* service;
+        LLMLib* lib;
+    };
+
+    static LLMHandle from_LLM(LLM* ptr) {
+        LLMHandle h;
+        h.type = Type::Raw;
+        h.raw = ptr;
+        return h;
+    }
+
+    static LLMHandle from_LLM_service(LLMService* ptr) {
+        LLMHandle h;
+        h.type = Type::Service;
+        h.service = ptr;
+        return h;
+    }
+
+    static LLMHandle from_LLMLib(LLMLib* ptr) {
+        LLMHandle h;
+        h.type = Type::Lib;
+        h.lib = ptr;
+        return h;
+    }
+};
+
+#define CALL_LLM_FUNCTION(FUNC, HANDLE, ...)                            \
+    do {                                                                \
+        switch ((HANDLE).type) {                                        \
+        case LLMHandle::Type::Raw:     FUNC((HANDLE).raw, ##__VA_ARGS__); break; \
+        case LLMHandle::Type::Service: FUNC((HANDLE).service, ##__VA_ARGS__); break; \
+        case LLMHandle::Type::Lib:     LlamaLib_##FUNC((HANDLE).lib, ##__VA_ARGS__); break; \
+        default: throw std::runtime_error("Unknown LLMHandle type");    \
+        }                                                               \
+    } while (0)
+
+#define CALL_LLM_PROVIDER_FUNCTION(FUNC, HANDLE, ...)                            \
+    do {                                                                \
+        switch ((HANDLE).type) {                                        \
+        case LLMHandle::Type::Service: FUNC((HANDLE).service, ##__VA_ARGS__); break; \
+        case LLMHandle::Type::Lib:     LlamaLib_##FUNC((HANDLE).lib, ##__VA_ARGS__); break; \
+        default: throw std::runtime_error("Unknown LLMHandle type");    \
+        }                                                               \
+    } while (0)
+
+
+
+void test_tokenization(LLMHandle handle, StringWrapper* wrapper) {
     std::cout << "******* LLM_Tokenize *******" << std::endl;
     json data, reply_data;
     std::string reply;
 
-    data["content"] = prompt;
-    LLM_Tokenize(llm, data.dump().c_str(), wrapper);
+    data["content"] = PROMPT;
+    CALL_LLM_FUNCTION(LLM_Tokenize, handle, data.dump().c_str(), wrapper);
     reply = GetStringWrapperContent(wrapper);
     reply_data = json::parse(reply);
     ASSERT(reply_data.count("tokens") > 0);
     ASSERT(reply_data["tokens"].size() > 0);
 
     std::cout << "******* LLM_Detokenize *******" << std::endl;
-    LLM_Detokenize(llm, reply.c_str(), wrapper);
+    CALL_LLM_FUNCTION(LLM_Detokenize, handle, reply.c_str(), wrapper);
     reply = GetStringWrapperContent(wrapper);
     reply_data = json::parse(reply);
     ASSERT(trim(reply_data["content"]) == data["content"]);
 }
 
-void test_completion(LLMService* llm, StringWrapper* wrapper, const std::string& prompt, bool stream) {
+void test_completion(LLMHandle handle, StringWrapper* wrapper, bool stream) {
     std::cout << "******* LLM_Completion ( ";
     if (!stream) std::cout << "no ";
     std::cout << "streaming ) *******" << std::endl;
+
     json data;
     std::string reply;
 
     data["id_slot"] = ID_SLOT;
-    data["prompt"] = prompt;
+    data["prompt"] = PROMPT;
     data["cache_prompt"] = true;
-    data["stream"] = false;
     data["n_predict"] = 10;
     data["n_keep"] = 30;
     data["stream"] = stream;
 
-    LLM_Completion(llm, data.dump().c_str(), wrapper);
+    CALL_LLM_FUNCTION(LLM_Completion, handle, data.dump().c_str(), wrapper);
     reply = GetStringWrapperContent(wrapper);
+
     std::string reply_data;
     if (stream)
-    {
         reply_data = concatenate_streaming_result(reply);
-    }
-    else {
+    else
         reply_data = json::parse(reply)["content"];
-    }
+
     ASSERT(reply_data != "");
 }
 
-void test_embedding(LLMService* llm, StringWrapper* wrapper, const std::string& prompt) {
+void test_embedding(LLMHandle handle, StringWrapper* wrapper) {
     std::cout << "******* LLM_Embeddings *******" << std::endl;
     json data, reply_data;
     std::string reply;
 
-    data["content"] = prompt;
-    LLM_Embeddings(llm, data.dump().c_str(), wrapper);
+    data["content"] = PROMPT;
+    CALL_LLM_FUNCTION(LLM_Embeddings, handle, data.dump().c_str(), wrapper);
     reply = GetStringWrapperContent(wrapper);
     reply_data = json::parse(reply);
 
-    ASSERT(reply_data["embedding"].size() == LLM_Embedding_Size(llm));
+    ASSERT(reply_data["embedding"].size() == EMBEDDING_SIZE);
 }
 
-void test_lora(LLMService* llm, StringWrapper* wrapper) {
+void test_lora(LLMHandle handle, StringWrapper* wrapper) {
     std::cout << "******* LLM_Lora_List *******" << std::endl;
-    LLM_Lora_List(llm, wrapper);
+    CALL_LLM_FUNCTION(LLM_Lora_List, handle, wrapper);
     std::string reply = GetStringWrapperContent(wrapper);
     json reply_data = json::parse(reply);
     ASSERT(reply_data.size() == 0);
 }
 
-void test_cancel(LLMService* llm) {
+void test_cancel(LLMHandle handle) {
     std::cout << "******* LLM_Cancel *******" << std::endl;
-    LLM_Cancel(llm, ID_SLOT);
+    CALL_LLM_FUNCTION(LLM_Cancel, handle, ID_SLOT);
 }
 
-void test_slot_save_restore(LLMService* llm, StringWrapper* wrapper) {
+void test_slot_save_restore(LLMHandle handle, StringWrapper* wrapper) {
     std::cout << "******* LLM_Slot Save *******" << std::endl;
     std::string filename = "test_undreamai.save";
     json data;
@@ -157,8 +210,8 @@ void test_slot_save_restore(LLMService* llm, StringWrapper* wrapper) {
     getcwd(buffer, sizeof(buffer));
     data["filepath"] = std::string(buffer) + "/" + filename;
 #endif
-   
-    LLM_Slot(llm, data.dump().c_str(), wrapper);
+
+    CALL_LLM_FUNCTION(LLM_Slot, handle, data.dump().c_str(), wrapper);
     reply = GetStringWrapperContent(wrapper);
     reply_data = json::parse(reply);
     ASSERT(reply_data["filename"] == filename);
@@ -171,7 +224,7 @@ void test_slot_save_restore(LLMService* llm, StringWrapper* wrapper) {
 
     std::cout << "******* LLM_Slot Restore *******" << std::endl;
     data["action"] = "restore";
-    LLM_Slot(llm, data.dump().c_str(), wrapper);
+    CALL_LLM_FUNCTION(LLM_Slot, handle, data.dump().c_str(), wrapper);
     reply = GetStringWrapperContent(wrapper);
     std::cout << reply << std::endl;
     reply_data = json::parse(reply);
@@ -181,44 +234,69 @@ void test_slot_save_restore(LLMService* llm, StringWrapper* wrapper) {
     std::remove(filename.c_str());
 }
 
-LLMService* start_llm(const std::string& command)
+LLMService* start_llm_service(const std::string& command)
 {
-    LLMService* llm = LLM_Construct(command.c_str());
-    LLM_Start(llm);
-    return llm;
+    LLMService* llm_service = LLM_Construct(command.c_str());
+    LLM_Start(llm_service);
+    return llm_service;
 }
 
-void stop_llm(LLMService* llm)
+LLMLib* start_llm_lib(std::string command)
+{
+    LLMLib* llmlib = Load_LLM_Library(command);
+    if (!llmlib) {
+        std::cerr << "Failed to load any backend." << std::endl;
+        return nullptr;
+    }
+    llmlib->LLM_StartServer();
+    llmlib->LLM_Start();
+    return llmlib;
+}
+
+void stop_llm_service(LLMHandle handle)
 {
     std::cout << "******* LLM_StopServer *******" << std::endl;
-    LLM_StopServer(llm);
+    CALL_LLM_PROVIDER_FUNCTION(LLM_StopServer, handle);
     std::cout << "******* LLM_Stop *******" << std::endl;
-    LLM_Stop(llm);
+    CALL_LLM_PROVIDER_FUNCTION(LLM_Stop, handle);
     std::cout << "******* LLM_Delete *******" << std::endl;
-    LLM_Delete(llm);
+    CALL_LLM_PROVIDER_FUNCTION(LLM_Delete, handle);
+}
+
+void run_tests(LLMHandle handle)
+{
+    StringWrapper* wrapper = StringWrapper_Construct();
+    test_tokenization(handle, wrapper);
+    test_completion(handle, wrapper, false);
+    test_completion(handle, wrapper, true);
+    test_embedding(handle, wrapper);
+    test_lora(handle, wrapper);
+    test_cancel(handle);
+    test_slot_save_restore(handle, wrapper);
+    delete wrapper;
 }
 
 int main(int argc, char** argv) {
-    std::string prompt = "you are an artificial intelligence assistant\n\n### user: Hello, how are you?\n### assistant";
     std::string command;
     for (int i = 1; i < argc; ++i) {
         command += argv[i];
         if (i < argc - 1) command += " ";
     }
 
-    StringWrapper* wrapper = StringWrapper_Construct();
-    LLMService* llm = start_llm(command);
+    LLMService* llm_service = start_llm_service(command);
+    EMBEDDING_SIZE = LLM_Embedding_Size(llm_service);
 
-    test_tokenization(llm, wrapper, prompt);
-    test_completion(llm, wrapper, prompt, false);
-    test_completion(llm, wrapper, prompt, true);
-    test_embedding(llm, wrapper, prompt);
-    test_lora(llm, wrapper);
-    test_cancel(llm);
-    test_slot_save_restore(llm, wrapper);
+    run_tests(LLMHandle::from_LLM(llm_service));
 
-    stop_llm(llm);
-    delete wrapper;
+    LLMClient llm_client(llm_service);
+    //LLM* llm = (LLM*)&llm_client;
+    run_tests(LLMHandle::from_LLM(&llm_client));
+
+    stop_llm_service(LLMHandle::from_LLM_service(llm_service));
+
+    LLMLib* llmlib = start_llm_lib(command);
+    run_tests(LLMHandle::from_LLMLib(llmlib));
+    stop_llm_service(LLMHandle::from_LLMLib(llmlib));
 
     return 0;
 }

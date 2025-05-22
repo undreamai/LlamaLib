@@ -99,6 +99,7 @@ if (BUILD_UNDREAMAI_BINARIES)
     create_executable(undreamai_dynamic ${DYNAMIC_LIBRARY})
     create_executable(undreamai_client ${STATIC_LIBRARY})
 
+    target_link_libraries(undreamai_test PRIVATE ${DYNAMIC_LIBRARY})
     if (LLAMA_SERVER_SSL)
         find_package(OpenSSL REQUIRED)
         target_link_libraries(undreamai_server PRIVATE OpenSSL::SSL OpenSSL::Crypto)
