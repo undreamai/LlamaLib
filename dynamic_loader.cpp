@@ -28,13 +28,11 @@ const std::vector<std::string> available_architectures(bool gpu) {
         std::string dash_arch = arch;
         if (arch != "") dash_arch = "-" + dash_arch;
         std::string path = prefix + "undreamai_" + os + dash_arch + "." + suffix;
-        if (file_exists(path)) {
-            architectures.push_back(path);
+        std::string full_path = join_paths(os + dash_arch, path);
+        if (file_exists(full_path)) {
+            architectures.push_back(full_path);
         } else {
-            path = join_paths(os + dash_arch, path);
-            if (file_exists(path)) {
-                architectures.push_back(path);
-            }
+            architectures.push_back(path);
         }
     };
 
