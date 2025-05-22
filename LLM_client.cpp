@@ -98,7 +98,7 @@ std::string LLMClient::handle_lora_adapters_apply_json(const json& data, httplib
     case LOCAL:
         return llm->handle_lora_adapters_apply_json(data, res);
     case REMOTE:
-        throw std::exception("handle_lora_adapters_apply_json is not supported in remote client");
+        std::cerr << "handle_lora_adapters_apply_json is not supported in remote client" << std::endl;
     default:
         std::cerr << "Unknown LLM type" << std::endl;
         return "";
@@ -111,7 +111,7 @@ std::string LLMClient::handle_lora_adapters_list_json()
     case LOCAL:
         return llm->handle_lora_adapters_list_json();
     case REMOTE:
-        throw std::exception("handle_lora_adapters_list_json is not supported in remote client");
+        std::cerr << "handle_lora_adapters_list_json is not supported in remote client" << std::endl;
     default:
         std::cerr << "Unknown LLM type" << std::endl;
         return "";
@@ -150,7 +150,7 @@ void LLMClient::handle_cancel_action(int id_slot)
     case LOCAL:
         llm->handle_cancel_action(id_slot);
     case REMOTE:
-        throw std::exception("handle_cancel_action is not supported in remote client");
+        std::cerr << "handle_cancel_action is not supported in remote client" << std::endl;
     default:
         std::cerr << "Unknown LLM type" << std::endl;
     }
