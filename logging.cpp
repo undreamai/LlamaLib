@@ -20,7 +20,6 @@ void server_log_callback(const DEBUG_LEVEL level, const char* function, int line
 
     if (level >= DEBUG_LEVEL_SET)
     {
-        std::cout << DEBUG_LEVEL_SET << " " << level << std::endl;
         printf("%s\n", str.c_str());
         if (logStringWrapper != nullptr) logStringWrapper->AddContent(str + "\n");
     }

@@ -57,18 +57,10 @@ public:
     virtual std::string handle_completions_json(const std::string& prompt, int id_slot, const json& params, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0);
     virtual std::string handle_completions(const json& data, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0);
     virtual std::string handle_completions(const std::string& prompt, int id_slot, const json& params, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0);
+};
 
-    virtual std::string handle_lora_adapters_apply_json(const json& data, httplib::Response* res = nullptr) = 0;
-    virtual json build_lora_adapters_apply_json(const std::vector<LoraIdScale>& loras);
-    virtual bool parse_lora_adapters_apply_json(const json& result);
-    virtual std::string handle_lora_adapters_apply_json(const std::vector<LoraIdScale>& loras, httplib::Response* res = nullptr);
-    virtual bool handle_lora_adapters_apply(const json& data, httplib::Response* res = nullptr);
-    virtual bool handle_lora_adapters_apply(const std::vector<LoraIdScale>& loras, httplib::Response* res = nullptr);
-
-    virtual std::string handle_lora_adapters_list_json() = 0;
-    virtual std::vector<LoraIdScalePath> parse_lora_adapters_list_json(const json& result);
-    virtual std::vector<LoraIdScalePath> handle_lora_adapters_list();
-
+class UNDREAMAI_API LLMWithSlot : public LLM {
+public:
     virtual std::string handle_slots_action_json(const json& data, httplib::Response* res = nullptr) = 0;
     virtual json build_slots_action_json(int id_slot, std::string action, std::string filepath);
     virtual std::string parse_slots_action_json(const json& result);
@@ -79,14 +71,30 @@ public:
     virtual void handle_cancel_action(int id_slot) = 0;
 };
 
+class UNDREAMAI_API LLMProvider : public LLMWithSlot {
+public:
+    virtual std::string handle_lora_adapters_apply_json(const json& data, httplib::Response* res = nullptr) = 0;
+    virtual json build_lora_adapters_apply_json(const std::vector<LoraIdScale>& loras);
+    virtual bool parse_lora_adapters_apply_json(const json& result);
+    virtual std::string handle_lora_adapters_apply_json(const std::vector<LoraIdScale>& loras, httplib::Response* res = nullptr);
+    virtual bool handle_lora_adapters_apply(const json& data, httplib::Response* res = nullptr);
+    virtual bool handle_lora_adapters_apply(const std::vector<LoraIdScale>& loras, httplib::Response* res = nullptr);
+
+    virtual std::string handle_lora_adapters_list_json() = 0;
+    virtual std::vector<LoraIdScalePath> parse_lora_adapters_list_json(const json& result);
+    virtual std::vector<LoraIdScalePath> handle_lora_adapters_list();
+};
+
 extern "C" {
     UNDREAMAI_API const int LLM_Test();
     UNDREAMAI_API const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
     UNDREAMAI_API const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
     UNDREAMAI_API const void LLM_Embeddings(LLM* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Lora_Weight(LLM* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Lora_List(LLM* llm, StringWrapper* wrapper);
     UNDREAMAI_API const void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Slot(LLM* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Cancel(LLM* llm, int id_slot);
+
+    UNDREAMAI_API const void LLM_Slot(LLMWithSlot* llm, const char* json_data, StringWrapper* wrapper);
+    UNDREAMAI_API const void LLM_Cancel(LLMWithSlot* llm, int id_slot);
+
+    UNDREAMAI_API const void LLM_Lora_Weight(LLMProvider* llm, const char* json_data, StringWrapper* wrapper);
+    UNDREAMAI_API const void LLM_Lora_List(LLMProvider* llm, StringWrapper* wrapper);
 };

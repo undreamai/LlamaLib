@@ -15,7 +15,7 @@
 
 struct server_context;
 
-class UNDREAMAI_API LLMService : public LLM {
+class UNDREAMAI_API LLMService : public LLMProvider {
     public:
         LLMService(std::string params_string);
         LLMService(int argc, char ** argv);
