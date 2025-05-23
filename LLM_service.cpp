@@ -326,7 +326,7 @@ void LLMService::start_server(){
     };
 
     const auto handle_detokenize_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return res_ok(res, handle_detokenize(handle_post(req, res)));
+        return res_ok(res, handle_detokenize_json(handle_post(req, res)));
     };
 
     const auto handle_embeddings_post = [this](const httplib::Request & req, httplib::Response & res) {
@@ -359,10 +359,10 @@ void LLMService::start_server(){
     svr->Post("/apply-template",      handle_apply_template_post);
     svr->Post("/embedding",           handle_embeddings_post); // legacy
     svr->Post("/embeddings",          handle_embeddings_post);
-    svr->Get ("/lora-adapters",       handle_lora_adapters_list_post);
-    svr->Post("/lora-adapters-list",  handle_lora_adapters_list_post);
-    svr->Post("/lora-adapters",       handle_lora_adapters_apply_post);
-    svr->Post("/slots",               handle_slots_action_post);
+    // svr->Get ("/lora-adapters",       handle_lora_adapters_list_post);
+    // svr->Post("/lora-adapters-list",  handle_lora_adapters_list_post);
+    // svr->Post("/lora-adapters",       handle_lora_adapters_apply_post);
+    // svr->Post("/slots",               handle_slots_action_post);
 
     //
     // Start the server
