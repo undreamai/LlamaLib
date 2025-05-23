@@ -69,17 +69,25 @@ std::string concatenate_streaming_result(std::string input)
 }
 
 struct LLMHandle {
-    enum class Type { Raw, Service, Lib } type;
+    enum class Type { LLM, LLMWithSlot, Service, Lib } type;
     union {
-        LLM* raw;
+        LLM* llm;
+        LLMWithSlot* llmWithSlot;
         LLMService* service;
         LLMLib* lib;
     };
 
     static LLMHandle from_LLM(LLM* ptr) {
         LLMHandle h;
-        h.type = Type::Raw;
-        h.raw = ptr;
+        h.type = Type::LLM;
+        h.llm = ptr;
+        return h;
+    }
+
+    static LLMHandle from_LLMWithSlot(LLMWithSlot* ptr) {
+        LLMHandle h;
+        h.type = Type::LLMWithSlot;
+        h.llmWithSlot = ptr;
         return h;
     }
 
@@ -101,7 +109,18 @@ struct LLMHandle {
 #define CALL_LLM_FUNCTION(FUNC, HANDLE, ...)                            \
     do {                                                                \
         switch ((HANDLE).type) {                                        \
-        case LLMHandle::Type::Raw:     FUNC((HANDLE).raw, ##__VA_ARGS__); break; \
+        case LLMHandle::Type::LLM:     FUNC((HANDLE).llm, ##__VA_ARGS__); break; \
+        case LLMHandle::Type::LLMWithSlot:     FUNC((HANDLE).llmWithSlot, ##__VA_ARGS__); break; \
+        case LLMHandle::Type::Service: FUNC((HANDLE).service, ##__VA_ARGS__); break; \
+        case LLMHandle::Type::Lib:     LlamaLib_##FUNC((HANDLE).lib, ##__VA_ARGS__); break; \
+        default: throw std::runtime_error("Unknown LLMHandle type");    \
+        }                                                               \
+    } while (0)
+
+#define CALL_LLMWITHSLOT_FUNCTION(FUNC, HANDLE, ...)                            \
+    do {                                                                \
+        switch ((HANDLE).type) {                                        \
+        case LLMHandle::Type::LLMWithSlot:     FUNC((HANDLE).llmWithSlot, ##__VA_ARGS__); break; \
         case LLMHandle::Type::Service: FUNC((HANDLE).service, ##__VA_ARGS__); break; \
         case LLMHandle::Type::Lib:     LlamaLib_##FUNC((HANDLE).lib, ##__VA_ARGS__); break; \
         default: throw std::runtime_error("Unknown LLMHandle type");    \
@@ -161,7 +180,6 @@ void test_completion(LLMHandle handle, StringWrapper* wrapper, bool stream) {
         reply_data = concatenate_streaming_result(reply);
     else
         reply_data = json::parse(reply)["content"];
-
     ASSERT(reply_data != "");
 }
 
@@ -180,7 +198,7 @@ void test_embedding(LLMHandle handle, StringWrapper* wrapper) {
 
 void test_lora(LLMHandle handle, StringWrapper* wrapper) {
     std::cout << "LLM_Lora_List" << std::endl;
-    CALL_LLM_FUNCTION(LLM_Lora_List, handle, wrapper);
+    CALL_LLM_PROVIDER_FUNCTION(LLM_Lora_List, handle, wrapper);
     std::string reply = GetStringWrapperContent(wrapper);
     json reply_data = json::parse(reply);
     ASSERT(reply_data.size() == 0);
@@ -188,7 +206,7 @@ void test_lora(LLMHandle handle, StringWrapper* wrapper) {
 
 void test_cancel(LLMHandle handle) {
     std::cout << "LLM_Cancel" << std::endl;
-    CALL_LLM_FUNCTION(LLM_Cancel, handle, ID_SLOT);
+    CALL_LLMWITHSLOT_FUNCTION(LLM_Cancel, handle, ID_SLOT);
 }
 
 void test_slot_save_restore(LLMHandle handle, StringWrapper* wrapper) {
@@ -211,7 +229,7 @@ void test_slot_save_restore(LLMHandle handle, StringWrapper* wrapper) {
     data["filepath"] = std::string(buffer) + "/" + filename;
 #endif
 
-    CALL_LLM_FUNCTION(LLM_Slot, handle, data.dump().c_str(), wrapper);
+    CALL_LLMWITHSLOT_FUNCTION(LLM_Slot, handle, data.dump().c_str(), wrapper);
     reply = GetStringWrapperContent(wrapper);
     reply_data = json::parse(reply);
     ASSERT(reply_data["filename"] == filename);
@@ -224,7 +242,7 @@ void test_slot_save_restore(LLMHandle handle, StringWrapper* wrapper) {
 
     std::cout << "LLM_Slot Restore" << std::endl;
     data["action"] = "restore";
-    CALL_LLM_FUNCTION(LLM_Slot, handle, data.dump().c_str(), wrapper);
+    CALL_LLMWITHSLOT_FUNCTION(LLM_Slot, handle, data.dump().c_str(), wrapper);
     reply = GetStringWrapperContent(wrapper);
     reply_data = json::parse(reply);
     ASSERT(reply_data["filename"] == filename);
@@ -269,9 +287,15 @@ void run_tests(LLMHandle handle)
     test_completion(handle, wrapper, false);
     test_completion(handle, wrapper, true);
     test_embedding(handle, wrapper);
-    test_lora(handle, wrapper);
-    test_cancel(handle);
-    test_slot_save_restore(handle, wrapper);
+    if(handle.type == LLMHandle::Type::Lib || handle.type == LLMHandle::Type::Service)
+    {
+        test_lora(handle, wrapper);
+    }
+    if(handle.type != LLMHandle::Type::LLM)
+    {
+        test_cancel(handle);
+        test_slot_save_restore(handle, wrapper);
+    }
     delete wrapper;
 }
 
@@ -288,15 +312,15 @@ int main(int argc, char** argv) {
     EMBEDDING_SIZE = LLM_Embedding_Size(llm_service);
 
     std::cout << "-------- LLM service --------" << std::endl;
-    //run_tests(LLMHandle::from_LLM(llm_service));
+    run_tests(LLMHandle::from_LLMWithSlot(llm_service));
 
     std::cout << "-------- LLM client --------" << std::endl;
     LLMClient llm_client(llm_service);
-    //run_tests(LLMHandle::from_LLM(&llm_client));
+    run_tests(LLMHandle::from_LLMWithSlot(&llm_client));
 
     std::cout << "-------- LLM remote client --------" << std::endl;
     LLM_StartServer(llm_service);
-    LLMClient llm_remote_client("localhost", 8080);
+    RemoteLLMClient llm_remote_client("localhost", 8080);
     run_tests(LLMHandle::from_LLM(&llm_remote_client));
 
     stop_llm_service(LLMHandle::from_LLM_service(llm_service));
