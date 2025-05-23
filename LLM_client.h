@@ -12,34 +12,46 @@
 #include <sstream>
 #include <curl/curl.h>
 
-enum LLMClientMode {
-    LOCAL,
-    REMOTE
+struct StreamingContext {
+    std::string buffer;
+    StringWrapper* stringWrapper = nullptr;
 };
 
-class UNDREAMAI_API LLMClient : public LLM {
+static size_t StreamingWriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
+
+class UNDREAMAI_API LLMClient : public LLMWithSlot {
 private:
-    LLMClientMode mode;
-    LLM* llm = nullptr;
-    std::string url;
-    int port;
-    StringWrapper* stringWrapper = nullptr;
+    LLMProvider* llm = nullptr;
 
 public:
-    LLMClient(LLM* llm);
+    LLMClient(LLMProvider* llm);
     LLMClient(LLMLib* llmLib);
-    LLMClient(const std::string& url, int port);
-
-    std::string post_request(const std::string& url, int port, const std::string& path, const std::string& payload);
 
     //================ LLM ================//
     std::string handle_tokenize_json(const json& data) override;
     std::string handle_detokenize_json(const json& data) override;
     std::string handle_embeddings_json(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true) override;
-    std::string handle_lora_adapters_apply_json(const json& data, httplib::Response* res = nullptr) override;
-    std::string handle_lora_adapters_list_json() override;
     std::string handle_completions_json(const json& data, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0);
     std::string handle_slots_action_json(const json& data, httplib::Response* res = nullptr) override;
     void handle_cancel_action(int id_slot) override;
+    //================ LLM ================//
+};
+
+
+class UNDREAMAI_API RemoteLLMClient : public LLM {
+private:
+    std::string url;
+    int port;
+
+    std::string post_request(const std::string& url, int port, const std::string& path, const json& payload, StringWrapper* stringWrapper = nullptr);
+
+public:
+    RemoteLLMClient(const std::string& url, int port);
+
+    //================ LLM ================//
+    std::string handle_tokenize_json(const json& data) override;
+    std::string handle_detokenize_json(const json& data) override;
+    std::string handle_embeddings_json(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true) override;
+    std::string handle_completions_json(const json& data, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0);
     //================ LLM ================//
 };
