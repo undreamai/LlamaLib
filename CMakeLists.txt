@@ -60,7 +60,7 @@ set(STATIC_LIBRARY undreamai)
 if(DEFINED LIBRARY_SUFFIX)
   set(STATIC_LIBRARY "${STATIC_LIBRARY}_${LIBRARY_SUFFIX}")
 endif()
-set(DYNAMIC_LIBRARY "undreamai_loader")
+set(DYNAMIC_LIBRARY "undreamai_lib")
 
 if(CMAKE_SYSTEM_NAME STREQUAL "iOS" OR CMAKE_SYSTEM_NAME STREQUAL "visionOS")
     set(LIBRARY_TYPE STATIC)
@@ -87,7 +87,7 @@ target_link_libraries(${STATIC_LIBRARY} PRIVATE common ${CMAKE_THREAD_LIBS_INIT}
 common_compile_defs(${STATIC_LIBRARY})
 install(TARGETS ${STATIC_LIBRARY} LIBRARY)
 
-add_library(${DYNAMIC_LIBRARY} ${LIBRARY_TYPE} dynamic_loader.cpp LLM.cpp LLM_client.cpp stringwrapper.cpp error_handling.cpp)
+add_library(${DYNAMIC_LIBRARY} ${LIBRARY_TYPE} LLM_lib.cpp LLM.cpp LLM_client.cpp stringwrapper.cpp error_handling.cpp)
 target_link_libraries(${DYNAMIC_LIBRARY} PRIVATE common ${CURL_LIBRARIES} FeatureDetector archchecker)
 common_compile_defs(${DYNAMIC_LIBRARY})
 install(TARGETS ${DYNAMIC_LIBRARY} LIBRARY)
