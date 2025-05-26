@@ -28,11 +28,11 @@ public:
     LLMClient(LLMLib* llmLib);
 
     //================ LLM ================//
-    std::string handle_tokenize_json(const json& data) override;
-    std::string handle_detokenize_json(const json& data) override;
-    std::string handle_embeddings_json(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true) override;
-    std::string handle_completions_json(const json& data, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0);
-    std::string handle_slots_action_json(const json& data, httplib::Response* res = nullptr) override;
+    std::string handle_tokenize_impl(const json& data) override;
+    std::string handle_detokenize_impl(const json& data) override;
+    std::string handle_embeddings_impl(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true) override;
+    std::string handle_completions_impl(const json& data, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0);
+    std::string handle_slots_action_impl(const json& data, httplib::Response* res = nullptr) override;
     void handle_cancel_action(int id_slot) override;
     //================ LLM ================//
 };
@@ -49,9 +49,9 @@ public:
     RemoteLLMClient(const std::string& url, int port);
 
     //================ LLM ================//
-    std::string handle_tokenize_json(const json& data) override;
-    std::string handle_detokenize_json(const json& data) override;
-    std::string handle_embeddings_json(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true) override;
-    std::string handle_completions_json(const json& data, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0);
+    std::string handle_tokenize_impl(const json& data) override;
+    std::string handle_detokenize_impl(const json& data) override;
+    std::string handle_embeddings_impl(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true) override;
+    std::string handle_completions_impl(const json& data, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0);
     //================ LLM ================//
 };

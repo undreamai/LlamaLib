@@ -4,29 +4,29 @@ LLMClient::LLMClient(LLMProvider* llm_): llm(llm_){ }
 
 LLMClient::LLMClient(LLMLib* llmLib) : LLMClient((LLMProvider*) llmLib->llm) { }
 
-std::string LLMClient::handle_tokenize_json(const json& data)
+std::string LLMClient::handle_tokenize_impl(const json& data)
 {
-    return llm->handle_tokenize_json(data);
+    return llm->handle_tokenize_impl(data);
 }
 
-std::string LLMClient::handle_detokenize_json(const json& data)
+std::string LLMClient::handle_detokenize_impl(const json& data)
 {
-    return llm->handle_detokenize_json(data);
+    return llm->handle_detokenize_impl(data);
 }
 
-std::string LLMClient::handle_embeddings_json(const json& data, httplib::Response* res, std::function<bool()> is_connection_closed)
+std::string LLMClient::handle_embeddings_impl(const json& data, httplib::Response* res, std::function<bool()> is_connection_closed)
 {
-    return llm->handle_embeddings_json(data, res, is_connection_closed);
+    return llm->handle_embeddings_impl(data, res, is_connection_closed);
 }
 
-std::string LLMClient::handle_completions_json(const json& data, StringWrapper* stringWrapper, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
+std::string LLMClient::handle_completions_impl(const json& data, StringWrapper* stringWrapper, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
 {
-    return llm->handle_completions_json(data, stringWrapper, res, is_connection_closed, oaicompat);
+    return llm->handle_completions_impl(data, stringWrapper, res, is_connection_closed, oaicompat);
 }
 
-std::string LLMClient::handle_slots_action_json(const json& data, httplib::Response* res)
+std::string LLMClient::handle_slots_action_impl(const json& data, httplib::Response* res)
 {
-    return llm->handle_slots_action_json(data, res);
+    return llm->handle_slots_action_impl(data, res);
 }
 
 void LLMClient::handle_cancel_action(int id_slot)
@@ -108,22 +108,22 @@ std::string RemoteLLMClient::post_request(
 }
 
 
-std::string RemoteLLMClient::handle_tokenize_json(const json& data)
+std::string RemoteLLMClient::handle_tokenize_impl(const json& data)
 {
     return post_request(url, port, "tokenize", data);
 }
 
-std::string RemoteLLMClient::handle_detokenize_json(const json& data)
+std::string RemoteLLMClient::handle_detokenize_impl(const json& data)
 {
     return post_request(url, port, "detokenize", data);
 }
 
-std::string RemoteLLMClient::handle_embeddings_json(const json& data, httplib::Response* res, std::function<bool()> is_connection_closed)
+std::string RemoteLLMClient::handle_embeddings_impl(const json& data, httplib::Response* res, std::function<bool()> is_connection_closed)
 {
     return post_request(url, port, "embeddings", data);
 }
 
-std::string RemoteLLMClient::handle_completions_json(const json& data, StringWrapper* stringWrapper, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
+std::string RemoteLLMClient::handle_completions_impl(const json& data, StringWrapper* stringWrapper, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
 {
     return post_request(url, port, "completion", data, stringWrapper);
 }
