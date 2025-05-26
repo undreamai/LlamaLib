@@ -2,7 +2,7 @@
 
 #include "stringwrapper.h"
 #include "LLM.h"
-#include "dynamic_loader.h"
+#include "LLM_lib.h"
 
 #include <string>
 #include <vector>
