@@ -280,6 +280,182 @@ void stop_llm_service(LLMHandle handle)
     CALL_LLM_PROVIDER_FUNCTION(LLM_Delete, handle);
 }
 
+class TestLLM : public LLMProvider {
+public:
+    std::vector<int> TOKENS = std::vector<int>{1, 2, 3};
+    std::string CONTENT = "my message";
+    std::vector<float> EMBEDDING = std::vector<float>{0.1f, 0.2f, 0.3f};
+    std::vector<LoraIdScalePath> LORAS = {
+        {1, 1.0f, "model1.lora"},
+        {2, 0.5f, "model2.lora"}
+    };
+    std::string SAVE_PATH = "test.save";
+
+    std::string handle_tokenize_impl(const json& data) override {
+        json result;
+        result["tokens"] = TOKENS;
+        return result.dump();
+    }
+
+    std::string handle_detokenize_impl(const json& data) override {
+        json result;
+        result["content"] = CONTENT;
+        return result.dump();
+    }
+
+    std::string handle_embeddings_impl(const json& data, httplib::Response*, std::function<bool()>) override {
+        json result;
+        result["embedding"] = EMBEDDING;
+        return result.dump();
+    }
+
+    std::string handle_completions_impl(const json& data, StringWrapper*, httplib::Response*, std::function<bool()>, int) override {
+        json result;
+        result["content"] = CONTENT;
+        return result.dump();
+    }
+
+    std::string handle_slots_action_impl(const json& data, httplib::Response*) override {
+        json result;
+        result["filename"] = SAVE_PATH;
+        return result.dump();
+    }
+
+    void handle_cancel_action(int id_slot) override {
+        cancel_called = true;
+        cancelled_slot = id_slot;
+    }
+
+    std::string handle_lora_adapters_apply_impl(const json& data, httplib::Response*) override {
+        json result;
+        result["success"] = true;
+        return result.dump();
+    }
+
+    std::string handle_lora_adapters_list_impl() override {
+        json j = json::array();
+        for (auto& l : LORAS)
+            j.push_back({{"id", l.id}, {"scale", l.scale}, {"path", l.path}});
+        return j.dump();
+    }
+
+    bool cancel_called = false;
+    int cancelled_slot = -1;
+};
+
+void run_mock_tests() {
+    TestLLM llm;
+
+    // --- Tokenize ---
+    {
+        json input_json = {{"content", llm.CONTENT}};
+        json output_json = {{"tokens", llm.TOKENS}};
+
+        ASSERT(llm.build_tokenize_json(llm.CONTENT) == input_json);
+        ASSERT(llm.parse_tokenize_json(output_json) == llm.TOKENS);
+        ASSERT(json::parse(llm.handle_tokenize_json(llm.CONTENT))["tokens"] == llm.TOKENS);
+        ASSERT(llm.handle_tokenize(llm.CONTENT.c_str()) == llm.TOKENS);
+        ASSERT(llm.handle_tokenize(llm.CONTENT) == llm.TOKENS);
+        ASSERT(llm.handle_tokenize(input_json) == llm.TOKENS);
+        ASSERT(llm.handle_tokenize_json(llm.CONTENT.c_str()) == output_json.dump());
+        ASSERT(llm.handle_tokenize_json(llm.CONTENT) == output_json.dump());
+        ASSERT(llm.handle_tokenize_json(input_json) == output_json.dump());
+    }
+
+    // --- Detokenize ---
+    {
+        json input_json = {{"tokens", llm.TOKENS}};
+        json output_json = {{"content", llm.CONTENT}};
+
+        ASSERT(llm.build_detokenize_json(llm.TOKENS)["tokens"] == llm.TOKENS);
+        ASSERT(llm.parse_detokenize_json(output_json) == llm.CONTENT);
+        ASSERT(llm.handle_detokenize(llm.TOKENS) == llm.CONTENT);
+        ASSERT(llm.handle_detokenize(input_json) == llm.CONTENT);
+        ASSERT(llm.handle_detokenize_json(llm.TOKENS) == output_json.dump());
+        ASSERT(llm.handle_detokenize_json(input_json) == output_json.dump());
+    }
+
+    // --- Embeddings ---
+    {
+        json input_json = {{"content", llm.CONTENT}};
+        json output_json = {{"embedding", llm.EMBEDDING}};
+
+        ASSERT(llm.build_embeddings_json(llm.CONTENT) == input_json);
+        ASSERT(llm.parse_embeddings_json(output_json) == llm.EMBEDDING);
+        ASSERT(json::parse(llm.handle_embeddings_json(llm.CONTENT))["embedding"] == llm.EMBEDDING);
+        ASSERT(json::parse(llm.handle_embeddings_json(llm.CONTENT.c_str()))["embedding"] == llm.EMBEDDING);
+        ASSERT(llm.handle_embeddings(llm.CONTENT) == llm.EMBEDDING);
+        ASSERT(llm.handle_embeddings(llm.CONTENT.c_str()) == llm.EMBEDDING);
+        ASSERT(llm.handle_embeddings(input_json) == llm.EMBEDDING);
+    }
+
+    // --- Completions ---
+    {
+        int id_slot = 1;
+        json params = {{"temp", 0.7}};
+        json input_json = {
+            {"prompt", llm.CONTENT},
+            {"id_slot", id_slot},
+            {"temp", 0.7}
+        };
+        json output_json = {{"content", llm.CONTENT}};
+
+        ASSERT(llm.build_completions_json(llm.CONTENT, id_slot, params) == input_json);
+        ASSERT(llm.parse_completions_json(output_json) == llm.CONTENT);
+        ASSERT(llm.handle_completions(llm.CONTENT, id_slot, params) == llm.CONTENT);
+        ASSERT(llm.handle_completions(input_json) == llm.CONTENT);
+        ASSERT(llm.handle_completions_json(llm.CONTENT, id_slot, params) == output_json.dump());
+    }
+
+    // --- Slots Action ---
+    {
+        int id_slot = 42;
+        std::string action = "load";
+        json input_json = {
+            {"id_slot", id_slot},
+            {"action", action},
+            {"filepath", llm.SAVE_PATH}
+        };
+        json output_json = {{"filename", llm.SAVE_PATH}};
+
+        ASSERT(llm.build_slots_action_json(id_slot, action, llm.SAVE_PATH) == input_json);
+        ASSERT(llm.parse_slots_action_json(output_json) == llm.SAVE_PATH);
+        ASSERT(llm.handle_slots_action(id_slot, action, llm.SAVE_PATH) == llm.SAVE_PATH);
+        ASSERT(llm.handle_slots_action(input_json) == llm.SAVE_PATH);
+        ASSERT(llm.handle_slots_action_json(id_slot, action, llm.SAVE_PATH) == output_json.dump());
+    }
+
+    // --- LoRA Apply ---
+    {
+        std::vector<LoraIdScale> loras;
+        for (auto& l : llm.LORAS)
+            loras.push_back({l.id, l.scale});
+
+        json input_json = json::array();
+        for (const auto& l : loras)
+            input_json.push_back({{"id", l.id}, {"scale", l.scale}});
+        json output_json = {{"success", true}};
+
+        ASSERT(llm.build_lora_adapters_apply_json(loras) == input_json);
+        ASSERT(llm.parse_lora_adapters_apply_json(output_json));
+        ASSERT(llm.handle_lora_adapters_apply_json(loras) == output_json.dump());
+        ASSERT(llm.handle_lora_adapters_apply(input_json));
+        ASSERT(llm.handle_lora_adapters_apply(loras));
+    }
+
+    // --- LoRA List ---
+    {
+        json input_json = json::array();
+        for (const auto& l : llm.LORAS)
+            input_json.push_back({{"id", l.id}, {"scale", l.scale}, {"path", l.path}});
+
+        ASSERT(llm.parse_lora_adapters_list_json(input_json) == llm.LORAS);
+        ASSERT(llm.handle_lora_adapters_list() == llm.LORAS);
+    }
+}
+
+
+
 void run_tests(LLMHandle handle)
 {
     StringWrapper* wrapper = StringWrapper_Construct();
@@ -299,8 +475,11 @@ void run_tests(LLMHandle handle)
     delete wrapper;
 }
 
+
 int main(int argc, char** argv) {
     SetDebugLevel(ERR);
+
+    run_mock_tests();
 
     std::string command;
     for (int i = 1; i < argc; ++i) {
