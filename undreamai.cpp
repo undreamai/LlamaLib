@@ -197,13 +197,13 @@ void handle_error(httplib::Response & res, const json error_data){
     res.status = 500;
 }
 
-void LLM::release_slot(server_slot slot)
+void LLM::release_slot(server_slot& slot)
 {
     if (slot.task_type == SERVER_TASK_TYPE_COMPLETION)
     {
-        slot.params.stream = false;
         slot.i_batch = -1;
-        slot.params.n_predict = 1;
+        slot.params.n_predict = 0;
+        slot.stop = STOP_TYPE_LIMIT;
     }
     else {
         slot.release();
@@ -422,7 +422,8 @@ void LLM::stop_service(){
         LOG_INFO("shutting down tasks", {});
 
         // hack completion slots to think task is completed
-        for (server_slot & slot : ctx_server.slots) {
+        for (server_slot& slot : ctx_server.slots)
+        {
             release_slot(slot);
         }
         LOG_INFO("Wait until tasks are finished", {});

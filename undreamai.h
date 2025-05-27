@@ -82,7 +82,7 @@ class LLM {
             std::function<bool()> is_connection_closed = always_true
         );
         bool middleware_validate_api_key(const httplib::Request & req, httplib::Response & res);
-        void release_slot(server_slot slot);
+        void release_slot(server_slot& slot);
 };
 
 #ifdef _WIN32
