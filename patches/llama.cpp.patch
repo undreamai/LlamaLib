@@ -1,5 +1,5 @@
 diff --git a/examples/server/server.cpp b/examples/server/server.cpp
-index c580ec12..cac11586 100644
+index c580ec12..84cc9584 100644
 --- a/examples/server/server.cpp
 +++ b/examples/server/server.cpp
 @@ -1552,30 +1552,29 @@ struct server_queue {
@@ -66,7 +66,7 @@ index c580ec12..cac11586 100644
                  queue_tasks.pop_front();
                  lock.unlock();
  
-@@ -1878,16 +1877,24 @@ struct server_context {
+@@ -1878,14 +1877,20 @@ struct server_context {
      ~server_context() {
          // Clear any sampling context
          for (server_slot & slot : slots) {
@@ -91,14 +91,9 @@ index c580ec12..cac11586 100644
 +                slot.spec = nullptr;
 +            }
  
--            llama_batch_free(slot.batch_spec);
-+            if (slot.ctx_dft) {
-+                llama_batch_free(slot.batch_spec);
-+            }
+             llama_batch_free(slot.batch_spec);
          }
- 
-         llama_batch_free(batch);
-@@ -2005,7 +2012,7 @@ struct server_context {
+@@ -2005,7 +2010,7 @@ struct server_context {
  
              slot.reset();
  
@@ -107,7 +102,7 @@ index c580ec12..cac11586 100644
          }
  
          default_generation_settings_for_props = slots[0].to_json();
-@@ -2106,7 +2113,7 @@ struct server_context {
+@@ -2106,7 +2111,7 @@ struct server_context {
          return true;
      }
  
@@ -116,7 +111,7 @@ index c580ec12..cac11586 100644
          slot.reset();
          slot.id_task       = task.id;
          slot.index         = task.index;
-@@ -2114,10 +2121,10 @@ struct server_context {
+@@ -2114,10 +2119,10 @@ struct server_context {
          slot.params        = std::move(task.params);
          slot.prompt_tokens = std::move(task.prompt_tokens);
  
@@ -129,7 +124,16 @@ index c580ec12..cac11586 100644
          }
  
          bool can_detokenize = can_be_detokenized(ctx, slot.prompt_tokens);
-@@ -2548,10 +2555,10 @@ struct server_context {
+@@ -2214,7 +2219,7 @@ struct server_context {
+             }
+ 
+             slot.add_token(result);
+-            if (slot.params.stream) {
++            if (slot.params.stream && slot.stop != STOP_TYPE_LIMIT) {
+                 send_partial_response(slot, result);
+             }
+         }
+@@ -2548,10 +2553,10 @@ struct server_context {
              server_task task(SERVER_TASK_TYPE_CANCEL);
              task.id_target = id_task;
              queue_results.remove_waiting_task_id(id_task);
@@ -142,7 +146,7 @@ index c580ec12..cac11586 100644
      }
  
      // receive the results from task(s)
-@@ -2638,7 +2645,7 @@ struct server_context {
+@@ -2638,7 +2643,7 @@ struct server_context {
      // Functions to process the task
      //
  
@@ -151,7 +155,7 @@ index c580ec12..cac11586 100644
          switch (task.type) {
              case SERVER_TASK_TYPE_COMPLETION:
              case SERVER_TASK_TYPE_INFILL:
-@@ -2652,17 +2659,17 @@ struct server_context {
+@@ -2652,17 +2657,17 @@ struct server_context {
                      if (slot == nullptr) {
                          // if no slot is available, we defer this task for processing later
                          SRV_DBG("no slot is available, defer task, id_task = %d\n", task.id);
@@ -172,7 +176,7 @@ index c580ec12..cac11586 100644
                          SRV_ERR("failed to launch slot with task, id_task = %d\n", task.id);
                          break;
                      }
-@@ -2741,7 +2748,7 @@ struct server_context {
+@@ -2741,7 +2746,7 @@ struct server_context {
                      if (slot->is_processing()) {
                          // if requested slot is unavailable, we defer this task for processing later
                          SRV_DBG("requested slot is unavailable, defer task, id_task = %d\n", task.id);
@@ -181,7 +185,7 @@ index c580ec12..cac11586 100644
                          break;
                      }
  
-@@ -2777,7 +2784,7 @@ struct server_context {
+@@ -2777,7 +2782,7 @@ struct server_context {
                      if (slot->is_processing()) {
                          // if requested slot is unavailable, we defer this task for processing later
                          SRV_DBG("requested slot is unavailable, defer task, id_task = %d\n", task.id);
@@ -190,7 +194,7 @@ index c580ec12..cac11586 100644
                          break;
                      }
  
-@@ -2820,7 +2827,7 @@ struct server_context {
+@@ -2820,7 +2825,7 @@ struct server_context {
                      if (slot->is_processing()) {
                          // if requested slot is unavailable, we defer this task for processing later
                          SRV_DBG("requested slot is unavailable, defer task, id_task = %d\n", task.id);
@@ -199,7 +203,7 @@ index c580ec12..cac11586 100644
                          break;
                      }
  
-@@ -2872,7 +2879,7 @@ struct server_context {
+@@ -2872,7 +2877,7 @@ struct server_context {
  
              server_task task(SERVER_TASK_TYPE_NEXT_RESPONSE);
              task.id = queue_tasks.get_new_id();
@@ -208,7 +212,7 @@ index c580ec12..cac11586 100644
          }
  
          // apply context-shift if needed
-@@ -3441,7 +3448,7 @@ inline void signal_handler(int signal) {
+@@ -3441,7 +3446,7 @@ inline void signal_handler(int signal) {
      shutdown_handler(signal);
  }
  
@@ -217,7 +221,7 @@ index c580ec12..cac11586 100644
      // own arguments required by this example
      common_params params;
  
-@@ -3634,17 +3641,14 @@ int main(int argc, char ** argv) {
+@@ -3634,17 +3639,14 @@ int main(int argc, char ** argv) {
          }
  
          // request slots data using task queue
@@ -241,7 +245,7 @@ index c580ec12..cac11586 100644
  
          if (result->is_error()) {
              res_error(res, result->to_json());
-@@ -3673,17 +3677,16 @@ int main(int argc, char ** argv) {
+@@ -3673,17 +3675,16 @@ int main(int argc, char ** argv) {
          }
  
          // request slots data using task queue
@@ -267,7 +271,7 @@ index c580ec12..cac11586 100644
  
          if (result->is_error()) {
              res_error(res, result->to_json());
-@@ -3780,20 +3783,17 @@ int main(int argc, char ** argv) {
+@@ -3780,20 +3781,17 @@ int main(int argc, char ** argv) {
          }
          std::string filepath = params.slot_save_path + filename;
  
@@ -297,7 +301,7 @@ index c580ec12..cac11586 100644
  
          if (result->is_error()) {
              res_error(res, result->to_json());
-@@ -3812,20 +3812,17 @@ int main(int argc, char ** argv) {
+@@ -3812,20 +3810,17 @@ int main(int argc, char ** argv) {
          }
          std::string filepath = params.slot_save_path + filename;
  
@@ -327,7 +331,7 @@ index c580ec12..cac11586 100644
  
          if (result->is_error()) {
              res_error(res, result->to_json());
-@@ -3837,18 +3834,15 @@ int main(int argc, char ** argv) {
+@@ -3837,18 +3832,15 @@ int main(int argc, char ** argv) {
      };
  
      const auto handle_slots_erase = [&ctx_server, &res_error, &res_ok](const httplib::Request & /* req */, httplib::Response & res, int id_slot) {
@@ -353,7 +357,7 @@ index c580ec12..cac11586 100644
  
          if (result->is_error()) {
              res_error(res, result->to_json());
-@@ -3952,10 +3946,9 @@ int main(int argc, char ** argv) {
+@@ -3952,10 +3944,9 @@ int main(int argc, char ** argv) {
          }
  
          auto completion_id = gen_chatcmplid();
@@ -366,7 +370,7 @@ index c580ec12..cac11586 100644
              const auto & prompt = data.at("prompt");
              // TODO: this log can become very long, put it behind a flag or think about a more compact format
              //SRV_DBG("Prompt: %s\n", prompt.is_string() ? prompt.get<std::string>().c_str() : prompt.dump(2).c_str());
-@@ -3970,9 +3963,9 @@ int main(int argc, char ** argv) {
+@@ -3970,9 +3961,9 @@ int main(int argc, char ** argv) {
  
                  task.prompt_tokens    = std::move(tokenized_prompts[i]);
                  task.params           = server_task::params_from_json_cmpl(
@@ -379,7 +383,7 @@ index c580ec12..cac11586 100644
                  task.id_selected_slot = json_value(data, "id_slot", -1);
  
                  // OAI-compat
-@@ -3980,18 +3973,18 @@ int main(int argc, char ** argv) {
+@@ -3980,18 +3971,18 @@ int main(int argc, char ** argv) {
                  task.params.oaicompat_cmpl_id         = completion_id;
                  // oaicompat_model is already populated by params_from_json_cmpl
  
@@ -403,7 +407,7 @@ index c580ec12..cac11586 100644
  
          if (!stream) {
              ctx_server.receive_multi_results(task_ids, [&](std::vector<server_task_result_ptr> & results) {
-@@ -4283,7 +4276,6 @@ int main(int argc, char ** argv) {
+@@ -4283,7 +4274,6 @@ int main(int argc, char ** argv) {
          // create and queue the task
          json responses = json::array();
          bool error = false;
@@ -411,7 +415,7 @@ index c580ec12..cac11586 100644
          {
              std::vector<server_task> tasks;
              for (size_t i = 0; i < tokenized_prompts.size(); i++) {
-@@ -4296,26 +4288,27 @@ int main(int argc, char ** argv) {
+@@ -4296,26 +4286,27 @@ int main(int argc, char ** argv) {
                  // OAI-compat
                  task.params.oaicompat = oaicompat;
  
@@ -437,7 +441,8 @@ index c580ec12..cac11586 100644
 -        }, req.is_connection_closed);
 +            // get the result
 +            std::unordered_set<int> task_ids = server_task::get_list_id(tasks);
-+
+ 
+-        ctx_server.queue_results.remove_waiting_task_ids(task_ids);
 +            ctx_server.receive_multi_results(task_ids, [&](std::vector<server_task_result_ptr> & results) {
 +                for (auto & res : results) {
 +                    GGML_ASSERT(dynamic_cast<server_task_result_embd*>(res.get()) != nullptr);
@@ -447,14 +452,13 @@ index c580ec12..cac11586 100644
 +                res_error(res, error_data);
 +                error = true;
 +            }, req.is_connection_closed);
- 
--        ctx_server.queue_results.remove_waiting_task_ids(task_ids);
++
 +            ctx_server.queue_results.remove_waiting_task_ids(task_ids);
 +        }
  
          if (error) {
              return;
-@@ -4382,7 +4375,6 @@ int main(int argc, char ** argv) {
+@@ -4382,7 +4373,6 @@ int main(int argc, char ** argv) {
          // create and queue the task
          json responses = json::array();
          bool error = false;
@@ -462,7 +466,7 @@ index c580ec12..cac11586 100644
          {
              std::vector<server_task> tasks;
              std::vector<llama_tokens> tokenized_docs = tokenize_input_prompts(ctx_server.vocab, documents, /* add_special */ false, true);
-@@ -4392,23 +4384,25 @@ int main(int argc, char ** argv) {
+@@ -4392,23 +4382,25 @@ int main(int argc, char ** argv) {
                  task.id            = ctx_server.queue_tasks.get_new_id();
                  task.index         = i;
                  task.prompt_tokens = format_rerank(ctx_server.vocab, tokenized_query, tokenized_docs[i]);
@@ -501,7 +505,7 @@ index c580ec12..cac11586 100644
  
          if (error) {
              return;
-@@ -4445,19 +4439,14 @@ int main(int argc, char ** argv) {
+@@ -4445,19 +4437,14 @@ int main(int argc, char ** argv) {
              res_error(res, format_error_response("Request body must be an array", ERROR_TYPE_INVALID_REQUEST));
              return;
          }
@@ -528,7 +532,7 @@ index c580ec12..cac11586 100644
  
          if (result->is_error()) {
              res_error(res, result->to_json());
-@@ -4601,8 +4590,8 @@ int main(int argc, char ** argv) {
+@@ -4601,8 +4588,8 @@ int main(int argc, char ** argv) {
          common_chat_templates_source(ctx_server.chat_templates.get()),
          common_chat_format_example(ctx_server.chat_templates.get(), ctx_server.params_base.use_jinja).c_str());
  
@@ -540,7 +544,7 @@ index c580ec12..cac11586 100644
  
      ctx_server.queue_tasks.on_update_slots([&ctx_server]() {
 diff --git a/examples/server/utils.hpp b/examples/server/utils.hpp
-index aba2f27f..f3ed4434 100644
+index b497959f..ccc33566 100644
 --- a/examples/server/utils.hpp
 +++ b/examples/server/utils.hpp
 @@ -26,20 +26,20 @@
@@ -622,10 +626,10 @@ index 43d9fc4f..0e8fa1db 100644
  
  add_library(ggml-base
 diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-index c0bdb9e1..bcc25530 100644
+index eac0b422..d96727d3 100644
 --- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 +++ b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-@@ -72,7 +72,7 @@ static bool is_pow2(uint32_t x) { return x > 1 && (x & (x-1)) == 0; }
+@@ -90,7 +90,7 @@ static bool is_pow2(uint32_t x) { return x > 1 && (x & (x-1)) == 0; }
          if (err_ != vk::Result::eSuccess) {                         \
              fprintf(stderr, "ggml_vulkan: %s error %s at %s:%d\n",  \
                  #err, to_string(err_).c_str(), __FILE__, __LINE__); \
