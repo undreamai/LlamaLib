@@ -960,7 +960,7 @@ LLMService* LLM_Construct(const char* params_string) {
     return new LLMService(std::string(params_string));
 }
 
-const void LLM_Delete(LLMService* llm) {
+void LLM_Delete(LLMService* llm) {
     if (llm != nullptr)
     {
         LOG_INFO("Deleting LLM service", {});
@@ -969,15 +969,15 @@ const void LLM_Delete(LLMService* llm) {
     }
 }
 
-const void LLM_StartServer(LLMService* llm) {
+void LLM_StartServer(LLMService* llm) {
     llm->start_server();
 }
 
-const void LLM_StopServer(LLMService* llm) {
+void LLM_StopServer(LLMService* llm) {
     llm->stop_server();
 }
 
-const void LLM_Start(LLMService* llm) {
+void LLM_Start(LLMService* llm) {
     llm->start_service();
 }
 
@@ -985,11 +985,11 @@ const bool LLM_Started(LLMService* llm) {
     return llm->is_running();
 }
 
-const void LLM_Stop(LLMService* llm) {
+void LLM_Stop(LLMService* llm) {
     llm->stop_service();
 }
 
-const void LLM_SetSSL(LLMService* llm, const char* SSL_cert, const char* SSL_key){
+void LLM_SetSSL(LLMService* llm, const char* SSL_cert, const char* SSL_key){
     llm->set_SSL(SSL_cert, SSL_key);
 }
 
