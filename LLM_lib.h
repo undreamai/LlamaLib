@@ -55,21 +55,22 @@ struct LLMLib;
     X(LLM_Stop, void, LLMService*) \
     X(LLM_StartServer, void, LLMService*) \
     X(LLM_StopServer, void, LLMService*) \
-    X(LLM_Embedding_Size, int, LLMService*)
+    X(LLM_Embedding_Size, int, LLMService*) \
+    X(LLM_Status_Code, int, LLMService*) \
+    X(LLM_Status_Message, const char*, LLMService*) \
+    X(LLM_Lora_List, const char*, LLMService*)
 
 #define LLMLIB_FUNCTIONS_LLM_ONEARG(X) \
-    X(LLM_Lora_List, void, LLMService*, StringWrapper*) \
     X(LLM_Cancel, void, LLMService*, int) \
-    X(LLM_Status, int, LLMService*, StringWrapper*)
+    X(LLM_Tokenize, const char*, LLMService*, const char*) \
+    X(LLM_Detokenize, const char*, LLMService*, const char*) \
+    X(LLM_Embeddings, const char*, LLMService*, const char*) \
+    X(LLM_Lora_Weight, const char*, LLMService*, const char*) \
+    X(LLM_Slot, const char*, LLMService*, const char*)
 
 #define LLMLIB_FUNCTIONS_LLM_TWOARGS(X) \
     X(LLM_SetSSL, void, LLMService*, const char*, const char*) \
-    X(LLM_Tokenize, void, LLMService*, const char*, StringWrapper*) \
-    X(LLM_Detokenize, void, LLMService*, const char*, StringWrapper*) \
-    X(LLM_Embeddings, void, LLMService*, const char*, StringWrapper*) \
-    X(LLM_Lora_Weight, void, LLMService*, const char*, StringWrapper*) \
-    X(LLM_Completion, void, LLMService*, const char*, StringWrapper*) \
-    X(LLM_Slot, void, LLMService*, const char*, StringWrapper*)
+    X(LLM_Completion, const char*, LLMService*, const char*, StringWrapper*)
 
 #define LLMLIB_FUNCTIONS_ALL(X) \
     LLMLIB_FUNCTIONS_NOLLM_NOARGS(X) \
@@ -138,27 +139,27 @@ UNDREAMAI_API LLMLib* Load_LLM_Library(std::string command, const std::string& b
 UNDREAMAI_API void Free_LLM_Library(LLMLib* llmlib);
 
 #define EXPORT_WRAPPER_NOLLM_NOARGS(name, ret) \
-extern "C" inline UNDREAMAI_API ret LlamaLib_##name(LLMLib* llmlib) { \
+extern "C" inline UNDREAMAI_API ret LLMLib_##name(LLMLib* llmlib) { \
     return llmlib->name(); \
 }
 #define EXPORT_WRAPPER_NOLLM_ONEARG(name, ret, arg1_type) \
-extern "C" inline UNDREAMAI_API ret LlamaLib_##name(LLMLib* llmlib, arg1_type arg1) { \
+extern "C" inline UNDREAMAI_API ret LLMLib_##name(LLMLib* llmlib, arg1_type arg1) { \
     return llmlib->name(arg1); \
 }
 #define EXPORT_WRAPPER_NOLLM_FOURARGS(name, ret, arg1_type, arg2_type, arg3_type, arg4_type) \
-extern "C" inline UNDREAMAI_API ret LlamaLib_##name(LLMLib* llmlib, arg1_type arg1, arg2_type arg2, arg3_type arg3, arg4_type arg4) { \
+extern "C" inline UNDREAMAI_API ret LLMLib_##name(LLMLib* llmlib, arg1_type arg1, arg2_type arg2, arg3_type arg3, arg4_type arg4) { \
     return llmlib->name(arg1, arg2, arg3, arg4); \
 }
 #define EXPORT_WRAPPER_LLM_NOARGS(name, ret, _) \
-extern "C" inline UNDREAMAI_API ret LlamaLib_##name(LLMLib* llmlib) { \
+extern "C" inline UNDREAMAI_API ret LLMLib_##name(LLMLib* llmlib) { \
     return llmlib->name(); \
 }
 #define EXPORT_WRAPPER_LLM_ONEARG(name, ret, _, arg1_type) \
-extern "C" inline UNDREAMAI_API ret LlamaLib_##name(LLMLib* llmlib, arg1_type arg1) { \
+extern "C" inline UNDREAMAI_API ret LLMLib_##name(LLMLib* llmlib, arg1_type arg1) { \
     return llmlib->name(arg1); \
 }
 #define EXPORT_WRAPPER_LLM_TWOARGS(name, ret, _, arg1_type, arg2_type) \
-extern "C" inline UNDREAMAI_API ret LlamaLib_##name(LLMLib* llmlib, arg1_type arg1, arg2_type arg2) { \
+extern "C" inline UNDREAMAI_API ret LLMLib_##name(LLMLib* llmlib, arg1_type arg1, arg2_type arg2) { \
     return llmlib->name(arg1, arg2); \
 }
 

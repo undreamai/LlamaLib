@@ -282,39 +282,42 @@ const int LLM_Test() {
     return 100;
 }
 
-void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper) {
-    wrapper->SetContent(llm->handle_tokenize_impl(json::parse(json_data)));
+const char* LLM_Tokenize(LLM* llm, const char* json_data) {
+    std::string result = llm->handle_tokenize_impl(json::parse(json_data));
+    return StringWrapper::stringToCharArray(result);
 }
 
-void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper) {
-    wrapper->SetContent(llm->handle_detokenize_impl(json::parse(json_data)));
+const char* LLM_Detokenize(LLM* llm, const char* json_data) {
+    std::string result = llm->handle_detokenize_impl(json::parse(json_data));
+    return StringWrapper::stringToCharArray(result);
 }
 
-void LLM_Embeddings(LLM* llm, const char* json_data, StringWrapper* wrapper) {
+const char* LLM_Embeddings(LLM* llm, const char* json_data) {
     std::string result = llm->handle_embeddings_impl(json::parse(json_data));
-    wrapper->SetContent(result);
+    return StringWrapper::stringToCharArray(result);
 }
 
-void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper) {
+const char* LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper) {
     std::string result = llm->handle_completions_impl(json::parse(json_data), wrapper);
-    wrapper->SetContent(result);
+    if (wrapper != nullptr) wrapper->SetContent(result);
+    return StringWrapper::stringToCharArray(result);
 }
 
-void LLM_Slot(LLMWithSlot* llm, const char* json_data, StringWrapper* wrapper) {
+const char* LLM_Slot(LLMWithSlot* llm, const char* json_data) {
     std::string result = llm->handle_slots_action_impl(json::parse(json_data));
-    wrapper->SetContent(result);
+    return StringWrapper::stringToCharArray(result);
 }
 
 void LLM_Cancel(LLMWithSlot* llm, int id_slot) {
     llm->handle_cancel_action_impl(id_slot);
 }
 
-void LLM_Lora_Weight(LLMProvider* llm, const char* json_data, StringWrapper* wrapper) {
+const char* LLM_Lora_Weight(LLMProvider* llm, const char* json_data) {
     std::string result = llm->handle_lora_adapters_apply_impl(json::parse(json_data));
-    wrapper->SetContent(result);
+    return StringWrapper::stringToCharArray(result);
 }
 
-void LLM_Lora_List(LLMProvider* llm, StringWrapper* wrapper) {
+const char* LLM_Lora_List(LLMProvider* llm) {
     std::string result = llm->handle_lora_adapters_list_impl();
-    wrapper->SetContent(result);
+    return StringWrapper::stringToCharArray(result);
 }

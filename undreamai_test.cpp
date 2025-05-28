@@ -107,52 +107,68 @@ struct LLMHandle {
 };
 
 #define CALL_LLM_FUNCTION(FUNC, HANDLE, ...)                            \
-    do {                                                                \
+    ([&]() -> const char* {                                             \
         switch ((HANDLE).type) {                                        \
-        case LLMHandle::Type::LLM:     FUNC((HANDLE).llm, ##__VA_ARGS__); break; \
+        case LLMHandle::Type::LLM:     return FUNC((HANDLE).llm, ##__VA_ARGS__); break; \
+        case LLMHandle::Type::LLMWithSlot:     return FUNC((HANDLE).llmWithSlot, ##__VA_ARGS__); break; \
+        case LLMHandle::Type::Service: return FUNC((HANDLE).service, ##__VA_ARGS__); break; \
+        case LLMHandle::Type::Lib:     return LLMLib_##FUNC((HANDLE).lib, ##__VA_ARGS__); break; \
+        default: throw std::runtime_error("Unknown LLMHandle type");    \
+        }                                                               \
+    })()
+
+#define CALL_LLMWITHSLOT_FUNCTION(FUNC, HANDLE, ...)                    \
+    ([&]() -> const char* {                                             \
+        switch ((HANDLE).type) {                                        \
+        case LLMHandle::Type::LLMWithSlot:     return FUNC((HANDLE).llmWithSlot, ##__VA_ARGS__); break; \
+        case LLMHandle::Type::Service: return FUNC((HANDLE).service, ##__VA_ARGS__); break; \
+        case LLMHandle::Type::Lib:     return LLMLib_##FUNC((HANDLE).lib, ##__VA_ARGS__); break; \
+        default: throw std::runtime_error("Unknown LLMHandle type");    \
+        }                                                               \
+    })()
+
+#define CALL_LLMWITHSLOT_FUNCTION_NO_RET(FUNC, HANDLE, ...)                             \
+    do {                                                                 \
+        switch ((HANDLE).type) {                                        \
         case LLMHandle::Type::LLMWithSlot:     FUNC((HANDLE).llmWithSlot, ##__VA_ARGS__); break; \
         case LLMHandle::Type::Service: FUNC((HANDLE).service, ##__VA_ARGS__); break; \
-        case LLMHandle::Type::Lib:     LlamaLib_##FUNC((HANDLE).lib, ##__VA_ARGS__); break; \
+        case LLMHandle::Type::Lib:     LLMLib_##FUNC((HANDLE).lib, ##__VA_ARGS__); break; \
         default: throw std::runtime_error("Unknown LLMHandle type");    \
-        }                                                               \
+        }                                                  \
     } while (0)
 
-#define CALL_LLMWITHSLOT_FUNCTION(FUNC, HANDLE, ...)                            \
+#define CALL_LLM_PROVIDER_FUNCTION(FUNC, HANDLE, ...)                   \
+    ([&]() -> const char* {                                             \
+        switch ((HANDLE).type) {                                        \
+        case LLMHandle::Type::Service: return FUNC((HANDLE).service, ##__VA_ARGS__); break; \
+        case LLMHandle::Type::Lib:     return LLMLib_##FUNC((HANDLE).lib, ##__VA_ARGS__); break; \
+        default: throw std::runtime_error("Unknown LLMHandle type");    \
+        }                                                               \
+    })()
+
+#define CALL_LLM_PROVIDER_FUNCTION_NO_RET(FUNC, HANDLE, ...)                            \
     do {                                                                \
         switch ((HANDLE).type) {                                        \
-        case LLMHandle::Type::LLMWithSlot:     FUNC((HANDLE).llmWithSlot, ##__VA_ARGS__); break; \
         case LLMHandle::Type::Service: FUNC((HANDLE).service, ##__VA_ARGS__); break; \
-        case LLMHandle::Type::Lib:     LlamaLib_##FUNC((HANDLE).lib, ##__VA_ARGS__); break; \
-        default: throw std::runtime_error("Unknown LLMHandle type");    \
-        }                                                               \
-    } while (0)
-
-#define CALL_LLM_PROVIDER_FUNCTION(FUNC, HANDLE, ...)                            \
-    do {                                                                \
-        switch ((HANDLE).type) {                                        \
-        case LLMHandle::Type::Service: FUNC((HANDLE).service, ##__VA_ARGS__); break; \
-        case LLMHandle::Type::Lib:     LlamaLib_##FUNC((HANDLE).lib, ##__VA_ARGS__); break; \
+        case LLMHandle::Type::Lib:     LLMLib_##FUNC((HANDLE).lib, ##__VA_ARGS__); break; \
         default: throw std::runtime_error("Unknown LLMHandle type");    \
         }                                                               \
     } while (0)
 
 
-
-void test_tokenization(LLMHandle handle, StringWrapper* wrapper) {
+void test_tokenization(LLMHandle handle) {
     std::cout << "LLM_Tokenize" << std::endl;
     json data, reply_data;
     std::string reply;
 
     data["content"] = PROMPT;
-    CALL_LLM_FUNCTION(LLM_Tokenize, handle, data.dump().c_str(), wrapper);
-    reply = GetStringWrapperContent(wrapper);
+    reply = std::string(CALL_LLM_FUNCTION(LLM_Tokenize, handle, data.dump().c_str()));
     reply_data = json::parse(reply);
     ASSERT(reply_data.count("tokens") > 0);
     ASSERT(reply_data["tokens"].size() > 0);
 
     std::cout << "LLM_Detokenize" << std::endl;
-    CALL_LLM_FUNCTION(LLM_Detokenize, handle, reply.c_str(), wrapper);
-    reply = GetStringWrapperContent(wrapper);
+    reply = std::string(CALL_LLM_FUNCTION(LLM_Detokenize, handle, reply.c_str()));
     reply_data = json::parse(reply);
     ASSERT(trim(reply_data["content"]) == data["content"]);
 }
@@ -172,8 +188,7 @@ void test_completion(LLMHandle handle, StringWrapper* wrapper, bool stream) {
     data["n_keep"] = 30;
     data["stream"] = stream;
 
-    CALL_LLM_FUNCTION(LLM_Completion, handle, data.dump().c_str(), wrapper);
-    reply = GetStringWrapperContent(wrapper);
+    reply = std::string(CALL_LLM_FUNCTION(LLM_Completion, handle, data.dump().c_str(), wrapper));
 
     std::string reply_data;
     if (stream)
@@ -183,33 +198,32 @@ void test_completion(LLMHandle handle, StringWrapper* wrapper, bool stream) {
     ASSERT(reply_data != "");
 }
 
-void test_embedding(LLMHandle handle, StringWrapper* wrapper) {
+void test_embedding(LLMHandle handle) {
     std::cout << "LLM_Embeddings" << std::endl;
     json data, reply_data;
     std::string reply;
 
     data["content"] = PROMPT;
-    CALL_LLM_FUNCTION(LLM_Embeddings, handle, data.dump().c_str(), wrapper);
-    reply = GetStringWrapperContent(wrapper);
+    reply = std::string(CALL_LLM_FUNCTION(LLM_Embeddings, handle, data.dump().c_str()));
     reply_data = json::parse(reply);
 
     ASSERT(reply_data["embedding"].size() == EMBEDDING_SIZE);
 }
 
-void test_lora(LLMHandle handle, StringWrapper* wrapper) {
+void test_lora(LLMHandle handle) {
     std::cout << "LLM_Lora_List" << std::endl;
-    CALL_LLM_PROVIDER_FUNCTION(LLM_Lora_List, handle, wrapper);
-    std::string reply = GetStringWrapperContent(wrapper);
+    std::string reply;
+    reply = std::string(CALL_LLM_PROVIDER_FUNCTION(LLM_Lora_List, handle));
     json reply_data = json::parse(reply);
     ASSERT(reply_data.size() == 0);
 }
 
 void test_cancel(LLMHandle handle) {
     std::cout << "LLM_Cancel" << std::endl;
-    CALL_LLMWITHSLOT_FUNCTION(LLM_Cancel, handle, ID_SLOT);
+    CALL_LLMWITHSLOT_FUNCTION_NO_RET(LLM_Cancel, handle, ID_SLOT);
 }
 
-void test_slot_save_restore(LLMHandle handle, StringWrapper* wrapper) {
+void test_slot_save_restore(LLMHandle handle) {
     std::cout << "LLM_Slot Save" << std::endl;
     std::string filename = "test_undreamai.save";
     json data;
@@ -229,8 +243,7 @@ void test_slot_save_restore(LLMHandle handle, StringWrapper* wrapper) {
     data["filepath"] = std::string(buffer) + "/" + filename;
 #endif
 
-    CALL_LLMWITHSLOT_FUNCTION(LLM_Slot, handle, data.dump().c_str(), wrapper);
-    reply = GetStringWrapperContent(wrapper);
+    reply = std::string(CALL_LLMWITHSLOT_FUNCTION(LLM_Slot, handle, data.dump().c_str()));
     reply_data = json::parse(reply);
     ASSERT(reply_data["filename"] == filename);
     int n_saved = reply_data["n_saved"];
@@ -242,8 +255,7 @@ void test_slot_save_restore(LLMHandle handle, StringWrapper* wrapper) {
 
     std::cout << "LLM_Slot Restore" << std::endl;
     data["action"] = "restore";
-    CALL_LLMWITHSLOT_FUNCTION(LLM_Slot, handle, data.dump().c_str(), wrapper);
-    reply = GetStringWrapperContent(wrapper);
+    reply = std::string(CALL_LLMWITHSLOT_FUNCTION(LLM_Slot, handle, data.dump().c_str()));
     reply_data = json::parse(reply);
     ASSERT(reply_data["filename"] == filename);
     ASSERT(reply_data["n_restored"] == n_saved);
@@ -273,11 +285,11 @@ LLMLib* start_llm_lib(std::string command)
 void stop_llm_service(LLMHandle handle)
 {
     std::cout << "LLM_StopServer" << std::endl;
-    CALL_LLM_PROVIDER_FUNCTION(LLM_StopServer, handle);
+    CALL_LLM_PROVIDER_FUNCTION_NO_RET(LLM_StopServer, handle);
     std::cout << "LLM_Stop" << std::endl;
-    CALL_LLM_PROVIDER_FUNCTION(LLM_Stop, handle);
+    CALL_LLM_PROVIDER_FUNCTION_NO_RET(LLM_Stop, handle);
     std::cout << "LLM_Delete" << std::endl;
-    CALL_LLM_PROVIDER_FUNCTION(LLM_Delete, handle);
+    CALL_LLM_PROVIDER_FUNCTION_NO_RET(LLM_Delete, handle);
 }
 
 class TestLLM : public LLMProvider {
@@ -458,21 +470,21 @@ void run_mock_tests() {
 
 void run_tests(LLMHandle handle)
 {
+    test_tokenization(handle);
+    test_completion(handle, nullptr, false);
     StringWrapper* wrapper = StringWrapper_Construct();
-    test_tokenization(handle, wrapper);
-    test_completion(handle, wrapper, false);
     test_completion(handle, wrapper, true);
-    test_embedding(handle, wrapper);
+    delete wrapper;
+    test_embedding(handle);
     if(handle.type == LLMHandle::Type::Lib || handle.type == LLMHandle::Type::Service)
     {
-        test_lora(handle, wrapper);
+        test_lora(handle);
     }
     if(handle.type != LLMHandle::Type::LLM)
     {
         test_cancel(handle);
-        test_slot_save_restore(handle, wrapper);
+        test_slot_save_restore(handle);
     }
-    delete wrapper;
 }
 
 
