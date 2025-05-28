@@ -15,13 +15,7 @@ void llm_sigint_signal_handler(int sig) {
         exit(1);
     }
 
-    std::vector<LLMService*> instances_copy;
-    {
-        std::lock_guard<std::mutex> lock(llm_mutex);
-        instances_copy = llm_instances;
-    }
-
-    for (auto* inst : instances_copy) {
+    for (auto* inst : LLMServiceRegistry::instance().get_instances()) {
         inst->stop_service();
         inst->stop_server();
     }
@@ -403,24 +397,9 @@ std::string LLMService::get_status_message(){
     return status_message;
 }
 
-void LLMService::register_signal_handling() {
-    std::lock_guard<std::mutex> lock(llm_mutex);
-    if (std::find(llm_instances.begin(), llm_instances.end(), this) == llm_instances.end()) {
-        llm_instances.push_back(this);
-    }
-}
-
-void LLMService::unregister_signal_handling() {
-    std::lock_guard<std::mutex> lock(llm_mutex);
-    llm_instances.erase(
-        std::remove(llm_instances.begin(), llm_instances.end(), this),
-        llm_instances.end()
-    );
-}
-
 void LLMService::start_service(){
     service_thread = std::thread([&]() {
-        register_signal_handling();
+        LLMServiceRegistry::instance().register_instance(this);
         LOG_INFO("starting service", {});
         ctx_server->queue_tasks.start_loop();
         LOG_INFO("stopped service loop", {});
@@ -452,8 +431,7 @@ void LLMService::stop_service(){
 
         service_thread.join();
 
-        unregister_signal_handling();
-
+        LLMServiceRegistry::instance().unregister_instance(this);
     } catch(...) {
         handle_exception();
     }

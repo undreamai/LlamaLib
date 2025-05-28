@@ -4,7 +4,6 @@
 
 #include "stringwrapper.h"
 #include "logging.h"
-//#include "server.cpp"
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
     #include <openssl/err.h>
     #include <openssl/ssl.h>
@@ -72,8 +71,37 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         void release_slot(server_slot& slot);
 };
 
-static std::vector<LLMService*> llm_instances;
-static std::mutex llm_mutex;
+class LLMServiceRegistry {
+public:
+    static LLMServiceRegistry& instance() {
+        static LLMServiceRegistry registry;
+        return registry;
+    }
+
+    void register_instance(LLMService* service) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        instances_.push_back(service);
+    }
+
+    void unregister_instance(LLMService* service) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        instances_.erase(std::remove(instances_.begin(), instances_.end(), service), instances_.end());
+    }
+
+    std::vector<LLMService*> get_instances() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return instances_;
+    }
+
+private:
+    std::mutex mutex_;
+    std::vector<LLMService*> instances_;
+
+    LLMServiceRegistry() = default;
+    ~LLMServiceRegistry() = default;
+    LLMServiceRegistry(const LLMServiceRegistry&) = delete;
+    LLMServiceRegistry& operator=(const LLMServiceRegistry&) = delete;
+};
 
 extern "C" {
     UNDREAMAI_API LLMService* LLM_Construct(const char* params_string);
