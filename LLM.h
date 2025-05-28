@@ -4,7 +4,6 @@
 #include "logging.h"
 #include "json.hpp"
 #include "httplib.h"
-#include "stringwrapper.h"
 
 using json = nlohmann::ordered_json;
 
@@ -37,7 +36,7 @@ public:
     virtual std::string handle_tokenize_impl(const json& data) = 0;
     virtual std::string handle_detokenize_impl(const json& data) = 0;
     virtual std::string handle_embeddings_impl(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false) = 0;
-    virtual std::string handle_completions_impl(const json& data, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0) = 0;
+    virtual std::string handle_completions_impl(const json& data, CharArrayFn callback = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0) = 0;
 
     virtual std::string handle_tokenize_json(const json& data);
     virtual json build_tokenize_json(const std::string& query);
@@ -64,12 +63,12 @@ public:
     virtual std::vector<float> handle_embeddings(const std::string& query, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false);
     virtual std::vector<float> handle_embeddings(const char* query, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false);
 
-    virtual std::string handle_completions_json(const json& data, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
+    virtual std::string handle_completions_json(const json& data, CharArrayFn callback = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
     virtual json build_completions_json(const std::string& prompt, int id_slot, const json& params);
     virtual std::string parse_completions_json(const json& result);
-    virtual std::string handle_completions_json(const std::string& prompt, int id_slot, const json& params, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
-    virtual std::string handle_completions(const json& data, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
-    virtual std::string handle_completions(const std::string& prompt, int id_slot, const json& params, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
+    virtual std::string handle_completions_json(const std::string& prompt, int id_slot, const json& params, CharArrayFn callback = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
+    virtual std::string handle_completions(const json& data, CharArrayFn callback = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
+    virtual std::string handle_completions(const std::string& prompt, int id_slot, const json& params, CharArrayFn callback = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
 };
 
 class UNDREAMAI_API LLMWithSlot : public LLM {
@@ -107,7 +106,7 @@ extern "C" {
     UNDREAMAI_API const char* LLM_Tokenize(LLM* llm, const char* json_data);
     UNDREAMAI_API const char* LLM_Detokenize(LLM* llm, const char* json_data);
     UNDREAMAI_API const char* LLM_Embeddings(LLM* llm, const char* json_data);
-    UNDREAMAI_API const char* LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper);
+    UNDREAMAI_API const char* LLM_Completion(LLM* llm, const char* json_data, CharArrayFn callback);
 
     UNDREAMAI_API const char* LLM_Slot(LLMWithSlot* llm, const char* json_data);
     UNDREAMAI_API void LLM_Cancel(LLMWithSlot* llm, int id_slot);

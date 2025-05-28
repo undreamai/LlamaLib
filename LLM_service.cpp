@@ -691,7 +691,7 @@ std::string LLMService::handle_lora_adapters_list_impl(){
 class SinkException : public std::exception {};
 
 static void server_sent_event_with_stringswrapper(
-    StringWrapper* stringWrapper,
+    CharArrayFn callback,
     httplib::DataSink* sink,
     std::string* result_data,
     const char* event,
@@ -699,7 +699,7 @@ static void server_sent_event_with_stringswrapper(
 ) {
     const std::string str = std::string(event) + ": " + safe_json_to_str(data) + "\n\n";
     *result_data += str;
-    if (stringWrapper != nullptr) stringWrapper->SetContent(*result_data);
+    if (callback) callback(result_data->c_str());
     if (sink != nullptr){
         if (!sink->write(str.c_str(), str.size())) throw SinkException();
     }
@@ -707,7 +707,7 @@ static void server_sent_event_with_stringswrapper(
 
 std::string LLMService::handle_completions_streaming(
     std::unordered_set<int> task_ids,
-    StringWrapper* stringWrapper,
+    CharArrayFn callback,
     httplib::DataSink* sink,
     std::function<bool()> is_connection_closed
 ) {
@@ -716,14 +716,14 @@ std::string LLMService::handle_completions_streaming(
         json res_json = result->to_json();
         if (res_json.is_array()) {
             for (const auto & res : res_json) {
-                server_sent_event_with_stringswrapper(stringWrapper, sink, &result_data, "data", res);
+                server_sent_event_with_stringswrapper(callback, sink, &result_data, "data", res);
             }
         } else {
-            server_sent_event_with_stringswrapper(stringWrapper, sink, &result_data, "data", res_json);
+            server_sent_event_with_stringswrapper(callback, sink, &result_data, "data", res_json);
         }
         return true;
     }, [&](const json & error_data) {
-        server_sent_event_with_stringswrapper(stringWrapper, sink, &result_data, "error", error_data);
+        server_sent_event_with_stringswrapper(callback, sink, &result_data, "error", error_data);
     }, is_connection_closed
     );
     if (sink != nullptr) sink->done();
@@ -732,7 +732,7 @@ std::string LLMService::handle_completions_streaming(
 
 std::string LLMService::handle_completions_impl(
     const json& data,
-    StringWrapper* stringWrapper,
+    CharArrayFn callback,
     httplib::Response* res,
     std::function<bool()> is_connection_closed,
     int oaicompat_int
@@ -802,7 +802,8 @@ std::string LLMService::handle_completions_impl(
                     }
                 }
                 result_data = safe_json_to_str(result_json);
-                if(res != nullptr) res_ok(*res, result_data);
+                if (res != nullptr) res_ok(*res, result_data);
+                if (callback) callback(result_data.c_str());
             }, [&](const json & error_data) {
                 if(res != nullptr) handle_error(*res, error_data);
             }, is_connection_closed);
@@ -813,7 +814,7 @@ std::string LLMService::handle_completions_impl(
                 ctx_server->queue_results.remove_waiting_task_ids(task_ids);
             };
             if(res == nullptr){
-                result_data = handle_completions_streaming(task_ids, stringWrapper, nullptr);
+                result_data = handle_completions_streaming(task_ids, callback, nullptr);
                 on_complete(true);
             } else {
                 const auto chunked_content_provider = [task_ids, this, oaicompat](size_t, httplib::DataSink & sink) {
@@ -959,7 +960,7 @@ const int LLM_Status_Code(LLMService* llm) {
 
 const char* LLM_Status_Message(LLMService* llm) {
     std::string result = llm->get_status_message();
-    return StringWrapper::stringToCharArray(result);
+    return stringToCharArray(result);
 }
 
 const int LLM_Embedding_Size(LLMService* llm) {

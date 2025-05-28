@@ -9,3 +9,5 @@
 #else
 #define UNDREAMAI_API
 #endif
+
+typedef void (*CharArrayFn)(const char*);

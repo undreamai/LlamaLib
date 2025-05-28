@@ -2,8 +2,6 @@
 
 #include "LLM.h"
 
-#include "stringwrapper.h"
-#include "logging.h"
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
     #include <openssl/err.h>
     #include <openssl/ssl.h>
@@ -34,7 +32,7 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         std::string handle_embeddings_impl(const json& data, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_false) override;
         std::string handle_lora_adapters_apply_impl(const json& data, httplib::Response* res=nullptr) override;
         std::string handle_lora_adapters_list_impl() override;
-        std::string handle_completions_impl(const json& data, StringWrapper* stringWrapper=nullptr, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0) override;
+        std::string handle_completions_impl(const json& data, CharArrayFn callback=nullptr, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0) override;
         std::string handle_slots_action_impl(const json& data, httplib::Response* res=nullptr) override;
         void handle_cancel_action_impl(int id_slot) override;
         //================ LLM ================//
@@ -61,7 +59,7 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         void init(int argc, char ** argv);
         std::string handle_completions_streaming(
             std::unordered_set<int> id_tasks,
-            StringWrapper* stringWrapper=nullptr,
+            CharArrayFn callback=nullptr,
             httplib::DataSink* sink=nullptr,
             std::function<bool()> is_connection_closed = always_false
         );
