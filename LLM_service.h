@@ -36,7 +36,7 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         std::string handle_lora_adapters_list_impl() override;
         std::string handle_completions_impl(const json& data, StringWrapper* stringWrapper=nullptr, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0) override;
         std::string handle_slots_action_impl(const json& data, httplib::Response* res=nullptr) override;
-        void handle_cancel_action(int id_slot) override;
+        void handle_cancel_action_impl(int id_slot) override;
         //================ LLM ================//
 
         void start_server();

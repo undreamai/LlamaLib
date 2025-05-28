@@ -29,9 +29,9 @@ std::string LLMClient::handle_slots_action_impl(const json& data, httplib::Respo
     return llm->handle_slots_action_impl(data, res);
 }
 
-void LLMClient::handle_cancel_action(int id_slot)
+void LLMClient::handle_cancel_action_impl(int id_slot)
 {
-    llm->handle_cancel_action(id_slot);
+    llm->handle_cancel_action_impl(id_slot);
 }
 
 

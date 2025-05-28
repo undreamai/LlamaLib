@@ -321,7 +321,7 @@ public:
         return result.dump();
     }
 
-    void handle_cancel_action(int id_slot) override {
+    void handle_cancel_action_impl(int id_slot) override {
         cancel_called = true;
         cancelled_slot = id_slot;
     }

@@ -306,7 +306,7 @@ void LLM_Slot(LLMWithSlot* llm, const char* json_data, StringWrapper* wrapper) {
 }
 
 void LLM_Cancel(LLMWithSlot* llm, int id_slot) {
-    llm->handle_cancel_action(id_slot);
+    llm->handle_cancel_action_impl(id_slot);
 }
 
 void LLM_Lora_Weight(LLMProvider* llm, const char* json_data, StringWrapper* wrapper) {
