@@ -29,16 +29,6 @@ using LibHandle = void*;
 #define CLOSE_LIB(handle) dlclose(handle)
 #endif
 
-#ifdef _WIN32
-#ifdef UNDREAMAI_EXPORTS
-#define LOADER_API __declspec(dllexport)
-#else
-#define LOADER_API __declspec(dllimport)
-#endif
-#else
-#define LOADER_API
-#endif
-
 //=================================== FUNCTION LISTS ===================================//
 
 // Forward declarations
@@ -47,7 +37,7 @@ struct LLMLib;
 
 #define LLMLIB_FUNCTIONS_NOLLM_NOARGS(X) \
     X(StopLogging, void) \
-    X(StringWrapper_Construct, StringWrapper*) \
+    X(StringWrapper_Construct, StringWrapper*)
 
 #define LLMLIB_FUNCTIONS_NOLLM_ONEARG(X) \
     X(Logging, void, StringWrapper*) \
@@ -91,37 +81,32 @@ struct LLMLib;
 
 // Typedefs
 #define DECLARE_TYPEDEF(name, ret, ...) typedef ret (*name##_Fn)(__VA_ARGS__);
-    LLMLIB_FUNCTIONS_ALL(DECLARE_TYPEDEF)
+LLMLIB_FUNCTIONS_ALL(DECLARE_TYPEDEF)
 #undef DECLARE_TYPEDEF
 
 //=================================== LLMLib ===================================//
 
 class UNDREAMAI_API LLMLib {
 public:
-        ~LLMLib();
+    ~LLMLib();
 
-        LibHandle handle = nullptr;
-        LLMService* llm = nullptr;
+    LibHandle handle = nullptr;
+    LLMService* llm = nullptr;
 
 #define DECLARE_FIELD(name, ret, ...) name##_Fn name##_fn;
-        LLMLIB_FUNCTIONS_ALL(DECLARE_FIELD)
+    LLMLIB_FUNCTIONS_ALL(DECLARE_FIELD)
 #undef DECLARE_FIELD
 
 #define DECLARE_METHOD_NOLLM_NOARGS(name, ret) \
     inline ret name() { return name##_fn(); }
-
 #define DECLARE_METHOD_NOLLM_ONEARG(name, ret, arg1_type) \
     inline ret name(arg1_type arg1) { return name##_fn(arg1); }
-
 #define DECLARE_METHOD_NOLLM_FOURARGS(name, ret, arg1_type, arg2_type, arg3_type, arg4_type) \
     inline ret name(arg1_type arg1, arg2_type arg2, arg3_type arg3, arg4_type arg4) { return name##_fn(arg1, arg2, arg3, arg4); }
-
 #define DECLARE_METHOD_LLM_NOARGS(name, ret, ...) \
     inline ret name() { return name##_fn(llm); }
-
 #define DECLARE_METHOD_LLM_ONEARG(name, ret, _, arg1_type) \
     inline ret name(arg1_type arg1) { return name##_fn(llm, arg1); }
-
 #define DECLARE_METHOD_LLM_TWOARGS(name, ret, _, arg1_type, arg2_type) \
     inline ret name(arg1_type arg1, arg2_type arg2) { return name##_fn(llm, arg1, arg2); }
 
@@ -147,37 +132,32 @@ const std::vector<std::string> available_architectures(bool gpu);
 
 //=================================== EXTERNAL API ===================================//
 
-LOADER_API const char* Available_Architectures(bool gpu);
-LOADER_API LLMLib* Load_LLM_Library_From_Path(std::string command, const std::string& path);
-LOADER_API LLMLib* Load_LLM_Library(std::string command, const std::string& baseDir="");
+UNDREAMAI_API const char* Available_Architectures(bool gpu);
+UNDREAMAI_API LLMLib* Load_LLM_Library_From_Path(std::string command, const std::string& path);
+UNDREAMAI_API LLMLib* Load_LLM_Library(std::string command, const std::string& baseDir = "");
 
 #define EXPORT_WRAPPER_NOLLM_NOARGS(name, ret) \
-extern "C" inline LOADER_API ret LlamaLib_##name(LLMLib* llmlib) { \
+extern "C" inline UNDREAMAI_API ret LlamaLib_##name(LLMLib* llmlib) { \
     return llmlib->name(); \
 }
-
 #define EXPORT_WRAPPER_NOLLM_ONEARG(name, ret, arg1_type) \
-extern "C" inline LOADER_API ret LlamaLib_##name(LLMLib* llmlib, arg1_type arg1) { \
+extern "C" inline UNDREAMAI_API ret LlamaLib_##name(LLMLib* llmlib, arg1_type arg1) { \
     return llmlib->name(arg1); \
 }
-
 #define EXPORT_WRAPPER_NOLLM_FOURARGS(name, ret, arg1_type, arg2_type, arg3_type, arg4_type) \
-extern "C" inline LOADER_API ret LlamaLib_##name(LLMLib* llmlib, arg1_type arg1, arg2_type arg2, arg3_type arg3, arg4_type arg4) { \
+extern "C" inline UNDREAMAI_API ret LlamaLib_##name(LLMLib* llmlib, arg1_type arg1, arg2_type arg2, arg3_type arg3, arg4_type arg4) { \
     return llmlib->name(arg1, arg2, arg3, arg4); \
 }
-
 #define EXPORT_WRAPPER_LLM_NOARGS(name, ret, _) \
-extern "C" inline LOADER_API ret LlamaLib_##name(LLMLib* llmlib) { \
+extern "C" inline UNDREAMAI_API ret LlamaLib_##name(LLMLib* llmlib) { \
     return llmlib->name(); \
 }
-
 #define EXPORT_WRAPPER_LLM_ONEARG(name, ret, _, arg1_type) \
-extern "C" inline LOADER_API ret LlamaLib_##name(LLMLib* llmlib, arg1_type arg1) { \
+extern "C" inline UNDREAMAI_API ret LlamaLib_##name(LLMLib* llmlib, arg1_type arg1) { \
     return llmlib->name(arg1); \
 }
-
 #define EXPORT_WRAPPER_LLM_TWOARGS(name, ret, _, arg1_type, arg2_type) \
-extern "C" inline LOADER_API ret LlamaLib_##name(LLMLib* llmlib, arg1_type arg1, arg2_type arg2) { \
+extern "C" inline UNDREAMAI_API ret LlamaLib_##name(LLMLib* llmlib, arg1_type arg1, arg2_type arg2) { \
     return llmlib->name(arg1, arg2); \
 }
 
