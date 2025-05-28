@@ -37,7 +37,7 @@ void LLMClient::handle_cancel_action(int id_slot)
 
 //================ Remote requests ================//
 
-RemoteLLMClient::RemoteLLMClient(const std::string& url_, int port_) : url(url_), port(port_) { }
+RemoteLLMClient::RemoteLLMClient(const std::string& url_, const int port_) : url(url_), port(port_) { }
 
 static size_t StreamingWriteCallback(void *contents, size_t size, size_t nmemb, void *userp) {
     size_t totalSize = size * nmemb;
