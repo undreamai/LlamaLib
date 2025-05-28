@@ -19,9 +19,9 @@ std::string LLMClient::handle_embeddings_impl(const json& data, httplib::Respons
     return llm->handle_embeddings_impl(data, res, is_connection_closed);
 }
 
-std::string LLMClient::handle_completions_impl(const json& data, StringWrapper* stringWrapper, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
+std::string LLMClient::handle_completions_impl(const json& data, CharArrayFn callback, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
 {
-    return llm->handle_completions_impl(data, stringWrapper, res, is_connection_closed, oaicompat);
+    return llm->handle_completions_impl(data, callback, res, is_connection_closed, oaicompat);
 }
 
 std::string LLMClient::handle_slots_action_impl(const json& data, httplib::Response* res)
@@ -46,9 +46,7 @@ static size_t StreamingWriteCallback(void *contents, size_t size, size_t nmemb, 
     if (ctx && contents) {
         std::string chunk(static_cast<char*>(contents), totalSize);
         ctx->buffer += chunk;
-        if (ctx->stringWrapper != nullptr){
-            ctx->stringWrapper->SetContent(ctx->buffer);
-        }
+        if (ctx->callback) ctx->callback(ctx->buffer.c_str());
     }
     
     return totalSize;
@@ -59,7 +57,7 @@ std::string RemoteLLMClient::post_request(
     int port, 
     const std::string& path, 
     const json& payload,
-    StringWrapper* stringWrapper
+    CharArrayFn callback
 ) {
     CURL* curl = curl_easy_init();
     
@@ -69,7 +67,7 @@ std::string RemoteLLMClient::post_request(
     }
         
     StreamingContext context;
-    context.stringWrapper = stringWrapper;
+    context.callback = callback;
     
     try {
         std::ostringstream full_url;
@@ -126,7 +124,7 @@ std::string RemoteLLMClient::handle_embeddings_impl(const json& data, httplib::R
     return post_request(url, port, "embeddings", data);
 }
 
-std::string RemoteLLMClient::handle_completions_impl(const json& data, StringWrapper* stringWrapper, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
+std::string RemoteLLMClient::handle_completions_impl(const json& data, CharArrayFn callback, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
 {
-    return post_request(url, port, "completion", data, stringWrapper);
+    return post_request(url, port, "completion", data, callback);
 }

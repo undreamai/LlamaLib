@@ -173,7 +173,14 @@ void test_tokenization(LLMHandle handle) {
     ASSERT(trim(reply_data["content"]) == data["content"]);
 }
 
-void test_completion(LLMHandle handle, StringWrapper* wrapper, bool stream) {
+int counter = 0;
+
+void count_calls(const char* c)
+{
+    counter++;
+}
+
+void test_completion(LLMHandle handle, bool stream) {
     std::cout << "LLM_Completion ( ";
     if (!stream) std::cout << "no ";
     std::cout << "streaming )" << std::endl;
@@ -188,7 +195,9 @@ void test_completion(LLMHandle handle, StringWrapper* wrapper, bool stream) {
     data["n_keep"] = 30;
     data["stream"] = stream;
 
-    reply = std::string(CALL_LLM_FUNCTION(LLM_Completion, handle, data.dump().c_str(), wrapper));
+    counter = 0;
+    reply = std::string(CALL_LLM_FUNCTION(LLM_Completion, handle, data.dump().c_str(), static_cast<CharArrayFn>(count_calls)));
+    ASSERT(counter > int(stream));
 
     std::string reply_data;
     if (stream)
@@ -321,7 +330,7 @@ public:
         return result.dump();
     }
 
-    std::string handle_completions_impl(const json& data, StringWrapper*, httplib::Response*, std::function<bool()>, int) override {
+    std::string handle_completions_impl(const json& data, CharArrayFn, httplib::Response*, std::function<bool()>, int) override {
         json result;
         result["content"] = CONTENT;
         return result.dump();
@@ -471,10 +480,8 @@ void run_mock_tests() {
 void run_tests(LLMHandle handle)
 {
     test_tokenization(handle);
-    test_completion(handle, nullptr, false);
-    StringWrapper* wrapper = StringWrapper_Construct();
-    test_completion(handle, wrapper, true);
-    delete wrapper;
+    test_completion(handle, false);
+    test_completion(handle, true);
     test_embedding(handle);
     if(handle.type == LLMHandle::Type::Lib || handle.type == LLMHandle::Type::Service)
     {

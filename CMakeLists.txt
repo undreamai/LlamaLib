@@ -82,12 +82,12 @@ function(create_executable NAME LIBRARY)
 endfunction()
 
 # build libraries
-add_library(${STATIC_LIBRARY} ${LIBRARY_TYPE} LLM_service.cpp LLM.cpp LLM_client.cpp stringwrapper.cpp logging.cpp error_handling.cpp)
+add_library(${STATIC_LIBRARY} ${LIBRARY_TYPE} LLM_service.cpp LLM.cpp LLM_client.cpp logging.cpp error_handling.cpp)
 target_link_libraries(${STATIC_LIBRARY} PRIVATE common ${CMAKE_THREAD_LIBS_INIT} ${CURL_LIBRARIES})
 common_compile_defs(${STATIC_LIBRARY})
 install(TARGETS ${STATIC_LIBRARY} LIBRARY)
 
-add_library(${DYNAMIC_LIBRARY} ${LIBRARY_TYPE} LLM_lib.cpp LLM.cpp LLM_client.cpp stringwrapper.cpp error_handling.cpp)
+add_library(${DYNAMIC_LIBRARY} ${LIBRARY_TYPE} LLM_lib.cpp LLM.cpp LLM_client.cpp error_handling.cpp)
 target_link_libraries(${DYNAMIC_LIBRARY} PRIVATE common ${CURL_LIBRARIES} FeatureDetector archchecker)
 common_compile_defs(${DYNAMIC_LIBRARY})
 install(TARGETS ${DYNAMIC_LIBRARY} LIBRARY)
