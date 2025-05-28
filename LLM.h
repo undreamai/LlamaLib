@@ -8,7 +8,7 @@
 
 using json = nlohmann::ordered_json;
 
-static bool always_true()
+static bool always_false()
 {
     return false;
 }
@@ -36,8 +36,8 @@ class UNDREAMAI_API LLM {
 public:
     virtual std::string handle_tokenize_impl(const json& data) = 0;
     virtual std::string handle_detokenize_impl(const json& data) = 0;
-    virtual std::string handle_embeddings_impl(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true) = 0;
-    virtual std::string handle_completions_impl(const json& data, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0) = 0;
+    virtual std::string handle_embeddings_impl(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false) = 0;
+    virtual std::string handle_completions_impl(const json& data, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0) = 0;
 
     virtual std::string handle_tokenize_json(const json& data);
     virtual json build_tokenize_json(const std::string& query);
@@ -55,21 +55,21 @@ public:
     virtual std::string handle_detokenize(const json& data);
     virtual std::string handle_detokenize(const std::vector<int32_t>& tokens);
 
-    virtual std::string handle_embeddings_json(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true);
+    virtual std::string handle_embeddings_json(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false);
     virtual json build_embeddings_json(const std::string& query);
     virtual std::vector<float> parse_embeddings_json(const json& result);
-    virtual std::string handle_embeddings_json(const std::string& query, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true);
-    virtual std::string handle_embeddings_json(const char* query, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true);
-    virtual std::vector<float> handle_embeddings(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true);
-    virtual std::vector<float> handle_embeddings(const std::string& query, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true);
-    virtual std::vector<float> handle_embeddings(const char* query, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true);
+    virtual std::string handle_embeddings_json(const std::string& query, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false);
+    virtual std::string handle_embeddings_json(const char* query, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false);
+    virtual std::vector<float> handle_embeddings(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false);
+    virtual std::vector<float> handle_embeddings(const std::string& query, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false);
+    virtual std::vector<float> handle_embeddings(const char* query, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false);
 
-    virtual std::string handle_completions_json(const json& data, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0);
+    virtual std::string handle_completions_json(const json& data, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
     virtual json build_completions_json(const std::string& prompt, int id_slot, const json& params);
     virtual std::string parse_completions_json(const json& result);
-    virtual std::string handle_completions_json(const std::string& prompt, int id_slot, const json& params, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0);
-    virtual std::string handle_completions(const json& data, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0);
-    virtual std::string handle_completions(const std::string& prompt, int id_slot, const json& params, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0);
+    virtual std::string handle_completions_json(const std::string& prompt, int id_slot, const json& params, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
+    virtual std::string handle_completions(const json& data, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
+    virtual std::string handle_completions(const std::string& prompt, int id_slot, const json& params, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
 };
 
 class UNDREAMAI_API LLMWithSlot : public LLM {

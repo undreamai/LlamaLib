@@ -121,7 +121,7 @@ LLMLib::~LLMLib() {
 const char* Available_Architectures(bool gpu)
 {
     const std::vector<std::string>& llmlibs = available_architectures(gpu);
-    static std::string result;
+    thread_local static std::string result;
 
     std::ostringstream oss;
     for (size_t i = 0; i < llmlibs.size(); ++i) {
@@ -186,4 +186,8 @@ LLMLib* Load_LLM_Library(std::string command, const std::string& baseDir) {
     }
 
     return nullptr;
+}
+
+void Free_LLM_Library(LLMLib* llmlib) {
+    delete llmlib;
 }

@@ -135,29 +135,30 @@ const std::vector<std::string> available_architectures(bool gpu);
 UNDREAMAI_API const char* Available_Architectures(bool gpu);
 UNDREAMAI_API LLMLib* Load_LLM_Library_From_Path(std::string command, const std::string& path);
 UNDREAMAI_API LLMLib* Load_LLM_Library(std::string command, const std::string& baseDir = "");
+UNDREAMAI_API void Free_LLM_Library(LLMLib* llmlib);
 
 #define EXPORT_WRAPPER_NOLLM_NOARGS(name, ret) \
-extern "C" inline UNDREAMAI_API ret LLMLib_##name(LLMLib* llmlib) { \
+extern "C" inline UNDREAMAI_API ret LlamaLib_##name(LLMLib* llmlib) { \
     return llmlib->name(); \
 }
 #define EXPORT_WRAPPER_NOLLM_ONEARG(name, ret, arg1_type) \
-extern "C" inline UNDREAMAI_API ret LLMLib_##name(LLMLib* llmlib, arg1_type arg1) { \
+extern "C" inline UNDREAMAI_API ret LlamaLib_##name(LLMLib* llmlib, arg1_type arg1) { \
     return llmlib->name(arg1); \
 }
 #define EXPORT_WRAPPER_NOLLM_FOURARGS(name, ret, arg1_type, arg2_type, arg3_type, arg4_type) \
-extern "C" inline UNDREAMAI_API ret LLMLib_##name(LLMLib* llmlib, arg1_type arg1, arg2_type arg2, arg3_type arg3, arg4_type arg4) { \
+extern "C" inline UNDREAMAI_API ret LlamaLib_##name(LLMLib* llmlib, arg1_type arg1, arg2_type arg2, arg3_type arg3, arg4_type arg4) { \
     return llmlib->name(arg1, arg2, arg3, arg4); \
 }
 #define EXPORT_WRAPPER_LLM_NOARGS(name, ret, _) \
-extern "C" inline UNDREAMAI_API ret LLMLib_##name(LLMLib* llmlib) { \
+extern "C" inline UNDREAMAI_API ret LlamaLib_##name(LLMLib* llmlib) { \
     return llmlib->name(); \
 }
 #define EXPORT_WRAPPER_LLM_ONEARG(name, ret, _, arg1_type) \
-extern "C" inline UNDREAMAI_API ret LLMLib_##name(LLMLib* llmlib, arg1_type arg1) { \
+extern "C" inline UNDREAMAI_API ret LlamaLib_##name(LLMLib* llmlib, arg1_type arg1) { \
     return llmlib->name(arg1); \
 }
 #define EXPORT_WRAPPER_LLM_TWOARGS(name, ret, _, arg1_type, arg2_type) \
-extern "C" inline UNDREAMAI_API ret LLMLib_##name(LLMLib* llmlib, arg1_type arg1, arg2_type arg2) { \
+extern "C" inline UNDREAMAI_API ret LlamaLib_##name(LLMLib* llmlib, arg1_type arg1, arg2_type arg2) { \
     return llmlib->name(arg1, arg2); \
 }
 
