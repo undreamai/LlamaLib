@@ -912,7 +912,7 @@ std::string LLMService::handle_slots_action_impl(
     return result_data;
 }
 
-void LLMService::handle_cancel_action(int id_slot) {
+void LLMService::handle_cancel_action_impl(int id_slot) {
     if (setjmp(sigjmp_buf_point) != 0) return;
     clear_status();
     try {
