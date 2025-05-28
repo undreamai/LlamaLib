@@ -282,39 +282,39 @@ const int LLM_Test() {
     return 100;
 }
 
-const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper) {
+void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper) {
     wrapper->SetContent(llm->handle_tokenize_impl(json::parse(json_data)));
 }
 
-const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper) {
+void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper) {
     wrapper->SetContent(llm->handle_detokenize_impl(json::parse(json_data)));
 }
 
-const void LLM_Embeddings(LLM* llm, const char* json_data, StringWrapper* wrapper) {
+void LLM_Embeddings(LLM* llm, const char* json_data, StringWrapper* wrapper) {
     std::string result = llm->handle_embeddings_impl(json::parse(json_data));
     wrapper->SetContent(result);
 }
 
-const void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper) {
+void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper) {
     std::string result = llm->handle_completions_impl(json::parse(json_data), wrapper);
     wrapper->SetContent(result);
 }
 
-const void LLM_Slot(LLMWithSlot* llm, const char* json_data, StringWrapper* wrapper) {
+void LLM_Slot(LLMWithSlot* llm, const char* json_data, StringWrapper* wrapper) {
     std::string result = llm->handle_slots_action_impl(json::parse(json_data));
     wrapper->SetContent(result);
 }
 
-const void LLM_Cancel(LLMWithSlot* llm, int id_slot) {
+void LLM_Cancel(LLMWithSlot* llm, int id_slot) {
     llm->handle_cancel_action(id_slot);
 }
 
-const void LLM_Lora_Weight(LLMProvider* llm, const char* json_data, StringWrapper* wrapper) {
+void LLM_Lora_Weight(LLMProvider* llm, const char* json_data, StringWrapper* wrapper) {
     std::string result = llm->handle_lora_adapters_apply_impl(json::parse(json_data));
     wrapper->SetContent(result);
 }
 
-const void LLM_Lora_List(LLMProvider* llm, StringWrapper* wrapper) {
+void LLM_Lora_List(LLMProvider* llm, StringWrapper* wrapper) {
     std::string result = llm->handle_lora_adapters_list_impl();
     wrapper->SetContent(result);
 }

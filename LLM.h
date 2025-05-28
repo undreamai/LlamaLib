@@ -104,14 +104,14 @@ public:
 
 extern "C" {
     UNDREAMAI_API const int LLM_Test();
-    UNDREAMAI_API const void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Embeddings(LLM* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper);
+    UNDREAMAI_API void LLM_Tokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
+    UNDREAMAI_API void LLM_Detokenize(LLM* llm, const char* json_data, StringWrapper* wrapper);
+    UNDREAMAI_API void LLM_Embeddings(LLM* llm, const char* json_data, StringWrapper* wrapper);
+    UNDREAMAI_API void LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper);
 
-    UNDREAMAI_API const void LLM_Slot(LLMWithSlot* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Cancel(LLMWithSlot* llm, int id_slot);
+    UNDREAMAI_API void LLM_Slot(LLMWithSlot* llm, const char* json_data, StringWrapper* wrapper);
+    UNDREAMAI_API void LLM_Cancel(LLMWithSlot* llm, int id_slot);
 
-    UNDREAMAI_API const void LLM_Lora_Weight(LLMProvider* llm, const char* json_data, StringWrapper* wrapper);
-    UNDREAMAI_API const void LLM_Lora_List(LLMProvider* llm, StringWrapper* wrapper);
+    UNDREAMAI_API void LLM_Lora_Weight(LLMProvider* llm, const char* json_data, StringWrapper* wrapper);
+    UNDREAMAI_API void LLM_Lora_List(LLMProvider* llm, StringWrapper* wrapper);
 };

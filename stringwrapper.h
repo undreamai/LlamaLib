@@ -21,8 +21,8 @@ class UNDREAMAI_API StringWrapper {
 
 extern "C" {
     UNDREAMAI_API StringWrapper* StringWrapper_Construct();
-    UNDREAMAI_API const void StringWrapper_Delete(StringWrapper* object);
+    UNDREAMAI_API void StringWrapper_Delete(StringWrapper* object);
     UNDREAMAI_API const int StringWrapper_GetStringSize(StringWrapper* object);
-    UNDREAMAI_API const void StringWrapper_GetString(StringWrapper* object, char* buffer, int bufferSize, bool clear = false);
+    UNDREAMAI_API void StringWrapper_GetString(StringWrapper* object, char* buffer, int bufferSize, bool clear = false);
     UNDREAMAI_API char* GetStringWrapperContent(StringWrapper* stringWrapper);
 }
