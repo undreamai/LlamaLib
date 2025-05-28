@@ -78,3 +78,7 @@ char* GetStringWrapperContent(StringWrapper* stringWrapper) {
     stringWrapper->GetString(content, bufferSize);
     return content;
 }
+
+void StringWrapper_FreeString(char* str) {
+    delete[] str;
+}

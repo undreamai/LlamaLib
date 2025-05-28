@@ -31,10 +31,10 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         //================ LLM ================//
         std::string handle_tokenize_impl(const json& data) override;
         std::string handle_detokenize_impl(const json& data) override;
-        std::string handle_embeddings_impl(const json& data, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_true) override;
+        std::string handle_embeddings_impl(const json& data, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_false) override;
         std::string handle_lora_adapters_apply_impl(const json& data, httplib::Response* res=nullptr) override;
         std::string handle_lora_adapters_list_impl() override;
-        std::string handle_completions_impl(const json& data, StringWrapper* stringWrapper=nullptr, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_true, int oaicompat = 0) override;
+        std::string handle_completions_impl(const json& data, StringWrapper* stringWrapper=nullptr, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0) override;
         std::string handle_slots_action_impl(const json& data, httplib::Response* res=nullptr) override;
         void handle_cancel_action_impl(int id_slot) override;
         //================ LLM ================//
@@ -63,7 +63,7 @@ class UNDREAMAI_API LLMService : public LLMProvider {
             std::unordered_set<int> id_tasks,
             StringWrapper* stringWrapper=nullptr,
             httplib::DataSink* sink=nullptr,
-            std::function<bool()> is_connection_closed = always_true
+            std::function<bool()> is_connection_closed = always_false
         );
         bool middleware_validate_api_key(const httplib::Request & req, httplib::Response & res);
         void register_signal_handling();

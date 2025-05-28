@@ -575,7 +575,7 @@ std::string LLMService::handle_embeddings_impl(
         if (format == "base64") {
             use_base64 = true;
         } else if (format != "float") {
-            handle_error(*res, format_error_response("The format to return the embeddings in. Can be either float or base64", ERROR_TYPE_INVALID_REQUEST));
+            if(res != nullptr) handle_error(*res, format_error_response("The format to return the embeddings in. Can be either float or base64", ERROR_TYPE_INVALID_REQUEST));
             return "";
         }
     }
@@ -584,7 +584,7 @@ std::string LLMService::handle_embeddings_impl(
     for (const auto & tokens : tokenized_prompts) {
         // this check is necessary for models that do not add BOS token to the input
         if (tokens.empty()) {
-            handle_error(*res, format_error_response("Input content cannot be empty", ERROR_TYPE_INVALID_REQUEST));
+            if(res != nullptr) handle_error(*res, format_error_response("Input content cannot be empty", ERROR_TYPE_INVALID_REQUEST));
             return "";
         }
     }
@@ -620,7 +620,7 @@ std::string LLMService::handle_embeddings_impl(
                 responses.push_back(res->to_json());
             }
         }, [&](const json & error_data) {
-            handle_error(*res, error_data);
+            if(res != nullptr) handle_error(*res, error_data);
             error = true;
         }, is_connection_closed);
 
@@ -680,10 +680,13 @@ std::string LLMService::handle_lora_adapters_apply_impl(const json& body, httpli
     ctx_server->queue_results.remove_waiting_task_id(task.id);
 
     json result_data = result->to_json();
-    if (result->is_error()) {
-        if(res != nullptr) handle_error(*res, result_data);
-    } else {
-        if(res != nullptr) res_ok(*res, result_data);
+    if(res != nullptr)
+    {
+        if (result->is_error()) {
+            handle_error(*res, result_data);
+        } else {
+            res_ok(*res, result_data);
+        }
     }
 
     return safe_json_to_str(result_data);
@@ -762,7 +765,7 @@ std::string LLMService::handle_completions_impl(
         // GGML_ASSERT(type == SERVER_TASK_TYPE_COMPLETION || type == SERVER_TASK_TYPE_INFILL);
 
         if (ctx_server->params_base.embedding) {
-            handle_error(*res, format_error_response("This server does not support completions. Start it without `--embeddings`", ERROR_TYPE_NOT_SUPPORTED));
+            if(res != nullptr) handle_error(*res, format_error_response("This server does not support completions. Start it without `--embeddings`", ERROR_TYPE_NOT_SUPPORTED));
             return "";
         }
 
@@ -797,7 +800,7 @@ std::string LLMService::handle_completions_impl(
             ctx_server.queue_results.add_waiting_tasks(tasks);
             ctx_server.queue_tasks.post(tasks);
         } catch (const std::exception & e) {
-            handle_error(*res, format_error_response(e.what(), ERROR_TYPE_INVALID_REQUEST));
+            if(res != nullptr) handle_error(*res, format_error_response(e.what(), ERROR_TYPE_INVALID_REQUEST));
             return "";
         }
 
