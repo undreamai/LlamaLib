@@ -94,13 +94,16 @@ std::string RemoteLLMClient::post_request(
 
         CURLcode res = curl_easy_perform(curl);
         if (res != CURLE_OK && res != CURLE_ABORTED_BY_CALLBACK) {
-            std::cerr << "CURL streaming failed: " << curl_easy_strerror(res) << std::endl;
+            std::string error = "CURL streaming failed: " + std::string(curl_easy_strerror(res));
+            std::cerr << error << std::endl;
         }
 
         curl_slist_free_all(headers);
         
     } catch (const std::exception& e) {
-        std::cerr << "Exception in streaming request: " << e.what() << std::endl;
+        std::string error = "Exception in streaming request: " + std::string(e.what());
+        context.buffer = error;
+        std::cerr << error << std::endl;
     }
     
     curl_easy_cleanup(curl);
