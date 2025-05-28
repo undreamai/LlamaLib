@@ -49,6 +49,13 @@ void StringWrapper::GetString(char* buffer, int bufferSize, bool clear){
     if(clear) Clear();
 }
 
+const char* StringWrapper::stringToCharArray(const std::string& input)
+{
+    char* content = new char[input.length() + 1];
+    strcpy(content, input.c_str());
+    return content;
+}
+
 //============================= API =============================//
 
 StringWrapper* StringWrapper_Construct() {
@@ -79,6 +86,6 @@ char* GetStringWrapperContent(StringWrapper* stringWrapper) {
     return content;
 }
 
-void StringWrapper_FreeString(char* str) {
+void CharArray_Delete(char* str) {
     delete[] str;
 }

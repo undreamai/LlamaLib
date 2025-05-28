@@ -14,6 +14,8 @@ class UNDREAMAI_API StringWrapper {
         int GetStringSize();
         void GetString(char* buffer, int bufferSize, bool clear=false);
 
+        static const char* stringToCharArray(const std::string& input);
+
     private:
         char *content = nullptr;
         std::mutex mtx;
@@ -25,4 +27,5 @@ extern "C" {
     UNDREAMAI_API const int StringWrapper_GetStringSize(StringWrapper* object);
     UNDREAMAI_API void StringWrapper_GetString(StringWrapper* object, char* buffer, int bufferSize, bool clear = false);
     UNDREAMAI_API char* GetStringWrapperContent(StringWrapper* stringWrapper);
+    UNDREAMAI_API void CharArray_Delete(char* object);
 }

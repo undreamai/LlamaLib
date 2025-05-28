@@ -974,9 +974,13 @@ void LLM_SetSSL(LLMService* llm, const char* SSL_cert, const char* SSL_key){
     llm->set_SSL(SSL_cert, SSL_key);
 }
 
-const int LLM_Status(LLMService* llm, StringWrapper* wrapper) {
-    wrapper->SetContent(llm->get_status_message());
+const int LLM_Status_Code(LLMService* llm) {
     return llm->get_status();
+}
+
+const char* LLM_Status_Message(LLMService* llm) {
+    std::string result = llm->get_status_message();
+    return StringWrapper::stringToCharArray(result);
 }
 
 const int LLM_Embedding_Size(LLMService* llm) {
