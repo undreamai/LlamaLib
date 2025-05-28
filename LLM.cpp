@@ -145,24 +145,24 @@ std::string LLM::parse_completions_json(const json& result)
     return "";
 }
 
-std::string LLM::handle_completions_json(const json& data, StringWrapper* stringWrapper, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
+std::string LLM::handle_completions_json(const json& data, CharArrayFn callback, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
 {
-    return handle_completions_impl(data, stringWrapper, res, is_connection_closed, oaicompat);
+    return handle_completions_impl(data, callback, res, is_connection_closed, oaicompat);
 }
 
-std::string LLM::handle_completions_json(const std::string& prompt, int id_slot, const json& params, StringWrapper* stringWrapper, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
+std::string LLM::handle_completions_json(const std::string& prompt, int id_slot, const json& params, CharArrayFn callback, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
 {
-    return handle_completions_json(build_completions_json(prompt, id_slot, params), stringWrapper, res, is_connection_closed, oaicompat);
+    return handle_completions_json(build_completions_json(prompt, id_slot, params), callback, res, is_connection_closed, oaicompat);
 }
 
-std::string LLM::handle_completions(const json& data, StringWrapper* stringWrapper, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
+std::string LLM::handle_completions(const json& data, CharArrayFn callback, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
 {
-    return parse_completions_json(json::parse(handle_completions_json(data, stringWrapper, res, is_connection_closed, oaicompat)));
+    return parse_completions_json(json::parse(handle_completions_json(data, callback, res, is_connection_closed, oaicompat)));
 }
 
-std::string LLM::handle_completions(const std::string& prompt, int id_slot, const json& params, StringWrapper* stringWrapper, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
+std::string LLM::handle_completions(const std::string& prompt, int id_slot, const json& params, CharArrayFn callback, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
 {
-    return handle_completions(build_completions_json(prompt, id_slot, params), stringWrapper, res, is_connection_closed, oaicompat);
+    return handle_completions(build_completions_json(prompt, id_slot, params), callback, res, is_connection_closed, oaicompat);
 }
 
 //=========================== Slot Action ===========================//
@@ -284,28 +284,27 @@ const int LLM_Test() {
 
 const char* LLM_Tokenize(LLM* llm, const char* json_data) {
     std::string result = llm->handle_tokenize_impl(json::parse(json_data));
-    return StringWrapper::stringToCharArray(result);
+    return stringToCharArray(result);
 }
 
 const char* LLM_Detokenize(LLM* llm, const char* json_data) {
     std::string result = llm->handle_detokenize_impl(json::parse(json_data));
-    return StringWrapper::stringToCharArray(result);
+    return stringToCharArray(result);
 }
 
 const char* LLM_Embeddings(LLM* llm, const char* json_data) {
     std::string result = llm->handle_embeddings_impl(json::parse(json_data));
-    return StringWrapper::stringToCharArray(result);
+    return stringToCharArray(result);
 }
 
-const char* LLM_Completion(LLM* llm, const char* json_data, StringWrapper* wrapper) {
-    std::string result = llm->handle_completions_impl(json::parse(json_data), wrapper);
-    if (wrapper != nullptr) wrapper->SetContent(result);
-    return StringWrapper::stringToCharArray(result);
+const char* LLM_Completion(LLM* llm, const char* json_data, CharArrayFn callback) {
+    std::string result = llm->handle_completions_impl(json::parse(json_data), callback);
+    return stringToCharArray(result);
 }
 
 const char* LLM_Slot(LLMWithSlot* llm, const char* json_data) {
     std::string result = llm->handle_slots_action_impl(json::parse(json_data));
-    return StringWrapper::stringToCharArray(result);
+    return stringToCharArray(result);
 }
 
 void LLM_Cancel(LLMWithSlot* llm, int id_slot) {
@@ -314,10 +313,10 @@ void LLM_Cancel(LLMWithSlot* llm, int id_slot) {
 
 const char* LLM_Lora_Weight(LLMProvider* llm, const char* json_data) {
     std::string result = llm->handle_lora_adapters_apply_impl(json::parse(json_data));
-    return StringWrapper::stringToCharArray(result);
+    return stringToCharArray(result);
 }
 
 const char* LLM_Lora_List(LLMProvider* llm) {
     std::string result = llm->handle_lora_adapters_list_impl();
-    return StringWrapper::stringToCharArray(result);
+    return stringToCharArray(result);
 }

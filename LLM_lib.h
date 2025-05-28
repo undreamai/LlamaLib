@@ -7,7 +7,7 @@
 #include <iostream>
 #include <setjmp.h>
 
-#include "stringwrapper.h"
+#include "defs.h"
 #include "archchecker.h"
 #include "error_handling.h"
 
@@ -36,17 +36,11 @@ class LLMService;
 struct LLMLib;
 
 #define LLMLIB_FUNCTIONS_NOLLM_NOARGS(X) \
-    X(StopLogging, void) \
-    X(StringWrapper_Construct, StringWrapper*)
+    X(StopLogging, void)
 
 #define LLMLIB_FUNCTIONS_NOLLM_ONEARG(X) \
-    X(Logging, void, StringWrapper*) \
-    X(StringWrapper_Delete, void, StringWrapper*) \
-    X(StringWrapper_GetStringSize, int, StringWrapper*) \
+    X(Logging, void, CharArrayFn*) \
     X(LLM_Construct, LLMService*, const char*)
-
-#define LLMLIB_FUNCTIONS_NOLLM_FOURARGS(X) \
-    X(StringWrapper_GetString, void, StringWrapper*, char*, int, bool)
 
 #define LLMLIB_FUNCTIONS_LLM_NOARGS(X) \
     X(LLM_Delete, void, LLMService*) \
@@ -70,12 +64,11 @@ struct LLMLib;
 
 #define LLMLIB_FUNCTIONS_LLM_TWOARGS(X) \
     X(LLM_SetSSL, void, LLMService*, const char*, const char*) \
-    X(LLM_Completion, const char*, LLMService*, const char*, StringWrapper*)
+    X(LLM_Completion, const char*, LLMService*, const char*, CharArrayFn)
 
 #define LLMLIB_FUNCTIONS_ALL(X) \
     LLMLIB_FUNCTIONS_NOLLM_NOARGS(X) \
     LLMLIB_FUNCTIONS_NOLLM_ONEARG(X) \
-    LLMLIB_FUNCTIONS_NOLLM_FOURARGS(X) \
     LLMLIB_FUNCTIONS_LLM_NOARGS(X) \
     LLMLIB_FUNCTIONS_LLM_ONEARG(X) \
     LLMLIB_FUNCTIONS_LLM_TWOARGS(X)
@@ -102,8 +95,6 @@ public:
     inline ret name() { return name##_fn(); }
 #define DECLARE_METHOD_NOLLM_ONEARG(name, ret, arg1_type) \
     inline ret name(arg1_type arg1) { return name##_fn(arg1); }
-#define DECLARE_METHOD_NOLLM_FOURARGS(name, ret, arg1_type, arg2_type, arg3_type, arg4_type) \
-    inline ret name(arg1_type arg1, arg2_type arg2, arg3_type arg3, arg4_type arg4) { return name##_fn(arg1, arg2, arg3, arg4); }
 #define DECLARE_METHOD_LLM_NOARGS(name, ret, ...) \
     inline ret name() { return name##_fn(llm); }
 #define DECLARE_METHOD_LLM_ONEARG(name, ret, _, arg1_type) \
@@ -113,7 +104,6 @@ public:
 
 LLMLIB_FUNCTIONS_NOLLM_NOARGS(DECLARE_METHOD_NOLLM_NOARGS)
 LLMLIB_FUNCTIONS_NOLLM_ONEARG(DECLARE_METHOD_NOLLM_ONEARG)
-LLMLIB_FUNCTIONS_NOLLM_FOURARGS(DECLARE_METHOD_NOLLM_FOURARGS)
 LLMLIB_FUNCTIONS_LLM_NOARGS(DECLARE_METHOD_LLM_NOARGS)
 LLMLIB_FUNCTIONS_LLM_ONEARG(DECLARE_METHOD_LLM_ONEARG)
 LLMLIB_FUNCTIONS_LLM_TWOARGS(DECLARE_METHOD_LLM_TWOARGS)
@@ -146,10 +136,6 @@ extern "C" inline UNDREAMAI_API ret LLMLib_##name(LLMLib* llmlib) { \
 extern "C" inline UNDREAMAI_API ret LLMLib_##name(LLMLib* llmlib, arg1_type arg1) { \
     return llmlib->name(arg1); \
 }
-#define EXPORT_WRAPPER_NOLLM_FOURARGS(name, ret, arg1_type, arg2_type, arg3_type, arg4_type) \
-extern "C" inline UNDREAMAI_API ret LLMLib_##name(LLMLib* llmlib, arg1_type arg1, arg2_type arg2, arg3_type arg3, arg4_type arg4) { \
-    return llmlib->name(arg1, arg2, arg3, arg4); \
-}
 #define EXPORT_WRAPPER_LLM_NOARGS(name, ret, _) \
 extern "C" inline UNDREAMAI_API ret LLMLib_##name(LLMLib* llmlib) { \
     return llmlib->name(); \
@@ -165,14 +151,12 @@ extern "C" inline UNDREAMAI_API ret LLMLib_##name(LLMLib* llmlib, arg1_type arg1
 
 LLMLIB_FUNCTIONS_NOLLM_NOARGS(EXPORT_WRAPPER_NOLLM_NOARGS)
 LLMLIB_FUNCTIONS_NOLLM_ONEARG(EXPORT_WRAPPER_NOLLM_ONEARG)
-LLMLIB_FUNCTIONS_NOLLM_FOURARGS(EXPORT_WRAPPER_NOLLM_FOURARGS)
 LLMLIB_FUNCTIONS_LLM_NOARGS(EXPORT_WRAPPER_LLM_NOARGS)
 LLMLIB_FUNCTIONS_LLM_ONEARG(EXPORT_WRAPPER_LLM_ONEARG)
 LLMLIB_FUNCTIONS_LLM_TWOARGS(EXPORT_WRAPPER_LLM_TWOARGS)
 
 #undef EXPORT_WRAPPER_NOLLM_NOARGS
 #undef EXPORT_WRAPPER_NOLLM_ONEARG
-#undef EXPORT_WRAPPER_NOLLM_FOURARGS
 #undef EXPORT_WRAPPER_LLM_NOARGS
 #undef EXPORT_WRAPPER_LLM_ONEARG
 #undef EXPORT_WRAPPER_LLM_TWOARGS

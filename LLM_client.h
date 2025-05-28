@@ -1,6 +1,5 @@
 #pragma once
 
-#include "stringwrapper.h"
 #include "LLM.h"
 #include "LLM_lib.h"
 
@@ -14,7 +13,7 @@
 
 struct StreamingContext {
     std::string buffer;
-    StringWrapper* stringWrapper = nullptr;
+    CharArrayFn callback = nullptr;
 };
 
 class UNDREAMAI_API LLMClient : public LLMWithSlot {
@@ -29,7 +28,7 @@ public:
     std::string handle_tokenize_impl(const json& data) override;
     std::string handle_detokenize_impl(const json& data) override;
     std::string handle_embeddings_impl(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false) override;
-    std::string handle_completions_impl(const json& data, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0) override;
+    std::string handle_completions_impl(const json& data, CharArrayFn callback = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0) override;
     std::string handle_slots_action_impl(const json& data, httplib::Response* res = nullptr) override;
     void handle_cancel_action_impl(int id_slot) override;
     //================ LLM ================//
@@ -41,7 +40,7 @@ private:
     const std::string url;
     const int port;
 
-    std::string post_request(const std::string& url, int port, const std::string& path, const json& payload, StringWrapper* stringWrapper = nullptr);
+    std::string post_request(const std::string& url, int port, const std::string& path, const json& payload, CharArrayFn callback = nullptr);
 
 public:
     RemoteLLMClient(const std::string& url, const int port);
@@ -50,6 +49,6 @@ public:
     std::string handle_tokenize_impl(const json& data) override;
     std::string handle_detokenize_impl(const json& data) override;
     std::string handle_embeddings_impl(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false) override;
-    std::string handle_completions_impl(const json& data, StringWrapper* stringWrapper = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0) override;
+    std::string handle_completions_impl(const json& data, CharArrayFn callback = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0) override;
     //================ LLM ================//
 };

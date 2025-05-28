@@ -1,10 +1,10 @@
 #pragma once
 
 #include "json.hpp"
-#include "stringwrapper.h"
+#include "defs.h"
 
 using json = nlohmann::ordered_json;
-static StringWrapper* logStringWrapper;
+static CharArrayFn logCallback = nullptr;
 
 enum DEBUG_LEVEL {
     DEBUG = 0,
@@ -14,6 +14,13 @@ enum DEBUG_LEVEL {
 };
 
 static DEBUG_LEVEL DEBUG_LEVEL_SET = INFO;
+
+static inline const char* stringToCharArray(const std::string& input)
+{
+    char* content = new char[input.length() + 1];
+    strcpy(content, input.c_str());
+    return content;
+}
 
 void server_log_callback(const DEBUG_LEVEL level, const char* function, int line, const char* message, const json& extra);
 
@@ -66,6 +73,7 @@ void server_log_callback(const DEBUG_LEVEL level, const char* function, int line
 
 extern "C" {
     UNDREAMAI_API void SetDebugLevel(DEBUG_LEVEL level);
-    UNDREAMAI_API void Logging(StringWrapper* wrapper);
+    UNDREAMAI_API void Logging(CharArrayFn callback);
     UNDREAMAI_API void StopLogging();
+    UNDREAMAI_API void CharArray_Delete(char* object);
 }

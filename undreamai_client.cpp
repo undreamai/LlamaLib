@@ -12,7 +12,6 @@ int main(int argc, char** argv) {
 
 
 	LLMService* llm;
-	StringWrapper* stringWrapper = StringWrapper_Construct();
 	std::string prompt = "you are an artificial intelligence assistant\n\n### user: Hello, how are you?\n### assistant";
 	std::string command = "";
 	for (int i = 1; i < argc; ++i) {
