@@ -4,7 +4,6 @@
 
 #include "stringwrapper.h"
 #include "logging.h"
-//#include "server.cpp"
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
     #include <openssl/err.h>
     #include <openssl/ssl.h>
@@ -67,12 +66,39 @@ class UNDREAMAI_API LLMService : public LLMProvider {
             std::function<bool()> is_connection_closed = always_true
         );
         bool middleware_validate_api_key(const httplib::Request & req, httplib::Response & res);
-        void register_signal_handling();
-        void unregister_signal_handling();
 };
 
-static std::vector<LLMService*> llm_instances;
-static std::mutex llm_mutex;
+class LLMServiceRegistry {
+public:
+    static LLMServiceRegistry& instance() {
+        static LLMServiceRegistry registry;
+        return registry;
+    }
+
+    void register_instance(LLMService* service) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        instances_.push_back(service);
+    }
+
+    void unregister_instance(LLMService* service) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        instances_.erase(std::remove(instances_.begin(), instances_.end(), service), instances_.end());
+    }
+
+    std::vector<LLMService*> get_instances() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return instances_;
+    }
+
+private:
+    std::mutex mutex_;
+    std::vector<LLMService*> instances_;
+
+    LLMServiceRegistry() = default;
+    ~LLMServiceRegistry() = default;
+    LLMServiceRegistry(const LLMServiceRegistry&) = delete;
+    LLMServiceRegistry& operator=(const LLMServiceRegistry&) = delete;
+};
 
 extern "C" {
     UNDREAMAI_API LLMService* LLM_Construct(const char* params_string);
