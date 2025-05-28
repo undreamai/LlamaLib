@@ -75,7 +75,7 @@ public:
 class UNDREAMAI_API LLMWithSlot : public LLM {
 public:
     virtual std::string handle_slots_action_impl(const json& data, httplib::Response* res = nullptr) = 0;
-    virtual void handle_cancel_action(int id_slot) = 0;
+    virtual void handle_cancel_action_impl(int id_slot) = 0;
 
     virtual std::string handle_slots_action_json(const json& data, httplib::Response* res = nullptr);
     virtual json build_slots_action_json(int id_slot, std::string action, std::string filepath);
