@@ -77,13 +77,13 @@ static std::mutex llm_mutex;
 
 extern "C" {
     UNDREAMAI_API LLMService* LLM_Construct(const char* params_string);
-    UNDREAMAI_API const void LLM_Delete(LLMService* llm);
-    UNDREAMAI_API const void LLM_Start(LLMService* llm);
+    UNDREAMAI_API void LLM_Delete(LLMService* llm);
+    UNDREAMAI_API void LLM_Start(LLMService* llm);
     UNDREAMAI_API const bool LLM_Started(LLMService* llm);
-    UNDREAMAI_API const void LLM_Stop(LLMService* llm);
-    UNDREAMAI_API const void LLM_StartServer(LLMService* llm);
-    UNDREAMAI_API const void LLM_StopServer(LLMService* llm);
-    UNDREAMAI_API const void LLM_SetSSL(LLMService* llm, const char* SSL_cert, const char* SSL_key);
+    UNDREAMAI_API void LLM_Stop(LLMService* llm);
+    UNDREAMAI_API void LLM_StartServer(LLMService* llm);
+    UNDREAMAI_API void LLM_StopServer(LLMService* llm);
+    UNDREAMAI_API void LLM_SetSSL(LLMService* llm, const char* SSL_cert, const char* SSL_key);
     UNDREAMAI_API const int LLM_Status(LLMService* llm, StringWrapper* wrapper);
     UNDREAMAI_API const int LLM_Embedding_Size(LLMService* llm);
 	

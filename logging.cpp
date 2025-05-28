@@ -28,17 +28,17 @@ void server_log_callback(const DEBUG_LEVEL level, const char* function, int line
 
 //=========================== API ===========================//
 
-const void SetDebugLevel(DEBUG_LEVEL level)
+void SetDebugLevel(DEBUG_LEVEL level)
 {
     DEBUG_LEVEL_SET = level;
 }
 
-const void Logging(StringWrapper* wrapper)
+void Logging(StringWrapper* wrapper)
 {
     logStringWrapper = wrapper;
 }
 
-const void StopLogging()
+void StopLogging()
 {
     logStringWrapper = nullptr;
 }
