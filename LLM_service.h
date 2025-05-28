@@ -112,7 +112,8 @@ extern "C" {
     UNDREAMAI_API void LLM_StartServer(LLMService* llm);
     UNDREAMAI_API void LLM_StopServer(LLMService* llm);
     UNDREAMAI_API void LLM_SetSSL(LLMService* llm, const char* SSL_cert, const char* SSL_key);
-    UNDREAMAI_API const int LLM_Status(LLMService* llm, StringWrapper* wrapper);
+    UNDREAMAI_API const int LLM_Status_Code(LLMService* llm);
+    UNDREAMAI_API const char* LLM_Status_Message(LLMService* llm);
     UNDREAMAI_API const int LLM_Embedding_Size(LLMService* llm);
 	
 #ifdef _DEBUG
