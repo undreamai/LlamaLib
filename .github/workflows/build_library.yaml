@@ -946,15 +946,30 @@ jobs:
           run: |
             export LD_LIBRARY_PATH=""
             cd build
-            cmake .. -DLIBRARY_SUFFIX="${{ env.PLATFORM }}" -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-23 -DCMAKE_C_FLAGS=-march=armv8-a ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
-            cmake --build . --config Release -j $(nproc)
+            for arch in "arm64-v8a,armv8-a" "x86_64,x86-64";do
+              ABI=`echo $arch | cut -d',' -f1`
+              MARCH=`echo $arch | cut -d',' -f2`
+        
+              mkdir $ABI libs/$ABI
+              cd $ABI
+              cmake ../.. -DLIBRARY_SUFFIX="${{ env.PLATFORM }}" -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=$ABI -DANDROID_PLATFORM=android-23 -DCMAKE_C_FLAGS=-march=$MARCH ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+              cmake --build . --config Release -j $(nproc)
+              cd ..
+        
+              mv libs/libundreamai_${{ env.PLATFORM }}.so libs/$ABI
+            done
 
 
-        - id: pack_artifacts_unix
+        - id: pack_artifacts_android
           name: Pack artifacts
           run: |
             rm -f build/libs/undreamai_test
-            zip -j ${{ env.UPLOAD_NAME }} build/licenses/* build/libs/*
+            cd build
+            for d in libs licenses;do
+              cd $d
+              zip -r ../../${{ env.UPLOAD_NAME }} *
+              cd ..
+            done
 
         - id: upload
           name: Upload Artifacts

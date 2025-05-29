@@ -277,7 +277,7 @@ jobs:
         @@set_ndk_var_linux@@
         @@cmake_build_android@@
 
-        @@pack_artifacts_unix@@
+        @@pack_artifacts_android@@
         @@upload@@
 
 ################################ iOS ################################
