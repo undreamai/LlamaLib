@@ -385,10 +385,13 @@ void LLMService::stop_server(){
     LOG_INFO("stopping server", {});
     if (svr.get() != nullptr) {
         svr->stop();
-        server_thread.join();
+        join_server();
     }
 }
 
+void LLMService::join_server(){
+    server_thread.join();
+}
 int LLMService::get_status(){
     return status;
 }
@@ -429,12 +432,16 @@ void LLMService::stop_service(){
         if(llama_backend_has_init) llama_backend_free();
         LOG_INFO("service stopped", {});
 
-        service_thread.join();
+        join_service();
 
         LLMServiceRegistry::instance().unregister_instance(this);
     } catch(...) {
         handle_exception();
     }
+}
+
+void LLMService::join_service() {
+    service_thread.join();
 }
 
 bool LLMService::is_running(){
@@ -957,6 +964,16 @@ void LLM_StartServer(LLMService* llm) {
 
 void LLM_StopServer(LLMService* llm) {
     llm->stop_server();
+}
+
+void LLM_Join_Service(LLMService* llm)
+{
+    llm->join_service();
+}
+
+void LLM_Join_Server(LLMService* llm)
+{
+    llm->join_server();
 }
 
 void LLM_Start(LLMService* llm) {
