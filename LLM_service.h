@@ -116,8 +116,4 @@ extern "C" {
     UNDREAMAI_API const int LLM_Status_Code(LLMService* llm);
     UNDREAMAI_API const char* LLM_Status_Message(LLMService* llm);
     UNDREAMAI_API const int LLM_Embedding_Size(LLMService* llm);
-	
-#ifdef _DEBUG
-    UNDREAMAI_API const bool LLM_IsDebuggerAttached(void);
-#endif
 };

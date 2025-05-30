@@ -76,4 +76,7 @@ extern "C" {
     UNDREAMAI_API void Logging(CharArrayFn callback);
     UNDREAMAI_API void StopLogging();
     UNDREAMAI_API void CharArray_Delete(char* object);
+#ifdef _DEBUG
+    UNDREAMAI_API const bool IsDebuggerAttached(void);
+#endif
 }
