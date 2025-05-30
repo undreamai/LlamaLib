@@ -1,4 +1,4 @@
-#include "LLM_service.h"
+#include "LLM_lib.h"
 
 int main(int argc, char ** argv) {
     std::string command = "";
@@ -6,10 +6,14 @@ int main(int argc, char ** argv) {
         command += argv[i];
         if (i < argc - 1) command += " ";
     }
+    LLMLib* llmlib = Load_LLM_Library(command);
+    if (!llmlib) {
+        std::cout << "Failed to load any backend." << std::endl;
+        return 1;
+    }
 
-    LLMService* llm = LLM_Construct(command.c_str());
-    LLM_StartServer(llm);
-    LLM_Start(llm);
-    llm->join_server();
+    llmlib->LLM_StartServer();
+    llmlib->LLM_Start();
+    llmlib->LLM_Join_Server();
     return 0;
 }
