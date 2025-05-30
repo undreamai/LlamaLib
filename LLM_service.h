@@ -39,8 +39,10 @@ class UNDREAMAI_API LLMService : public LLMProvider {
 
         void start_server();
         void stop_server();
+        void join_server();
         void start_service();
         void stop_service();
+        void join_service();
         void set_SSL(const char* SSL_cert, const char* SSL_key);
         bool is_running();
 
@@ -109,6 +111,8 @@ extern "C" {
     UNDREAMAI_API void LLM_Stop(LLMService* llm);
     UNDREAMAI_API void LLM_StartServer(LLMService* llm);
     UNDREAMAI_API void LLM_StopServer(LLMService* llm);
+    UNDREAMAI_API void LLM_Join_Service(LLMService* llm);
+    UNDREAMAI_API void LLM_Join_Server(LLMService* llm);
     UNDREAMAI_API void LLM_SetSSL(LLMService* llm, const char* SSL_cert, const char* SSL_key);
     UNDREAMAI_API const int LLM_Status_Code(LLMService* llm);
     UNDREAMAI_API const char* LLM_Status_Message(LLMService* llm);
