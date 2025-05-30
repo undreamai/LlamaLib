@@ -79,7 +79,73 @@ X509* LLMService::load_cert(const std::string& cert_str) {
 }
 #endif
 
-LLMService::LLMService(std::string params_string){
+LLMService::LLMService(const json& params) {
+    common_params default_params;
+    common_params_context ctx = common_params_parser_init(default_params, LLAMA_EXAMPLE_SERVER);
+
+    std::vector<std::string> args_str = { "llm" };
+    std::set<std::string> used_keys;
+
+    for (const auto& opt : ctx.options) {
+        for (const auto& name : opt.args) {
+            std::string key = name;
+            if (key.rfind("--", 0) == 0) key = key.substr(2);  // strip leading "--"
+            else if (key.rfind("-", 0) == 0) continue;          // skip short options
+
+            std::string json_key = key;
+            std::replace(json_key.begin(), json_key.end(), '-', '_');
+
+            if (!params.contains(json_key))
+                continue;
+
+            used_keys.insert(json_key);
+            const auto& value = params[json_key];
+            args_str.push_back(name);
+
+            if (opt.handler_void != nullptr) {
+                break;
+            }
+            else if (opt.handler_string != nullptr || opt.handler_int != nullptr) {
+                args_str.push_back(value.is_string() ? value.get<std::string>() : value.dump());
+                break;
+            }
+            else if (opt.handler_str_str != nullptr) {
+                if (!value.is_array() || value.size() != 2) {
+                    std::string err = "Expected array of 2 values for: " + json_key;
+                    LOG_WARNING(err.c_str(), {});
+                    continue;
+                }
+                args_str.push_back(value[0].is_string() ? value[0].get<std::string>() : value[0].dump());
+                args_str.push_back(value[1].is_string() ? value[1].get<std::string>() : value[1].dump());
+                break;
+            }
+        }
+    }
+
+    // Report unused keys
+    for (const auto& [key, _] : params.items()) {
+        if (used_keys.find(key) == used_keys.end())
+        {
+            std::string err = "Unused parameter in JSON: " + key;
+            LOG_WARNING(err.c_str(), {});
+
+        }
+    }
+
+    // Convert to argv
+    std::vector<std::unique_ptr<char[]>> argv_storage;
+    std::vector<char*> argv;
+    for (const auto& arg : args_str) {
+        auto buf = std::make_unique<char[]>(arg.size() + 1);
+        std::memcpy(buf.get(), arg.c_str(), arg.size() + 1);
+        argv.push_back(buf.get());
+        argv_storage.push_back(std::move(buf));
+    }
+
+    init(static_cast<int>(argv.size()), argv.data());
+}
+
+LLMService::LLMService(const std::string& params_string){
     std::vector<std::string> arguments = splitArguments("llm " + params_string);
 
     // Convert vector of strings to argc and argv
@@ -91,6 +157,8 @@ LLMService::LLMService(std::string params_string){
     }
     init(argc, argv);
 }
+
+LLMService::LLMService(const char* params) : LLMService(std::string(params)) {}
 
 LLMService::LLMService(int argc, char ** argv){
     init(argc, argv);
@@ -946,8 +1014,15 @@ int LLMService::embedding_size()
 
 //============================= API =============================//
 
-LLMService* LLM_Construct(const char* params_string) {
-    return new LLMService(std::string(params_string));
+LLMService* LLM_Construct(const char* params) {
+    std::string params_string(params);
+    try {
+        json j = nlohmann::json::parse(params_string);
+        return new LLMService(j);
+    }
+    catch (const nlohmann::json::parse_error&) {
+        return new LLMService(params_string);
+    }
 }
 
 void LLM_Delete(LLMService* llm) {
