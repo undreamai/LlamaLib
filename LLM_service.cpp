@@ -169,7 +169,7 @@ void res_ok(httplib::Response & res, std::string data){
 
 void handle_error(httplib::Response & res, const json error_data){
     json final_response {{"error", error_data}};
-    res.set_content(final_response, MIMETYPE_JSON);
+    res.set_content(final_response.dump(), MIMETYPE_JSON);
     res.status = 500;
 }
 
@@ -392,6 +392,7 @@ void LLMService::stop_server(){
 void LLMService::join_server(){
     server_thread.join();
 }
+
 int LLMService::get_status(){
     return status;
 }
