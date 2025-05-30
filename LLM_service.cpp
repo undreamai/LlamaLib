@@ -241,7 +241,7 @@ void handle_error(httplib::Response & res, const json error_data){
     res.status = 500;
 }
 
-void LLMService::release_slot(server_slot& slot)
+void release_slot(server_slot& slot)
 {
     if (slot.task_type == SERVER_TASK_TYPE_COMPLETION)
     {
@@ -668,7 +668,6 @@ std::string LLMService::handle_embeddings_impl(
     // create and queue the task
     json responses = json::array();
     bool error = false;
-    std::unordered_set<int> task_ids;
     {
         std::vector<server_task> tasks;
         for (size_t i = 0; i < tokenized_prompts.size(); i++) {
@@ -848,6 +847,7 @@ std::string LLMService::handle_completions_impl(
         auto completion_id = gen_chatcmplid();
         std::unordered_set<int> task_ids;
 
+        std::vector<server_task> tasks;
         try {
             std::vector<llama_tokens> tokenized_prompts = tokenize_input_prompts(ctx_server->vocab, data.at("prompt"), true, true);
             tasks.reserve(tokenized_prompts.size());
@@ -873,15 +873,12 @@ std::string LLMService::handle_completions_impl(
             }
 
             task_ids = server_task::get_list_id(tasks);
-            ctx_server.queue_results.add_waiting_tasks(tasks);
-            ctx_server.queue_tasks.post(tasks);
+            ctx_server->queue_results.add_waiting_tasks(tasks);
+            ctx_server->queue_tasks.post(tasks);
         } catch (const std::exception & e) {
             if(res != nullptr) handle_error(*res, format_error_response(e.what(), ERROR_TYPE_INVALID_REQUEST));
             return "";
         }
-
-        ctx_server->queue_results.add_waiting_tasks(tasks);
-        ctx_server->queue_tasks.post(tasks);
 
         bool stream = json_value(data, "stream", false);
 

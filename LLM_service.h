@@ -68,9 +68,6 @@ class UNDREAMAI_API LLMService : public LLMProvider {
             std::function<bool()> is_connection_closed = always_false
         );
         bool middleware_validate_api_key(const httplib::Request & req, httplib::Response & res);
-        void register_signal_handling();
-        void unregister_signal_handling();
-        void release_slot(server_slot& slot);
 };
 
 class LLMServiceRegistry {
