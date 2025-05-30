@@ -880,6 +880,9 @@ std::string LLMService::handle_completions_impl(
             return "";
         }
 
+        ctx_server->queue_results.add_waiting_tasks(tasks);
+        ctx_server->queue_tasks.post(tasks);
+
         bool stream = json_value(data, "stream", false);
 
         if (!stream) {
