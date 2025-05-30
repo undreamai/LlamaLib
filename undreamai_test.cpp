@@ -286,15 +286,15 @@ LLMLib* start_llm_lib(std::string command)
         std::cerr << "Failed to load any backend." << std::endl;
         return nullptr;
     }
-    llmlib->LLM_StartServer();
+    llmlib->LLM_Start_Server();
     llmlib->LLM_Start();
     return llmlib;
 }
 
 void stop_llm_service(LLMHandle handle)
 {
-    std::cout << "LLM_StopServer" << std::endl;
-    CALL_LLM_PROVIDER_FUNCTION_NO_RET(LLM_StopServer, handle);
+    std::cout << "LLM_Stop_Server" << std::endl;
+    CALL_LLM_PROVIDER_FUNCTION_NO_RET(LLM_Stop_Server, handle);
     std::cout << "LLM_Stop" << std::endl;
     CALL_LLM_PROVIDER_FUNCTION_NO_RET(LLM_Stop, handle);
     std::cout << "LLM_Delete" << std::endl;
@@ -517,7 +517,7 @@ int main(int argc, char** argv) {
     run_tests(LLMHandle::from_LLMWithSlot(&llm_client));
 
     std::cout << "-------- LLM remote client --------" << std::endl;
-    LLM_StartServer(llm_service);
+    LLM_Start_Server(llm_service);
     RemoteLLMClient llm_remote_client("localhost", 8080);
     run_tests(LLMHandle::from_LLM(&llm_remote_client));
 

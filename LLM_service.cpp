@@ -1034,11 +1034,11 @@ void LLM_Delete(LLMService* llm) {
     }
 }
 
-void LLM_StartServer(LLMService* llm) {
+void LLM_Start_Server(LLMService* llm) {
     llm->start_server();
 }
 
-void LLM_StopServer(LLMService* llm) {
+void LLM_Stop_Server(LLMService* llm) {
     llm->stop_server();
 }
 

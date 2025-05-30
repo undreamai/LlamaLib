@@ -111,8 +111,8 @@ extern "C" {
     UNDREAMAI_API void LLM_Start(LLMService* llm);
     UNDREAMAI_API const bool LLM_Started(LLMService* llm);
     UNDREAMAI_API void LLM_Stop(LLMService* llm);
-    UNDREAMAI_API void LLM_StartServer(LLMService* llm);
-    UNDREAMAI_API void LLM_StopServer(LLMService* llm);
+    UNDREAMAI_API void LLM_Start_Server(LLMService* llm);
+    UNDREAMAI_API void LLM_Stop_Server(LLMService* llm);
     UNDREAMAI_API void LLM_Join_Service(LLMService* llm);
     UNDREAMAI_API void LLM_Join_Server(LLMService* llm);
     UNDREAMAI_API void LLM_SetSSL(LLMService* llm, const char* SSL_cert, const char* SSL_key);
