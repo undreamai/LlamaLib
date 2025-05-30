@@ -10,5 +10,6 @@ int main(int argc, char ** argv) {
     LLMService* llm = LLM_Construct(command.c_str());
     LLM_StartServer(llm);
     LLM_Start(llm);
+    llm->join_server();
     return 0;
 }
