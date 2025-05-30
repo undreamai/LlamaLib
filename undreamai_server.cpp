@@ -12,7 +12,7 @@ int main(int argc, char ** argv) {
         return 1;
     }
 
-    llmlib->LLM_StartServer();
+    llmlib->LLM_Start_Server();
     llmlib->LLM_Start();
     llmlib->LLM_Join_Server();
     return 0;

@@ -47,8 +47,8 @@ struct LLMLib;
     X(LLM_Start, void, LLMService*) \
     X(LLM_Started, bool, LLMService*) \
     X(LLM_Stop, void, LLMService*) \
-    X(LLM_StartServer, void, LLMService*) \
-    X(LLM_StopServer, void, LLMService*) \
+    X(LLM_Start_Server, void, LLMService*) \
+    X(LLM_Stop_Server, void, LLMService*) \
     X(LLM_Join_Server, void, LLMService*) \
     X(LLM_Join_Service, void, LLMService*) \
     X(LLM_Embedding_Size, int, LLMService*) \
