@@ -274,7 +274,6 @@ jobs:
       - windows-hip
       - android-build
       - ios-build
-      - visionos-build
     steps:
         @@checkout@@
         @@set_release_prefix@@
