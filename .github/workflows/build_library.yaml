@@ -21,7 +21,7 @@ jobs:
         UPLOAD_PATH: archchecker/build/libarchchecker.so
 
     steps:
-        - id: checkout_recursive
+        - id: checkout
           name: Clone
           uses: actions/checkout@v4
           with:
@@ -52,7 +52,7 @@ jobs:
         UPLOAD_PATH: archchecker/build/Release/archchecker.dll
 
     steps:
-        - id: checkout_recursive
+        - id: checkout
           name: Clone
           uses: actions/checkout@v4
           with:
@@ -96,12 +96,14 @@ jobs:
           name: Dependencies
           run: |
             sudo apt-get update
-            sudo apt-get install -y build-essential cmake zip libssl-dev git
+            sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
 
 
         - id: checkout
           name: Clone
           uses: actions/checkout@v4
+          with:
+            submodules: recursive
 
         - id: setup_llama_cpp
           name: Setup llama.cpp
@@ -225,12 +227,14 @@ jobs:
           name: Dependencies
           run: |
             sudo apt-get update
-            sudo apt-get install -y build-essential cmake zip libssl-dev git
+            sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
 
 
         - id: checkout
           name: Clone
           uses: actions/checkout@v4
+          with:
+            submodules: recursive
 
         - id: setup_llama_cpp
           name: Setup llama.cpp
@@ -335,6 +339,8 @@ jobs:
         - id: checkout
           name: Clone
           uses: actions/checkout@v4
+          with:
+            submodules: recursive
 
         - id: setup_llama_cpp
           name: Setup llama.cpp
@@ -430,6 +436,8 @@ jobs:
         - id: checkout
           name: Clone
           uses: actions/checkout@v4
+          with:
+            submodules: recursive
 
         - id: setup_llama_cpp
           name: Setup llama.cpp
@@ -537,6 +545,8 @@ jobs:
         - id: checkout
           name: Clone
           uses: actions/checkout@v4
+          with:
+            submodules: recursive
 
         - id: setup_llama_cpp
           name: Setup llama.cpp
@@ -675,6 +685,8 @@ jobs:
         - id: checkout
           name: Clone
           uses: actions/checkout@v4
+          with:
+            submodules: recursive
 
         - id: setup_llama_cpp
           name: Setup llama.cpp
@@ -791,12 +803,14 @@ jobs:
           name: Dependencies
           run: |
             sudo apt-get update
-            sudo apt-get install -y build-essential cmake zip libssl-dev git
+            sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
 
 
         - id: checkout
           name: Clone
           uses: actions/checkout@v4
+          with:
+            submodules: recursive
 
         - id: setup_llama_cpp
           name: Setup llama.cpp
@@ -913,6 +927,8 @@ jobs:
         - id: checkout
           name: Clone
           uses: actions/checkout@v4
+          with:
+            submodules: recursive
 
         - id: setup_llama_cpp
           name: Setup llama.cpp
@@ -1012,6 +1028,8 @@ jobs:
         - id: checkout
           name: Clone
           uses: actions/checkout@v4
+          with:
+            submodules: recursive
 
         - id: set_release_prefix
           name: Set prefix

@@ -13,10 +13,6 @@ jobs:
       - name: Clone
         id: checkout
         uses: actions/checkout@v4
-
-      - name: Clone
-        id: checkout_recursive
-        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -107,7 +103,7 @@ jobs:
         id: setup_libs_linux
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake zip libssl-dev git
+          sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
 
       - name: Dependencies
         id: setup_hip_linux

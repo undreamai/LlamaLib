@@ -21,7 +21,7 @@ jobs:
         UPLOAD_PATH: archchecker/build/libarchchecker.so
 
     steps:
-        @@checkout_recursive@@
+        @@checkout@@
         @@build_archchecker@@
         @@upload_with_path@@
 
@@ -34,7 +34,7 @@ jobs:
         UPLOAD_PATH: archchecker/build/Release/archchecker.dll
 
     steps:
-        @@checkout_recursive@@
+        @@checkout@@
         @@build_archchecker@@
         @@upload_with_path@@
 
