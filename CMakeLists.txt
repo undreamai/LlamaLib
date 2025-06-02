@@ -1,33 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 project("undreamai" C CXX)
 
-################################################ SETUP ################################################
-
-# Set CUDA architectures
-set(CMAKE_CUDA_ARCHITECTURES "52;61;70;75;86;89")
-
-# Add subdirectories
-add_subdirectory("llama.cpp")
-add_subdirectory("archchecker")
-
-# Setup CURL
-if (WIN32)
-    set(CURL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/curl/include")
-    set(CURL_LIBRARY "${CMAKE_SOURCE_DIR}/curl/lib/libcurl_a.lib")
-    set(ZLIB_LIBRARY "${CMAKE_SOURCE_DIR}/curl/lib/zlibstatic.lib")
-    add_compile_definitions(CURL_STATICLIB)
-endif()
-
-find_package(CURL REQUIRED)
-
-set(CURL_LIBRARIES ${CURL_LIBRARIES} ${ZLIB_LIBRARY})
-if (WIN32)
-    set(CURL_LIBRARIES ${CURL_LIBRARIES} ws2_32 Wldap32 crypt32 Normaliz)
-endif()
-
-# Output override
-set_property(DIRECTORY llama.cpp PROPERTY CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-
 
 ################################################ CMAKE VARIABLES ################################################
 
@@ -118,6 +91,34 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "visionOS")
     SET(CMAKE_OSX_DEPLOYMENT_TARGET 1.0)
     SET(CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM UndreamAI)
 endif()
+
+################################################ SETUP ################################################
+
+# Set CUDA architectures
+set(CMAKE_CUDA_ARCHITECTURES "52;61;70;75;86;89")
+
+# Add subdirectories
+add_subdirectory("llama.cpp")
+add_subdirectory("archchecker")
+
+# Setup CURL
+if (WIN32)
+    set(CURL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/curl/include")
+    set(CURL_LIBRARY "${CMAKE_SOURCE_DIR}/curl/lib/libcurl_a.lib")
+    set(ZLIB_LIBRARY "${CMAKE_SOURCE_DIR}/curl/lib/zlibstatic.lib")
+    add_compile_definitions(CURL_STATICLIB)
+endif()
+
+find_package(CURL REQUIRED)
+
+set(CURL_LIBRARIES ${CURL_LIBRARIES} ${ZLIB_LIBRARY})
+if (WIN32)
+    set(CURL_LIBRARIES ${CURL_LIBRARIES} ws2_32 Wldap32 crypt32 Normaliz)
+endif()
+
+# Output override
+set_property(DIRECTORY llama.cpp PROPERTY CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+
 
 ################################################ llama.cpp COMPILATION ################################################
 
