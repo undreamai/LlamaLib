@@ -1008,7 +1008,6 @@ jobs:
       - windows-hip
       - android-build
       - ios-build
-      - visionos-build
     steps:
         - id: checkout
           name: Clone
