@@ -50,6 +50,14 @@ jobs:
 
 ################################ Cross-platform ################################
 
+      - name: Setup dirs
+        id: setup_dirs
+        shell: bash
+        run: |
+          mkdir -p build/licenses build/libs
+          echo "CMAKE_RUNTIME_OUTPUT_DIRECTORY=`pwd`/build/libs" >> $GITHUB_ENV
+          echo "DCMAKE_LIBRARY_OUTPUT_DIRECTORY=`pwd`/build/libs" >> $GITHUB_ENV
+
       - name: Setup llama.cpp
         id: setup_llama_cpp
         shell: bash
@@ -73,14 +81,10 @@ jobs:
               cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
           done
 
-          echo "CMAKE_RUNTIME_OUTPUT_DIRECTORY=`pwd`/libs" >> $GITHUB_ENV
-          echo "DCMAKE_LIBRARY_OUTPUT_DIRECTORY=`pwd`/libs" >> $GITHUB_ENV
-
       - name: Add licenses
         id: add_licenses
         shell: bash
         run: |
-          mkdir -p build/licenses build/libs
           cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
           if [[ "${{ matrix.architecture }}" == "tinyblas" ]]; then
             curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE

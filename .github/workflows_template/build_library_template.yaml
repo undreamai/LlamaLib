@@ -21,6 +21,7 @@ jobs:
     steps:
         @@setup_libs_linux@@
 
+        @@setup_dirs@@
         @@checkout@@
         @@setup_llama_cpp@@
         @@add_licenses@@

@@ -5,7 +5,7 @@ project("undreamai" C CXX)
 ################################################ CMAKE VARIABLES ################################################
 
 OPTION(LLAMALIB_BUILD_RUNTIME_LIB OFF)
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR OS STREQUAL "Linux" OR OS STREQUAL "Darwin")
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     OPTION(LLAMALIB_BUILD_SERVER ON)
     OPTION(LLAMALIB_BUILD_TESTS ON)
 else()

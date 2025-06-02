@@ -26,6 +26,14 @@ jobs:
             sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
 
 
+        - id: setup_dirs
+          name: Setup dirs
+          run: |
+            mkdir -p build/licenses build/libs
+            echo "CMAKE_RUNTIME_OUTPUT_DIRECTORY=`pwd`/build/libs" >> $GITHUB_ENV
+            echo "DCMAKE_LIBRARY_OUTPUT_DIRECTORY=`pwd`/build/libs" >> $GITHUB_ENV
+          shell: bash
+
         - id: checkout
           name: Clone
           uses: actions/checkout@v4
@@ -53,15 +61,11 @@ jobs:
             for f in examples/server/public/*;do
                 cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
             done
-        
-            echo "CMAKE_RUNTIME_OUTPUT_DIRECTORY=`pwd`/libs" >> $GITHUB_ENV
-            echo "DCMAKE_LIBRARY_OUTPUT_DIRECTORY=`pwd`/libs" >> $GITHUB_ENV
           shell: bash
 
         - id: add_licenses
           name: Add licenses
           run: |
-            mkdir -p build/licenses build/libs
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
             if [[ "${{ matrix.architecture }}" == "tinyblas" ]]; then
               curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
@@ -111,7 +115,6 @@ jobs:
           if: matrix.architecture != 'avx512' && !contains(matrix.architecture, 'blas')
           name: Test
           run: |
-            ls -R build
             cd build/libs
             curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
             ./llamalib_test -m model.gguf -np 1 --log-disable
