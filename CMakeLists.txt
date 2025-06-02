@@ -87,7 +87,7 @@ elseif(ARCHITECTURE STREQUAL "" AND (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR OS 
     message(FATAL_ERROR "Need to define architecture (ARCHITECTURE)")
 else()
     message(FATAL_ERROR "Unknown architecture: ${ARCHITECTURE}")
-
+endif()
 
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
     SET(GGML_NATIVE ON)
