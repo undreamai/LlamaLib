@@ -512,14 +512,6 @@ jobs:
             name: ${{ env.UPLOAD_NAME }}
             path: ${{ env.UPLOAD_NAME }}
 
-        - id: upload_cmakecache
-          name: Upload CMakeCache
-          uses: actions/upload-artifact@v4
-          with:
-            name: ${{ env.UPLOAD_NAME }}.CMakeCache
-            path: build/CMakeCache.txt
-
-
 
 ################################ Windows ################################
 

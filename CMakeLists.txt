@@ -202,3 +202,9 @@ if (LLAMALIB_BUILD_TESTS)
         target_link_libraries(${NAME} PRIVATE ${RUNTIME_LIBRARY})
     endif()
 endif()
+
+# DEBUG VARIABLES
+get_cmake_property(_variableNames VARIABLES)
+foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
