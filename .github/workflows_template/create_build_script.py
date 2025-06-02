@@ -3,6 +3,8 @@ import yaml
 import re
 
 yaml.SafeDumper.org_represent_str = yaml.SafeDumper.represent_str
+yaml.width = 2 ** 32
+
 
 def repr_str(dumper, data):
     if '\n' in data:

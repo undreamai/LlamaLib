@@ -179,9 +179,7 @@ jobs:
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
         - id: test_build_unix
-          if: matrix.architecture == 'noavx' || matrix.architecture == 'avx' || matrix.architecture
-            == 'avx2' || matrix.architecture == 'arm64-acc' || matrix.architecture == 'arm64-no_acc'
-            || matrix.architecture == 'x64-acc' || matrix.architecture == 'x64-no_acc'
+          if: matrix.architecture != 'avx512' && !contains(matrix.architecture, 'blas')
           name: Test
           run: |
             cd build/libs
@@ -198,7 +196,12 @@ jobs:
             rm -f build/libs/llamalib_test
             zip -j $UPLOAD_NAME build/licenses/* build/libs/*
 
-        @@upload@@
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_NAME }}
 
         - id: upload_cmakecache
           name: Upload CMakeCache
@@ -293,7 +296,12 @@ jobs:
             rm -f build/libs/llamalib_test
             zip -j $UPLOAD_NAME build/licenses/* build/libs/*
 
-        @@upload@@
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_NAME }}
 
         - id: upload_cmakecache
           name: Upload CMakeCache
@@ -385,7 +393,12 @@ jobs:
             rm -f build/libs/llamalib_test
             zip -j $UPLOAD_NAME build/licenses/* build/libs/*
 
-        @@upload@@
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_NAME }}
 
         - id: upload_cmakecache
           name: Upload CMakeCache
@@ -467,9 +480,7 @@ jobs:
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
         - id: test_build_unix
-          if: matrix.architecture == 'noavx' || matrix.architecture == 'avx' || matrix.architecture
-            == 'avx2' || matrix.architecture == 'arm64-acc' || matrix.architecture == 'arm64-no_acc'
-            || matrix.architecture == 'x64-acc' || matrix.architecture == 'x64-no_acc'
+          if: matrix.architecture != 'avx512' && !contains(matrix.architecture, 'blas')
           name: Test
           run: |
             cd build/libs
@@ -486,7 +497,12 @@ jobs:
             rm -f build/libs/llamalib_test
             zip -j $UPLOAD_NAME build/licenses/* build/libs/*
 
-        @@upload@@
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_NAME }}
 
         - id: upload_cmakecache
           name: Upload CMakeCache
@@ -629,7 +645,12 @@ jobs:
             cd artifacts
             7z a ../${{ env.UPLOAD_NAME }} *
 
-        @@upload@@
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_NAME }}
 
         - id: upload_cmakecache
           name: Upload CMakeCache
@@ -745,7 +766,12 @@ jobs:
             cd artifacts
             7z a ../${{ env.UPLOAD_NAME }} *
 
-        @@upload@@
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_NAME }}
 
         - id: upload_cmakecache
           name: Upload CMakeCache
@@ -846,7 +872,12 @@ jobs:
               cd ..
             done
 
-        @@upload@@
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_NAME }}
 
         - id: upload_cmakecache
           name: Upload CMakeCache
@@ -946,7 +977,12 @@ jobs:
             echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
             zip -j $UPLOAD_NAME build/licenses/* build/libllamalib*.a
 
-        @@upload@@
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_NAME }}
 
         - id: upload_cmakecache
           name: Upload CMakeCache
