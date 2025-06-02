@@ -79,3 +79,11 @@ if (BUILD_UNDREAMAI_BINARIES)
         target_compile_definitions(${SERVER} PRIVATE CPPHTTPLIB_OPENSSL_SUPPORT)
     endif()
 endif()
+
+
+
+# DEBUG VARIABLES
+get_cmake_property(_variableNames VARIABLES)
+foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
