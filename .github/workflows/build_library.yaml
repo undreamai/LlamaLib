@@ -111,6 +111,7 @@ jobs:
           if: matrix.architecture != 'avx512' && !contains(matrix.architecture, 'blas')
           name: Test
           run: |
+            ls -R build
             cd build/libs
             curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
             ./llamalib_test -m model.gguf -np 1 --log-disable
