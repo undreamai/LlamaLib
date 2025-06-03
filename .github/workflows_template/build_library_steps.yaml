@@ -145,7 +145,7 @@ jobs:
         run: |
           cd build/libs
           curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
-          ./llamalib_test -m model.gguf -np 1 --log-disable
+          ./llamalib_testS -m model.gguf -np 1 --log-disable
           rm model.gguf
 
       - name: Pack artifacts
@@ -153,7 +153,7 @@ jobs:
         run: |
           UPLOAD_NAME=$RUNNER_OS-${{ matrix.architecture }}.zip
           echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
-          rm -f build/libs/llamalib_test
+          rm -f build/libs/llamalib_testS
           zip -j $UPLOAD_NAME build/licenses/* build/libs/*
 
 ################################ macOS ################################
@@ -218,7 +218,7 @@ jobs:
           move .\build\licenses\* .\artifacts\
           move .\build\Release\* .\artifacts\
           move .\build\libs\Release\*dll .\artifacts\
-          del artifacts/llamalib_test.*
+          del artifacts/llamalib_testS.*
           $serverPath = ".\build\libs\Release\llamalib_server.exe"
           if (Test-Path $serverPath) {
               move $serverPath -Destination ".\artifacts\"
@@ -275,7 +275,7 @@ jobs:
         run: |
           UPLOAD_NAME=android.zip
           echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
-          rm -f build/libs/llamalib_test
+          rm -f build/libs/llamalib_testS
           cd build
           for d in libs licenses;do
             cd $d
