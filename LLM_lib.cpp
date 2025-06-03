@@ -1,5 +1,34 @@
 #include "LLM_lib.h"
 
+LLMLib::LLMLib(const std::string& params, const std::string& baseDir)
+{
+    llm = Load_LLM_Library(command, baseDir);
+    llm->init(params);
+}
+
+LLMLib::LLMLib(const char* params, const std::string& baseDir)
+{
+    llm = Load_LLM_Library(command, baseDir);
+    llm->init(params);
+}
+
+LLMLib::LLMLib(int argc, char ** argv, const std::string& baseDir)
+{
+    llm = Load_LLM_Library(command, baseDir);
+    llm->init(argc, argv);
+}
+
+LLMLib::~LLMLib() {
+    if (llm) {
+        LLM_Delete();
+        llm = nullptr;
+    }
+    if (handle) {
+        unload_library(handle);
+        handle = nullptr;
+    }
+}
+
 //=================================== HELPERS ===================================//
 
 #ifdef _WIN32
@@ -15,7 +44,7 @@ std::string join_paths(const std::string& a, const std::string& b) {
     return a + SEP + b;
 }
 
-inline bool file_exists (const std::string& name) {
+inline bool file_exists(const std::string& name) {
     std::ifstream f(name.c_str());
     return f.good();
 }
@@ -103,19 +132,6 @@ LibHandle load_library_safe(const std::string& path) {
     return handle_out;
 }
 
-//=================================== LLMLib ===================================//
-
-LLMLib::~LLMLib() {
-    if (llm) {
-        LLM_Delete();
-        llm = nullptr;
-    }
-    if (handle) {
-        unload_library(handle);
-        handle = nullptr;
-    }
-}
-
 //============================= API =============================//
 
 const char* Available_Architectures(bool gpu)
@@ -132,7 +148,7 @@ const char* Available_Architectures(bool gpu)
     return result.c_str();
 }
 
-LLMLib* Load_LLM_Library_From_Path(std::string command, const std::string& path) {
+LLMLib* Load_LLM_Library_From_Path(const std::string& path) {
     LibHandle handle = load_library_safe(path);
     if (!handle) return nullptr;
 
@@ -149,12 +165,10 @@ LLMLib* Load_LLM_Library_From_Path(std::string command, const std::string& path)
 LLMLIB_FUNCTIONS_ALL(LOAD_SYMBOL)
 #undef LOAD_SYMBOL
 
-    llmlib->llm = llmlib->LLM_Construct(command.c_str());
-
     return llmlib;
 }
 
-LLMLib* Load_LLM_Library(std::string command, const std::string& baseDir) {
+LLMLib* LLMLib_Construct(const std::string& command, const std::string& baseDir) {
     bool gpu = false;
 
     std::istringstream iss(command);
@@ -167,7 +181,12 @@ LLMLib* Load_LLM_Library(std::string command, const std::string& baseDir) {
     }
 
     set_error_handlers(true, false);
-    const std::vector<std::string>& llmlibArchs = available_architectures(gpu);
+    std::vector<std::string> llmlibArchs;
+    if (file_exists(baseDir)) {
+        llmlibArchs.push_back(baseDir);
+    } else {
+        llmlibArchs = available_architectures(gpu);
+    }
 
     for (const auto& llmlibArch : llmlibArchs) {
         std::cout << "Trying " << llmlibArch << std::endl;
@@ -178,7 +197,8 @@ LLMLib* Load_LLM_Library(std::string command, const std::string& baseDir) {
             continue;
         }
 
-        LLMLib* llmlib = Load_LLM_Library_From_Path(command, llmlibPath);
+        LLMLib* llmlib = Load_LLM_Library_From_Path(llmlibPath);
+        llmlib->llm = llmlib->LLM_Construct(command.c_str());
         if (llmlib) {
             std::cout << "Successfully loaded llmlib: " << llmlibPath << std::endl;
             return llmlib;

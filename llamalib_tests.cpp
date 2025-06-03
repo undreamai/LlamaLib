@@ -316,7 +316,7 @@ void stop_llm_service(LLMHandle handle)
     CALL_LLM_PROVIDER_FUNCTION_NO_RET(LLM_Delete, handle);
 }
 
-class TestLLM : public LLMProvider {
+class TestLLM : public LLMFull {
 public:
     std::vector<int> TOKENS = std::vector<int>{1, 2, 3};
     std::string CONTENT = "my message";

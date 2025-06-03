@@ -1,5 +1,45 @@
 #include "LLM.h"
 
+std::vector<std::string> LLMProvider::splitArguments(const std::string& inputString) {
+    std::vector<std::string> arguments;
+
+    unsigned counter = 0;
+    std::string segment;
+    std::istringstream stream_input(inputString);
+    while(std::getline(stream_input, segment, '"'))
+    {
+        ++counter;
+        if (counter % 2 == 0)
+        {
+            if (!segment.empty()) arguments.push_back(segment);
+        }
+        else
+        {
+            std::istringstream stream_segment(segment);
+            while(std::getline(stream_segment, segment, ' '))
+                if (!segment.empty()) arguments.push_back(segment);
+        }
+    }
+    return arguments;
+}
+
+void LLMProvider::init(const std::string& params_string){
+    std::vector<std::string> arguments = splitArguments("llm " + params_string);
+
+    // Convert vector of strings to argc and argv
+    int argc = static_cast<int>(arguments.size());
+    char** argv = new char*[argc];
+    for (int i = 0; i < argc; ++i) {
+        argv[i] = new char[arguments[i].size() + 1];
+        std::strcpy(argv[i], arguments[i].c_str());
+    }
+    init(argc, argv);
+}
+
+void LLMProvider::init(const char* params) {
+    init(std::string(params));
+}
+
 //=========================== Tokenize ===========================//
 
 json LLM::build_tokenize_json(const std::string& query)
@@ -208,7 +248,7 @@ std::string LLMWithSlot::handle_slots_action(int id_slot, std::string action, st
 
 //=========================== Lora Adapters Apply ===========================//
 
-json LLMProvider::build_lora_adapters_apply_json(const std::vector<LoraIdScale>& loras)
+json LLMFull::build_lora_adapters_apply_json(const std::vector<LoraIdScale>& loras)
 {
     json j = json::array();
     for (const auto& lora : loras) {
@@ -220,7 +260,7 @@ json LLMProvider::build_lora_adapters_apply_json(const std::vector<LoraIdScale>&
     return j;
 }
 
-bool LLMProvider::parse_lora_adapters_apply_json(const json& result) {
+bool LLMFull::parse_lora_adapters_apply_json(const json& result) {
     try {
         return result["success"].get<bool>();
     }
@@ -228,34 +268,34 @@ bool LLMProvider::parse_lora_adapters_apply_json(const json& result) {
     return false;
 }
 
-std::string LLMProvider::handle_lora_adapters_apply_json(const json& data, httplib::Response* res)
+std::string LLMFull::handle_lora_adapters_apply_json(const json& data, httplib::Response* res)
 {
     return handle_lora_adapters_apply_impl(data, res);
 }
 
-std::string LLMProvider::handle_lora_adapters_apply_json(const std::vector<LoraIdScale>& loras, httplib::Response* res)
+std::string LLMFull::handle_lora_adapters_apply_json(const std::vector<LoraIdScale>& loras, httplib::Response* res)
 {
     return handle_lora_adapters_apply_json(build_lora_adapters_apply_json(loras), res);
 }
 
-bool LLMProvider::handle_lora_adapters_apply(const json& data, httplib::Response* res)
+bool LLMFull::handle_lora_adapters_apply(const json& data, httplib::Response* res)
 {
     return parse_lora_adapters_apply_json(json::parse(handle_lora_adapters_apply_json(data, res)));
 }
 
-bool LLMProvider::handle_lora_adapters_apply(const std::vector<LoraIdScale>& loras, httplib::Response* res)
+bool LLMFull::handle_lora_adapters_apply(const std::vector<LoraIdScale>& loras, httplib::Response* res)
 {
     return handle_lora_adapters_apply(build_lora_adapters_apply_json(loras), res);
 }
 
 //=========================== Lora Adapters List ===========================//
 
-std::string LLMProvider::handle_lora_adapters_list_json()
+std::string LLMFull::handle_lora_adapters_list_json()
 {
     return handle_lora_adapters_list_impl();
 }
 
-std::vector<LoraIdScalePath> LLMProvider::parse_lora_adapters_list_json(const json& result)
+std::vector<LoraIdScalePath> LLMFull::parse_lora_adapters_list_json(const json& result)
 {
     std::vector<LoraIdScalePath> loras;
     try {
@@ -271,7 +311,7 @@ std::vector<LoraIdScalePath> LLMProvider::parse_lora_adapters_list_json(const js
     return loras;
 }
 
-std::vector<LoraIdScalePath> LLMProvider::handle_lora_adapters_list()
+std::vector<LoraIdScalePath> LLMFull::handle_lora_adapters_list()
 {
     return parse_lora_adapters_list_json(json::parse(handle_lora_adapters_list_json()));
 }
@@ -311,12 +351,68 @@ void LLM_Cancel(LLMWithSlot* llm, int id_slot) {
     llm->handle_cancel_action_impl(id_slot);
 }
 
-const char* LLM_Lora_Weight(LLMProvider* llm, const char* json_data) {
+const char* LLM_Lora_Weight(LLMFull* llm, const char* json_data) {
     std::string result = llm->handle_lora_adapters_apply_impl(json::parse(json_data));
     return stringToCharArray(result);
 }
 
-const char* LLM_Lora_List(LLMProvider* llm) {
+const char* LLM_Lora_List(LLMFull* llm) {
     std::string result = llm->handle_lora_adapters_list_impl();
     return stringToCharArray(result);
+}
+
+void LLM_Delete(LLMProvider* llm) {
+    if (llm != nullptr)
+    {
+        LOG_INFO("Deleting LLM service", {});
+        delete llm;
+        llm = nullptr;
+    }
+}
+
+void LLM_Start_Server(LLMProvider* llm) {
+    llm->start_server();
+}
+
+void LLM_Stop_Server(LLMProvider* llm) {
+    llm->stop_server();
+}
+
+void LLM_Join_Service(LLMProvider* llm)
+{
+    llm->join_service();
+}
+
+void LLM_Join_Server(LLMProvider* llm)
+{
+    llm->join_server();
+}
+
+void LLM_Start(LLMProvider* llm) {
+    llm->start_service();
+}
+
+const bool LLM_Started(LLMProvider* llm) {
+    return llm->is_running();
+}
+
+void LLM_Stop(LLMProvider* llm) {
+    llm->stop_service();
+}
+
+void LLM_SetSSL(LLMProvider* llm, const char* SSL_cert, const char* SSL_key){
+    llm->set_SSL(SSL_cert, SSL_key);
+}
+
+const int LLM_Status_Code(LLMProvider* llm) {
+    return llm->get_status();
+}
+
+const char* LLM_Status_Message(LLMProvider* llm) {
+    std::string result = llm->get_status_message();
+    return stringToCharArray(result);
+}
+
+const int LLM_Embedding_Size(LLMProvider* llm) {
+    return llm->embedding_size();
 }

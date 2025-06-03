@@ -21,14 +21,16 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         ~LLMService();
 
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-        static EVP_PKEY *load_key(const std::string& key_str);
-        static X509 *load_cert(const std::string& cert_str);
-#endif
-        static std::vector<std::string> splitArguments(const std::string& inputString);
-        int get_status();
-        std::string get_status_message();
-        
+        static EVP_PKEY* load_key(const std::string& key_str);
+        static X509* load_cert(const std::string& cert_str);
+#endif        
         //================ LLM ================//
+        void init(int argc, char ** argv) override;
+        std::vector<char*> jsonToArguments(const json& params);
+
+        int get_status() override;
+        std::string get_status_message() override;
+
         std::string handle_tokenize_impl(const json& data) override;
         std::string handle_detokenize_impl(const json& data) override;
         std::string handle_embeddings_impl(const json& data, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_false) override;
@@ -37,18 +39,18 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         std::string handle_completions_impl(const json& data, CharArrayFn callback=nullptr, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0) override;
         std::string handle_slots_action_impl(const json& data, httplib::Response* res=nullptr) override;
         void handle_cancel_action_impl(int id_slot) override;
+
+        void start_server() override;
+        void stop_server() override;
+        void join_server() override;
+        void start_service() override;
+        void stop_service() override;
+        void join_service() override;
+        void set_SSL(const char* SSL_cert, const char* SSL_key) override;
+        bool is_running() override;
+
+        int embedding_size() override;
         //================ LLM ================//
-
-        void start_server();
-        void stop_server();
-        void join_server();
-        void start_service();
-        void stop_service();
-        void join_service();
-        void set_SSL(const char* SSL_cert, const char* SSL_key);
-        bool is_running();
-
-        int embedding_size();
 
     private:
         common_params params;
@@ -60,7 +62,6 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         std::string SSL_cert = "";
         std::string SSL_key = "";
 
-        void init(int argc, char ** argv);
         std::string handle_completions_streaming(
             std::unordered_set<int> id_tasks,
             CharArrayFn callback=nullptr,
@@ -104,16 +105,4 @@ private:
 
 extern "C" {
     UNDREAMAI_API LLMService* LLM_Construct(const char* params_string);
-    UNDREAMAI_API void LLM_Delete(LLMService* llm);
-    UNDREAMAI_API void LLM_Start(LLMService* llm);
-    UNDREAMAI_API const bool LLM_Started(LLMService* llm);
-    UNDREAMAI_API void LLM_Stop(LLMService* llm);
-    UNDREAMAI_API void LLM_Start_Server(LLMService* llm);
-    UNDREAMAI_API void LLM_Stop_Server(LLMService* llm);
-    UNDREAMAI_API void LLM_Join_Service(LLMService* llm);
-    UNDREAMAI_API void LLM_Join_Server(LLMService* llm);
-    UNDREAMAI_API void LLM_SetSSL(LLMService* llm, const char* SSL_cert, const char* SSL_key);
-    UNDREAMAI_API const int LLM_Status_Code(LLMService* llm);
-    UNDREAMAI_API const char* LLM_Status_Message(LLMService* llm);
-    UNDREAMAI_API const int LLM_Embedding_Size(LLMService* llm);
 };

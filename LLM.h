@@ -84,7 +84,7 @@ public:
     virtual std::string handle_slots_action(int id_slot, std::string action, std::string filepath, httplib::Response* res = nullptr);
 };
 
-class UNDREAMAI_API LLMProvider : public LLMWithSlot {
+class UNDREAMAI_API LLMFull : public LLMWithSlot {
 public:
     virtual std::string handle_lora_adapters_apply_impl(const json& data, httplib::Response* res = nullptr) = 0;
     virtual std::string handle_lora_adapters_list_impl() = 0;
@@ -101,6 +101,29 @@ public:
     virtual std::vector<LoraIdScalePath> handle_lora_adapters_list();
 };
 
+class UNDREAMAI_API LLMProvider : public LLMFull {
+public:
+    virtual std::vector<std::string> splitArguments(const std::string& inputString);
+
+    virtual void init(int argc, char** argv) = 0;
+    virtual void init(const std::string& params);
+    virtual void init(const char* params);
+
+    virtual int get_status() = 0;
+    virtual std::string get_status_message() = 0;
+
+    virtual void start_server() = 0;
+    virtual void stop_server() = 0;
+    virtual void join_server() = 0;
+    virtual void start_service() = 0;
+    virtual void stop_service() = 0;
+    virtual void join_service() = 0;
+    virtual void set_SSL(const char* SSL_cert, const char* SSL_key) = 0;
+    virtual bool is_running() = 0;
+
+    virtual int embedding_size() = 0;
+};
+
 extern "C" {
     UNDREAMAI_API const int LLM_Test();
     UNDREAMAI_API const char* LLM_Tokenize(LLM* llm, const char* json_data);
@@ -111,6 +134,19 @@ extern "C" {
     UNDREAMAI_API const char* LLM_Slot(LLMWithSlot* llm, const char* json_data);
     UNDREAMAI_API void LLM_Cancel(LLMWithSlot* llm, int id_slot);
 
-    UNDREAMAI_API const char* LLM_Lora_Weight(LLMProvider* llm, const char* json_data);
-    UNDREAMAI_API const char* LLM_Lora_List(LLMProvider* llm);
+    UNDREAMAI_API const char* LLM_Lora_Weight(LLMFull* llm, const char* json_data);
+    UNDREAMAI_API const char* LLM_Lora_List(LLMFull* llm);
+
+    UNDREAMAI_API void LLM_Delete(LLMProvider* llm);
+    UNDREAMAI_API void LLM_Start(LLMProvider* llm);
+    UNDREAMAI_API const bool LLM_Started(LLMProvider* llm);
+    UNDREAMAI_API void LLM_Stop(LLMProvider* llm);
+    UNDREAMAI_API void LLM_Start_Server(LLMProvider* llm);
+    UNDREAMAI_API void LLM_Stop_Server(LLMProvider* llm);
+    UNDREAMAI_API void LLM_Join_Service(LLMProvider* llm);
+    UNDREAMAI_API void LLM_Join_Server(LLMProvider* llm);
+    UNDREAMAI_API void LLM_SetSSL(LLMProvider* llm, const char* SSL_cert, const char* SSL_key);
+    UNDREAMAI_API const int LLM_Status_Code(LLMProvider* llm);
+    UNDREAMAI_API const char* LLM_Status_Message(LLMProvider* llm);
+    UNDREAMAI_API const int LLM_Embedding_Size(LLMProvider* llm);
 };
