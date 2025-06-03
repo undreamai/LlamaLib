@@ -110,9 +110,11 @@ struct LLMHandle {
 };
 
 #ifdef LLAMALIB_BUILD_RUNTIME_LIB
+#pragma message("LLAMALIB_BUILD_RUNTIME_LIB is defined")
     #define CALL_LLMLIB_FUNCTION_NO_RET(FUNC, HANDLE, ...) LLMLib_##FUNC((HANDLE).lib, ##__VA_ARGS__); break;
     #define CALL_LLMLIB_FUNCTION(FUNC, HANDLE, ...) return LLMLib_##FUNC((HANDLE).lib, ##__VA_ARGS__); break;
 #else
+#pragma message("LLAMALIB_BUILD_RUNTIME_LIB is not defined")
     #define CALL_LLMLIB_FUNCTION(FUNC, HANDLE, ...) throw std::runtime_error("LLMLib not supported in this build");
     #define CALL_LLMLIB_FUNCTION_NO_RET(FUNC, HANDLE, ...) throw std::runtime_error("LLMLib not supported in this build");
 #endif
@@ -123,7 +125,7 @@ struct LLMHandle {
         case LLMHandle::Type::LLM:     return FUNC((HANDLE).llm, ##__VA_ARGS__); break; \
         case LLMHandle::Type::LLMWithSlot:     return FUNC((HANDLE).llmWithSlot, ##__VA_ARGS__); break; \
         case LLMHandle::Type::Service: return FUNC((HANDLE).service, ##__VA_ARGS__); break; \
-        case LLMHandle::Type::Lib:     CALL_LLMLIB_FUNCTION((HANDLE).lib, ##__VA_ARGS__); break; \
+        case LLMHandle::Type::Lib:     CALL_LLMLIB_FUNCTION(FUNC, HANDLE, ##__VA_ARGS__); break; \
         default: throw std::runtime_error("Unknown LLMHandle type");    \
         }                                                               \
     })()
@@ -133,7 +135,7 @@ struct LLMHandle {
         switch ((HANDLE).type) {                                        \
         case LLMHandle::Type::LLMWithSlot:     return FUNC((HANDLE).llmWithSlot, ##__VA_ARGS__); break; \
         case LLMHandle::Type::Service: return FUNC((HANDLE).service, ##__VA_ARGS__); break; \
-        case LLMHandle::Type::Lib:     CALL_LLMLIB_FUNCTION((HANDLE).lib, ##__VA_ARGS__); break; \
+        case LLMHandle::Type::Lib:     CALL_LLMLIB_FUNCTION(FUNC, HANDLE, ##__VA_ARGS__); break; \
         default: throw std::runtime_error("Unknown LLMHandle type");    \
         }                                                               \
     })()
@@ -143,7 +145,7 @@ struct LLMHandle {
         switch ((HANDLE).type) {                                        \
         case LLMHandle::Type::LLMWithSlot:     FUNC((HANDLE).llmWithSlot, ##__VA_ARGS__); break; \
         case LLMHandle::Type::Service: FUNC((HANDLE).service, ##__VA_ARGS__); break; \
-        case LLMHandle::Type::Lib:     CALL_LLMLIB_FUNCTION_NO_RET((HANDLE).lib, ##__VA_ARGS__); break; \
+        case LLMHandle::Type::Lib:     CALL_LLMLIB_FUNCTION_NO_RET(FUNC, HANDLE, ##__VA_ARGS__); break; \
         default: throw std::runtime_error("Unknown LLMHandle type");    \
         }                                                  \
     } while (0)
@@ -152,7 +154,7 @@ struct LLMHandle {
     ([&]() -> const char* {                                             \
         switch ((HANDLE).type) {                                        \
         case LLMHandle::Type::Service: return FUNC((HANDLE).service, ##__VA_ARGS__); break; \
-        case LLMHandle::Type::Lib:     CALL_LLMLIB_FUNCTION((HANDLE).lib, ##__VA_ARGS__); break; \
+        case LLMHandle::Type::Lib:     CALL_LLMLIB_FUNCTION(FUNC, HANDLE, ##__VA_ARGS__); break; \
         default: throw std::runtime_error("Unknown LLMHandle type");    \
         }                                                               \
     })()
@@ -161,7 +163,7 @@ struct LLMHandle {
     do {                                                                \
         switch ((HANDLE).type) {                                        \
         case LLMHandle::Type::Service: FUNC((HANDLE).service, ##__VA_ARGS__); break; \
-        case LLMHandle::Type::Lib:     CALL_LLMLIB_FUNCTION_NO_RET((HANDLE).lib, ##__VA_ARGS__); break; \
+        case LLMHandle::Type::Lib:     CALL_LLMLIB_FUNCTION_NO_RET(FUNC, HANDLE, ##__VA_ARGS__); break; \
         default: throw std::runtime_error("Unknown LLMHandle type");    \
         }                                                               \
     } while (0)
