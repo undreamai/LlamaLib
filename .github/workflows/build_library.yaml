@@ -25,23 +25,18 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
 
+
         - id: checkout
           name: Clone
           uses: actions/checkout@v4
           with:
             submodules: recursive
 
-        - id: setup_dirs
-          name: Setup dirs
-          run: |
-            mkdir -p build/licenses build/libs
-            echo "CMAKE_RUNTIME_OUTPUT_DIRECTORY=`pwd`/build/libs" >> $GITHUB_ENV
-            echo "DCMAKE_LIBRARY_OUTPUT_DIRECTORY=`pwd`/build/libs" >> $GITHUB_ENV
-          shell: bash
-
         - id: setup_llama_cpp
           name: Setup llama.cpp
           run: |
+            mkdir -p build/licenses build/libs
+        
             git clone https://github.com/ggerganov/llama.cpp llama.cpp
             cd llama.cpp
             git checkout ${{ env.LLAMACPP_VERSION }}
@@ -107,14 +102,13 @@ jobs:
           name: Build
           run: |
             cd build
-            cmake .. -DARCHITECTURE=${{ matrix.architecture }} ${{ matrix.cmake_vars }}
+            cmake .. -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DARCHITECTURE=${{ matrix.architecture }} ${{ matrix.cmake_vars }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
         - id: test_build_unix
           if: matrix.architecture != 'avx512' && !contains(matrix.architecture, 'blas')
           name: Test
           run: |
-            ls -R build
             cd build/libs
             curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
             ./llamalib_test -m model.gguf -np 1 --log-disable

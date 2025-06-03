@@ -50,18 +50,12 @@ jobs:
 
 ################################ Cross-platform ################################
 
-      - name: Setup dirs
-        id: setup_dirs
-        shell: bash
-        run: |
-          mkdir -p build/licenses build/libs
-          echo "CMAKE_RUNTIME_OUTPUT_DIRECTORY=`pwd`/build/libs" >> $GITHUB_ENV
-          echo "DCMAKE_LIBRARY_OUTPUT_DIRECTORY=`pwd`/build/libs" >> $GITHUB_ENV
-
       - name: Setup llama.cpp
         id: setup_llama_cpp
         shell: bash
         run: |
+          mkdir -p build/licenses build/libs
+
           git clone https://github.com/ggerganov/llama.cpp llama.cpp
           cd llama.cpp
           git checkout ${{ env.LLAMACPP_VERSION }}
@@ -98,7 +92,7 @@ jobs:
         id: cmake_build
         run: |
           cd build
-          cmake .. -DARCHITECTURE=${{ matrix.architecture }} ${{ matrix.cmake_vars }}
+          cmake .. -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DARCHITECTURE=${{ matrix.architecture }} ${{ matrix.cmake_vars }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
 ################################ Linux ################################
