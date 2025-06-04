@@ -2,8 +2,6 @@
 
 LLMClient::LLMClient(LLMProvider* llm_): llm(llm_){ }
 
-LLMClient::LLMClient(LLMLib* llmLib) : LLMClient((LLMProvider*) llmLib->llm) { }
-
 std::string LLMClient::handle_tokenize_impl(const json& data)
 {
     return llm->handle_tokenize_impl(data);

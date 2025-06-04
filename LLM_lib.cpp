@@ -1,26 +1,47 @@
 #include "LLM_lib.h"
 
+
+//============================= LIBRARY LOADING =============================//
+
+inline LibHandle load_library(const char* path) {
+    return LOAD_LIB(path);
+}
+
+inline void* load_symbol(LibHandle handle, const char* symbol) {
+    return GET_SYM(handle, symbol);
+}
+
+inline void unload_library(LibHandle handle) {
+    CLOSE_LIB(handle);
+}
+
+LibHandle load_library_safe(const std::string& path) {
+    if (setjmp(sigjmp_buf_point) != 0) {
+        std::cerr << "Error loading library: " << path << std::endl;
+        return nullptr;
+    }
+
+    LibHandle handle_out = load_library(path.c_str());
+    if (!handle_out) {
+        std::cerr << "Failed to load library: " << path << std::endl;
+    }
+    return handle_out;
+}
+
+//============================= LLMLib =============================//
+
 LLMLib::LLMLib(const std::string& params, const std::string& baseDir)
 {
-    llm = Load_LLM_Library(command, baseDir);
-    llm->init(params);
+    llm = LLMLib_Construct(params, baseDir);
 }
 
-LLMLib::LLMLib(const char* params, const std::string& baseDir)
-{
-    llm = Load_LLM_Library(command, baseDir);
-    llm->init(params);
-}
+LLMLib::LLMLib(const char* params, const std::string& baseDir) : LLMLib(std::string(params), baseDir) { }
 
-LLMLib::LLMLib(int argc, char ** argv, const std::string& baseDir)
-{
-    llm = Load_LLM_Library(command, baseDir);
-    llm->init(argc, argv);
-}
+LLMLib::LLMLib(int argc, char ** argv, const std::string& baseDir) : LLMLib(args_to_command(argc, argv), baseDir) { }
 
 LLMLib::~LLMLib() {
     if (llm) {
-        LLM_Delete();
+        LLM_Delete(llm);
         llm = nullptr;
     }
     if (handle) {
@@ -104,34 +125,6 @@ const std::vector<std::string> available_architectures(bool gpu) {
     return architectures;
 }
 
-//============================= LIBRARY LOADING =============================//
-
-inline LibHandle load_library(const char* path) {
-    return LOAD_LIB(path);
-}
-
-inline void* load_symbol(LibHandle handle, const char* symbol) {
-    return GET_SYM(handle, symbol);
-}
-
-inline void unload_library(LibHandle handle) {
-    CLOSE_LIB(handle);
-}
-
-LibHandle load_library_safe(const std::string& path) {
-    if (setjmp(sigjmp_buf_point) != 0) {
-        std::cerr << "Error loading library: " << path << std::endl;
-        return nullptr;
-    }
-
-    LibHandle handle_out = load_library(path.c_str());
-    if (!handle_out) {
-        std::cerr << "Failed to load library: " << path << std::endl;
-    }
-
-    return handle_out;
-}
-
 //============================= API =============================//
 
 const char* Available_Architectures(bool gpu)
@@ -148,22 +141,27 @@ const char* Available_Architectures(bool gpu)
     return result.c_str();
 }
 
-LLMLib* Load_LLM_Library_From_Path(const std::string& path) {
+
+LLMLib* Load_LLM_Library_From_Path(const std::string& command, const std::string& path) {
     LibHandle handle = load_library_safe(path);
     if (!handle) return nullptr;
 
-    LLMLib* llmlib = new LLMLib();
+    LLMLib* llmlib = new LLMLib(command);
     llmlib->handle = handle;
 
-#define LOAD_SYMBOL(name, ret, ...) \
-    llmlib->name##_fn = reinterpret_cast<name##_Fn>(load_symbol(handle, #name)); \
-    if (!llmlib->name##_fn) { \
-        std::cerr << "Missing symbol: " << #name << std::endl; \
-        return nullptr; \
-    }
+    auto load_sym = [&](auto& fn_ptr, const char* name) {
+        fn_ptr = reinterpret_cast<std::decay_t<decltype(fn_ptr)>>(load_symbol(handle, name));
+        if (!fn_ptr) {
+            std::cerr << "Failed to load: " << name << std::endl;
+        }
+    };
 
-LLMLIB_FUNCTIONS_ALL(LOAD_SYMBOL)
-#undef LOAD_SYMBOL
+#define DECLARE_AND_LOAD(name, ret, ...) \
+    load_sym(llmlib->name, #name);
+    LLM_FUNCTIONS_LIST(DECLARE_AND_LOAD)
+#undef DECLARE_AND_LOAD
+
+    llmlib->llm = (LLMProvider*) llmlib->LLM_Construct(command.c_str());
 
     return llmlib;
 }
@@ -197,8 +195,7 @@ LLMLib* LLMLib_Construct(const std::string& command, const std::string& baseDir)
             continue;
         }
 
-        LLMLib* llmlib = Load_LLM_Library_From_Path(llmlibPath);
-        llmlib->llm = llmlib->LLM_Construct(command.c_str());
+        LLMLib* llmlib = Load_LLM_Library_From_Path(command, llmlibPath);
         if (llmlib) {
             std::cout << "Successfully loaded llmlib: " << llmlibPath << std::endl;
             return llmlib;
@@ -206,8 +203,4 @@ LLMLib* LLMLib_Construct(const std::string& command, const std::string& baseDir)
     }
 
     return nullptr;
-}
-
-void Free_LLM_Library(LLMLib* llmlib) {
-    delete llmlib;
 }

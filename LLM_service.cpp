@@ -64,17 +64,25 @@ LLMService::LLMService(const json& params)
 
 LLMService::LLMService(const std::string& params)
 {
-    LLMProvider::init(params);
+    init(params);
 }
 
 LLMService::LLMService(const char* params)
 {
-    LLMProvider::init(params);
+    init(params);
 }
 
 LLMService::LLMService(int argc, char ** argv)
 {
     init(argc, argv);
+}
+
+LLMService::~LLMService() {
+    if (ctx_server != nullptr)
+    {
+        delete ctx_server;
+        ctx_server = nullptr;
+    }
 }
 
 std::vector<char*> LLMService::jsonToArguments(const json& params) {
@@ -143,97 +151,44 @@ std::vector<char*> LLMService::jsonToArguments(const json& params) {
     return argv;
 }
 
-// LLMService::LLMService(const json& params) {
-//     common_params default_params;
-//     common_params_context ctx = common_params_parser_init(default_params, LLAMA_EXAMPLE_SERVER);
+std::vector<std::string> LLMService::splitArguments(const std::string& inputString) {
+    std::vector<std::string> arguments;
 
-//     std::vector<std::string> args_str = { "llm" };
-//     std::set<std::string> used_keys;
-
-//     for (const auto& opt : ctx.options) {
-//         for (const auto& name : opt.args) {
-//             std::string key = name;
-//             if (key.rfind("--", 0) == 0) key = key.substr(2);  // strip leading "--"
-//             else if (key.rfind("-", 0) == 0) continue;          // skip short options
-
-//             std::string json_key = key;
-//             std::replace(json_key.begin(), json_key.end(), '-', '_');
-
-//             if (!params.contains(json_key))
-//                 continue;
-
-//             used_keys.insert(json_key);
-//             const auto& value = params[json_key];
-//             args_str.push_back(name);
-
-//             if (opt.handler_void != nullptr) {
-//                 break;
-//             }
-//             else if (opt.handler_string != nullptr || opt.handler_int != nullptr) {
-//                 args_str.push_back(value.is_string() ? value.get<std::string>() : value.dump());
-//                 break;
-//             }
-//             else if (opt.handler_str_str != nullptr) {
-//                 if (!value.is_array() || value.size() != 2) {
-//                     std::string err = "Expected array of 2 values for: " + json_key;
-//                     LOG_WARNING(err.c_str(), {});
-//                     continue;
-//                 }
-//                 args_str.push_back(value[0].is_string() ? value[0].get<std::string>() : value[0].dump());
-//                 args_str.push_back(value[1].is_string() ? value[1].get<std::string>() : value[1].dump());
-//                 break;
-//             }
-//         }
-//     }
-
-//     // Report unused keys
-//     for (const auto& [key, _] : params.items()) {
-//         if (used_keys.find(key) == used_keys.end())
-//         {
-//             std::string err = "Unused parameter in JSON: " + key;
-//             LOG_WARNING(err.c_str(), {});
-
-//         }
-//     }
-
-//     // Convert to argv
-//     std::vector<std::unique_ptr<char[]>> argv_storage;
-//     std::vector<char*> argv;
-//     for (const auto& arg : args_str) {
-//         auto buf = std::make_unique<char[]>(arg.size() + 1);
-//         std::memcpy(buf.get(), arg.c_str(), arg.size() + 1);
-//         argv.push_back(buf.get());
-//         argv_storage.push_back(std::move(buf));
-//     }
-
-//     init(static_cast<int>(argv.size()), argv.data());
-// }
-
-// LLMService::LLMService(const std::string& params_string){
-//     std::vector<std::string> arguments = splitArguments("llm " + params_string);
-
-//     // Convert vector of strings to argc and argv
-//     int argc = static_cast<int>(arguments.size());
-//     char** argv = new char*[argc];
-//     for (int i = 0; i < argc; ++i) {
-//         argv[i] = new char[arguments[i].size() + 1];
-//         std::strcpy(argv[i], arguments[i].c_str());
-//     }
-//     init(argc, argv);
-// }
-
-// LLMService::LLMService(const char* params) : LLMService(std::string(params)) {}
-
-// LLMService::LLMService(int argc, char ** argv){
-//     init(argc, argv);
-// }
-
-LLMService::~LLMService() {
-    if (ctx_server != nullptr)
+    unsigned counter = 0;
+    std::string segment;
+    std::istringstream stream_input(inputString);
+    while (std::getline(stream_input, segment, '"'))
     {
-        delete ctx_server;
-        ctx_server = nullptr;
+        ++counter;
+        if (counter % 2 == 0)
+        {
+            if (!segment.empty()) arguments.push_back(segment);
+        }
+        else
+        {
+            std::istringstream stream_segment(segment);
+            while (std::getline(stream_segment, segment, ' '))
+                if (!segment.empty()) arguments.push_back(segment);
+        }
     }
+    return arguments;
+}
+
+void LLMService::init(const std::string& params_string) {
+    std::vector<std::string> arguments = splitArguments("llm " + params_string);
+
+    // Convert vector of strings to argc and argv
+    int argc = static_cast<int>(arguments.size());
+    char** argv = new char* [argc];
+    for (int i = 0; i < argc; ++i) {
+        argv[i] = new char[arguments[i].size() + 1];
+        std::strcpy(argv[i], arguments[i].c_str());
+    }
+    init(argc, argv);
+}
+
+void LLMService::init(const char* params) {
+    init(std::string(params));
 }
 
 void LLMService::init(int argc, char ** argv){

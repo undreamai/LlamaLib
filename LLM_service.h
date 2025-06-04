@@ -20,14 +20,16 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         LLMService(int argc, char ** argv);
         ~LLMService();
 
+        void init(int argc, char** argv);
+        void init(const std::string& params);
+        void init(const char* params);
+
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
         static EVP_PKEY* load_key(const std::string& key_str);
         static X509* load_cert(const std::string& cert_str);
-#endif        
-        //================ LLM ================//
-        void init(int argc, char ** argv) override;
-        std::vector<char*> jsonToArguments(const json& params);
+#endif
 
+        //================ LLM ================//
         int get_status() override;
         std::string get_status_message() override;
 
@@ -62,6 +64,8 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         std::string SSL_cert = "";
         std::string SSL_key = "";
 
+        std::vector<char*> jsonToArguments(const json& params);
+        std::vector<std::string> splitArguments(const std::string& inputString);
         std::string handle_completions_streaming(
             std::unordered_set<int> id_tasks,
             CharArrayFn callback=nullptr,

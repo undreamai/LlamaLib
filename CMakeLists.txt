@@ -4,8 +4,8 @@ project("undreamai" C CXX)
 
 ################################################ CMAKE VARIABLES ################################################
 
-OPTION(LLAMALIB_BUILD_RUNTIME_LIB "Build LlamaLib runtime library" OFF)
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    OPTION(LLAMALIB_BUILD_RUNTIME_LIB "Build LlamaLib runtime library" ON)
     OPTION(LLAMALIB_BUILD_SERVER "Build LlamaLib server" ON)
     OPTION(LLAMALIB_BUILD_TESTS "Build LlamaLib tests" ON)
 else()
@@ -92,6 +92,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "visionOS")
     SET(CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM UndreamAI)
 endif()
 
+ 
 ################################################ SETUP ################################################
 
 # Set CUDA architectures
@@ -119,7 +120,6 @@ endif()
 # Output override
 set_property(DIRECTORY llama.cpp PROPERTY CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 
-
 ################################################ llama.cpp COMPILATION ################################################
 
 if (NOT WIN32)
@@ -131,6 +131,8 @@ if (NOT WIN32)
             target_compile_options(${target} PRIVATE -Wno-return-type -Wno-sometimes-uninitialized)
         endif()
     endforeach()
+else()
+    add_compile_definitions(WIN32_LEAN_AND_MEAN NOMINMAX)
 endif()
 
 foreach (target common ggml-cuda ggml-hip ggml-musa)
@@ -191,7 +193,7 @@ install(TARGETS ${STATIC_LIBRARY} LIBRARY)
 # build runtime library
 if (LLAMALIB_BUILD_RUNTIME_LIB)
     set(RUNTIME_LIBRARY "${LIBRARY_NAME}_runtime")
-    add_library(${RUNTIME_LIBRARY} ${LIBRARY_TYPE} LLM_lib.cpp LLM.cpp LLM_client.cpp error_handling.cpp)
+    add_library(${RUNTIME_LIBRARY} ${LIBRARY_TYPE} LLM_lib.cpp LLM.cpp LLM_client.cpp logging.cpp error_handling.cpp)
     target_link_libraries(${RUNTIME_LIBRARY} PRIVATE common ${CURL_LIBRARIES} FeatureDetector archchecker)
     common_compile_defs(${RUNTIME_LIBRARY})
     install(TARGETS ${RUNTIME_LIBRARY} LIBRARY)

@@ -12,6 +12,16 @@ static bool always_false()
     return false;
 }
 
+static std::string args_to_command(int argc, char** argv)
+{
+    std::string command = "";
+    for (int i = 1; i < argc; ++i) {
+        command += argv[i];
+        if (i < argc - 1) command += " ";
+    }
+    return command;
+}
+
 struct LoraIdScale {
     int id;
     float scale;
@@ -103,12 +113,6 @@ public:
 
 class UNDREAMAI_API LLMProvider : public LLMFull {
 public:
-    virtual std::vector<std::string> splitArguments(const std::string& inputString);
-
-    virtual void init(int argc, char** argv) = 0;
-    virtual void init(const std::string& params);
-    virtual void init(const char* params);
-
     virtual int get_status() = 0;
     virtual std::string get_status_message() = 0;
 

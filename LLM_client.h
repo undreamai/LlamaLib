@@ -1,8 +1,5 @@
 #pragma once
 
-#include "LLM.h"
-#include "LLM_lib.h"
-
 #include <string>
 #include <vector>
 #include <thread>
@@ -10,6 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include <curl/curl.h>
+#include "LLM.h"
 
 struct StreamingContext {
     std::string buffer;
@@ -22,7 +20,6 @@ private:
 
 public:
     LLMClient(LLMProvider* llm);
-    LLMClient(LLMLib* llmLib);
 
     //================ LLM ================//
     std::string handle_tokenize_impl(const json& data) override;

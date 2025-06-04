@@ -1,45 +1,5 @@
 #include "LLM.h"
 
-std::vector<std::string> LLMProvider::splitArguments(const std::string& inputString) {
-    std::vector<std::string> arguments;
-
-    unsigned counter = 0;
-    std::string segment;
-    std::istringstream stream_input(inputString);
-    while(std::getline(stream_input, segment, '"'))
-    {
-        ++counter;
-        if (counter % 2 == 0)
-        {
-            if (!segment.empty()) arguments.push_back(segment);
-        }
-        else
-        {
-            std::istringstream stream_segment(segment);
-            while(std::getline(stream_segment, segment, ' '))
-                if (!segment.empty()) arguments.push_back(segment);
-        }
-    }
-    return arguments;
-}
-
-void LLMProvider::init(const std::string& params_string){
-    std::vector<std::string> arguments = splitArguments("llm " + params_string);
-
-    // Convert vector of strings to argc and argv
-    int argc = static_cast<int>(arguments.size());
-    char** argv = new char*[argc];
-    for (int i = 0; i < argc; ++i) {
-        argv[i] = new char[arguments[i].size() + 1];
-        std::strcpy(argv[i], arguments[i].c_str());
-    }
-    init(argc, argv);
-}
-
-void LLMProvider::init(const char* params) {
-    init(std::string(params));
-}
-
 //=========================== Tokenize ===========================//
 
 json LLM::build_tokenize_json(const std::string& query)
