@@ -1,6 +1,9 @@
 #pragma once
 
 #include "defs.h"
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 using json = nlohmann::ordered_json;
 static CharArrayFn logCallback = nullptr;
