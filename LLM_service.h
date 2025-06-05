@@ -63,6 +63,7 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         std::unique_ptr<httplib::Server> svr;
         std::string SSL_cert = "";
         std::string SSL_key = "";
+        std::mutex start_stop_mutex;
 
         std::vector<char*> jsonToArguments(const json& params);
         std::vector<std::string> splitArguments(const std::string& inputString);

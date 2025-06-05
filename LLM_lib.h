@@ -1,6 +1,5 @@
 #pragma once
 
-#include <string>
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -59,13 +58,16 @@ class LLMService;
 
 class UNDREAMAI_API LLMLib : public LLMProvider {
 public:
-    LLMLib(const std::string& params, const std::string& baseDir = "");
-    LLMLib(const char* params, const std::string& baseDir = "");
-    LLMLib(int argc, char ** argv, const std::string& baseDir = "");
+    LLMLib(const std::string& command, const std::string& path = "");
+    LLMLib(const char* command, const std::string& path = "");
+    LLMLib(int argc, char ** argv, const std::string& path = "");
     ~LLMLib();
 
     LibHandle handle = nullptr;
     LLMProvider* llm = nullptr;
+
+    bool create_LLM_library_from_path(const std::string& command, const std::string& path);
+    bool create_LLM_library(const std::string& command, const std::string& path="");
 
     //=================================== LLM METHODS START ===================================//
 
@@ -129,9 +131,6 @@ public:
 #undef DECLARE_FN
 };
 
-//=================================== HELPERS ===================================//
-
-std::string join_paths(const std::string& a, const std::string& b);
 const std::vector<std::string> available_architectures(bool gpu);
 
 //=================================== EXTERNAL API ===================================//

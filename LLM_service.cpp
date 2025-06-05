@@ -274,6 +274,7 @@ void release_slot(server_slot& slot)
 }
 
 void LLMService::start_server(){
+    std::lock_guard<std::mutex> lock(start_stop_mutex);
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
     if (params.ssl_file_key != "" && params.ssl_file_cert != "") {
         LOG_INFO("Running with SSL", {{"key", params.ssl_file_key}, {"cert", params.ssl_file_cert}});
@@ -469,6 +470,7 @@ void LLMService::start_server(){
 }
 
 void LLMService::stop_server(){
+    std::lock_guard<std::mutex> lock(start_stop_mutex);
     LOG_INFO("stopping server", {});
     if (svr.get() != nullptr) {
         svr->stop();
@@ -489,6 +491,7 @@ std::string LLMService::get_status_message(){
 }
 
 void LLMService::start_service(){
+    std::lock_guard<std::mutex> lock(start_stop_mutex);
     service_thread = std::thread([&]() {
         LLMServiceRegistry::instance().register_instance(this);
         LOG_INFO("starting service", {});
@@ -501,6 +504,8 @@ void LLMService::start_service(){
 
 void LLMService::stop_service(){
     try {
+        std::lock_guard<std::mutex> lock(start_stop_mutex);
+        if (!is_running()) return;
         LOG_INFO("shutting down tasks", {});
 
         // hack completion slots to think task is completed

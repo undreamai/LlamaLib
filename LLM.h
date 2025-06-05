@@ -1,26 +1,7 @@
 #pragma once
 
-#include <string>
 #include "logging.h"
-#include "json.hpp"
 #include "httplib.h"
-
-using json = nlohmann::ordered_json;
-
-static bool always_false()
-{
-    return false;
-}
-
-static std::string args_to_command(int argc, char** argv)
-{
-    std::string command = "";
-    for (int i = 1; i < argc; ++i) {
-        command += argv[i];
-        if (i < argc - 1) command += " ";
-    }
-    return command;
-}
 
 struct LoraIdScale {
     int id;

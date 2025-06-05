@@ -161,8 +161,10 @@ void test_slot_save_restore(LLMWithSlot* llm) {
     data["filepath"] = std::string(buffer) + "\\" + filename;
 #else
     char buffer[PATH_MAX];
-    getcwd(buffer, sizeof(buffer));
-    data["filepath"] = std::string(buffer) + "/" + filename;
+    if (getcwd(buffer, sizeof(buffer)) != nullptr)
+        data["filepath"] = std::string(buffer) + "/" + filename;
+    else
+        data["filepath"] = filename;
 #endif
 
     reply = std::string(LLM_Slot(llm, data.dump().c_str()));
@@ -438,6 +440,7 @@ int main(int argc, char** argv) {
 #ifdef LLAMALIB_BUILD_RUNTIME_LIB
     std::cout << "-------- LLM lib --------" << std::endl;
     LLMLib* llmlib = start_llm_lib(command);
+    EMBEDDING_SIZE = LLM_Embedding_Size(llmlib);
     run_LLMFull_tests(llmlib);
     stop_llm_service(llmlib);
 #endif
