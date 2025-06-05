@@ -10,6 +10,73 @@ env:
   CUDA: 12.2.0
 
 jobs:
+  ################################ ArchChecker ################################
+
+  archchecker_linux_build:
+    name: Build ArchChecker Linux
+    runs-on: ubuntu-22.04
+
+    env:
+        UPLOAD_NAME: linux-archchecker
+        UPLOAD_PATH: archchecker/build/libarchchecker.so
+
+    steps:
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
+          with:
+            submodules: recursive
+
+        - id: build_archchecker
+          name: Build
+          run: |
+            mkdir archchecker/build
+            cd archchecker/build
+            cmake ..
+            cmake --build . --config Release -j $(nproc)
+
+        - id: upload_with_path
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_PATH }}
+
+
+  archchecker_windows_build:
+    name: Build ArchChecker Windows
+    runs-on: windows-2019
+
+    env:
+        UPLOAD_NAME: windows-archchecker
+        UPLOAD_PATH: archchecker/build/Release/archchecker.dll
+
+    steps:
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
+          with:
+            submodules: recursive
+
+        - id: build_archchecker
+          name: Build
+          run: |
+            mkdir archchecker/build
+            cd archchecker/build
+            cmake ..
+            cmake --build . --config Release -j $(nproc)
+
+        - id: upload_with_path
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_PATH }}
+
+
+
+  ################################ Linux ################################
+
   linux-build:
     runs-on: ubuntu-22.04
 
@@ -17,6 +84,12 @@ jobs:
       matrix:
         include:
           - architecture: 'noavx'
+          - architecture: 'avx2'
+          - architecture: 'avx'
+          - architecture: 'avx512'
+          - architecture: 'vulkan'
+          - architecture: 'tinyblas'
+          - architecture: 'cublas'
             
     steps:
         - id: setup_libs_linux
@@ -102,7 +175,7 @@ jobs:
           name: Build
           run: |
             cd build
-            cmake .. -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DARCHITECTURE=${{ matrix.architecture }} ${{ matrix.cmake_vars }}
+            cmake .. -DARCHITECTURE=${{ matrix.architecture }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
         - id: test_build_unix
@@ -129,4 +202,818 @@ jobs:
           with:
             name: ${{ env.UPLOAD_NAME }}
             path: ${{ env.UPLOAD_NAME }}
+
+
+  linux-hip:
+    runs-on: ubuntu-22.04
+    container: rocm/dev-ubuntu-22.04:5.5
+
+    strategy:
+      matrix:
+        include:
+          - architecture: 'hip'
+
+    steps:
+        - id: setup_libs_linux
+          name: Dependencies
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
+
+
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
+          with:
+            submodules: recursive
+
+        - id: setup_llama_cpp
+          name: Setup llama.cpp
+          run: |
+            mkdir -p build/licenses build/libs
+        
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+        
+            for f in ../patches/*;do
+              git apply $f
+            done
+        
+            if [[ "${{ matrix.architecture }}" == "tinyblas" ]]; then
+              mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
+              rm -r ggml/src/ggml-cuda
+              cp -R ../tinyBLAS ggml/src/ggml-cuda
+              mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
+            fi
+        
+            for f in examples/server/public/*;do
+                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
+            done
+          shell: bash
+
+        - id: add_licenses
+          name: Add licenses
+          run: |
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+            if [[ "${{ matrix.architecture }}" == "tinyblas" ]]; then
+              curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+            fi
+          shell: bash
+
+
+        - id: setup_hip_linux
+          name: Dependencies
+          run: |
+            sudo apt-get install -y rocblas-dev hipblas-dev
+
+
+        - id: set_build_params_hip_linux
+          name: Set build parameters
+          run: |
+            echo "CMAKE_HIP_COMPILER=$(hipconfig -l)/clang" >> $GITHUB_ENV
+
+        - id: cmake_build
+          name: Build
+          run: |
+            cd build
+            cmake .. -DARCHITECTURE=${{ matrix.architecture }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
+            cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
+
+
+        - id: pack_artifacts_unix
+          name: Pack artifacts
+          run: |
+            UPLOAD_NAME=$RUNNER_OS-${{ matrix.architecture }}.zip
+            echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
+            rm -f build/libs/llamalib_tests
+            zip -j $UPLOAD_NAME build/licenses/* build/libs/*
+
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_NAME }}
+
+
+################################ macOS ################################
+
+  macOS-arm64-build:
+    runs-on: macos-14
+
+    strategy:
+      matrix:
+        include:
+          - architecture: 'arm64-acc'
+          - architecture: 'arm64-no_acc'
+
+    steps:
+        - continue-on-error: true
+          id: setup_libs_macos
+          name: Dependencies
+          run: |
+            echo "Architecture: $(uname -m)"
+            echo "Operating System: $(uname -s)"
+            brew update
+
+
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
+          with:
+            submodules: recursive
+
+        - id: setup_llama_cpp
+          name: Setup llama.cpp
+          run: |
+            mkdir -p build/licenses build/libs
+        
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+        
+            for f in ../patches/*;do
+              git apply $f
+            done
+        
+            if [[ "${{ matrix.architecture }}" == "tinyblas" ]]; then
+              mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
+              rm -r ggml/src/ggml-cuda
+              cp -R ../tinyBLAS ggml/src/ggml-cuda
+              mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
+            fi
+        
+            for f in examples/server/public/*;do
+                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
+            done
+          shell: bash
+
+        - id: add_licenses
+          name: Add licenses
+          run: |
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+            if [[ "${{ matrix.architecture }}" == "tinyblas" ]]; then
+              curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+            fi
+          shell: bash
+
+
+        - id: cpu-cores
+          name: Get number of CPU cores
+          uses: SimenB/github-actions-cpu-cores@v2
+
+        - id: cmake_build
+          name: Build
+          run: |
+            cd build
+            cmake .. -DARCHITECTURE=${{ matrix.architecture }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
+            cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
+
+
+        - id: pack_artifacts_unix
+          name: Pack artifacts
+          run: |
+            UPLOAD_NAME=$RUNNER_OS-${{ matrix.architecture }}.zip
+            echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
+            rm -f build/libs/llamalib_tests
+            zip -j $UPLOAD_NAME build/licenses/* build/libs/*
+
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_NAME }}
+
+
+  macOS-x64-build:
+    runs-on: macos-13
+
+    strategy:
+      matrix:
+        include:
+          - architecture: 'x64-acc'
+          - architecture: 'x64-no_acc'
+
+    steps:
+        - continue-on-error: true
+          id: setup_libs_macos
+          name: Dependencies
+          run: |
+            echo "Architecture: $(uname -m)"
+            echo "Operating System: $(uname -s)"
+            brew update
+
+
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
+          with:
+            submodules: recursive
+
+        - id: setup_llama_cpp
+          name: Setup llama.cpp
+          run: |
+            mkdir -p build/licenses build/libs
+        
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+        
+            for f in ../patches/*;do
+              git apply $f
+            done
+        
+            if [[ "${{ matrix.architecture }}" == "tinyblas" ]]; then
+              mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
+              rm -r ggml/src/ggml-cuda
+              cp -R ../tinyBLAS ggml/src/ggml-cuda
+              mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
+            fi
+        
+            for f in examples/server/public/*;do
+                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
+            done
+          shell: bash
+
+        - id: add_licenses
+          name: Add licenses
+          run: |
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+            if [[ "${{ matrix.architecture }}" == "tinyblas" ]]; then
+              curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+            fi
+          shell: bash
+
+
+        - id: cpu-cores
+          name: Get number of CPU cores
+          uses: SimenB/github-actions-cpu-cores@v2
+
+        - id: cmake_build
+          name: Build
+          run: |
+            cd build
+            cmake .. -DARCHITECTURE=${{ matrix.architecture }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
+            cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
+
+        - id: test_build_unix
+          if: matrix.architecture != 'avx512' && !contains(matrix.architecture, 'blas')
+          name: Test
+          run: |
+            cd build/libs
+            curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
+            ./llamalib_tests -m model.gguf -np 1 --log-disable
+            rm model.gguf
+
+
+        - id: pack_artifacts_unix
+          name: Pack artifacts
+          run: |
+            UPLOAD_NAME=$RUNNER_OS-${{ matrix.architecture }}.zip
+            echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
+            rm -f build/libs/llamalib_tests
+            zip -j $UPLOAD_NAME build/licenses/* build/libs/*
+
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_NAME }}
+
+
+
+################################ Windows ################################
+
+  windows-build:
+    runs-on: windows-2019
+
+    env:
+      VULKAN_VERSION: 1.3.261.1
+      PLATFORM: windows
+
+    strategy:
+      matrix:
+        include:
+          - architecture: 'noavx'
+          - architecture: 'avx2'
+          - architecture: 'avx'
+          - architecture: 'avx512'
+          - architecture: 'vulkan'
+          - architecture: 'tinyblas'
+          - architecture: 'cublas'
+
+    steps:
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
+          with:
+            submodules: recursive
+
+        - id: setup_llama_cpp
+          name: Setup llama.cpp
+          run: |
+            mkdir -p build/licenses build/libs
+        
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+        
+            for f in ../patches/*;do
+              git apply $f
+            done
+        
+            if [[ "${{ matrix.architecture }}" == "tinyblas" ]]; then
+              mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
+              rm -r ggml/src/ggml-cuda
+              cp -R ../tinyBLAS ggml/src/ggml-cuda
+              mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
+            fi
+        
+            for f in examples/server/public/*;do
+                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
+            done
+          shell: bash
+
+        - id: add_licenses
+          name: Add licenses
+          run: |
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+            if [[ "${{ matrix.architecture }}" == "tinyblas" ]]; then
+              curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+            fi
+          shell: bash
+
+
+        - id: setup_vulcan_windows
+          if: matrix.architecture == 'vulkan'
+          name: Install Vulkan SDK
+          run: |
+            curl.exe -o $env:RUNNER_TEMP/VulkanSDK-Installer.exe -L "https://sdk.lunarg.com/sdk/download/${env:VULKAN_VERSION}/windows/VulkanSDK-${env:VULKAN_VERSION}-Installer.exe"
+            & "$env:RUNNER_TEMP\VulkanSDK-Installer.exe" --accept-licenses --default-answer --confirm-command install
+            Add-Content $env:GITHUB_ENV "VULKAN_SDK=C:\VulkanSDK\${env:VULKAN_VERSION}"
+            Add-Content $env:GITHUB_PATH "C:\VulkanSDK\${env:VULKAN_VERSION}\bin"
+            curl.exe -o $env:RUNNER_TEMP/VulkanRT-Components.zip -L "https://sdk.lunarg.com/sdk/download/1.3.283.0/windows/VulkanRT-1.3.283.0-Components.zip"
+            7z x "-o${env:RUNNER_TEMP}" $env:RUNNER_TEMP/VulkanRT-Components.zip
+            mkdir .\build\libs\Release
+            cp ${env:RUNNER_TEMP}/VulkanRT*\x64\vulkan-1.dll .\build\libs\Release
+
+        - id: setup_openssl_windows
+          name: Install OpenSSL
+          run: |
+            choco install openssl --no-progress
+            $OPENSSL_ROOT_DIR = 'C:\Program Files\OpenSSL'
+            Copy-Item $OPENSSL_ROOT_DIR\lib\VC\x64\MD\*.lib $OPENSSL_ROOT_DIR\lib\
+            Copy-Item $OPENSSL_ROOT_DIR\lib\libcrypto_static.lib $OPENSSL_ROOT_DIR\lib\libcrypto.a
+            Copy-Item $OPENSSL_ROOT_DIR\lib\libssl_static.lib $OPENSSL_ROOT_DIR\lib\libssl.a
+            Add-Content $env:GITHUB_ENV "OPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR"
+
+        - id: setup_cuda_windows
+          if: matrix.architecture == 'cublas' || matrix.architecture == 'tinyblas'
+          uses: Jimver/cuda-toolkit@v0.2.15
+          with:
+            cuda: ${{ env.CUDA }}
+            method: network
+            sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust", "visual_studio_integration"]'
+
+
+        - id: cpu-cores
+          name: Get number of CPU cores
+          uses: SimenB/github-actions-cpu-cores@v2
+
+        - id: cmake_build
+          name: Build
+          run: |
+            cd build
+            cmake .. -DARCHITECTURE=${{ matrix.architecture }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
+            cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
+
+
+        - id: copy_cuda_dlls
+          if: matrix.architecture == 'cublas'
+          name: Copy Cuda DLLs
+          run: |
+            mv "${{ env.CUDA_PATH }}"/bin/cudart64_*.dll build/libs/Release
+            mv "${{ env.CUDA_PATH }}"/bin/cublas64_*.dll build/libs/Release
+            mv "${{ env.CUDA_PATH }}"/bin/cublasLt64_*.dll build/libs/Release
+          shell: bash
+
+        - id: pack_artifacts_windows
+          name: Pack artifacts
+          run: |
+            $env:UPLOAD_NAME=$RUNNER_OS-${{ matrix.architecture }}.zip"
+            ls -R build
+            mkdir artifacts
+            move .\build\licenses\* .\artifacts\
+            move .\build\Release\* .\artifacts\
+            move .\build\libs\Release\*dll .\artifacts\
+            del artifacts/llamalib_tests.*
+            $serverPath = ".\build\libs\Release\llamalib_server.exe"
+            if (Test-Path $serverPath) {
+                move $serverPath -Destination ".\artifacts\"
+            }
+            cd artifacts
+            7z a ../${{ env.UPLOAD_NAME }} *
+
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_NAME }}
+
+
+  windows-hip:
+    runs-on: windows-2019
+
+    env:
+      PLATFORM: windows
+    
+    strategy:
+      matrix:
+        include:
+          - architecture: 'hip'
+
+    steps:
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
+          with:
+            submodules: recursive
+
+        - id: setup_llama_cpp
+          name: Setup llama.cpp
+          run: |
+            mkdir -p build/licenses build/libs
+        
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+        
+            for f in ../patches/*;do
+              git apply $f
+            done
+        
+            if [[ "${{ matrix.architecture }}" == "tinyblas" ]]; then
+              mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
+              rm -r ggml/src/ggml-cuda
+              cp -R ../tinyBLAS ggml/src/ggml-cuda
+              mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
+            fi
+        
+            for f in examples/server/public/*;do
+                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
+            done
+          shell: bash
+
+        - id: add_licenses
+          name: Add licenses
+          run: |
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+            if [[ "${{ matrix.architecture }}" == "tinyblas" ]]; then
+              curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+            fi
+          shell: bash
+
+
+        - id: setup_openssl_windows
+          name: Install OpenSSL
+          run: |
+            choco install openssl --no-progress
+            $OPENSSL_ROOT_DIR = 'C:\Program Files\OpenSSL'
+            Copy-Item $OPENSSL_ROOT_DIR\lib\VC\x64\MD\*.lib $OPENSSL_ROOT_DIR\lib\
+            Copy-Item $OPENSSL_ROOT_DIR\lib\libcrypto_static.lib $OPENSSL_ROOT_DIR\lib\libcrypto.a
+            Copy-Item $OPENSSL_ROOT_DIR\lib\libssl_static.lib $OPENSSL_ROOT_DIR\lib\libssl.a
+            Add-Content $env:GITHUB_ENV "OPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR"
+
+        - id: setup_hip_windows
+          name: Install
+          run: |
+            $ErrorActionPreference = "Stop"
+            write-host "Downloading AMD HIP SDK Installer"
+            Invoke-WebRequest -Uri "https://download.amd.com/developer/eula/rocm-hub/AMD-Software-PRO-Edition-23.Q4-WinSvr2022-For-HIP.exe" -OutFile "${env:RUNNER_TEMP}\rocm-install.exe"
+            write-host "Installing AMD HIP SDK"
+            Start-Process "${env:RUNNER_TEMP}\rocm-install.exe" -ArgumentList '-install' -NoNewWindow -Wait
+            write-host "Completed AMD HIP SDK installation"
+            & 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' --version
+
+
+        - id: cpu-cores
+          name: Get number of CPU cores
+          uses: SimenB/github-actions-cpu-cores@v2
+
+        - id: cmake_build_hip_windows
+          name: Build
+          run: |
+            $env:HIP_PATH=$(Resolve-Path 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' | split-path | split-path)
+            $env:CMAKE_PREFIX_PATH="${env:HIP_PATH}"
+            cd build
+            cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
+            cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
+
+
+        - id: pack_artifacts_windows
+          name: Pack artifacts
+          run: |
+            $env:UPLOAD_NAME=$RUNNER_OS-${{ matrix.architecture }}.zip"
+            ls -R build
+            mkdir artifacts
+            move .\build\licenses\* .\artifacts\
+            move .\build\Release\* .\artifacts\
+            move .\build\libs\Release\*dll .\artifacts\
+            del artifacts/llamalib_tests.*
+            $serverPath = ".\build\libs\Release\llamalib_server.exe"
+            if (Test-Path $serverPath) {
+                move $serverPath -Destination ".\artifacts\"
+            }
+            cd artifacts
+            7z a ../${{ env.UPLOAD_NAME }} *
+
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_NAME }}
+
+
+################################ Android ################################
+
+  android-build:
+    runs-on: ubuntu-22.04
+
+    steps:
+        - id: setup_libs_linux
+          name: Dependencies
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
+
+
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
+          with:
+            submodules: recursive
+
+        - id: setup_llama_cpp
+          name: Setup llama.cpp
+          run: |
+            mkdir -p build/licenses build/libs
+        
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+        
+            for f in ../patches/*;do
+              git apply $f
+            done
+        
+            if [[ "${{ matrix.architecture }}" == "tinyblas" ]]; then
+              mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
+              rm -r ggml/src/ggml-cuda
+              cp -R ../tinyBLAS ggml/src/ggml-cuda
+              mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
+            fi
+        
+            for f in examples/server/public/*;do
+                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
+            done
+          shell: bash
+
+        - id: add_licenses
+          name: Add licenses
+          run: |
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+            if [[ "${{ matrix.architecture }}" == "tinyblas" ]]; then
+              curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+            fi
+          shell: bash
+
+
+        - id: set_ndk_var_linux
+          name: Set NDK variable
+          run: |
+            echo "NDK=`ls -d /usr/local/lib/android/sdk/ndk/26.*`" >> $GITHUB_ENV
+
+        - id: cmake_build_android
+          name: Build
+          run: |
+            export LD_LIBRARY_PATH=""
+            cd build
+            for arch in "arm64-v8a,armv8-a" "x86_64,x86-64";do
+              ABI=`echo $arch | cut -d',' -f1`
+              MARCH=`echo $arch | cut -d',' -f2`
+        
+              mkdir $ABI libs/$ABI
+              cd $ABI
+              cmake ../.. -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=$ABI -DCMAKE_C_FLAGS=-march=$MARCH ${{ matrix.cmake_vars }}
+              cmake --build . --config Release -j $(nproc)
+              cd ..
+        
+              mv libs/libllamalib_android.so libs/$ABI
+            done
+
+
+        - id: pack_artifacts_android
+          name: Pack artifacts
+          run: |
+            UPLOAD_NAME=android.zip
+            echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
+            rm -f build/libs/llamalib_tests
+            cd build
+            for d in libs licenses;do
+              cd $d
+              zip -r ../../$UPLOAD_NAME *
+              cd ..
+            done
+
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_NAME }}
+
+
+################################ iOS ################################
+
+  ios-build:
+    runs-on: macos-14
+
+    strategy:
+      matrix:
+        include:
+          - architecture: 'ios'
+            cmake_vars: '-DCMAKE_SYSTEM_NAME=iOS'
+          - architecture: 'visionos'
+            cmake_vars: '-DCMAKE_SYSTEM_NAME=visionOS'
+
+    steps:
+        - continue-on-error: true
+          id: setup_libs_macos
+          name: Dependencies
+          run: |
+            echo "Architecture: $(uname -m)"
+            echo "Operating System: $(uname -s)"
+            brew update
+
+
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
+          with:
+            submodules: recursive
+
+        - id: setup_llama_cpp
+          name: Setup llama.cpp
+          run: |
+            mkdir -p build/licenses build/libs
+        
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+        
+            for f in ../patches/*;do
+              git apply $f
+            done
+        
+            if [[ "${{ matrix.architecture }}" == "tinyblas" ]]; then
+              mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
+              rm -r ggml/src/ggml-cuda
+              cp -R ../tinyBLAS ggml/src/ggml-cuda
+              mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
+            fi
+        
+            for f in examples/server/public/*;do
+                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
+            done
+          shell: bash
+
+        - id: add_licenses
+          name: Add licenses
+          run: |
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+            if [[ "${{ matrix.architecture }}" == "tinyblas" ]]; then
+              curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+            fi
+          shell: bash
+
+
+        - id: cmake_build
+          name: Build
+          run: |
+            cd build
+            cmake .. -DARCHITECTURE=${{ matrix.architecture }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
+            cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
+
+        - id: link_libraries_ios
+          name: Link libraries
+          run: |
+            mkdir build/combo
+            cd build/combo
+            for f in `find .. -name "*.a"`;do ar -x $f;done
+            lib=`ls ../libllamalib*.a |grep -v runtime`
+            mv $lib $lib.orig
+            ld -r -o $lib *.o
+            nm -u $lib
+
+
+        - id: pack_artifacts_ios
+          name: Pack artifacts
+          run: |
+            UPLOAD_NAME=ios.zip
+            echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
+            zip -j $UPLOAD_NAME build/licenses/* build/libllamalib*.a
+
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.UPLOAD_NAME }}
+            path: ${{ env.UPLOAD_NAME }}
+
+
+################################ Release ################################
+
+  create_release:
+    name: Create Release
+    runs-on: macos-14
+    needs:
+      - archchecker_linux_build
+      - archchecker_windows_build
+      - linux-build
+      - linux-hip
+      - macOS-arm64-build
+      - macOS-x64-build
+      - windows-build
+      - windows-hip
+      - android-build
+      - ios-build
+    steps:
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
+          with:
+            submodules: recursive
+
+        - id: set_release_prefix
+          name: Set prefix
+          run: |
+            echo "PREFIX=llamalib-${{ github.ref_name }}" >> $GITHUB_ENV
+          shell: bash
+
+        - id: download_artifacts
+          name: Download Artifacts
+          uses: actions/download-artifact@v4
+          with:
+            path: artifacts
+
+        - id: unzip_artifacts
+          name: Unzip artifacts
+          run: |
+            cd artifacts
+            ls -R
+        
+            for d in *.zip;do
+              cd $d; unzip $d; rm $d; cd ..;
+              echo $d  sed -e 's:.zip::g' >> bundle
+            done
+
+        - id: combine_macos_libraries
+          name: Merge macOS libraries
+          run: |
+            cd artifacts
+            for acc in acc no_acc;do
+                mkdir macos-$acc
+                lipo -create -output macos-$acc/libllamalib_macos-$acc.dylib macos-x64-$acc/libllamalib_macos-x64-$acc.dylib macos-arm64-$acc/libllamalib_macos-arm64-$acc.dylib
+                cp `ls macos-x64-$acc/* | grep -v ".dylib"` macos-$acc
+                rm -r macos-x64-$acc macos-arm64-$acc
+                sed -i.bak "/macos-x64-$acc/d" bundle
+                sed -i.bak "/macos-arm64-$acc/d" bundle
+                echo macos-$acc >> bundle
+            done
+
+        - id: merge_artifacts
+          name: Merge artifacts
+          run: |
+            cd artifacts
+        
+            servers=`find . -name llamalib_server*`
+            if [ "$servers" != "" ];then
+              zip -r llamalib-${{ github.ref_name }}-server.zip $servers
+              rm $servers
+            fi
+        
+            zip -r $PREFIX.zip `cat bundle | grep -v full` linux-archchecker windows-archchecker
+            zip -r $PREFIX-full.zip `cat bundle | grep full`
+
+        - id: release
+          name: Release
+          uses: softprops/action-gh-release@v2
+          with:
+            files: artifacts/*.zip
+            name: Release ${{ github.ref_name }}
 

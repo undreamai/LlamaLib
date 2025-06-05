@@ -92,7 +92,7 @@ jobs:
         id: cmake_build
         run: |
           cd build
-          cmake .. -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DARCHITECTURE=${{ matrix.architecture }} ${{ matrix.cmake_vars }}
+          cmake .. -DARCHITECTURE=${{ matrix.architecture }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
 ################################ Linux ################################
@@ -197,7 +197,7 @@ jobs:
           $env:HIP_PATH=$(Resolve-Path 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' | split-path | split-path)
           $env:CMAKE_PREFIX_PATH="${env:HIP_PATH}"
           cd build
-          cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe"
+          cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
       - name: Copy Cuda DLLs
@@ -263,7 +263,7 @@ jobs:
 
             mkdir $ABI libs/$ABI
             cd $ABI
-            cmake ../.. -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=$ABI -DCMAKE_C_FLAGS=-march=$MARCH
+            cmake ../.. -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=$ABI -DCMAKE_C_FLAGS=-march=$MARCH ${{ matrix.cmake_vars }}
             cmake --build . --config Release -j $(nproc)
             cd ..
 
