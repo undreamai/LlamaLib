@@ -105,8 +105,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: 'arm64-acc'
-          - arch: 'arm64-no_acc'
+          - arch: 'arm64_acc'
+          - arch: 'arm64_no_acc'
 
     steps:
         @@setup_libs_macos@@
@@ -128,8 +128,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: 'x64-acc'
-          - arch: 'x64-no_acc'
+          - arch: 'x64_acc'
+          - arch: 'x64_no_acc'
 
     steps:
         @@setup_libs_macos@@

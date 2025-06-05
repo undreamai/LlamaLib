@@ -306,8 +306,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: 'arm64-acc'
-          - arch: 'arm64-no_acc'
+          - arch: 'arm64_acc'
+          - arch: 'arm64_no_acc'
 
     steps:
         - continue-on-error: true
@@ -404,8 +404,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: 'x64-acc'
-          - arch: 'x64-no_acc'
+          - arch: 'x64_acc'
+          - arch: 'x64_no_acc'
 
     steps:
         - continue-on-error: true
@@ -999,13 +999,13 @@ jobs:
           run: |
             cd artifacts
             for acc in acc no_acc;do
-                mkdir macos-$acc
-                lipo -create -output macos-$acc/libllamalib_macos-$acc.dylib macos-x64-$acc/libllamalib_macos-x64-$acc.dylib macos-arm64-$acc/libllamalib_macos-arm64-$acc.dylib
-                cp `ls macos-x64-$acc/* | grep -v ".dylib"` macos-$acc
-                rm -r macos-x64-$acc macos-arm64-$acc
-                sed -i.bak "/macos-x64-$acc/d" bundle
-                sed -i.bak "/macos-arm64-$acc/d" bundle
-                echo macos-$acc >> bundle
+                mkdir macos_${acc}
+                lipo -create -output macos_${acc}/libllamalib_macos_${acc}.dylib macos_x64_${acc}/libllamalib_macos_x64_${acc}.dylib macos_arm64_${acc}/libllamalib_macos_arm64_${acc}.dylib
+                cp `ls macos_x64_${acc}/* | grep -v ".dylib"` macos_${acc}
+                rm -r macos_x64_${acc} macos_arm64_${acc}
+                sed -i.bak "/macos_x64_${acc}/d" bundle
+                sed -i.bak "/macos_arm64_${acc}/d" bundle
+                echo macos_${acc} >> bundle
             done
 
         - id: merge_artifacts
