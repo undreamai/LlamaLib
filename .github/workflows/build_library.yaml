@@ -624,7 +624,7 @@ jobs:
             del artifacts/llamalib_tests.*
             $serverPath = ".\build\libs\Release\llamalib_server.exe"
             if (Test-Path $serverPath) {
-                move $serverPath -Destination ".\artifacts\"
+                move $serverPath -Destination '.\artifacts\'
             }
             cd artifacts
             7z a ../${{ env.UPLOAD_NAME }} *
@@ -738,7 +738,7 @@ jobs:
             del artifacts/llamalib_tests.*
             $serverPath = ".\build\libs\Release\llamalib_server.exe"
             if (Test-Path $serverPath) {
-                move $serverPath -Destination ".\artifacts\"
+                move $serverPath -Destination '.\artifacts\'
             }
             cd artifacts
             7z a ../${{ env.UPLOAD_NAME }} *
