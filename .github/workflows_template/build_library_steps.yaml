@@ -143,10 +143,9 @@ jobs:
           echo "CMAKE_HIP_COMPILER=$(hipconfig -l)/clang" >> $GITHUB_ENV
 
       - name: Test
-        id: test_build_unix
-        if: matrix.arch == 'noavx' || matrix.arch == 'avx2' || contains(matrix.arch, 'acc')
+        id: test_build_linux
+        if: matrix.arch == 'noavx' || matrix.arch == 'avx2'
         run: |
-          ls -R build
           cd build/libs
           curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
           ./llamalib_tests -m model.gguf -np 1 --log-disable
@@ -167,6 +166,16 @@ jobs:
           echo "Architecture: $(uname -m)"
           echo "Operating System: $(uname -s)"
           brew update
+
+      - name: Test
+        id: test_build_macos
+        run: |
+          cd build/libs
+          templib=libllamalib_macos_`echo ${matrix.arch}|cut -d'_' -f2-`.dylib
+          ln -s libllamalib_macos_${matrix.arch}.dylib $templib
+          curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
+          ./llamalib_tests -m model.gguf -np 1 --log-disable
+          rm model.gguf $templib
 
 ################################ Windows ################################
 

@@ -181,11 +181,10 @@ jobs:
             cmake .. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
-        - id: test_build_unix
-          if: matrix.arch == 'noavx' || matrix.arch == 'avx2' || contains(matrix.arch, 'acc')
+        - id: test_build_linux
+          if: matrix.arch == 'noavx' || matrix.arch == 'avx2'
           name: Test
           run: |
-            ls -R build
             cd build/libs
             curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
             ./llamalib_tests -m model.gguf -np 1 --log-disable
@@ -376,15 +375,15 @@ jobs:
             cmake .. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
-        - id: test_build_unix
-          if: matrix.arch == 'noavx' || matrix.arch == 'avx2' || contains(matrix.arch, 'acc')
+        - id: test_build_macos
           name: Test
           run: |
-            ls -R build
             cd build/libs
+            templib=libllamalib_macos_`echo ${matrix.arch}|cut -d'_' -f2-`.dylib
+            ln -s libllamalib_macos_${matrix.arch}.dylib $templib
             curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
             ./llamalib_tests -m model.gguf -np 1 --log-disable
-            rm model.gguf
+            rm model.gguf $templib
 
 
         - id: pack_artifacts_unix
@@ -475,15 +474,15 @@ jobs:
             cmake .. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
-        - id: test_build_unix
-          if: matrix.arch == 'noavx' || matrix.arch == 'avx2' || contains(matrix.arch, 'acc')
+        - id: test_build_macos
           name: Test
           run: |
-            ls -R build
             cd build/libs
+            templib=libllamalib_macos_`echo ${matrix.arch}|cut -d'_' -f2-`.dylib
+            ln -s libllamalib_macos_${matrix.arch}.dylib $templib
             curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
             ./llamalib_tests -m model.gguf -np 1 --log-disable
-            rm model.gguf
+            rm model.gguf $templib
 
 
         - id: pack_artifacts_unix

@@ -68,7 +68,7 @@ jobs:
 
         @@cpu-cores@@
         @@cmake_build@@
-        @@test_build_unix@@
+        @@test_build_linux@@
 
         @@pack_artifacts_unix@@
         @@upload@@
@@ -117,7 +117,7 @@ jobs:
 
         @@cpu-cores@@
         @@cmake_build@@
-        @@test_build_unix@@
+        @@test_build_macos@@
 
         @@pack_artifacts_unix@@
         @@upload@@
@@ -140,7 +140,7 @@ jobs:
 
         @@cpu-cores@@
         @@cmake_build@@
-        @@test_build_unix@@
+        @@test_build_macos@@
 
         @@pack_artifacts_unix@@
         @@upload@@
