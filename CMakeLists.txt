@@ -200,7 +200,9 @@ target_link_options(${STATIC_LIBRARY} PRIVATE -Wl,--no-undefined)
 if (LLAMALIB_BUILD_RUNTIME_LIB)
     set(RUNTIME_LIBRARY "${LIBRARY_NAME}_runtime")
     create_library(${RUNTIME_LIBRARY} LLM_runtime.cpp)
-    target_link_libraries(${RUNTIME_LIBRARY} PRIVATE FeatureDetector archchecker)
+    if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR OS STREQUAL "Linux")
+        target_link_libraries(${RUNTIME_LIBRARY} PRIVATE FeatureDetector archchecker)
+    endif()
 endif()
 
 # build executables

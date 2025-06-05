@@ -7,9 +7,12 @@
 #include <setjmp.h>
 
 #include "defs.h"
-#include "archchecker.h"
 #include "error_handling.h"
 #include "LLM.h"
+
+#if defined(_WIN32) || defined(__linux__)
+#include "archchecker.h"
+#endif
 
 #if defined(__APPLE__)
 #include <TargetConditionals.h>
