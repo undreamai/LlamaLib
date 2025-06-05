@@ -622,7 +622,7 @@ jobs:
             move .\build\Release\* .\artifacts\
             move .\build\libs\Release\*dll .\artifacts\
             del artifacts/llamalib_tests.*
-            $serverPath = ".\build\libs\Release\llamalib_server.exe"
+            $serverPath = '.\build\libs\Release\llamalib_server.exe'
             if (Test-Path $serverPath) {
                 move $serverPath -Destination '.\artifacts\'
             }
@@ -736,7 +736,7 @@ jobs:
             move .\build\Release\* .\artifacts\
             move .\build\libs\Release\*dll .\artifacts\
             del artifacts/llamalib_tests.*
-            $serverPath = ".\build\libs\Release\llamalib_server.exe"
+            $serverPath = '.\build\libs\Release\llamalib_server.exe'
             if (Test-Path $serverPath) {
                 move $serverPath -Destination '.\artifacts\'
             }
