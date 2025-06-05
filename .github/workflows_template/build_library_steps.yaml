@@ -75,6 +75,9 @@ jobs:
               cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
           done
 
+          UPLOAD_NAME=$RUNNER_OS-${{ matrix.arch }}.zip
+          echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
+
       - name: Add licenses
         id: add_licenses
         shell: bash
@@ -141,7 +144,7 @@ jobs:
 
       - name: Test
         id: test_build_unix
-        if: matrix.arch != 'avx512' && matrix.arch != 'avx' && !contains(matrix.arch, 'blas')
+        if: matrix.arch == 'noavx' || matrix.arch == 'avx2' || contains(matrix.arch, 'acc')
         run: |
           ls -R build
           cd build/libs
@@ -152,8 +155,6 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts_unix
         run: |
-          UPLOAD_NAME=$RUNNER_OS-${{ matrix.arch }}.zip
-          echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
           rm -f build/libs/llamalib_tests
           zip -j $UPLOAD_NAME build/licenses/* build/libs/*
 
@@ -213,7 +214,6 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts_windows
         run: |
-          $env:UPLOAD_NAME="$RUNNER_OS-${{ matrix.arch }}.zip"
           ls -R build
           mkdir artifacts
           move .\build\licenses\* .\artifacts\
@@ -274,8 +274,6 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts_android
         run: |
-          UPLOAD_NAME=android.zip
-          echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
           rm -f build/libs/llamalib_tests
           cd build
           for d in libs licenses;do
@@ -298,8 +296,6 @@ jobs:
       - id: pack_artifacts_ios
         name: Pack artifacts
         run: |
-          UPLOAD_NAME=ios.zip
-          echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
           zip -j $UPLOAD_NAME build/licenses/* build/libllamalib*.a
 
       - id: link_libraries_ios

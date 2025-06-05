@@ -212,6 +212,11 @@ jobs:
   android-build:
     runs-on: ubuntu-22.04
 
+    strategy:
+      matrix:
+        include:
+          - arch: 'android'
+
     steps:
         @@setup_libs_linux@@
 
