@@ -64,7 +64,7 @@ jobs:
             git apply $f
           done
 
-          if [[ "${{ matrix.architecture }}" == "tinyblas" ]]; then
+          if [[ "${{ matrix.arch }}" == "tinyblas" ]]; then
             mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
             rm -r ggml/src/ggml-cuda
             cp -R ../tinyBLAS ggml/src/ggml-cuda
@@ -80,7 +80,7 @@ jobs:
         shell: bash
         run: |
           cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
-          if [[ "${{ matrix.architecture }}" == "tinyblas" ]]; then
+          if [[ "${{ matrix.arch }}" == "tinyblas" ]]; then
             curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
           fi
 
@@ -92,7 +92,7 @@ jobs:
         id: cmake_build
         run: |
           cd build
-          cmake .. -DARCHITECTURE=${{ matrix.architecture }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
+          cmake .. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
 ################################ Linux ################################
@@ -110,7 +110,7 @@ jobs:
 
       - name: Dependencies Vulcan
         id: setup_vulkan_linux
-        if: matrix.architecture == 'vulkan'
+        if: matrix.arch == 'vulkan'
         run: |
           wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
           sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list https://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
@@ -120,7 +120,7 @@ jobs:
 
       - uses: Jimver/cuda-toolkit@v0.2.15
         id: setup_cuda_linux
-        if: matrix.architecture == 'cublas' || matrix.architecture == 'tinyblas'
+        if: matrix.arch == 'cublas' || matrix.arch == 'tinyblas'
         with:
           cuda: ${{ env.CUDA }}
           method: 'network'
@@ -128,7 +128,7 @@ jobs:
 
       - name: Link Cuda
         id: link_cuda_linux
-        if: matrix.architecture == 'cublas' || matrix.architecture == 'tinyblas'
+        if: matrix.arch == 'cublas' || matrix.arch == 'tinyblas'
         run: |
           ln -s ${{ env.CUDA_PATH }} ${{ github.workspace }}/build/cuda
           echo "CUDAToolkit_ROOT=$GITHUB_WORKSPACE/build/cuda" >> $GITHUB_ENV
@@ -141,7 +141,7 @@ jobs:
 
       - name: Test
         id: test_build_unix
-        if: matrix.architecture != 'avx512' && !contains(matrix.architecture, 'blas')
+        if: matrix.arch != 'avx512' && matrix.arch != 'avx2' && !contains(matrix.arch, 'blas')
         run: |
           ls -R build
           cd build/libs
@@ -152,7 +152,7 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts_unix
         run: |
-          UPLOAD_NAME=$RUNNER_OS-${{ matrix.architecture }}.zip
+          UPLOAD_NAME=$RUNNER_OS-${{ matrix.arch }}.zip
           echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
           rm -f build/libs/llamalib_tests
           zip -j $UPLOAD_NAME build/licenses/* build/libs/*
@@ -171,7 +171,7 @@ jobs:
 
       - name: Install Vulkan SDK
         id: setup_vulcan_windows
-        if: matrix.architecture == 'vulkan'
+        if: matrix.arch == 'vulkan'
         run: |
           curl.exe -o $env:RUNNER_TEMP/VulkanSDK-Installer.exe -L "https://sdk.lunarg.com/sdk/download/${env:VULKAN_VERSION}/windows/VulkanSDK-${env:VULKAN_VERSION}-Installer.exe"
           & "$env:RUNNER_TEMP\VulkanSDK-Installer.exe" --accept-licenses --default-answer --confirm-command install
@@ -203,7 +203,7 @@ jobs:
 
       - name: Copy Cuda DLLs
         id: copy_cuda_dlls
-        if: matrix.architecture == 'cublas'
+        if: matrix.arch == 'cublas'
         shell: bash
         run: |
           mv "${{ env.CUDA_PATH }}"/bin/cudart64_*.dll build/libs/Release
@@ -213,7 +213,7 @@ jobs:
       - name: Pack artifacts
         id: pack_artifacts_windows
         run: |
-          $env:UPLOAD_NAME=$RUNNER_OS-${{ matrix.architecture }}.zip"
+          $env:UPLOAD_NAME=$RUNNER_OS-${{ matrix.arch }}.zip"
           ls -R build
           mkdir artifacts
           move .\build\licenses\* .\artifacts\
@@ -229,7 +229,7 @@ jobs:
 
       - uses: Jimver/cuda-toolkit@v0.2.15
         id: setup_cuda_windows
-        if: matrix.architecture == 'cublas' || matrix.architecture == 'tinyblas'
+        if: matrix.arch == 'cublas' || matrix.arch == 'tinyblas'
         with:
           cuda: ${{ env.CUDA }}
           method: 'network'

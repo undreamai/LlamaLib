@@ -47,13 +47,13 @@ jobs:
     strategy:
       matrix:
         include:
-          - architecture: 'noavx'
-          - architecture: 'avx2'
-          - architecture: 'avx'
-          - architecture: 'avx512'
-          - architecture: 'vulkan'
-          - architecture: 'tinyblas'
-          - architecture: 'cublas'
+          - arch: 'noavx'
+          - arch: 'avx2'
+          - arch: 'avx'
+          - arch: 'avx512'
+          - arch: 'vulkan'
+          - arch: 'tinyblas'
+          - arch: 'cublas'
             
     steps:
         @@setup_libs_linux@@
@@ -80,7 +80,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - architecture: 'hip'
+          - arch: 'hip'
 
     steps:
         @@setup_libs_linux@@
@@ -105,8 +105,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - architecture: 'arm64-acc'
-          - architecture: 'arm64-no_acc'
+          - arch: 'arm64-acc'
+          - arch: 'arm64-no_acc'
 
     steps:
         @@setup_libs_macos@@
@@ -117,6 +117,7 @@ jobs:
 
         @@cpu-cores@@
         @@cmake_build@@
+        @@test_build_unix@@
 
         @@pack_artifacts_unix@@
         @@upload@@
@@ -127,8 +128,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - architecture: 'x64-acc'
-          - architecture: 'x64-no_acc'
+          - arch: 'x64-acc'
+          - arch: 'x64-no_acc'
 
     steps:
         @@setup_libs_macos@@
@@ -157,13 +158,13 @@ jobs:
     strategy:
       matrix:
         include:
-          - architecture: 'noavx'
-          - architecture: 'avx2'
-          - architecture: 'avx'
-          - architecture: 'avx512'
-          - architecture: 'vulkan'
-          - architecture: 'tinyblas'
-          - architecture: 'cublas'
+          - arch: 'noavx'
+          - arch: 'avx2'
+          - arch: 'avx'
+          - arch: 'avx512'
+          - arch: 'vulkan'
+          - arch: 'tinyblas'
+          - arch: 'cublas'
 
     steps:
         @@checkout@@
@@ -190,7 +191,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - architecture: 'hip'
+          - arch: 'hip'
 
     steps:
         @@checkout@@
@@ -232,9 +233,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - architecture: 'ios'
+          - arch: 'ios'
             cmake_vars: '-DCMAKE_SYSTEM_NAME=iOS'
-          - architecture: 'visionos'
+          - arch: 'visionos'
             cmake_vars: '-DCMAKE_SYSTEM_NAME=visionOS'
 
     steps:
