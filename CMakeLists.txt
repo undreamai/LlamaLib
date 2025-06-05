@@ -199,7 +199,7 @@ target_link_options(${STATIC_LIBRARY} PRIVATE -Wl,--no-undefined)
 # build runtime library
 if (LLAMALIB_BUILD_RUNTIME_LIB)
     set(RUNTIME_LIBRARY "${LIBRARY_NAME}_runtime")
-    create_library(${RUNTIME_LIBRARY} LLM_lib.cpp)
+    create_library(${RUNTIME_LIBRARY} LLM_runtime.cpp)
     target_link_libraries(${RUNTIME_LIBRARY} PRIVATE FeatureDetector archchecker)
 endif()
 

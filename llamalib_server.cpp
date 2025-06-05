@@ -1,5 +1,5 @@
 #ifdef LLAMALIB_BUILD_RUNTIME_LIB
-#include "LLM_lib.h"
+#include "LLM_runtime.h"
 #else
 #include "LLM_service.h"
 #endif
@@ -9,7 +9,7 @@ int main(int argc, char ** argv) {
     std::cout << command << std::endl;
 
 #ifdef LLAMALIB_BUILD_RUNTIME_LIB
-    LLMLib* llm = LLMLib_Construct(command);
+    LLMRuntime* llm = LLMRuntime_Construct(command);
     if (!llm) {
         std::cout << "Failed to load any backend." << std::endl;
         return 1;

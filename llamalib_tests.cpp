@@ -1,7 +1,7 @@
 #include "LLM_service.h"
 #include "LLM_client.h"
 #ifdef LLAMALIB_BUILD_RUNTIME_LIB
-#include "LLM_lib.h"
+#include "LLM_runtime.h"
 #endif
 
 #ifndef _WIN32
@@ -195,9 +195,9 @@ LLMService* start_llm_service(const std::string& command)
 }
 
 #ifdef LLAMALIB_BUILD_RUNTIME_LIB
-LLMLib* start_llm_lib(std::string command)
+LLMRuntime* start_llm_lib(std::string command)
 {
-    LLMLib* llmlib = LLMLib_Construct(command);
+    LLMRuntime* llmlib = LLMRuntime_Construct(command);
     if (!llmlib) {
         std::cerr << "Failed to load any backend." << std::endl;
         return nullptr;
@@ -439,7 +439,7 @@ int main(int argc, char** argv) {
 
 #ifdef LLAMALIB_BUILD_RUNTIME_LIB
     std::cout << "-------- LLM lib --------" << std::endl;
-    LLMLib* llmlib = start_llm_lib(command);
+    LLMRuntime* llmlib = start_llm_lib(command);
     EMBEDDING_SIZE = LLM_Embedding_Size(llmlib);
     run_LLMFull_tests(llmlib);
     stop_llm_service(llmlib);
