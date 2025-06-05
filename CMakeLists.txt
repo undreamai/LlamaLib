@@ -58,6 +58,12 @@ elseif(ARCHITECTURE STREQUAL "x64_no_acc")
     SET(GGML_BLAS OFF)
 elseif(ARCHITECTURE STREQUAL "avx2")
     # Nothing to define
+elseif(ARCHITECTURE STREQUAL "android_arm64")
+    SET(CMAKE_C_FLAGS "-march=armv8-a")
+    SET(ANDROID_ABI "arm64-v8a")
+elseif(ARCHITECTURE STREQUAL "android_x64")
+    SET(CMAKE_C_FLAGS "-march=x86-64")
+    SET(ANDROID_ABI "x86_64")
 elseif(ARCHITECTURE STREQUAL "ios")
     # Nothing to define
 elseif(ARCHITECTURE STREQUAL "visionos")
@@ -88,6 +94,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
     SET(GGML_OPENMP OFF)
     SET(ANDROID_PLATFORM android-23)
+    SET(CMAKE_TOOLCHAIN_FILE $ENV{NDK}/build/cmake/android.toolchain.cmake)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
     SET(GGML_METAL_EMBED_LIBRARY ON)
     SET(CMAKE_OSX_DEPLOYMENT_TARGET 14.0)
@@ -112,18 +119,28 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif()
 
 # Setup CURL
-if (WIN32)
-    set(CURL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/curl/include")
-    set(CURL_LIBRARY "${CMAKE_SOURCE_DIR}/curl/lib/libcurl_a.lib")
-    set(ZLIB_LIBRARY "${CMAKE_SOURCE_DIR}/curl/lib/zlibstatic.lib")
-    add_compile_definitions(CURL_STATICLIB)
-endif()
+if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+    set(CURL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/curl/android/${ANDROID_ABI}/include)
+    set(CURL_LIBRARIES
+        ${CMAKE_SOURCE_DIR}/curl/android/${ANDROID_ABI}/lib/libcurl.a 
+        ${CMAKE_SOURCE_DIR}/curl/android/${ANDROID_ABI}/lib/libssl.a 
+        ${CMAKE_SOURCE_DIR}/curl/android/${ANDROID_ABI}/lib/libcrypto.a 
+        ${CMAKE_SOURCE_DIR}/curl/android/${ANDROID_ABI}/lib/libz.a
+    )
+else()
+    if (WIN32)
+        set(CURL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/curl/windows/include")
+        set(CURL_LIBRARY "${CMAKE_SOURCE_DIR}/curl/windows/lib/libcurl_a.lib")
+        set(ZLIB_LIBRARY "${CMAKE_SOURCE_DIR}/curl/windows/lib/zlibstatic.lib")
+        add_compile_definitions(CURL_STATICLIB)
+    endif()
 
-find_package(CURL REQUIRED)
+    find_package(CURL REQUIRED)
 
-set(CURL_LIBRARIES ${CURL_LIBRARIES} ${ZLIB_LIBRARY})
-if (WIN32)
-    set(CURL_LIBRARIES ${CURL_LIBRARIES} ws2_32 Wldap32 crypt32 Normaliz)
+    set(CURL_LIBRARIES ${CURL_LIBRARIES} ${ZLIB_LIBRARY})
+    if (WIN32)
+        set(CURL_LIBRARIES ${CURL_LIBRARIES} ws2_32 Wldap32 crypt32 Normaliz)
+    endif()
 endif()
 
 # Output override

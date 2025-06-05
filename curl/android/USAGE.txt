@@ -1,0 +1,30 @@
+Using the Static curl Library in Android Projects
+================================================
+
+The built libcurl.a is completely static and has no external dependencies.
+
+For NDK/JNI Integration:
+-----------------------
+1. Copy libcurl.a to your project's libs directory
+2. Add to your CMakeLists.txt:
+
+   add_library(curl STATIC IMPORTED)
+   set_target_properties(curl PROPERTIES IMPORTED_LOCATION
+       ${CMAKE_SOURCE_DIR}/libs/${ANDROID_ABI}/libcurl.a)
+   
+   target_link_libraries(your_target curl)
+
+3. Include headers in your C/C++ code:
+   #include <curl/curl.h>
+
+Compiler Flags:
+--------------
+When linking, you may need these flags:
+-static -Wl,--gc-sections
+
+The library includes:
+- OpenSSL (SSL/TLS support)
+- zlib (compression support)
+- All required dependencies statically linked
+
+No additional .so files are required at runtime.
