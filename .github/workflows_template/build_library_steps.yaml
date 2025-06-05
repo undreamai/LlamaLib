@@ -141,7 +141,7 @@ jobs:
 
       - name: Test
         id: test_build_unix
-        if: matrix.arch != 'avx512' && matrix.arch != 'avx2' && !contains(matrix.arch, 'blas')
+        if: matrix.arch != 'avx512' && matrix.arch != 'avx' && !contains(matrix.arch, 'blas')
         run: |
           ls -R build
           cd build/libs

@@ -179,7 +179,7 @@ jobs:
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
         - id: test_build_unix
-          if: matrix.arch != 'avx512' && matrix.arch != 'avx2' && !contains(matrix.arch, 'blas')
+          if: matrix.arch != 'avx512' && matrix.arch != 'avx' && !contains(matrix.arch, 'blas')
           name: Test
           run: |
             ls -R build
@@ -372,7 +372,7 @@ jobs:
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
         - id: test_build_unix
-          if: matrix.arch != 'avx512' && matrix.arch != 'avx2' && !contains(matrix.arch, 'blas')
+          if: matrix.arch != 'avx512' && matrix.arch != 'avx' && !contains(matrix.arch, 'blas')
           name: Test
           run: |
             ls -R build
@@ -470,7 +470,7 @@ jobs:
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
         - id: test_build_unix
-          if: matrix.arch != 'avx512' && matrix.arch != 'avx2' && !contains(matrix.arch, 'blas')
+          if: matrix.arch != 'avx512' && matrix.arch != 'avx' && !contains(matrix.arch, 'blas')
           name: Test
           run: |
             ls -R build
