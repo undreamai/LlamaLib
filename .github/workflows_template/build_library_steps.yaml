@@ -293,15 +293,6 @@ jobs:
 
 ################################ iOS ################################
 
-      - id: cmake_build_ios
-        name: Build
-        run: |
-          sed -i.bak "s:RUNTIME:BUNDLE DESTINATION .:g" CMakeLists.txt
-          export LD_LIBRARY_PATH=""
-          cd build
-          cmake -G Xcode .. 
-          cmake --build . --config Release -j $(sysctl -n hw.logicalcpu) -- CODE_SIGNING_ALLOWED=NO
-
       - id: pack_artifacts_ios
         name: Pack artifacts
         run: |
