@@ -59,11 +59,11 @@ elseif(ARCHITECTURE STREQUAL "x64_no_acc")
 elseif(ARCHITECTURE STREQUAL "avx2")
     # Nothing to define
 elseif(ARCHITECTURE STREQUAL "android_arm64")
-    SET(CMAKE_C_FLAGS "-march=armv8-a")
     SET(ANDROID_ABI "arm64-v8a")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv8-a")
 elseif(ARCHITECTURE STREQUAL "android_x64")
-    SET(CMAKE_C_FLAGS "-march=x86-64")
     SET(ANDROID_ABI "x86_64")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=x86_64")
 elseif(ARCHITECTURE STREQUAL "ios")
     # Nothing to define
 elseif(ARCHITECTURE STREQUAL "visionos")
