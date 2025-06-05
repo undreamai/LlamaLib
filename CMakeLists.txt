@@ -151,10 +151,24 @@ set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} /Zm1000")
 
 ################################################ LLAMALIB ################################################
 
+# helpers
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS" OR OS STREQUAL "visionOS")
+    set(LIBRARY_TYPE STATIC)
+else()
+    set(LIBRARY_TYPE SHARED)
+endif()
+
 function(common_compile_defs NAME)
     target_compile_features(${NAME} PRIVATE cxx_std_11)
     add_compile_definitions(${NAME} PRIVATE UNDREAMAI_EXPORTS)
     target_include_directories(${NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} llama.cpp/common llama.cpp/examples/server llama.cpp llama.cpp/include llama.cpp/ggml/include archchecker ${CURL_INCLUDE_DIR})
+endfunction()
+
+function(create_library NAME CPP)
+    add_library(${NAME} ${LIBRARY_TYPE} ${CPP} LLM.cpp LLM_client.cpp logging.cpp error_handling.cpp)
+    target_link_libraries(${NAME} PRIVATE common ${CURL_LIBRARIES})
+    common_compile_defs(${NAME})
+    install(TARGETS ${NAME} LIBRARY)
 endfunction()
 
 function(create_executable NAME LIBRARIES)
@@ -173,30 +187,20 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 endif()
 SET(LIBRARY_NAME "llamalib_${OS}")
 
-if(CMAKE_SYSTEM_NAME STREQUAL "iOS" OR OS STREQUAL "visionOS")
-    set(LIBRARY_TYPE STATIC)
-else()
-    set(LIBRARY_TYPE SHARED)
-endif()
-
 # build static library
 set(STATIC_LIBRARY ${LIBRARY_NAME})
 if(DEFINED ARCHITECTURE)
     set(STATIC_LIBRARY "${LIBRARY_NAME}_${ARCHITECTURE}")
 endif()
 
-add_library(${STATIC_LIBRARY} ${LIBRARY_TYPE} LLM_service.cpp LLM.cpp LLM_client.cpp logging.cpp error_handling.cpp)
-target_link_libraries(${STATIC_LIBRARY} PRIVATE common ${CMAKE_THREAD_LIBS_INIT} ${CURL_LIBRARIES})
-common_compile_defs(${STATIC_LIBRARY})
-install(TARGETS ${STATIC_LIBRARY} LIBRARY)
+create_library(${STATIC_LIBRARY} LLM_service.cpp)
+target_link_options(${STATIC_LIBRARY} PRIVATE -Wl,--no-undefined)
 
 # build runtime library
 if (LLAMALIB_BUILD_RUNTIME_LIB)
     set(RUNTIME_LIBRARY "${LIBRARY_NAME}_runtime")
-    add_library(${RUNTIME_LIBRARY} ${LIBRARY_TYPE} LLM_lib.cpp LLM.cpp LLM_client.cpp logging.cpp error_handling.cpp)
-    target_link_libraries(${RUNTIME_LIBRARY} PRIVATE common ${CURL_LIBRARIES} FeatureDetector archchecker)
-    common_compile_defs(${RUNTIME_LIBRARY})
-    install(TARGETS ${RUNTIME_LIBRARY} LIBRARY)
+    create_library(${RUNTIME_LIBRARY} LLM_lib.cpp)
+    target_link_libraries(${RUNTIME_LIBRARY} PRIVATE FeatureDetector archchecker)
 endif()
 
 # build executables
