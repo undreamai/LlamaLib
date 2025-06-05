@@ -58,9 +58,9 @@ elseif(ARCHITECTURE STREQUAL "x64_no_acc")
     SET(GGML_BLAS OFF)
 elseif(ARCHITECTURE STREQUAL "avx2")
     # Nothing to define
-elseif(ARCHITECTURE STREQUAL "iOS")
+elseif(ARCHITECTURE STREQUAL "ios")
     # Nothing to define
-elseif(ARCHITECTURE STREQUAL "visionOS")
+elseif(ARCHITECTURE STREQUAL "visionos")
     # Nothing to define
 elseif(ARCHITECTURE STREQUAL "")
     if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin")
