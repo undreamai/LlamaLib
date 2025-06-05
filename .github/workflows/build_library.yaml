@@ -379,8 +379,8 @@ jobs:
           name: Test
           run: |
             cd build/libs
-            templib=libllamalib_macos_`echo ${matrix.arch}|cut -d'_' -f2-`.dylib
-            ln -s libllamalib_macos_${matrix.arch}.dylib $templib
+            templib=libllamalib_macos_`echo ${{ matrix.arch }}|cut -d'_' -f2-`.dylib
+            ln -s libllamalib_macos_${{ matrix.arch }}.dylib $templib
             curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
             ./llamalib_tests -m model.gguf -np 1 --log-disable
             rm model.gguf $templib
@@ -478,8 +478,8 @@ jobs:
           name: Test
           run: |
             cd build/libs
-            templib=libllamalib_macos_`echo ${matrix.arch}|cut -d'_' -f2-`.dylib
-            ln -s libllamalib_macos_${matrix.arch}.dylib $templib
+            templib=libllamalib_macos_`echo ${{ matrix.arch }}|cut -d'_' -f2-`.dylib
+            ln -s libllamalib_macos_${{ matrix.arch }}.dylib $templib
             curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
             ./llamalib_tests -m model.gguf -np 1 --log-disable
             rm model.gguf $templib
