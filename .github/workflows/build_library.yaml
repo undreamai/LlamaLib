@@ -615,7 +615,7 @@ jobs:
         - id: pack_artifacts_windows
           name: Pack artifacts
           run: |
-            $env:UPLOAD_NAME=$RUNNER_OS-${{ matrix.arch }}.zip"
+            $env:UPLOAD_NAME="$RUNNER_OS-${{ matrix.arch }}.zip"
             ls -R build
             mkdir artifacts
             move .\build\licenses\* .\artifacts\
@@ -729,7 +729,7 @@ jobs:
         - id: pack_artifacts_windows
           name: Pack artifacts
           run: |
-            $env:UPLOAD_NAME=$RUNNER_OS-${{ matrix.arch }}.zip"
+            $env:UPLOAD_NAME="$RUNNER_OS-${{ matrix.arch }}.zip"
             ls -R build
             mkdir artifacts
             move .\build\licenses\* .\artifacts\
