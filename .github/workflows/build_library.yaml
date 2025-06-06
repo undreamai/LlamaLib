@@ -821,15 +821,16 @@ jobs:
           shell: bash
 
 
-        - id: set_ndk_var_linux
-          name: Set NDK variable
-          run: |
-            echo "NDK=`ls -d /usr/local/lib/android/sdk/ndk/26.*`" >> $GITHUB_ENV
+        - id: cpu-cores
+          name: Get number of CPU cores
+          uses: SimenB/github-actions-cpu-cores@v2
 
         - id: cmake_build_android
           name: Build
           run: |
             export LD_LIBRARY_PATH=""
+            export NDK=`ls -d /usr/local/lib/android/sdk/ndk/26.*`
+        
             cd build
             for arch in "arm64-v8a,armv8-a" "x86_64,x86-64";do
               ABI=`echo $arch | cut -d',' -f1`
@@ -837,8 +838,8 @@ jobs:
         
               mkdir $ABI libs/$ABI
               cd $ABI
-              cmake ../.. -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=$ABI -DCMAKE_C_FLAGS=-march=$MARCH ${{ matrix.cmake_vars }}
-              cmake --build . --config Release -j $(nproc)
+              cmake ../.. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_PLATFORM=android-23 -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/libs ${{ matrix.cmake_vars }}
+              cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
               cd ..
         
               mv libs/libllamalib_android.so libs/$ABI

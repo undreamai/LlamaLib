@@ -224,7 +224,7 @@ jobs:
         @@setup_llama_cpp@@
         @@add_licenses@@
 
-        @@set_ndk_var_linux@@
+        @@cpu-cores@@
         @@cmake_build_android@@
 
         @@pack_artifacts_android@@
