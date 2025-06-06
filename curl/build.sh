@@ -354,7 +354,7 @@ build_openssl_apple() {
         no-tests \
         -static
     
-    make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
+    make -j$(nproc)
     make install_sw
     
     log_info "OpenSSL built successfully for $platform $arch"
@@ -376,7 +376,7 @@ build_zlib_android() {
     
     ./configure --prefix="$install_prefix" --static
     
-    make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
+    make -j$(nproc)
     make install
     
     log_info "zlib built successfully for Android $arch"
@@ -397,7 +397,7 @@ build_zlib_apple() {
     
     ./configure --prefix="$install_prefix" --static
     
-    make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
+    make -j$(nproc)
     make install
     
     log_info "zlib built successfully for $platform $arch"
@@ -458,7 +458,7 @@ build_curl_android() {
         --enable-optimize \
         --enable-warnings
     
-    make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
+    make -j$(nproc)
     make install
     
     # Create combined static library
@@ -515,7 +515,7 @@ build_curl_apple() {
         --without-ca-path \
         --enable-optimize
     
-    make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
+    make -j$(nproc)
     make install
     
     # Create combined static library
