@@ -23,7 +23,7 @@ jobs:
     steps:
         @@checkout@@
         @@build_archchecker@@
-        @@upload_with_path@@
+        @@upload_archchecker@@
 
   archchecker_windows_build:
     name: Build ArchChecker Windows
@@ -36,7 +36,7 @@ jobs:
     steps:
         @@checkout@@
         @@build_archchecker@@
-        @@upload_with_path@@
+        @@upload_archchecker@@
 
 
   ################################ Linux ################################
@@ -47,13 +47,13 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: 'noavx'
-          - arch: 'avx2'
-          - arch: 'avx'
-          - arch: 'avx512'
-          - arch: 'vulkan'
-          - arch: 'tinyblas'
-          - arch: 'cublas'
+          - arch: linux_noavx
+          - arch: linux_avx2
+          - arch: linux_avx
+          - arch: linux_avx512
+          - arch: linux_vulkan
+          - arch: linux_tinyblas
+          - arch: linux_cublas
             
     steps:
         @@setup_libs_linux@@
@@ -71,7 +71,7 @@ jobs:
         @@test_build_linux@@
 
         @@pack_artifacts_unix@@
-        @@upload@@
+        @@upload_llamalib@@
 
   linux-hip:
     runs-on: ubuntu-22.04
@@ -80,7 +80,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: 'hip'
+          - arch: linux_hip
 
     steps:
         @@setup_libs_linux@@
@@ -95,7 +95,7 @@ jobs:
         @@cmake_build@@
 
         @@pack_artifacts_unix@@
-        @@upload@@
+        @@upload_llamalib@@
 
 ################################ macOS ################################
 
@@ -105,8 +105,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: 'arm64_acc'
-          - arch: 'arm64_no_acc'
+          - arch: macos_arm64_acc
+          - arch: macos_arm64_no_acc
 
     steps:
         @@setup_libs_macos@@
@@ -120,7 +120,7 @@ jobs:
         @@test_build_macos@@
 
         @@pack_artifacts_unix@@
-        @@upload@@
+        @@upload_llamalib@@
 
   macOS-x64-build:
     runs-on: macos-13
@@ -128,8 +128,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: 'x64_acc'
-          - arch: 'x64_no_acc'
+          - arch: macos_x64_acc
+          - arch: macos_x64_no_acc
 
     steps:
         @@setup_libs_macos@@
@@ -143,7 +143,7 @@ jobs:
         @@test_build_macos@@
 
         @@pack_artifacts_unix@@
-        @@upload@@
+        @@upload_llamalib@@
 
 
 ################################ Windows ################################
@@ -158,13 +158,13 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: 'noavx'
-          - arch: 'avx2'
-          - arch: 'avx'
-          - arch: 'avx512'
-          - arch: 'vulkan'
-          - arch: 'tinyblas'
-          - arch: 'cublas'
+          - arch: windows_noavx
+          - arch: windows_avx2
+          - arch: windows_avx
+          - arch: windows_avx512
+          - arch: windows_vulkan
+          - arch: windows_tinyblas
+          - arch: windows_cublas
 
     steps:
         @@checkout@@
@@ -180,7 +180,7 @@ jobs:
 
         @@copy_cuda_dlls@@
         @@pack_artifacts_windows@@
-        @@upload@@
+        @@upload_llamalib@@
 
   windows-hip:
     runs-on: windows-2019
@@ -191,7 +191,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: 'hip'
+          - arch: windows_hip
 
     steps:
         @@checkout@@
@@ -205,7 +205,7 @@ jobs:
         @@cmake_build_hip_windows@@
 
         @@pack_artifacts_windows@@
-        @@upload@@
+        @@upload_llamalib@@
 
 ################################ Android ################################
 
@@ -215,7 +215,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: 'android'
+          - arch: android_arm64
+            ABI: arm64-v8a
+          - arch: android_x64
+            ABI: x86_64
 
     steps:
         @@setup_libs_linux@@
@@ -227,8 +230,8 @@ jobs:
         @@cpu-cores@@
         @@cmake_build_android@@
 
-        @@pack_artifacts_android@@
-        @@upload@@
+        @@pack_artifacts_unix@@
+        @@upload_llamalib@@
 
 ################################ iOS ################################
 
@@ -238,9 +241,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: 'ios'
+          - arch: ios
             cmake_vars: '-DCMAKE_SYSTEM_NAME=iOS'
-          - arch: 'visionos'
+          - arch: visionos
             cmake_vars: '-DCMAKE_SYSTEM_NAME=visionOS'
 
     steps:
@@ -254,7 +257,7 @@ jobs:
         @@link_libraries_ios@@
 
         @@pack_artifacts_ios@@
-        @@upload@@
+        @@upload_llamalib@@
 
 ################################ Release ################################
 

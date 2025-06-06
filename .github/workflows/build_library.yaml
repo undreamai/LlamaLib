@@ -35,7 +35,7 @@ jobs:
             cmake ..
             cmake --build . --config Release -j $(nproc)
 
-        - id: upload_with_path
+        - id: upload_archchecker
           name: Upload Artifacts
           uses: actions/upload-artifact@v4
           with:
@@ -66,7 +66,7 @@ jobs:
             cmake ..
             cmake --build . --config Release -j $(nproc)
 
-        - id: upload_with_path
+        - id: upload_archchecker
           name: Upload Artifacts
           uses: actions/upload-artifact@v4
           with:
@@ -83,13 +83,13 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: 'noavx'
-          - arch: 'avx2'
-          - arch: 'avx'
-          - arch: 'avx512'
-          - arch: 'vulkan'
-          - arch: 'tinyblas'
-          - arch: 'cublas'
+          - arch: linux_noavx
+          - arch: linux_avx2
+          - arch: linux_avx
+          - arch: linux_avx512
+          - arch: linux_vulkan
+          - arch: linux_tinyblas
+          - arch: linux_cublas
             
     steps:
         - id: setup_libs_linux
@@ -118,7 +118,8 @@ jobs:
               git apply $f
             done
         
-            if [[ "${{ matrix.arch }}" == "tinyblas" ]]; then
+            if [[ "${{ matrix.arch }}" == "linux_tinyblas" ] || [ "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
+              echo "tinyblas"
               mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
               rm -r ggml/src/ggml-cuda
               cp -R ../tinyBLAS ggml/src/ggml-cuda
@@ -128,23 +129,20 @@ jobs:
             for f in examples/server/public/*;do
                 cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
             done
-        
-            UPLOAD_NAME=$RUNNER_OS-${{ matrix.arch }}.zip
-            echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
           shell: bash
 
         - id: add_licenses
           name: Add licenses
           run: |
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
-            if [[ "${{ matrix.arch }}" == "tinyblas" ]]; then
+            if [[ "${{ matrix.arch }}" == "linux_tinyblas" ] || [ "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
               curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
             fi
           shell: bash
 
 
         - id: setup_vulkan_linux
-          if: matrix.arch == 'vulkan'
+          if: matrix.arch == 'linux_vulkan'
           name: Dependencies Vulcan
           run: |
             wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
@@ -154,7 +152,7 @@ jobs:
             cp /lib/x86_64-linux-gnu/libvulkan.so.1 build/libs/
 
         - id: setup_cuda_linux
-          if: matrix.arch == 'cublas' || matrix.arch == 'tinyblas'
+          if: matrix.arch == 'linux_cublas' || matrix.arch == 'linux_tinyblas'
           uses: Jimver/cuda-toolkit@v0.2.15
           with:
             cuda: ${{ env.CUDA }}
@@ -162,7 +160,7 @@ jobs:
             method: network
 
         - id: link_cuda_linux
-          if: matrix.arch == 'cublas' || matrix.arch == 'tinyblas'
+          if: matrix.arch == 'linux_cublas' || matrix.arch == 'linux_tinyblas'
           name: Link Cuda
           run: |
             ln -s ${{ env.CUDA_PATH }} ${{ github.workspace }}/build/cuda
@@ -182,7 +180,7 @@ jobs:
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
         - id: test_build_linux
-          if: matrix.arch == 'noavx' || matrix.arch == 'avx2'
+          if: matrix.arch == 'linux_noavx' || matrix.arch == 'linux_avx2'
           name: Test
           run: |
             cd build/libs
@@ -195,14 +193,14 @@ jobs:
           name: Pack artifacts
           run: |
             rm -f build/libs/llamalib_tests
-            zip -j $UPLOAD_NAME build/licenses/* build/libs/*
+            zip -j ${{ matrix.arch }}.zip build/licenses/* build/libs/*
 
-        - id: upload
+        - id: upload_llamalib
           name: Upload Artifacts
           uses: actions/upload-artifact@v4
           with:
-            name: ${{ env.UPLOAD_NAME }}
-            path: ${{ env.UPLOAD_NAME }}
+            name: ${{ matrix.arch }}.zip
+            path: ${{ matrix.arch }}.zip
 
 
   linux-hip:
@@ -212,7 +210,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: 'hip'
+          - arch: linux_hip
 
     steps:
         - id: setup_libs_linux
@@ -241,7 +239,8 @@ jobs:
               git apply $f
             done
         
-            if [[ "${{ matrix.arch }}" == "tinyblas" ]]; then
+            if [[ "${{ matrix.arch }}" == "linux_tinyblas" ] || [ "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
+              echo "tinyblas"
               mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
               rm -r ggml/src/ggml-cuda
               cp -R ../tinyBLAS ggml/src/ggml-cuda
@@ -251,16 +250,13 @@ jobs:
             for f in examples/server/public/*;do
                 cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
             done
-        
-            UPLOAD_NAME=$RUNNER_OS-${{ matrix.arch }}.zip
-            echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
           shell: bash
 
         - id: add_licenses
           name: Add licenses
           run: |
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
-            if [[ "${{ matrix.arch }}" == "tinyblas" ]]; then
+            if [[ "${{ matrix.arch }}" == "linux_tinyblas" ] || [ "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
               curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
             fi
           shell: bash
@@ -289,14 +285,14 @@ jobs:
           name: Pack artifacts
           run: |
             rm -f build/libs/llamalib_tests
-            zip -j $UPLOAD_NAME build/licenses/* build/libs/*
+            zip -j ${{ matrix.arch }}.zip build/licenses/* build/libs/*
 
-        - id: upload
+        - id: upload_llamalib
           name: Upload Artifacts
           uses: actions/upload-artifact@v4
           with:
-            name: ${{ env.UPLOAD_NAME }}
-            path: ${{ env.UPLOAD_NAME }}
+            name: ${{ matrix.arch }}.zip
+            path: ${{ matrix.arch }}.zip
 
 
 ################################ macOS ################################
@@ -307,8 +303,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: 'arm64_acc'
-          - arch: 'arm64_no_acc'
+          - arch: macos_arm64_acc
+          - arch: macos_arm64_no_acc
 
     steps:
         - continue-on-error: true
@@ -339,7 +335,8 @@ jobs:
               git apply $f
             done
         
-            if [[ "${{ matrix.arch }}" == "tinyblas" ]]; then
+            if [[ "${{ matrix.arch }}" == "linux_tinyblas" ] || [ "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
+              echo "tinyblas"
               mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
               rm -r ggml/src/ggml-cuda
               cp -R ../tinyBLAS ggml/src/ggml-cuda
@@ -349,16 +346,13 @@ jobs:
             for f in examples/server/public/*;do
                 cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
             done
-        
-            UPLOAD_NAME=$RUNNER_OS-${{ matrix.arch }}.zip
-            echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
           shell: bash
 
         - id: add_licenses
           name: Add licenses
           run: |
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
-            if [[ "${{ matrix.arch }}" == "tinyblas" ]]; then
+            if [[ "${{ matrix.arch }}" == "linux_tinyblas" ] || [ "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
               curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
             fi
           shell: bash
@@ -379,8 +373,8 @@ jobs:
           name: Test
           run: |
             cd build/libs
-            templib=libllamalib_macos_`echo ${{ matrix.arch }}|cut -d'_' -f2-`.dylib
-            ln -s libllamalib_macos_${{ matrix.arch }}.dylib $templib
+            templib=libllamalib_`echo ${{ matrix.arch }}|sed -i.bak 's:arm64_::g'|sed -i.bak 's:x64_::g'`.dylib
+            ln -s libllamalib_${{ matrix.arch }}.dylib $templib
             curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
             ./llamalib_tests -m model.gguf -np 1 --log-disable
             rm model.gguf $templib
@@ -390,14 +384,14 @@ jobs:
           name: Pack artifacts
           run: |
             rm -f build/libs/llamalib_tests
-            zip -j $UPLOAD_NAME build/licenses/* build/libs/*
+            zip -j ${{ matrix.arch }}.zip build/licenses/* build/libs/*
 
-        - id: upload
+        - id: upload_llamalib
           name: Upload Artifacts
           uses: actions/upload-artifact@v4
           with:
-            name: ${{ env.UPLOAD_NAME }}
-            path: ${{ env.UPLOAD_NAME }}
+            name: ${{ matrix.arch }}.zip
+            path: ${{ matrix.arch }}.zip
 
 
   macOS-x64-build:
@@ -406,8 +400,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: 'x64_acc'
-          - arch: 'x64_no_acc'
+          - arch: macos_x64_acc
+          - arch: macos_x64_no_acc
 
     steps:
         - continue-on-error: true
@@ -438,7 +432,8 @@ jobs:
               git apply $f
             done
         
-            if [[ "${{ matrix.arch }}" == "tinyblas" ]]; then
+            if [[ "${{ matrix.arch }}" == "linux_tinyblas" ] || [ "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
+              echo "tinyblas"
               mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
               rm -r ggml/src/ggml-cuda
               cp -R ../tinyBLAS ggml/src/ggml-cuda
@@ -448,16 +443,13 @@ jobs:
             for f in examples/server/public/*;do
                 cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
             done
-        
-            UPLOAD_NAME=$RUNNER_OS-${{ matrix.arch }}.zip
-            echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
           shell: bash
 
         - id: add_licenses
           name: Add licenses
           run: |
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
-            if [[ "${{ matrix.arch }}" == "tinyblas" ]]; then
+            if [[ "${{ matrix.arch }}" == "linux_tinyblas" ] || [ "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
               curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
             fi
           shell: bash
@@ -478,8 +470,8 @@ jobs:
           name: Test
           run: |
             cd build/libs
-            templib=libllamalib_macos_`echo ${{ matrix.arch }}|cut -d'_' -f2-`.dylib
-            ln -s libllamalib_macos_${{ matrix.arch }}.dylib $templib
+            templib=libllamalib_`echo ${{ matrix.arch }}|sed -i.bak 's:arm64_::g'|sed -i.bak 's:x64_::g'`.dylib
+            ln -s libllamalib_${{ matrix.arch }}.dylib $templib
             curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
             ./llamalib_tests -m model.gguf -np 1 --log-disable
             rm model.gguf $templib
@@ -489,14 +481,14 @@ jobs:
           name: Pack artifacts
           run: |
             rm -f build/libs/llamalib_tests
-            zip -j $UPLOAD_NAME build/licenses/* build/libs/*
+            zip -j ${{ matrix.arch }}.zip build/licenses/* build/libs/*
 
-        - id: upload
+        - id: upload_llamalib
           name: Upload Artifacts
           uses: actions/upload-artifact@v4
           with:
-            name: ${{ env.UPLOAD_NAME }}
-            path: ${{ env.UPLOAD_NAME }}
+            name: ${{ matrix.arch }}.zip
+            path: ${{ matrix.arch }}.zip
 
 
 
@@ -512,13 +504,13 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: 'noavx'
-          - arch: 'avx2'
-          - arch: 'avx'
-          - arch: 'avx512'
-          - arch: 'vulkan'
-          - arch: 'tinyblas'
-          - arch: 'cublas'
+          - arch: windows_noavx
+          - arch: windows_avx2
+          - arch: windows_avx
+          - arch: windows_avx512
+          - arch: windows_vulkan
+          - arch: windows_tinyblas
+          - arch: windows_cublas
 
     steps:
         - id: checkout
@@ -540,7 +532,8 @@ jobs:
               git apply $f
             done
         
-            if [[ "${{ matrix.arch }}" == "tinyblas" ]]; then
+            if [[ "${{ matrix.arch }}" == "linux_tinyblas" ] || [ "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
+              echo "tinyblas"
               mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
               rm -r ggml/src/ggml-cuda
               cp -R ../tinyBLAS ggml/src/ggml-cuda
@@ -550,23 +543,20 @@ jobs:
             for f in examples/server/public/*;do
                 cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
             done
-        
-            UPLOAD_NAME=$RUNNER_OS-${{ matrix.arch }}.zip
-            echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
           shell: bash
 
         - id: add_licenses
           name: Add licenses
           run: |
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
-            if [[ "${{ matrix.arch }}" == "tinyblas" ]]; then
+            if [[ "${{ matrix.arch }}" == "linux_tinyblas" ] || [ "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
               curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
             fi
           shell: bash
 
 
         - id: setup_vulcan_windows
-          if: matrix.arch == 'vulkan'
+          if: matrix.arch == 'windows_vulkan'
           name: Install Vulkan SDK
           run: |
             curl.exe -o $env:RUNNER_TEMP/VulkanSDK-Installer.exe -L "https://sdk.lunarg.com/sdk/download/${env:VULKAN_VERSION}/windows/VulkanSDK-${env:VULKAN_VERSION}-Installer.exe"
@@ -589,7 +579,7 @@ jobs:
             Add-Content $env:GITHUB_ENV "OPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR"
 
         - id: setup_cuda_windows
-          if: matrix.arch == 'cublas' || matrix.arch == 'tinyblas'
+          if: matrix.arch == 'windows_cublas' || matrix.arch == 'windows_tinyblas'
           uses: Jimver/cuda-toolkit@v0.2.15
           with:
             cuda: ${{ env.CUDA }}
@@ -610,7 +600,7 @@ jobs:
 
 
         - id: copy_cuda_dlls
-          if: matrix.arch == 'cublas'
+          if: matrix.arch == 'windows_cublas'
           name: Copy Cuda DLLs
           run: |
             mv "${{ env.CUDA_PATH }}"/bin/cudart64_*.dll build/libs/Release
@@ -632,14 +622,14 @@ jobs:
                 move $serverPath -Destination '.\artifacts\'
             }
             cd artifacts
-            7z a ../${{ env.UPLOAD_NAME }} *
+            7z a ../${{ matrix.arch }}.zip *
 
-        - id: upload
+        - id: upload_llamalib
           name: Upload Artifacts
           uses: actions/upload-artifact@v4
           with:
-            name: ${{ env.UPLOAD_NAME }}
-            path: ${{ env.UPLOAD_NAME }}
+            name: ${{ matrix.arch }}.zip
+            path: ${{ matrix.arch }}.zip
 
 
   windows-hip:
@@ -651,7 +641,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: 'hip'
+          - arch: windows_hip
 
     steps:
         - id: checkout
@@ -673,7 +663,8 @@ jobs:
               git apply $f
             done
         
-            if [[ "${{ matrix.arch }}" == "tinyblas" ]]; then
+            if [[ "${{ matrix.arch }}" == "linux_tinyblas" ] || [ "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
+              echo "tinyblas"
               mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
               rm -r ggml/src/ggml-cuda
               cp -R ../tinyBLAS ggml/src/ggml-cuda
@@ -683,16 +674,13 @@ jobs:
             for f in examples/server/public/*;do
                 cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
             done
-        
-            UPLOAD_NAME=$RUNNER_OS-${{ matrix.arch }}.zip
-            echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
           shell: bash
 
         - id: add_licenses
           name: Add licenses
           run: |
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
-            if [[ "${{ matrix.arch }}" == "tinyblas" ]]; then
+            if [[ "${{ matrix.arch }}" == "linux_tinyblas" ] || [ "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
               curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
             fi
           shell: bash
@@ -749,14 +737,14 @@ jobs:
                 move $serverPath -Destination '.\artifacts\'
             }
             cd artifacts
-            7z a ../${{ env.UPLOAD_NAME }} *
+            7z a ../${{ matrix.arch }}.zip *
 
-        - id: upload
+        - id: upload_llamalib
           name: Upload Artifacts
           uses: actions/upload-artifact@v4
           with:
-            name: ${{ env.UPLOAD_NAME }}
-            path: ${{ env.UPLOAD_NAME }}
+            name: ${{ matrix.arch }}.zip
+            path: ${{ matrix.arch }}.zip
 
 
 ################################ Android ################################
@@ -767,7 +755,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: 'android'
+          - arch: android_arm64
+            ABI: arm64-v8a
+          - arch: android_x64
+            ABI: x86_64
 
     steps:
         - id: setup_libs_linux
@@ -796,7 +787,8 @@ jobs:
               git apply $f
             done
         
-            if [[ "${{ matrix.arch }}" == "tinyblas" ]]; then
+            if [[ "${{ matrix.arch }}" == "linux_tinyblas" ] || [ "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
+              echo "tinyblas"
               mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
               rm -r ggml/src/ggml-cuda
               cp -R ../tinyBLAS ggml/src/ggml-cuda
@@ -806,16 +798,13 @@ jobs:
             for f in examples/server/public/*;do
                 cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
             done
-        
-            UPLOAD_NAME=$RUNNER_OS-${{ matrix.arch }}.zip
-            echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
           shell: bash
 
         - id: add_licenses
           name: Add licenses
           run: |
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
-            if [[ "${{ matrix.arch }}" == "tinyblas" ]]; then
+            if [[ "${{ matrix.arch }}" == "linux_tinyblas" ] || [ "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
               curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
             fi
           shell: bash
@@ -830,39 +819,23 @@ jobs:
           run: |
             export LD_LIBRARY_PATH=""
             export NDK=`ls -d /usr/local/lib/android/sdk/ndk/26.*`
-        
             cd build
-            for arch in "arm64-v8a,armv8-a" "x86_64,x86-64";do
-              ABI=`echo $arch | cut -d',' -f1`
-              MARCH=`echo $arch | cut -d',' -f2`
-        
-              mkdir $ABI libs/$ABI
-              cd $ABI
-              cmake ../.. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_PLATFORM=android-23 -DANDROID_ABI=$ABI -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/libs ${{ matrix.cmake_vars }}
-              cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
-              cd ..
-        
-              mv libs/libllamalib_android.so libs/$ABI
-            done
+            cmake .. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_PLATFORM=android-23 -DANDROID_ABI=${{ matrix.ABI }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
+            cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
 
-        - id: pack_artifacts_android
+        - id: pack_artifacts_unix
           name: Pack artifacts
           run: |
             rm -f build/libs/llamalib_tests
-            cd build
-            for d in libs licenses;do
-              cd $d
-              zip -r ../../$UPLOAD_NAME *
-              cd ..
-            done
+            zip -j ${{ matrix.arch }}.zip build/licenses/* build/libs/*
 
-        - id: upload
+        - id: upload_llamalib
           name: Upload Artifacts
           uses: actions/upload-artifact@v4
           with:
-            name: ${{ env.UPLOAD_NAME }}
-            path: ${{ env.UPLOAD_NAME }}
+            name: ${{ matrix.arch }}.zip
+            path: ${{ matrix.arch }}.zip
 
 
 ################################ iOS ################################
@@ -873,9 +846,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: 'ios'
+          - arch: ios
             cmake_vars: '-DCMAKE_SYSTEM_NAME=iOS'
-          - arch: 'visionos'
+          - arch: visionos
             cmake_vars: '-DCMAKE_SYSTEM_NAME=visionOS'
 
     steps:
@@ -907,7 +880,8 @@ jobs:
               git apply $f
             done
         
-            if [[ "${{ matrix.arch }}" == "tinyblas" ]]; then
+            if [[ "${{ matrix.arch }}" == "linux_tinyblas" ] || [ "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
+              echo "tinyblas"
               mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
               rm -r ggml/src/ggml-cuda
               cp -R ../tinyBLAS ggml/src/ggml-cuda
@@ -917,16 +891,13 @@ jobs:
             for f in examples/server/public/*;do
                 cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
             done
-        
-            UPLOAD_NAME=$RUNNER_OS-${{ matrix.arch }}.zip
-            echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
           shell: bash
 
         - id: add_licenses
           name: Add licenses
           run: |
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
-            if [[ "${{ matrix.arch }}" == "tinyblas" ]]; then
+            if [[ "${{ matrix.arch }}" == "linux_tinyblas" ] || [ "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
               curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
             fi
           shell: bash
@@ -954,14 +925,14 @@ jobs:
         - id: pack_artifacts_ios
           name: Pack artifacts
           run: |
-            zip -j $UPLOAD_NAME build/licenses/* build/libllamalib*.a
+            zip -j ${{ matrix.arch }}.zip build/licenses/* build/libllamalib*.a
 
-        - id: upload
+        - id: upload_llamalib
           name: Upload Artifacts
           uses: actions/upload-artifact@v4
           with:
-            name: ${{ env.UPLOAD_NAME }}
-            path: ${{ env.UPLOAD_NAME }}
+            name: ${{ matrix.arch }}.zip
+            path: ${{ matrix.arch }}.zip
 
 
 ################################ Release ################################
