@@ -250,11 +250,11 @@ get_apple_toolchain() {
             if [ "$arch" = "x86_64" ]; then
                 export APPLE_SDK="iphonesimulator"
                 export APPLE_PLATFORM="iPhoneSimulator"
-                export OPENSSL_ARCH="ios-sim-cross-x86_64"
+                export OPENSSL_ARCH="darwin64-x86_64-cc"
             else
                 export APPLE_SDK="iphoneos"
                 export APPLE_PLATFORM="iPhoneOS"
-                export OPENSSL_ARCH="ios64-cross-arm64"
+                export OPENSSL_ARCH="iphoneos-cross"
             fi
             export MIN_VERSION="$IOS_MIN_VERSION"
             ;;
@@ -262,11 +262,11 @@ get_apple_toolchain() {
             if [ "$arch" = "x86_64" ]; then
                 export APPLE_SDK="xrsimulator"
                 export APPLE_PLATFORM="XRSimulator"
-                export OPENSSL_ARCH="ios-sim-cross-x86_64"  # Use iOS sim config for visionOS sim
+                export OPENSSL_ARCH="darwin64-x86_64-cc"  # Use iOS sim config for visionOS sim
             else
                 export APPLE_SDK="xros"
                 export APPLE_PLATFORM="XROS"
-                export OPENSSL_ARCH="ios64-cross-arm64"  # Use iOS config for visionOS device
+                export OPENSSL_ARCH="iphoneos-cross"  # Use iOS config for visionOS device
             fi
             export MIN_VERSION="$VISIONOS_MIN_VERSION"
             ;;
