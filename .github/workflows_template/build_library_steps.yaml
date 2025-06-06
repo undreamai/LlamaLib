@@ -56,7 +56,7 @@ jobs:
             git apply $f
           done
 
-          if [[ "${{ matrix.arch }}" == "linux_tinyblas" ] || [ "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
+          if [[ "${{ matrix.arch }}" == "linux_tinyblas" || "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
             echo "tinyblas"
             mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
             rm -r ggml/src/ggml-cuda
@@ -73,7 +73,7 @@ jobs:
         shell: bash
         run: |
           cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
-          if [[ "${{ matrix.arch }}" == "linux_tinyblas" ] || [ "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
+          if [[ "${{ matrix.arch }}" == "linux_tinyblas" || "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
             curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
           fi
 
