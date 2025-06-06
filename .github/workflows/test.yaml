@@ -1,0 +1,40 @@
+name: Build library
+
+on:
+  push:
+
+env:
+  LLAMACPP_VERSION: b5261
+  CUDA: 12.2.0
+
+jobs:
+################################ Android ################################
+  curl-build:
+    runs-on: macos-14
+
+    steps:
+
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
+          with:
+            submodules: recursive
+
+        - id: run
+          name: Run script
+          run: |
+            echo $ANDROID_NDK_ROOT
+            ./curl/build.sh --all
+
+        - id: pack_artifacts
+          name: Pack artifacts
+          run: |
+            zip -r curl.zip universal-curl-install
+
+        - id: upload
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: curl.zip
+            path: curl.zip
+
