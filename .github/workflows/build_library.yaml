@@ -373,7 +373,7 @@ jobs:
           name: Test
           run: |
             cd build/libs
-            templib=libllamalib_`echo ${{ matrix.arch }}|sed -i.bak 's:arm64_::g'|sed -i.bak 's:x64_::g'`.dylib
+            templib=libllamalib_`echo ${{ matrix.arch }} | sed 's/arm64_//g; s/x64_//g'`.dylib
             ln -s libllamalib_${{ matrix.arch }}.dylib $templib
             curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
             ./llamalib_tests -m model.gguf -np 1 --log-disable
@@ -470,7 +470,7 @@ jobs:
           name: Test
           run: |
             cd build/libs
-            templib=libllamalib_`echo ${{ matrix.arch }}|sed -i.bak 's:arm64_::g'|sed -i.bak 's:x64_::g'`.dylib
+            templib=libllamalib_`echo ${{ matrix.arch }} | sed 's/arm64_//g; s/x64_//g'`.dylib
             ln -s libllamalib_${{ matrix.arch }}.dylib $templib
             curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
             ./llamalib_tests -m model.gguf -np 1 --log-disable
@@ -718,7 +718,7 @@ jobs:
             $env:HIP_PATH=$(Resolve-Path 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' | split-path | split-path)
             $env:CMAKE_PREFIX_PATH="${env:HIP_PATH}"
             cd build
-            cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs//Release -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs//Release ${{ matrix.cmake_vars }} -DARCHITECTURE=hip
+            cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs//Release -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs//Release ${{ matrix.cmake_vars }} -DARCHITECTURE=${{ matrix.arch }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
             mkdir Release
 
