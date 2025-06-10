@@ -36,7 +36,6 @@ static SigintHookRegistrar _sigintHookRegistrarInstance;
 
 //============================= LLMService IMPLEMENTATION =============================//
 
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
 EVP_PKEY* LLMService::load_key(const std::string& key_str) {
     BIO *bio = BIO_new_mem_buf(key_str.data(), (int) key_str.size());
     if (!bio) return NULL;
@@ -54,7 +53,6 @@ X509* LLMService::load_cert(const std::string& cert_str) {
     BIO_free(bio);
     return cert;
 }
-#endif
 
 LLMService::LLMService(const json& params)
 {
@@ -275,7 +273,6 @@ void release_slot(server_slot& slot)
 
 void LLMService::start_server(){
     std::lock_guard<std::mutex> lock(start_stop_mutex);
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
     if (params.ssl_file_key != "" && params.ssl_file_cert != "") {
         LOG_INFO("Running with SSL", {{"key", params.ssl_file_key}, {"cert", params.ssl_file_cert}});
         svr.reset(
@@ -290,9 +287,6 @@ void LLMService::start_server(){
         LOG_INFO("Running without SSL", {});
         svr.reset(new httplib::Server());
     }
-#else
-    svr.reset(new httplib::Server());
-#endif
 
     svr->set_default_headers({{"Server", "llama.cpp"}});
 
@@ -541,14 +535,10 @@ bool LLMService::is_running(){
     return ctx_server->queue_tasks.running;
 }
 
-void LLMService::set_SSL(const char* SSL_cert, const char* SSL_key){
-#ifndef CPPHTTPLIB_OPENSSL_SUPPORT
-    throw std::runtime_error("SSL is not supported in this build");
-#endif
-    this->SSL_cert = SSL_cert;
-    this->SSL_key = SSL_key;
+void LLMService::set_SSL(const char* SSL_cert_str, const char* SSL_key_str){
+    SSL_cert = SSL_cert_str;
+    SSL_key = SSL_key_str;
 }
-
 
 bool LLMService::middleware_validate_api_key(const httplib::Request & req, httplib::Response & res) {
     // TODO: should we apply API key to all endpoints, including "/health" and "/models"?

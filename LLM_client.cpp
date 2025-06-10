@@ -37,9 +37,35 @@ void LLMClient::handle_cancel_action_impl(int id_slot)
 
 RemoteLLMClient::RemoteLLMClient(const std::string& url_, const int port_) : url(url_), port(port_) { }
 
+X509_STORE* RemoteLLMClient::load_cert(const std::string& cert_str)
+{
+  BIO* mem = BIO_new_mem_buf(cert_str.data(), (int) cert_str.size());
+  if (!mem) { return nullptr; }
+
+  auto inf = PEM_X509_INFO_read_bio(mem, nullptr, nullptr, nullptr);
+  if (!inf) { return nullptr; }
+
+  auto cts = X509_STORE_new();
+  if (cts) {
+    for (auto i = 0; i < static_cast<int>(sk_X509_INFO_num(inf)); i++) {
+      auto itmp = sk_X509_INFO_value(inf, i);
+      if (!itmp) { continue; }
+
+      if (itmp->x509) { X509_STORE_add_cert(cts, itmp->x509); }
+      if (itmp->crl) { X509_STORE_add_crl(cts, itmp->crl); }
+    }
+  }
+
+  sk_X509_INFO_pop_free(inf, X509_INFO_free);
+  BIO_free(mem);
+  return cts;
+}
+
+void RemoteLLMClient::set_SSL(const char* SSL_cert){
+    this->SSL_cert = SSL_cert;
+}
+
 std::string RemoteLLMClient::post_request(
-    const std::string& url, 
-    int port, 
     const std::string& path,
     const json& payload,
     CharArrayFn callback
@@ -60,8 +86,6 @@ std::string RemoteLLMClient::post_request(
     req.path = "/" + path;
     req.headers = headers;
     req.body = payload.dump();
-            std::cout<<path<<std::endl;
-            std::cout<<payload.dump()<<std::endl;
 
     req.content_receiver = [&](const char* data, size_t data_length, uint64_t /*offset*/, uint64_t /*total_length*/) {
         context.buffer.append(data, data_length);
@@ -73,7 +97,19 @@ std::string RemoteLLMClient::post_request(
         return true;
     };
 
-    bool ok = cli.send(req);
+    bool ok = false;
+
+    if (url.rfind("https://", 0) == 0) {
+        std::string host = url.substr(8);
+        httplib::SSLClient cli(host.c_str(), port);
+        if(SSL_cert != "") cli.set_ca_cert_store(load_cert(SSL_cert));
+        else cli.enable_server_certificate_verification(false);
+        ok = cli.send(req);
+    } else {
+        std::string host = url.rfind("http://", 0) == 0 ? url.substr(7) : url;
+        httplib::Client cli(host.c_str(), port);
+        ok = cli.send(req);
+    }
 
     if (!ok) {
         std::string error = "HTTP POST streaming request failed";
@@ -86,20 +122,20 @@ std::string RemoteLLMClient::post_request(
 
 std::string RemoteLLMClient::handle_tokenize_impl(const json& data)
 {
-    return post_request(url, port, "tokenize", data);
+    return post_request("tokenize", data);
 }
 
 std::string RemoteLLMClient::handle_detokenize_impl(const json& data)
 {
-    return post_request(url, port, "detokenize", data);
+    return post_request("detokenize", data);
 }
 
 std::string RemoteLLMClient::handle_embeddings_impl(const json& data, httplib::Response* res, std::function<bool()> is_connection_closed)
 {
-    return post_request(url, port, "embeddings", data);
+    return post_request("embeddings", data);
 }
 
 std::string RemoteLLMClient::handle_completions_impl(const json& data, CharArrayFn callback, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
 {
-    return post_request(url, port, "completion", data, callback);
+    return post_request("completion", data, callback);
 }

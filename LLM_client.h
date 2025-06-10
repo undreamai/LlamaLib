@@ -34,11 +34,15 @@ class UNDREAMAI_API RemoteLLMClient : public LLM {
 private:
     const std::string url;
     const int port;
+    std::string SSL_cert = "";
 
-    std::string post_request(const std::string& url, int port, const std::string& path, const json& payload, CharArrayFn callback = nullptr);
+    std::string post_request(const std::string& path, const json& payload, CharArrayFn callback = nullptr);
 
 public:
     RemoteLLMClient(const std::string& url, const int port);
+
+    static X509_STORE* load_cert(const std::string& cert_str);
+    void set_SSL(const char* SSL_cert);
 
     //================ LLM ================//
     std::string handle_tokenize_impl(const json& data) override;

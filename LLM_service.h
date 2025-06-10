@@ -2,10 +2,8 @@
 
 #include "LLM.h"
 
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-    #include <openssl/err.h>
-    #include <openssl/ssl.h>
-#endif
+#include <openssl/err.h>
+#include <openssl/ssl.h>
 #include "error_handling.h"
 
 #include "common.h"
@@ -24,10 +22,8 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         void init(const std::string& params);
         void init(const char* params);
 
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
         static EVP_PKEY* load_key(const std::string& key_str);
         static X509* load_cert(const std::string& cert_str);
-#endif
 
         //================ LLM ================//
         int get_status() override;

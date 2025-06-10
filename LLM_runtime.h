@@ -44,8 +44,8 @@ class LLMService;
     M(LLM_Completion,      const char*, LLM*, const char*, CharArrayFn) \
     M(LLM_Slot,            const char*, LLMWithSlot*, const char*) \
     M(LLM_Cancel,          void,        LLMWithSlot*, int) \
-    M(LLM_Lora_Weight,     const char*, LLMFull*, const char*) \
-    M(LLM_Lora_List,       const char*, LLMFull*) \
+    M(LLM_Lora_Weight,     const char*, LLMProvider*, const char*) \
+    M(LLM_Lora_List,       const char*, LLMProvider*) \
     M(LLM_Delete,          void,        LLMProvider*) \
     M(LLM_Start,           void,        LLMProvider*) \
     M(LLM_Started,         bool,        LLMProvider*) \
@@ -98,11 +98,11 @@ public:
     }
 
     std::string handle_lora_adapters_apply_impl(const json& data, httplib::Response* = nullptr) override {
-        return LLM_Lora_Weight((LLMFull*)llm, data.dump().c_str());
+        return LLM_Lora_Weight((LLMProvider*)llm, data.dump().c_str());
     }
 
     std::string handle_lora_adapters_list_impl() override {
-        return LLM_Lora_List((LLMFull*)llm);
+        return LLM_Lora_List((LLMProvider*)llm);
     }
 
     int get_status() override {
