@@ -75,7 +75,7 @@ public:
     virtual std::string handle_slots_action(int id_slot, std::string action, std::string filepath, httplib::Response* res = nullptr);
 };
 
-class UNDREAMAI_API LLMFull : public LLMWithSlot {
+class UNDREAMAI_API LLMProvider : public LLMWithSlot {
 public:
     virtual std::string handle_lora_adapters_apply_impl(const json& data, httplib::Response* res = nullptr) = 0;
     virtual std::string handle_lora_adapters_list_impl() = 0;
@@ -90,10 +90,7 @@ public:
     virtual std::string handle_lora_adapters_list_json();
     virtual std::vector<LoraIdScalePath> parse_lora_adapters_list_json(const json& result);
     virtual std::vector<LoraIdScalePath> handle_lora_adapters_list();
-};
 
-class UNDREAMAI_API LLMProvider : public LLMFull {
-public:
     virtual int get_status() = 0;
     virtual std::string get_status_message() = 0;
 
@@ -119,9 +116,8 @@ extern "C" {
     UNDREAMAI_API const char* LLM_Slot(LLMWithSlot* llm, const char* json_data);
     UNDREAMAI_API void LLM_Cancel(LLMWithSlot* llm, int id_slot);
 
-    UNDREAMAI_API const char* LLM_Lora_Weight(LLMFull* llm, const char* json_data);
-    UNDREAMAI_API const char* LLM_Lora_List(LLMFull* llm);
-
+    UNDREAMAI_API const char* LLM_Lora_Weight(LLMProvider* llm, const char* json_data);
+    UNDREAMAI_API const char* LLM_Lora_List(LLMProvider* llm);
     UNDREAMAI_API void LLM_Delete(LLMProvider* llm);
     UNDREAMAI_API void LLM_Start(LLMProvider* llm);
     UNDREAMAI_API const bool LLM_Started(LLMProvider* llm);
