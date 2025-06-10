@@ -20,6 +20,7 @@ SET(LLAMA_BUILD_EXAMPLES OFF)
 SET(BUILD_SHARED_LIBS OFF)
 SET(LLAMA_CURL OFF)
 SET(GGML_NATIVE OFF)
+SET(LLAMA_SERVER_SSL ON)
 
 set(ARCHITECTURE "" CACHE STRING "Target architecture")
 if(ARCHITECTURE STREQUAL "windows_noavx" OR ARCHITECTURE STREQUAL "linux_noavx")
@@ -75,12 +76,6 @@ else()
     message(FATAL_ERROR "Unknown architecture: ${ARCHITECTURE}")
 endif()
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    SET(LLAMA_SERVER_SSL ON)
-else()
-    SET(LLAMA_SERVER_SSL OFF)
-endif()
-
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     SET(CMAKE_BUILD_RPATH_USE_ORIGIN ON)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
@@ -106,30 +101,8 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
     add_subdirectory("archchecker")
 endif()
 
-# Setup CURL
-if (CMAKE_SYSTEM_NAME STREQUAL "Android")
-    set(CURL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/curl/android/${ANDROID_ABI}/include)
-    set(CURL_LIBRARIES
-        ${CMAKE_SOURCE_DIR}/curl/android/${ANDROID_ABI}/lib/libcurl.a 
-        ${CMAKE_SOURCE_DIR}/curl/android/${ANDROID_ABI}/lib/libssl.a 
-        ${CMAKE_SOURCE_DIR}/curl/android/${ANDROID_ABI}/lib/libcrypto.a 
-        ${CMAKE_SOURCE_DIR}/curl/android/${ANDROID_ABI}/lib/libz.a
-    )
-else()
-    if (WIN32)
-        set(CURL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/curl/windows/include")
-        set(CURL_LIBRARY "${CMAKE_SOURCE_DIR}/curl/windows/lib/libcurl_a.lib")
-        set(ZLIB_LIBRARY "${CMAKE_SOURCE_DIR}/curl/windows/lib/zlibstatic.lib")
-        add_compile_definitions(CURL_STATICLIB)
-    endif()
 
-    find_package(CURL REQUIRED)
-
-    set(CURL_LIBRARIES ${CURL_LIBRARIES} ${ZLIB_LIBRARY})
-    if (WIN32)
-        set(CURL_LIBRARIES ${CURL_LIBRARIES} ws2_32 Wldap32 crypt32 Normaliz)
-    endif()
-endif()
+find_package(OpenSSL REQUIRED)
 
 # Output override
 set_property(DIRECTORY llama.cpp PROPERTY CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
@@ -175,12 +148,14 @@ endif()
 function(common_compile_defs NAME)
     target_compile_features(${NAME} PRIVATE cxx_std_11)
     add_compile_definitions(${NAME} PRIVATE UNDREAMAI_EXPORTS)
-    target_include_directories(${NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} llama.cpp/common llama.cpp/examples/server llama.cpp llama.cpp/include llama.cpp/ggml/include archchecker ${CURL_INCLUDE_DIR})
+    target_include_directories(${NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} llama.cpp/common llama.cpp/examples/server llama.cpp llama.cpp/include llama.cpp/ggml/include archchecker)
+    target_compile_definitions(${NAME} PRIVATE CPPHTTPLIB_OPENSSL_SUPPORT)
+    target_link_libraries(${NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 endfunction()
 
 function(create_library NAME FILES)
     add_library(${NAME} ${LIBRARY_TYPE} ${FILES} LLM.cpp LLM_client.cpp logging.cpp error_handling.cpp)
-    target_link_libraries(${NAME} PRIVATE common ${CURL_LIBRARIES})
+    target_link_libraries(${NAME} PRIVATE common)
     common_compile_defs(${NAME})
     install(TARGETS ${NAME} LIBRARY)
 endfunction()
@@ -225,11 +200,6 @@ if (LLAMALIB_BUILD_SERVER)
         SET(SERVER_LIB ${STATIC_LIBRARY})
     endif()
     create_executable(llamalib_server ${SERVER_LIB})
-    if (LLAMA_SERVER_SSL)
-        find_package(OpenSSL REQUIRED)
-        target_link_libraries(llamalib_server PRIVATE OpenSSL::SSL OpenSSL::Crypto)
-        target_compile_definitions(llamalib_server PRIVATE CPPHTTPLIB_OPENSSL_SUPPORT)
-    endif()
 endif()
 
 if (LLAMALIB_BUILD_TESTS)

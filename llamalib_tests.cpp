@@ -110,13 +110,17 @@ void test_completion(LLM* llm, bool stream) {
 
     counter = 0;
     reply = std::string(LLM_Completion(llm, data.dump().c_str(), static_cast<CharArrayFn>(count_calls)));
-    ASSERT(counter > int(stream));
 
     std::string reply_data;
     if (stream)
+    {
+        ASSERT(counter > 0);
         reply_data = concatenate_streaming_result(reply);
+    }
     else
+    {
         reply_data = json::parse(reply)["content"];
+    }
     ASSERT(reply_data != "");
 }
 

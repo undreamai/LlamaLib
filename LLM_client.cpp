@@ -37,75 +37,52 @@ void LLMClient::handle_cancel_action_impl(int id_slot)
 
 RemoteLLMClient::RemoteLLMClient(const std::string& url_, const int port_) : url(url_), port(port_) { }
 
-static size_t StreamingWriteCallback(void *contents, size_t size, size_t nmemb, void *userp) {
-    size_t totalSize = size * nmemb;
-    StreamingContext* ctx = static_cast<StreamingContext*>(userp);
-
-    if (ctx && contents) {
-        std::string chunk(static_cast<char*>(contents), totalSize);
-        ctx->buffer += chunk;
-        if (ctx->callback) ctx->callback(ctx->buffer.c_str());
-    }
-    
-    return totalSize;
-}
-
 std::string RemoteLLMClient::post_request(
     const std::string& url, 
     int port, 
-    const std::string& path, 
+    const std::string& path,
     const json& payload,
     CharArrayFn callback
 ) {
-    CURL* curl = curl_easy_init();
-    
-    if (!curl) {
-        std::cerr << "CURL initialization failed" << std::endl;
-        return "";
-    }
-        
+    httplib::Client cli(url.c_str(), port);
+
     StreamingContext context;
     context.callback = callback;
-    
-    try {
-        std::ostringstream full_url;
-        full_url << url << ":" << port << "/" << path;
 
-        struct curl_slist* headers = nullptr;
-        headers = curl_slist_append(headers, "Content-Type: application/json");
-        headers = curl_slist_append(headers, "Accept: text/event-stream");
-        headers = curl_slist_append(headers, "Cache-Control: no-cache");
+    httplib::Headers headers = {
+        {"Content-Type", "application/json"},
+        {"Accept", "text/event-stream"},
+        {"Cache-Control", "no-cache"}
+    };
 
-        std::string payload_str = payload.dump();
-        
-        curl_easy_setopt(curl, CURLOPT_URL, full_url.str().c_str());
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload_str.c_str());
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, payload_str.length());
-        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, StreamingWriteCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &context);
-        
-        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 0L);
-        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 30L);
+    httplib::Request req;
+    req.method = "POST";
+    req.path = "/" + path;
+    req.headers = headers;
+    req.body = payload.dump();
+            std::cout<<path<<std::endl;
+            std::cout<<payload.dump()<<std::endl;
 
-        CURLcode res = curl_easy_perform(curl);
-        if (res != CURLE_OK && res != CURLE_ABORTED_BY_CALLBACK) {
-            std::string error = "CURL streaming failed: " + std::string(curl_easy_strerror(res));
-            std::cerr << error << std::endl;
+    req.content_receiver = [&](const char* data, size_t data_length, uint64_t /*offset*/, uint64_t /*total_length*/) {
+        context.buffer.append(data, data_length);
+        if (context.callback != nullptr) {
+            std::string chunk_str(data, data_length);
+            chunk_str.push_back('\0');
+            context.callback(chunk_str.c_str());
         }
+        return true;
+    };
 
-        curl_slist_free_all(headers);
-        
-    } catch (const std::exception& e) {
-        std::string error = "Exception in streaming request: " + std::string(e.what());
-        context.buffer = error;
+    bool ok = cli.send(req);
+
+    if (!ok) {
+        std::string error = "HTTP POST streaming request failed";
         std::cerr << error << std::endl;
+        context.buffer = error;
     }
-    
-    curl_easy_cleanup(curl);
+
     return context.buffer;
 }
-
 
 std::string RemoteLLMClient::handle_tokenize_impl(const json& data)
 {

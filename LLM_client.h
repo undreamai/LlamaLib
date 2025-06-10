@@ -5,7 +5,6 @@
 #include <chrono>
 #include <iostream>
 #include <sstream>
-#include <curl/curl.h>
 #include "LLM.h"
 
 struct StreamingContext {
