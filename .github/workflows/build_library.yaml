@@ -695,8 +695,9 @@ jobs:
             choco install unzip -y
         
             foreach ($archive in $archives) {
-              $url = "https://developer.download.nvidia.com/compute/cuda/redist/$($archive.Replace('-archive', ''))/windows-x86_64/$archive.zip"
-              curl -O $url
+              $folder = $archive.Split("-")[0]
+              $url = "https://developer.download.nvidia.com/compute/cuda/redist/$folder/windows-x86_64/$archive.zip"
+              curl.exe -O "$url"
             }
         
             unzip '*.zip' -d $cudaPath
