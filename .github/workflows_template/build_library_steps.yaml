@@ -128,10 +128,11 @@ jobs:
         id: link_cuda_linux
         if: matrix.arch == 'linux_cublas' || matrix.arch == 'linux_tinyblas'
         run: |
-          ln -s ${{ env.CUDA_PATH }} ${{ github.workspace }}/build/cuda
+          CUDA_PATH=/usr/local/cuda
+          ls $CUDA_PATH
+          ln -s $CUDA_PATH ${{ github.workspace }}/build/cuda
           echo "CUDAToolkit_ROOT=$GITHUB_WORKSPACE/build/cuda" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=''" >> $GITHUB_ENV
-          ls ${{ github.workspace }}/build/cuda
 
       - name: Test
         id: test_build_linux
@@ -252,8 +253,8 @@ jobs:
             xcopy "$cudaPath\$archive\*" $cudaPath /E /I /H /Y
           }
 
-          "$cudaPath\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          "$cudaPath\libnvvp" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "$cudaPath\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "$cudaPath\libnvvp" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           "CUDA_PATH=$cudaPath" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           "CUDA_PATH_V12_4=$cudaPath" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
