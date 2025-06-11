@@ -98,15 +98,8 @@ jobs:
       - name: Dependencies
         id: setup_libs_linux
         run: |
-          sudo_if_exists() {
-            if command -v sudo >/dev/null 2>&1; then
-              sudo "$@"
-            else
-              "$@"
-            fi
-          }
-          sudo_if_exists apt-get update
-          sudo_if_exists apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
 
       - name: Dependencies
         id: setup_hip_linux
@@ -124,13 +117,19 @@ jobs:
           sudo apt-get install -y build-essential vulkan-sdk
           cp /lib/x86_64-linux-gnu/libvulkan.so.1 build/libs/
 
+      - uses: Jimver/cuda-toolkit@v0.2.15
+        id: setup_cuda_linux
+        if: matrix.arch == 'linux_cublas' || matrix.arch == 'linux_tinyblas'
+        with:
+          cuda: ${{ env.CUDA }}
+          method: 'network'
+          linux-local-args: '["--toolkit"]'
+
       - name: Link Cuda
         id: link_cuda_linux
         if: matrix.arch == 'linux_cublas' || matrix.arch == 'linux_tinyblas'
         run: |
-          CUDA_PATH=/usr/local/cuda
-          ls $CUDA_PATH
-          ln -s $CUDA_PATH ${{ github.workspace }}/build/cuda
+          ln -s ${{ env.CUDA_PATH }} ${{ github.workspace }}/build/cuda
           echo "CUDAToolkit_ROOT=$GITHUB_WORKSPACE/build/cuda" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=''" >> $GITHUB_ENV
 
@@ -204,6 +203,23 @@ jobs:
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
           mkdir Release
 
+      - uses: Jimver/cuda-toolkit@v0.2.15
+        id: setup_cuda_windows
+        if: matrix.arch == 'windows_cublas' || matrix.arch == 'windows_tinyblas'
+        with:
+          cuda: ${{ env.CUDA }}
+          method: 'network'
+          sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust", "visual_studio_integration"]'
+
+      - name: Copy Cuda DLLs
+        id: copy_cuda_dlls
+        if: matrix.arch == 'windows_cublas'
+        shell: bash
+        run: |
+          mv "${{ env.CUDA_PATH }}"/bin/cudart64_*.dll build/libs/Release
+          mv "${{ env.CUDA_PATH }}"/bin/cublas64_*.dll build/libs/Release
+          mv "${{ env.CUDA_PATH }}"/bin/cublasLt64_*.dll build/libs/Release
+
       - name: Pack artifacts
         id: pack_artifacts_windows
         run: |
@@ -219,44 +235,6 @@ jobs:
           }
           cd artifacts
           7z a ../${{ matrix.arch }}.zip *
-
-      - name: Setup CUDA
-        id: setup_cuda_windows
-        if: matrix.arch == 'windows_cublas' || matrix.arch == 'windows_tinyblas'
-        shell: pwsh
-        run: |
-          $cudaPath = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4"
-          $archives = @(
-            "cuda_cudart-windows-x86_64-12.4.127-archive",
-            "cuda_nvcc-windows-x86_64-12.4.131-archive",
-            "cuda_nvrtc-windows-x86_64-12.4.127-archive",
-            "libcublas-windows-x86_64-12.4.5.8-archive",
-            "cuda_nvtx-windows-x86_64-12.4.127-archive",
-            "cuda_profiler_api-windows-x86_64-12.4.127-archive",
-            "visual_studio_integration-windows-x86_64-12.4.127-archive",
-            "cuda_nvprof-windows-x86_64-12.4.127-archive",
-            "cuda_cccl-windows-x86_64-12.4.127-archive"
-          )
-
-          mkdir -p $cudaPath
-          choco install unzip -y
-
-          foreach ($archive in $archives) {
-            $folder = $archive.Split("-")[0]
-            $url = "https://developer.download.nvidia.com/compute/cuda/redist/$folder/windows-x86_64/$archive.zip"
-            curl.exe -O "$url"
-          }
-
-          unzip '*.zip' -d $cudaPath
-
-          foreach ($archive in $archives) {
-            xcopy "$cudaPath\$archive\*" $cudaPath /E /I /H /Y
-          }
-
-          echo "$cudaPath\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          echo "$cudaPath\libnvvp" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          "CUDA_PATH=$cudaPath" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          "CUDA_PATH_V12_4=$cudaPath" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Install
         id: setup_hip_windows

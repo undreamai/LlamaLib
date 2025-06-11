@@ -7,6 +7,7 @@ on:
 
 env:
   LLAMACPP_VERSION: b5261
+  CUDA: 12.4.1
 
 jobs:
   ################################ ArchChecker ################################
@@ -51,30 +52,6 @@ jobs:
           - arch: linux_avx
           - arch: linux_avx512
           - arch: linux_vulkan
-            
-    steps:
-        @@setup_libs_linux@@
-
-        @@checkout@@
-        @@setup_llama_cpp@@
-        @@add_licenses@@
-
-        @@setup_vulkan_linux@@
-
-        @@cpu-cores@@
-        @@cmake_build@@
-        @@test_build_linux@@
-
-        @@pack_artifacts_unix@@
-        @@upload_llamalib@@
-
-  linux-cuda-build:
-    runs-on: ubuntu-22.04
-    container: nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04
-
-    strategy:
-      matrix:
-        include:
           - arch: linux_tinyblas
           - arch: linux_cublas
             
@@ -85,13 +62,17 @@ jobs:
         @@setup_llama_cpp@@
         @@add_licenses@@
 
-        @@cpu-cores@@
+        @@setup_vulkan_linux@@
+        @@setup_cuda_linux@@
         @@link_cuda_linux@@
+
+        @@cpu-cores@@
         @@cmake_build@@
         @@test_build_linux@@
 
         @@pack_artifacts_unix@@
         @@upload_llamalib@@
+
 
   linux-hip-build:
     runs-on: ubuntu-22.04
@@ -197,6 +178,7 @@ jobs:
         @@cpu-cores@@
         @@cmake_build@@
 
+        @@copy_cuda_dlls@@
         @@pack_artifacts_windows@@
         @@upload_llamalib@@
 
@@ -289,7 +271,6 @@ jobs:
       - archchecker-linux-build
       - archchecker-windows-build
       - linux-build
-      - linux-cuda-build
       - linux-hip-build
       - macOS-arm64-build
       - macOS-x64-build
