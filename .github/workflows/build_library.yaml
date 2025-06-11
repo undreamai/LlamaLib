@@ -11,7 +11,7 @@ env:
 jobs:
   ################################ ArchChecker ################################
 
-  archchecker_linux_build:
+  archchecker-linux-build:
     name: Build ArchChecker Linux
     runs-on: ubuntu-22.04
 
@@ -42,7 +42,7 @@ jobs:
             path: ${{ env.UPLOAD_PATH }}
 
 
-  archchecker_windows_build:
+  archchecker-windows-build:
     name: Build ArchChecker Windows
     runs-on: windows-2019
 
@@ -183,7 +183,7 @@ jobs:
             path: ${{ matrix.arch }}.zip
 
 
-  linux-build:
+  linux-cuda-build:
     runs-on: ubuntu-22.04
     container: nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04
 
@@ -278,7 +278,7 @@ jobs:
             path: ${{ matrix.arch }}.zip
 
 
-  linux-hip:
+  linux-hip-build:
     runs-on: ubuntu-22.04
     container: rocm/dev-ubuntu-22.04:5.5
 
@@ -702,8 +702,6 @@ jobs:
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
 
-        @@copy_cuda_dlls@@
-
         - id: pack_artifacts_windows
           name: Pack artifacts
           run: |
@@ -728,7 +726,7 @@ jobs:
             path: ${{ matrix.arch }}.zip
 
 
-  windows-hip:
+  windows-hip-build:
     runs-on: windows-2019
 
     env:
@@ -1042,14 +1040,15 @@ jobs:
     name: Create Release
     runs-on: macos-14
     needs:
-      - archchecker_linux_build
-      - archchecker_windows_build
+      - archchecker-linux-build
+      - archchecker-windows-build
       - linux-build
-      - linux-hip
+      - linux-cuda-build
+      - linux-hip-build
       - macOS-arm64-build
       - macOS-x64-build
       - windows-build
-      - windows-hip
+      - windows-hip-build
       - android-build
       - ios-build
     steps:
