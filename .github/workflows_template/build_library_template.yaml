@@ -244,6 +244,7 @@ jobs:
         @@add_licenses@@
 
         @@cpu-cores@@
+        @@build_openssl@@
         @@cmake_build_android@@
 
         @@pack_artifacts_unix@@
@@ -270,6 +271,7 @@ jobs:
         @@add_licenses@@
 
         @@cpu-cores@@
+        @@build_openssl@@
         @@cmake_build@@
         @@link_libraries_ios@@
 
