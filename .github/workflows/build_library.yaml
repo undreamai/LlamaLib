@@ -262,6 +262,15 @@ jobs:
           name: Get number of CPU cores
           uses: SimenB/github-actions-cpu-cores@v2
 
+        - id: link_cuda_linux
+          if: matrix.arch == 'linux_cublas' || matrix.arch == 'linux_tinyblas'
+          name: Link Cuda
+          run: |
+            ln -s ${{ env.CUDA_PATH }} ${{ github.workspace }}/build/cuda
+            echo "CUDAToolkit_ROOT=$GITHUB_WORKSPACE/build/cuda" >> $GITHUB_ENV
+            echo "LD_LIBRARY_PATH=''" >> $GITHUB_ENV
+            ls ${{ github.workspace }}/build/cuda
+
         - id: cmake_build
           name: Build
           run: |

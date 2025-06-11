@@ -86,6 +86,7 @@ jobs:
         @@add_licenses@@
 
         @@cpu-cores@@
+        @@link_cuda_linux@@
         @@cmake_build@@
         @@test_build_linux@@
 

@@ -124,6 +124,15 @@ jobs:
           sudo apt-get install -y build-essential vulkan-sdk
           cp /lib/x86_64-linux-gnu/libvulkan.so.1 build/libs/
 
+      - name: Link Cuda
+        id: link_cuda_linux
+        if: matrix.arch == 'linux_cublas' || matrix.arch == 'linux_tinyblas'
+        run: |
+          ln -s ${{ env.CUDA_PATH }} ${{ github.workspace }}/build/cuda
+          echo "CUDAToolkit_ROOT=$GITHUB_WORKSPACE/build/cuda" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=''" >> $GITHUB_ENV
+          ls ${{ github.workspace }}/build/cuda
+
       - name: Test
         id: test_build_linux
         if: matrix.arch == 'linux_noavx' || matrix.arch == 'linux_avx2'
