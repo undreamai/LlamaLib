@@ -107,8 +107,8 @@ build_openssl_android() {
         no-tests \
         -static &> $arch.log
     
-    make -j$(nproc) &>> $arch.log
-    make install_sw &>> $arch.log
+    make -j$(nproc) &> $arch.log
+    make install_sw &> $arch.log
 
     rm -r $install_prefix/bin
     
