@@ -220,6 +220,15 @@ jobs:
           mv "${{ env.CUDA_PATH }}"/bin/cublas64_*.dll build/libs/Release
           mv "${{ env.CUDA_PATH }}"/bin/cublasLt64_*.dll build/libs/Release
 
+      - id: test_build_windows
+        if: matrix.arch == 'windows_noavx' || matrix.arch == 'windows_avx2'
+        name: Test
+        run: |
+          cd build/libs/Release
+          curl.exe -o model.gguf -L "https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf"
+          .\llamalib_tests.exe -m model.gguf -np 1 --log-disable
+          rm model.gguf
+
       - name: Pack artifacts
         id: pack_artifacts_windows
         run: |

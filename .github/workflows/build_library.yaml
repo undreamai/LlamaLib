@@ -598,6 +598,15 @@ jobs:
             cmake .. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
+        - id: test_build_windows
+          if: matrix.arch == 'windows_noavx' || matrix.arch == 'windows_avx2'
+          name: Test
+          run: |
+            cd build/libs/Release
+            curl.exe -o model.gguf -L "https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf"
+            .\llamalib_tests.exe -m model.gguf -np 1 --log-disable
+            rm model.gguf
+
 
         - id: copy_cuda_dlls
           if: matrix.arch == 'windows_cublas'

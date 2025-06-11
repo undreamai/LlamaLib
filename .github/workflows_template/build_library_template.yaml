@@ -177,6 +177,7 @@ jobs:
 
         @@cpu-cores@@
         @@cmake_build@@
+        @@test_build_windows@@
 
         @@copy_cuda_dlls@@
         @@pack_artifacts_windows@@
