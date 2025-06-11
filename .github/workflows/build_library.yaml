@@ -7,7 +7,6 @@ on:
 
 env:
   LLAMACPP_VERSION: b5261
-  CUDA: 12.2.0
 
 jobs:
   ################################ ArchChecker ################################
@@ -88,6 +87,109 @@ jobs:
           - arch: linux_avx
           - arch: linux_avx512
           - arch: linux_vulkan
+            
+    steps:
+        - id: setup_libs_linux
+          name: Dependencies
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
+
+        - id: setup_vulkan_linux
+          if: matrix.arch == 'linux_vulkan'
+          name: Dependencies Vulcan
+          run: |
+            wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+            sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list https://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
+            sudo apt-get update -y
+            sudo apt-get install -y build-essential vulkan-sdk
+            cp /lib/x86_64-linux-gnu/libvulkan.so.1 build/libs/
+
+
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
+          with:
+            submodules: recursive
+
+        - id: setup_llama_cpp
+          name: Setup llama.cpp
+          run: |
+            mkdir -p build/licenses build/libs
+        
+            git clone https://github.com/ggerganov/llama.cpp llama.cpp
+            cd llama.cpp
+            git checkout ${{ env.LLAMACPP_VERSION }}
+        
+            for f in ../patches/*;do
+              git apply $f
+            done
+        
+            if [[ "${{ matrix.arch }}" == "linux_tinyblas" || "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
+              echo "tinyblas"
+              mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
+              rm -r ggml/src/ggml-cuda
+              cp -R ../tinyBLAS ggml/src/ggml-cuda
+              mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
+            fi
+        
+            for f in examples/server/public/*;do
+                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
+            done
+          shell: bash
+
+        - id: add_licenses
+          name: Add licenses
+          run: |
+            cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+            if [[ "${{ matrix.arch }}" == "linux_tinyblas" || "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
+              curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+            fi
+          shell: bash
+
+
+        - id: cpu-cores
+          name: Get number of CPU cores
+          uses: SimenB/github-actions-cpu-cores@v2
+
+        - id: cmake_build
+          name: Build
+          run: |
+            cd build
+            cmake .. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
+            cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
+
+        - id: test_build_linux
+          if: matrix.arch == 'linux_noavx' || matrix.arch == 'linux_avx2'
+          name: Test
+          run: |
+            cd build/libs
+            curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
+            ./llamalib_tests -m model.gguf -np 1 --log-disable
+            rm model.gguf
+
+
+        - id: pack_artifacts_unix
+          name: Pack artifacts
+          run: |
+            rm -f build/libs/llamalib_tests
+            zip -j ${{ matrix.arch }}.zip build/licenses/* build/libs/*
+
+        - id: upload_llamalib
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ matrix.arch }}.zip
+            path: ${{ matrix.arch }}.zip
+
+
+  linux-build:
+    runs-on: ubuntu-22.04
+    container: nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04
+
+    strategy:
+      matrix:
+        include:
           - arch: linux_tinyblas
           - arch: linux_cublas
             
@@ -141,33 +243,6 @@ jobs:
           shell: bash
 
 
-        - id: setup_vulkan_linux
-          if: matrix.arch == 'linux_vulkan'
-          name: Dependencies Vulcan
-          run: |
-            wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
-            sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list https://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
-            sudo apt-get update -y
-            sudo apt-get install -y build-essential vulkan-sdk
-            cp /lib/x86_64-linux-gnu/libvulkan.so.1 build/libs/
-
-        - id: setup_cuda_linux
-          if: matrix.arch == 'linux_cublas' || matrix.arch == 'linux_tinyblas'
-          uses: Jimver/cuda-toolkit@v0.2.15
-          with:
-            cuda: ${{ env.CUDA }}
-            linux-local-args: '["--toolkit"]'
-            method: network
-
-        - id: link_cuda_linux
-          if: matrix.arch == 'linux_cublas' || matrix.arch == 'linux_tinyblas'
-          name: Link Cuda
-          run: |
-            ln -s ${{ env.CUDA_PATH }} ${{ github.workspace }}/build/cuda
-            echo "CUDAToolkit_ROOT=$GITHUB_WORKSPACE/build/cuda" >> $GITHUB_ENV
-            echo "LD_LIBRARY_PATH=''" >> $GITHUB_ENV
-
-
         - id: cpu-cores
           name: Get number of CPU cores
           uses: SimenB/github-actions-cpu-cores@v2
@@ -219,6 +294,12 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
 
+        - id: setup_hip_linux
+          name: Dependencies
+          run: |
+            sudo apt-get install -y rocblas-dev hipblas-dev
+            echo "CMAKE_HIP_COMPILER=$(hipconfig -l)/clang" >> $GITHUB_ENV
+
 
         - id: checkout
           name: Clone
@@ -262,16 +343,9 @@ jobs:
           shell: bash
 
 
-        - id: setup_hip_linux
-          name: Dependencies
-          run: |
-            sudo apt-get install -y rocblas-dev hipblas-dev
-
-
-        - id: set_build_params_hip_linux
-          name: Set build parameters
-          run: |
-            echo "CMAKE_HIP_COMPILER=$(hipconfig -l)/clang" >> $GITHUB_ENV
+        - id: cpu-cores
+          name: Get number of CPU cores
+          uses: SimenB/github-actions-cpu-cores@v2
 
         - id: cmake_build
           name: Build
@@ -580,11 +654,40 @@ jobs:
 
         - id: setup_cuda_windows
           if: matrix.arch == 'windows_cublas' || matrix.arch == 'windows_tinyblas'
-          uses: Jimver/cuda-toolkit@v0.2.15
-          with:
-            cuda: ${{ env.CUDA }}
-            method: network
-            sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust", "visual_studio_integration"]'
+          name: Setup CUDA
+          run: |
+            $cudaPath = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4"
+            $archives = @(
+              "cuda_cudart-windows-x86_64-12.4.127-archive",
+              "cuda_nvcc-windows-x86_64-12.4.131-archive",
+              "cuda_nvrtc-windows-x86_64-12.4.127-archive",
+              "libcublas-windows-x86_64-12.4.5.8-archive",
+              "cuda_nvtx-windows-x86_64-12.4.127-archive",
+              "cuda_profiler_api-windows-x86_64-12.4.127-archive",
+              "visual_studio_integration-windows-x86_64-12.4.127-archive",
+              "cuda_nvprof-windows-x86_64-12.4.127-archive",
+              "cuda_cccl-windows-x86_64-12.4.127-archive"
+            )
+        
+            mkdir -p $cudaPath
+            choco install unzip -y
+        
+            foreach ($archive in $archives) {
+              $url = "https://developer.download.nvidia.com/compute/cuda/redist/$($archive.Replace('-archive', ''))/windows-x86_64/$archive.zip"
+              curl -O $url
+            }
+        
+            unzip '*.zip' -d $cudaPath
+        
+            foreach ($archive in $archives) {
+              xcopy "$cudaPath\$archive\*" $cudaPath /E /I /H /Y
+            }
+        
+            "$cudaPath\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+            "$cudaPath\libnvvp" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+            "CUDA_PATH=$cudaPath" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+            "CUDA_PATH_V12_4=$cudaPath" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          shell: pwsh
 
 
         - id: cpu-cores
@@ -599,14 +702,7 @@ jobs:
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
 
-        - id: copy_cuda_dlls
-          if: matrix.arch == 'windows_cublas'
-          name: Copy Cuda DLLs
-          run: |
-            mv "${{ env.CUDA_PATH }}"/bin/cudart64_*.dll build/libs/Release
-            mv "${{ env.CUDA_PATH }}"/bin/cublas64_*.dll build/libs/Release
-            mv "${{ env.CUDA_PATH }}"/bin/cublasLt64_*.dll build/libs/Release
-          shell: bash
+        @@copy_cuda_dlls@@
 
         - id: pack_artifacts_windows
           name: Pack artifacts
@@ -699,6 +795,7 @@ jobs:
         - id: setup_hip_windows
           name: Install
           run: |
+            git clone https://github.com/rocm/rocwmma --branch rocm-6.2.4 --depth 1
             $ErrorActionPreference = "Stop"
             write-host "Downloading AMD HIP SDK Installer"
             Invoke-WebRequest -Uri "https://download.amd.com/developer/eula/rocm-hub/AMD-Software-PRO-Edition-23.Q4-WinSvr2022-For-HIP.exe" -OutFile "${env:RUNNER_TEMP}\rocm-install.exe"
@@ -718,7 +815,7 @@ jobs:
             $env:HIP_PATH=$(Resolve-Path 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' | split-path | split-path)
             $env:CMAKE_PREFIX_PATH="${env:HIP_PATH}"
             cd build
-            cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs//Release -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs//Release ${{ matrix.cmake_vars }} -DARCHITECTURE=${{ matrix.arch }}
+            cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DCMAKE_CXX_FLAGS="-I$($PWD.Path.Replace('\', '/'))/rocwmma/library/include/" -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs//Release -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs//Release ${{ matrix.cmake_vars }} -DARCHITECTURE=${{ matrix.arch }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
             mkdir Release
 
@@ -902,6 +999,10 @@ jobs:
             fi
           shell: bash
 
+
+        - id: cpu-cores
+          name: Get number of CPU cores
+          uses: SimenB/github-actions-cpu-cores@v2
 
         - id: cmake_build
           name: Build

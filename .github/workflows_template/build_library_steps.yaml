@@ -100,6 +100,7 @@ jobs:
         id: setup_hip_linux
         run: |
           sudo apt-get install -y rocblas-dev hipblas-dev
+          echo "CMAKE_HIP_COMPILER=$(hipconfig -l)/clang" >> $GITHUB_ENV
 
       - name: Dependencies Vulcan
         id: setup_vulkan_linux
@@ -110,27 +111,6 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y build-essential vulkan-sdk
           cp /lib/x86_64-linux-gnu/libvulkan.so.1 build/libs/
-
-      - uses: Jimver/cuda-toolkit@v0.2.15
-        id: setup_cuda_linux
-        if: matrix.arch == 'linux_cublas' || matrix.arch == 'linux_tinyblas'
-        with:
-          cuda: ${{ env.CUDA }}
-          method: 'network'
-          linux-local-args: '["--toolkit"]'
-
-      - name: Link Cuda
-        id: link_cuda_linux
-        if: matrix.arch == 'linux_cublas' || matrix.arch == 'linux_tinyblas'
-        run: |
-          ln -s ${{ env.CUDA_PATH }} ${{ github.workspace }}/build/cuda
-          echo "CUDAToolkit_ROOT=$GITHUB_WORKSPACE/build/cuda" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=''" >> $GITHUB_ENV
-
-      - name: Set build parameters
-        id: set_build_params_hip_linux
-        run: |
-          echo "CMAKE_HIP_COMPILER=$(hipconfig -l)/clang" >> $GITHUB_ENV
 
       - name: Test
         id: test_build_linux
@@ -198,18 +178,9 @@ jobs:
           $env:HIP_PATH=$(Resolve-Path 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' | split-path | split-path)
           $env:CMAKE_PREFIX_PATH="${env:HIP_PATH}"
           cd build
-          cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs//Release -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs//Release ${{ matrix.cmake_vars }} -DARCHITECTURE=${{ matrix.arch }}
+          cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DCMAKE_CXX_FLAGS="-I$($PWD.Path.Replace('\', '/'))/rocwmma/library/include/" -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs//Release -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs//Release ${{ matrix.cmake_vars }} -DARCHITECTURE=${{ matrix.arch }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
           mkdir Release
-
-      - name: Copy Cuda DLLs
-        id: copy_cuda_dlls
-        if: matrix.arch == 'windows_cublas'
-        shell: bash
-        run: |
-          mv "${{ env.CUDA_PATH }}"/bin/cudart64_*.dll build/libs/Release
-          mv "${{ env.CUDA_PATH }}"/bin/cublas64_*.dll build/libs/Release
-          mv "${{ env.CUDA_PATH }}"/bin/cublasLt64_*.dll build/libs/Release
 
       - name: Pack artifacts
         id: pack_artifacts_windows
@@ -227,17 +198,47 @@ jobs:
           cd artifacts
           7z a ../${{ matrix.arch }}.zip *
 
-      - uses: Jimver/cuda-toolkit@v0.2.15
+      - name: Setup CUDA
         id: setup_cuda_windows
         if: matrix.arch == 'windows_cublas' || matrix.arch == 'windows_tinyblas'
-        with:
-          cuda: ${{ env.CUDA }}
-          method: 'network'
-          sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust", "visual_studio_integration"]'
+        shell: pwsh
+        run: |
+          $cudaPath = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4"
+          $archives = @(
+            "cuda_cudart-windows-x86_64-12.4.127-archive",
+            "cuda_nvcc-windows-x86_64-12.4.131-archive",
+            "cuda_nvrtc-windows-x86_64-12.4.127-archive",
+            "libcublas-windows-x86_64-12.4.5.8-archive",
+            "cuda_nvtx-windows-x86_64-12.4.127-archive",
+            "cuda_profiler_api-windows-x86_64-12.4.127-archive",
+            "visual_studio_integration-windows-x86_64-12.4.127-archive",
+            "cuda_nvprof-windows-x86_64-12.4.127-archive",
+            "cuda_cccl-windows-x86_64-12.4.127-archive"
+          )
+
+          mkdir -p $cudaPath
+          choco install unzip -y
+
+          foreach ($archive in $archives) {
+            $url = "https://developer.download.nvidia.com/compute/cuda/redist/$($archive.Replace('-archive', ''))/windows-x86_64/$archive.zip"
+            curl -O $url
+          }
+
+          unzip '*.zip' -d $cudaPath
+
+          foreach ($archive in $archives) {
+            xcopy "$cudaPath\$archive\*" $cudaPath /E /I /H /Y
+          }
+
+          "$cudaPath\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          "$cudaPath\libnvvp" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          "CUDA_PATH=$cudaPath" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "CUDA_PATH_V12_4=$cudaPath" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Install
         id: setup_hip_windows
         run: |
+          git clone https://github.com/rocm/rocwmma --branch rocm-6.2.4 --depth 1
           $ErrorActionPreference = "Stop"
           write-host "Downloading AMD HIP SDK Installer"
           Invoke-WebRequest -Uri "https://download.amd.com/developer/eula/rocm-hub/AMD-Software-PRO-Edition-23.Q4-WinSvr2022-For-HIP.exe" -OutFile "${env:RUNNER_TEMP}\rocm-install.exe"

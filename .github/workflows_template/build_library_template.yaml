@@ -7,7 +7,6 @@ on:
 
 env:
   LLAMACPP_VERSION: b5261
-  CUDA: 12.2.0
 
 jobs:
   ################################ ArchChecker ################################
@@ -52,6 +51,29 @@ jobs:
           - arch: linux_avx
           - arch: linux_avx512
           - arch: linux_vulkan
+            
+    steps:
+        @@setup_libs_linux@@
+        @@setup_vulkan_linux@@
+
+        @@checkout@@
+        @@setup_llama_cpp@@
+        @@add_licenses@@
+
+        @@cpu-cores@@
+        @@cmake_build@@
+        @@test_build_linux@@
+
+        @@pack_artifacts_unix@@
+        @@upload_llamalib@@
+
+  linux-build:
+    runs-on: ubuntu-22.04
+    container: nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04
+
+    strategy:
+      matrix:
+        include:
           - arch: linux_tinyblas
           - arch: linux_cublas
             
@@ -61,10 +83,6 @@ jobs:
         @@checkout@@
         @@setup_llama_cpp@@
         @@add_licenses@@
-
-        @@setup_vulkan_linux@@
-        @@setup_cuda_linux@@
-        @@link_cuda_linux@@
 
         @@cpu-cores@@
         @@cmake_build@@
@@ -84,14 +102,13 @@ jobs:
 
     steps:
         @@setup_libs_linux@@
+        @@setup_hip_linux@@
 
         @@checkout@@
         @@setup_llama_cpp@@
         @@add_licenses@@
 
-        @@setup_hip_linux@@
-
-        @@set_build_params_hip_linux@@
+        @@cpu-cores@@
         @@cmake_build@@
 
         @@pack_artifacts_unix@@
@@ -253,6 +270,7 @@ jobs:
         @@setup_llama_cpp@@
         @@add_licenses@@
 
+        @@cpu-cores@@
         @@cmake_build@@
         @@link_libraries_ios@@
 
