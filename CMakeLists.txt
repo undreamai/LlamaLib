@@ -43,6 +43,7 @@ elseif(ARCHITECTURE STREQUAL "windows_cublas" OR ARCHITECTURE STREQUAL "linux_cu
     SET(GGML_CUDA ON)
 elseif(ARCHITECTURE STREQUAL "windows_hip" OR ARCHITECTURE STREQUAL "linux_hip")
     SET(GGML_HIPBLAS ON)
+    SET(GGML_HIP_ROCWMMA_FATTN ON)
     SET(AMDGPU_TARGETS "gfx1030,gfx1031,gfx1032,gfx1100,gfx1101,gfx1102")
 elseif(ARCHITECTURE STREQUAL "macos_arm64_acc")
     add_compile_options("-march=armv8.2-a")
