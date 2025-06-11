@@ -105,10 +105,8 @@ endif()
 # Setup OpenSSL
 if (ARCHITECTURE STREQUAL "android_arm64" OR ARCHITECTURE STREQUAL "android_x64" OR ARCHITECTURE STREQUAL "ios" OR ARCHITECTURE STREQUAL "visionos")
     set(OPENSSL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/openssl/${ARCHITECTURE}/include)
-    set(OPENSSL_LIBRARIES
-        ${CMAKE_SOURCE_DIR}/openssl/${ARCHITECTURE}/lib/libssl.a
-        ${CMAKE_SOURCE_DIR}/openssl/${ARCHITECTURE}/lib/libcrypto.a
-    )
+    set(OPENSSL_SSL_LIBRARY ${CMAKE_SOURCE_DIR}/openssl/${ARCHITECTURE}/lib/libssl.a)
+    set(OPENSSL_CRYPTO_LIBRARY ${CMAKE_SOURCE_DIR}/openssl/${ARCHITECTURE}/lib/libcrypto.a)
 endif()
 find_package(OpenSSL REQUIRED)
 
