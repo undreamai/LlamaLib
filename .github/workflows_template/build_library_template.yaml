@@ -54,11 +54,12 @@ jobs:
             
     steps:
         @@setup_libs_linux@@
-        @@setup_vulkan_linux@@
 
         @@checkout@@
         @@setup_llama_cpp@@
         @@add_licenses@@
+
+        @@setup_vulkan_linux@@
 
         @@cpu-cores@@
         @@cmake_build@@

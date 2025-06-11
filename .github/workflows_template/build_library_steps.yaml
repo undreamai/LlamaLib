@@ -98,8 +98,15 @@ jobs:
       - name: Dependencies
         id: setup_libs_linux
         run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
+          sudo_if_exists() {
+            if command -v sudo >/dev/null 2>&1; then
+              sudo "$@"
+            else
+              "$@"
+            fi
+          }
+          sudo_if_exists apt-get update
+          sudo_if_exists apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
 
       - name: Dependencies
         id: setup_hip_linux

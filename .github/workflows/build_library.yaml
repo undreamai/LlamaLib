@@ -92,18 +92,15 @@ jobs:
         - id: setup_libs_linux
           name: Dependencies
           run: |
-            sudo apt-get update
-            sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
-
-        - id: setup_vulkan_linux
-          if: matrix.arch == 'linux_vulkan'
-          name: Dependencies Vulcan
-          run: |
-            wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
-            sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list https://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
-            sudo apt-get update -y
-            sudo apt-get install -y build-essential vulkan-sdk
-            cp /lib/x86_64-linux-gnu/libvulkan.so.1 build/libs/
+            sudo_if_exists() {
+              if command -v sudo >/dev/null 2>&1; then
+                sudo "$@"
+              else
+                "$@"
+              fi
+            }
+            sudo_if_exists apt-get update
+            sudo_if_exists apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
 
 
         - id: checkout
@@ -146,6 +143,17 @@ jobs:
               curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
             fi
           shell: bash
+
+
+        - id: setup_vulkan_linux
+          if: matrix.arch == 'linux_vulkan'
+          name: Dependencies Vulcan
+          run: |
+            wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+            sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list https://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
+            sudo apt-get update -y
+            sudo apt-get install -y build-essential vulkan-sdk
+            cp /lib/x86_64-linux-gnu/libvulkan.so.1 build/libs/
 
 
         - id: cpu-cores
@@ -197,8 +205,15 @@ jobs:
         - id: setup_libs_linux
           name: Dependencies
           run: |
-            sudo apt-get update
-            sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
+            sudo_if_exists() {
+              if command -v sudo >/dev/null 2>&1; then
+                sudo "$@"
+              else
+                "$@"
+              fi
+            }
+            sudo_if_exists apt-get update
+            sudo_if_exists apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
 
 
         - id: checkout
@@ -291,8 +306,15 @@ jobs:
         - id: setup_libs_linux
           name: Dependencies
           run: |
-            sudo apt-get update
-            sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
+            sudo_if_exists() {
+              if command -v sudo >/dev/null 2>&1; then
+                sudo "$@"
+              else
+                "$@"
+              fi
+            }
+            sudo_if_exists apt-get update
+            sudo_if_exists apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
 
         - id: setup_hip_linux
           name: Dependencies
@@ -859,8 +881,15 @@ jobs:
         - id: setup_libs_linux
           name: Dependencies
           run: |
-            sudo apt-get update
-            sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
+            sudo_if_exists() {
+              if command -v sudo >/dev/null 2>&1; then
+                sudo "$@"
+              else
+                "$@"
+              fi
+            }
+            sudo_if_exists apt-get update
+            sudo_if_exists apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
 
 
         - id: checkout
