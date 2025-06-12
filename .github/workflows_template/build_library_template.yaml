@@ -10,35 +10,6 @@ env:
   CUDA: 12.4.1
 
 jobs:
-  ################################ ArchChecker ################################
-
-  archchecker-linux-build:
-    name: Build ArchChecker Linux
-    runs-on: ubuntu-22.04
-
-    env:
-        UPLOAD_NAME: linux-archchecker
-        UPLOAD_PATH: archchecker/build/libarchchecker.so
-
-    steps:
-        @@checkout@@
-        @@build_archchecker@@
-        @@upload_archchecker@@
-
-  archchecker-windows-build:
-    name: Build ArchChecker Windows
-    runs-on: windows-2022
-
-    env:
-        UPLOAD_NAME: windows-archchecker
-        UPLOAD_PATH: archchecker/build/Release/archchecker.dll
-
-    steps:
-        @@checkout@@
-        @@build_archchecker@@
-        @@upload_archchecker@@
-
-
   ################################ Linux ################################
 
   linux-build:
@@ -269,8 +240,6 @@ jobs:
     name: Create Release
     runs-on: macos-14
     needs:
-      - archchecker-linux-build
-      - archchecker-windows-build
       - linux-build
       - linux-hip-build
       - macOS-arm64-build

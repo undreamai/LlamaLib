@@ -10,71 +10,6 @@ env:
   CUDA: 12.4.1
 
 jobs:
-  ################################ ArchChecker ################################
-
-  archchecker-linux-build:
-    name: Build ArchChecker Linux
-    runs-on: ubuntu-22.04
-
-    env:
-        UPLOAD_NAME: linux-archchecker
-        UPLOAD_PATH: archchecker/build/libarchchecker.so
-
-    steps:
-        - id: checkout
-          name: Clone
-          uses: actions/checkout@v4
-          with:
-            submodules: recursive
-
-        - id: build_archchecker
-          name: Build
-          run: |
-            mkdir archchecker/build
-            cd archchecker/build
-            cmake ..
-            cmake --build . --config Release -j $(nproc)
-
-        - id: upload_archchecker
-          name: Upload Artifacts
-          uses: actions/upload-artifact@v4
-          with:
-            name: ${{ env.UPLOAD_NAME }}
-            path: ${{ env.UPLOAD_PATH }}
-
-
-  archchecker-windows-build:
-    name: Build ArchChecker Windows
-    runs-on: windows-2022
-
-    env:
-        UPLOAD_NAME: windows-archchecker
-        UPLOAD_PATH: archchecker/build/Release/archchecker.dll
-
-    steps:
-        - id: checkout
-          name: Clone
-          uses: actions/checkout@v4
-          with:
-            submodules: recursive
-
-        - id: build_archchecker
-          name: Build
-          run: |
-            mkdir archchecker/build
-            cd archchecker/build
-            cmake ..
-            cmake --build . --config Release -j $(nproc)
-
-        - id: upload_archchecker
-          name: Upload Artifacts
-          uses: actions/upload-artifact@v4
-          with:
-            name: ${{ env.UPLOAD_NAME }}
-            path: ${{ env.UPLOAD_PATH }}
-
-
-
   ################################ Linux ################################
 
   linux-build:
@@ -965,8 +900,6 @@ jobs:
     name: Create Release
     runs-on: macos-14
     needs:
-      - archchecker-linux-build
-      - archchecker-windows-build
       - linux-build
       - linux-hip-build
       - macOS-arm64-build
