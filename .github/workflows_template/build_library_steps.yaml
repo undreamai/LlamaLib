@@ -301,43 +301,36 @@ jobs:
           path: artifacts
 
       - id: unzip_artifacts
-        name: Unzip artifacts
+        name: Unzip and merge artifacts
         run: |
           cd artifacts
           ls -R
-      
           for d in *.zip;do
-            cd $d; unzip $d; rm $d; cd ..;
-            echo $d  sed -e 's:.zip::g' >> bundle
+            platform=`echo $d|cut -d'.' -f1|cut -d'_' -f1`
+            mkdir -p libs/$platform
+            unzip -o $d/$d -d libs/$platform
+            rm -r $d
           done
 
       - id: combine_macos_libraries
         name: Merge macOS libraries
         run: |
-          cd artifacts
+          cd artifacts/libs/macos/
           for acc in acc no_acc;do
-              mkdir macos_${acc}
-              lipo -create -output macos_${acc}/libllamalib_macos_${acc}.dylib macos_x64_${acc}/libllamalib_macos_x64_${acc}.dylib macos_arm64_${acc}/libllamalib_macos_arm64_${acc}.dylib
-              cp `ls macos_x64_${acc}/* | grep -v ".dylib"` macos_${acc}
-              rm -r macos_x64_${acc} macos_arm64_${acc}
-              sed -i.bak "/macos_x64_${acc}/d" bundle
-              sed -i.bak "/macos_arm64_${acc}/d" bundle
-              echo macos_${acc} >> bundle
+              lipo -create -output libllamalib_macos_${acc}.dylib libllamalib_macos_x64_${acc}.dylib libllamalib_macos_arm64_${acc}.dylib
+              rm libllamalib_macos_x64_${acc}.dylib libllamalib_macos_arm64_${acc}.dylib
           done
 
       - name: Merge artifacts
         id: merge_artifacts
         run: |
           cd artifacts
-
           servers=`find . -name llamalib_server*`
           if [ "$servers" != "" ];then
-            zip -r llamalib-${{ github.ref_name }}-server.zip $servers
+            zip -r $PREFIX-server.zip $servers
             rm $servers
           fi
-
-          zip -r $PREFIX.zip `cat bundle | grep -v full` linux-archchecker windows-archchecker
-          zip -r $PREFIX-full.zip `cat bundle | grep full`
+          zip -r $PREFIX.zip libs
 
       - name: Release
         id: release
