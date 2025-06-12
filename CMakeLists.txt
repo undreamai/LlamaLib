@@ -199,13 +199,8 @@ if (LLAMALIB_BUILD_RUNTIME_LIB)
 endif()
 
 # build executables
-if (LLAMALIB_BUILD_SERVER)
-    if (LLAMALIB_BUILD_RUNTIME_LIB)
-        SET(SERVER_LIB ${RUNTIME_LIBRARY})
-    else()
-        SET(SERVER_LIB ${STATIC_LIBRARY})
-    endif()
-    create_executable(llamalib_server ${SERVER_LIB})
+if (LLAMALIB_BUILD_SERVER AND LLAMALIB_BUILD_RUNTIME_LIB)
+    create_executable(llamalib_server ${RUNTIME_LIBRARY})
 endif()
 
 if (LLAMALIB_BUILD_TESTS)
