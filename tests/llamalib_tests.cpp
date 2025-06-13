@@ -1,6 +1,6 @@
 #include "LLM_service.h"
 #include "LLM_client.h"
-#ifdef LLAMALIB_BUILD_RUNTIME_LIB
+#ifdef RUNTIME_TESTS
 #include "LLM_runtime.h"
 #endif
 
@@ -198,7 +198,7 @@ LLMService* start_llm_service(const std::string& command)
     return llm_service;
 }
 
-#ifdef LLAMALIB_BUILD_RUNTIME_LIB
+#ifdef RUNTIME_TESTS
 LLMRuntime* start_llm_lib(std::string command)
 {
     LLMRuntime* llmlib = LLMRuntime_Construct(command);
@@ -531,7 +531,7 @@ int main(int argc, char** argv) {
 
     stop_llm_service(llm_service);
 
-#ifdef LLAMALIB_BUILD_RUNTIME_LIB
+#ifdef RUNTIME_TESTS
     std::cout << "-------- LLM lib --------" << std::endl;
     LLMRuntime* llmlib = start_llm_lib(command);
     EMBEDDING_SIZE = LLM_Embedding_Size(llmlib);

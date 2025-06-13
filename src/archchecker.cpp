@@ -1,6 +1,6 @@
 #include "archchecker.h"
-
 #include <iostream>
+
 using namespace FeatureDetector;
 
 const bool has_avx() {

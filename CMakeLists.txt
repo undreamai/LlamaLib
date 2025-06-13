@@ -1,106 +1,25 @@
 cmake_minimum_required(VERSION 3.18)
 project("undreamai" C CXX)
 
-
-################################################ CMAKE VARIABLES ################################################
+################################################ OPTIONS ################################################
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     OPTION(LLAMALIB_BUILD_RUNTIME_LIB "Build LlamaLib runtime library" ON)
     OPTION(LLAMALIB_BUILD_SERVER "Build LlamaLib server" ON)
     OPTION(LLAMALIB_BUILD_TESTS "Build LlamaLib tests" ON)
 else()
+    SET(LLAMALIB_BUILD_RUNTIME_LIB OFF)
     SET(LLAMALIB_BUILD_SERVER OFF)
     SET(LLAMALIB_BUILD_TESTS OFF)
 endif()
-
-SET(LLAMA_BUILD_COMMON ON)
-SET(GGML_STATIC ON)
-SET(LLAMA_BUILD_TESTS OFF)
-SET(LLAMA_BUILD_EXAMPLES OFF)
-SET(BUILD_SHARED_LIBS OFF)
-SET(LLAMA_CURL OFF)
-SET(GGML_NATIVE OFF)
-SET(LLAMA_SERVER_SSL ON)
-
 set(ARCHITECTURE "" CACHE STRING "Target architecture")
-if(ARCHITECTURE STREQUAL "windows_noavx" OR ARCHITECTURE STREQUAL "linux_noavx")
-    SET(GGML_AVX OFF)
-    SET(GGML_AVX2 OFF)
-    SET(GGML_FMA OFF)
-elseif(ARCHITECTURE STREQUAL "windows_avx" OR ARCHITECTURE STREQUAL "linux_avx")
-    SET(GGML_AVX2 OFF)
-elseif(ARCHITECTURE STREQUAL "windows_avx2" OR ARCHITECTURE STREQUAL "linux_avx2")
-    # Nothing to define
-elseif(ARCHITECTURE STREQUAL "windows_avx512" OR ARCHITECTURE STREQUAL "linux_avx512")
-    SET(GGML_AVX512 ON)
-elseif(ARCHITECTURE STREQUAL "windows_vulkan" OR ARCHITECTURE STREQUAL "linux_vulkan")
-    SET(GGML_VULKAN ON)
-elseif(ARCHITECTURE STREQUAL "windows_tinyblas" OR ARCHITECTURE STREQUAL "linux_tinyblas")
-    SET(GGML_CUDA ON)
-    SET(GGML_MINIMIZE_CODE_SIZE ON)
-    SET(GGML_NO_IQUANTS ON)
-elseif(ARCHITECTURE STREQUAL "windows_cublas" OR ARCHITECTURE STREQUAL "linux_cublas")
-    SET(GGML_CUDA ON)
-elseif(ARCHITECTURE STREQUAL "windows_hip" OR ARCHITECTURE STREQUAL "linux_hip")
-    SET(GGML_HIPBLAS ON)
-    SET(GGML_HIP_ROCWMMA_FATTN ON)
-    SET(AMDGPU_TARGETS "gfx1030,gfx1031,gfx1032,gfx1100,gfx1101,gfx1102")
-elseif(ARCHITECTURE STREQUAL "macos_arm64_acc")
-    add_compile_options("-march=armv8.2-a")
-    SET(GGML_METAL_EMBED_LIBRARY ON)
-elseif(ARCHITECTURE STREQUAL "macos_arm64_no_acc")
-    add_compile_options("-march=armv8.2-a")
-    SET(GGML_METAL_EMBED_LIBRARY ON)
-    SET(GGML_ACCELERATE OFF)
-    SET(GGML_BLAS OFF)
-elseif(ARCHITECTURE STREQUAL "macos_x64_acc")
-    add_compile_options("-march=x86-64-v3")
-    SET(GGML_METAL OFF)
-elseif(ARCHITECTURE STREQUAL "macos_x64_no_acc")
-    add_compile_options("-march=x86-64-v3")
-    SET(GGML_METAL OFF)
-    SET(GGML_ACCELERATE OFF)
-    SET(GGML_BLAS OFF)
-elseif(ARCHITECTURE STREQUAL "android_arm64")
-    add_compile_options("-march=armv8-a")
-    SET(GGML_OPENMP OFF)
-elseif(ARCHITECTURE STREQUAL "android_x64")
-    add_compile_options("-march=x86-64")
-    SET(GGML_OPENMP OFF)
-elseif(ARCHITECTURE STREQUAL "ios")
-    SET(GGML_METAL_EMBED_LIBRARY ON)
-elseif(ARCHITECTURE STREQUAL "visionos")
-    SET(GGML_METAL_EMBED_LIBRARY ON)
-elseif(ARCHITECTURE STREQUAL "")
-    message(FATAL_ERROR "Need to define architecture (ARCHITECTURE)")
-else()
-    message(FATAL_ERROR "Unknown architecture: ${ARCHITECTURE}")
-endif()
+SET(BUILD_SHARED_LIBS OFF)
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    SET(CMAKE_BUILD_RPATH_USE_ORIGIN ON)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    SET(LLAMA_FATAL_WARNINGS ON)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
-    SET(CMAKE_OSX_DEPLOYMENT_TARGET 14.0)
-    SET(CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM UndreamAI)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "visionOS")
-    SET(CMAKE_SYSTEM_NAME visionOS)
-    SET(CMAKE_OSX_DEPLOYMENT_TARGET 1.0)
-    SET(CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM UndreamAI)
-endif()
-
- 
 ################################################ SETUP ################################################
 
 # Set CUDA architectures
 set(CMAKE_CUDA_ARCHITECTURES "52;61;70;75;86;89")
-
-# Add subdirectories
-add_subdirectory("llama.cpp")
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    add_subdirectory("archchecker")
-endif()
+set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} /Zm1000")
 
 # Setup OpenSSL
 if (ARCHITECTURE STREQUAL "android_arm64" OR ARCHITECTURE STREQUAL "android_x64" OR ARCHITECTURE STREQUAL "ios" OR ARCHITECTURE STREQUAL "visionos")
@@ -110,110 +29,49 @@ if (ARCHITECTURE STREQUAL "android_arm64" OR ARCHITECTURE STREQUAL "android_x64"
 endif()
 find_package(OpenSSL REQUIRED)
 
-# Output override
-set_property(DIRECTORY llama.cpp PROPERTY CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+################################################ BUILD ################################################
 
-################################################ llama.cpp COMPILATION ################################################
+set(LLAMA_CPP_ROOT ${CMAKE_SOURCE_DIR}/third_party/llama.cpp)
 
-if (NOT WIN32)
-    set(STATIC_FLAGS "-fPIC")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${STATIC_FLAGS}")
-    foreach (target common ggml-base ggml-cpu ggml-amx ggml-blas ggml-cann ggml-cuda ggml-hip ggml-kompute ggml-metal ggml-musa ggml-rpc ggml-sycl ggml-vulkan ggml llama)
-        if (TARGET ${target})
-            set_target_properties(${target} PROPERTIES COMPILE_FLAGS ${STATIC_FLAGS})
-            target_compile_options(${target} PRIVATE -Wno-return-type -Wno-sometimes-uninitialized)
-        endif()
-    endforeach()
-else()
-    add_compile_definitions(WIN32_LEAN_AND_MEAN NOMINMAX)
-endif()
+set(LLAMALIB_INCLUDE_DIRS 
+    "${CMAKE_SOURCE_DIR}/include"
+    "${LLAMA_CPP_ROOT}"
+    "${LLAMA_CPP_ROOT}/include"
+    "${LLAMA_CPP_ROOT}/common"
+    "${LLAMA_CPP_ROOT}/ggml/include"
+    "${LLAMA_CPP_ROOT}/examples/server"
+    "${LLAMA_CPP_ROOT}/vendor/nlohmann"
+    "${CMAKE_SOURCE_DIR}/third_party/FeatureDetector/src/x86"
+)
 
-foreach (target common ggml-cuda ggml-hip ggml-musa)
-    if (TARGET ${target})
-        target_compile_definitions(${target} PUBLIC GGML_USE_TINYBLAS NDEBUG)
-        if(GGML_MINIMIZE_CODE_SIZE)
-            target_compile_definitions(${target} PUBLIC GGML_MINIMIZE_CODE_SIZE)
-        endif()
-        if(GGML_NO_IQUANTS)
-            target_compile_definitions(${target} PUBLIC GGML_NO_IQUANTS)
-        endif()
-    endif()
-endforeach()
-
-set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} /Zm1000")
-
-################################################ LLAMALIB ################################################
-
-# helpers
-if(CMAKE_SYSTEM_NAME STREQUAL "iOS" OR CMAKE_SYSTEM_NAME STREQUAL "visionOS")
-    set(LIBRARY_TYPE STATIC)
-else()
-    set(LIBRARY_TYPE SHARED)
-endif()
-
-function(common_compile_defs NAME)
+function(LLAMALIB_COMPILE_DEFS NAME)
     target_compile_features(${NAME} PRIVATE cxx_std_11)
     add_compile_definitions(${NAME} PRIVATE UNDREAMAI_EXPORTS)
-    target_include_directories(${NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} llama.cpp/common llama.cpp/examples/server llama.cpp llama.cpp/include llama.cpp/ggml/include archchecker)
+    target_include_directories(${NAME} PRIVATE ${LLAMALIB_INCLUDE_DIRS})
     target_compile_definitions(${NAME} PRIVATE CPPHTTPLIB_OPENSSL_SUPPORT)
     target_link_libraries(${NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 endfunction()
 
-function(create_library NAME FILES)
-    add_library(${NAME} ${LIBRARY_TYPE} ${FILES} LLM.cpp LLM_client.cpp logging.cpp error_handling.cpp)
-    target_link_libraries(${NAME} PRIVATE common)
-    common_compile_defs(${NAME})
-    install(TARGETS ${NAME} LIBRARY)
-endfunction()
-
-function(create_executable NAME LIBRARIES)
-    add_executable(${NAME} ${NAME}.cpp)
-    target_link_libraries(${NAME} PRIVATE ${LIBRARIES})
-    if (LLAMALIB_BUILD_RUNTIME_LIB)
-        target_compile_definitions(${NAME} PRIVATE LLAMALIB_BUILD_RUNTIME_LIB)
-    endif()
-    common_compile_defs(${NAME})
-    install(TARGETS ${NAME} RUNTIME)
-endfunction()
-
-# build static library
-set(STATIC_LIBRARY "llamalib_${ARCHITECTURE}")
-
-create_library(${STATIC_LIBRARY} LLM_service.cpp)
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    target_link_options(${STATIC_LIBRARY} PRIVATE -Wl,--no-undefined)
+if (NOT WIN32)
+    set(STATIC_FLAGS "-fPIC")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${STATIC_FLAGS}")
+else()
+    add_compile_definitions(WIN32_LEAN_AND_MEAN NOMINMAX)
 endif()
 
-# build runtime library
-if (LLAMALIB_BUILD_RUNTIME_LIB)
-    string(TOLOWER "${CMAKE_SYSTEM_NAME}" OS)
-    if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-        SET(OS "macos")
-    endif()
-    set(RUNTIME_LIBRARY "llamalib_${OS}_runtime")
-
-    create_library(${RUNTIME_LIBRARY} LLM_runtime.cpp)
-    if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
-        target_link_libraries(${RUNTIME_LIBRARY} PRIVATE FeatureDetector archchecker)
-    endif()
+set(LLAMALIB_STATIC_LIBRARY "llamalib_${ARCHITECTURE}")
+string(TOLOWER "${CMAKE_SYSTEM_NAME}" OS)
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    SET(OS "macos")
 endif()
+set(LLAMALIB_RUNTIME_LIBRARY "llamalib_${OS}_runtime")
 
-# build executables
-if (LLAMALIB_BUILD_SERVER AND LLAMALIB_BUILD_RUNTIME_LIB)
-    create_executable(llamalib_server ${RUNTIME_LIBRARY})
-endif()
 
+################################################ BUILD DIRS ################################################
+
+add_subdirectory("third_party")
+add_subdirectory("src")
+add_subdirectory("tools")
 if (LLAMALIB_BUILD_TESTS)
-    if (LLAMALIB_BUILD_RUNTIME_LIB)
-        SET(TESTS_LIBS "${STATIC_LIBRARY};${RUNTIME_LIBRARY}")
-    else()
-        SET(TESTS_LIBS ${STATIC_LIBRARY})
-    endif()
-    create_executable(llamalib_tests "${TESTS_LIBS}")
+    add_subdirectory("tests")
 endif()
-
-# DEBUG VARIABLES
-get_cmake_property(_variableNames VARIABLES)
-foreach (_variableName ${_variableNames})
-    message(STATUS "${_variableName}=${${_variableName}}")
-endforeach()

@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include "FeatureDetector/src/x86/cpu_x86.h"
+#include "cpu_x86.h"
 
 #ifdef _WIN32
     #ifdef UNDREAMAI_EXPORTS

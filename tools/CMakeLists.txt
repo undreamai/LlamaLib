@@ -1,0 +1,6 @@
+if (LLAMALIB_BUILD_SERVER AND LLAMALIB_BUILD_RUNTIME_LIB)
+    add_executable(llamalib_server llamalib_server.cpp)
+    LLAMALIB_COMPILE_DEFS(llamalib_server)
+    target_link_libraries(llamalib_server PRIVATE ${LLAMALIB_RUNTIME_LIBRARY})
+    install(TARGETS llamalib_server RUNTIME)
+endif()

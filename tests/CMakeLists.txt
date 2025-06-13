@@ -1,0 +1,8 @@
+add_executable(llamalib_tests llamalib_tests.cpp)
+LLAMALIB_COMPILE_DEFS(llamalib_tests)
+target_link_libraries(llamalib_tests PRIVATE ${LLAMALIB_STATIC_LIBRARY})
+if (LLAMALIB_BUILD_RUNTIME_LIB)
+    target_compile_definitions(llamalib_tests PRIVATE RUNTIME_TESTS)
+    target_link_libraries(llamalib_tests PRIVATE ${LLAMALIB_RUNTIME_LIBRARY})
+endif()
+install(TARGETS llamalib_tests RUNTIME)
