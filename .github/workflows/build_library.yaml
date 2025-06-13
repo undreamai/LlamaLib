@@ -6,7 +6,6 @@ on:
       - 'v*'
 
 env:
-  LLAMACPP_VERSION: b5261
   CUDA: 12.4.1
 
 jobs:
@@ -40,35 +39,10 @@ jobs:
           with:
             submodules: recursive
 
-        - id: setup_llama_cpp
-          name: Setup llama.cpp
-          run: |
-            mkdir -p build/licenses build/libs
-        
-            git clone https://github.com/ggerganov/llama.cpp llama.cpp
-            cd llama.cpp
-            git checkout ${{ env.LLAMACPP_VERSION }}
-        
-            for f in ../patches/*;do
-              git apply $f
-            done
-        
-            if [[ "${{ matrix.arch }}" == "linux_tinyblas" || "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
-              echo "tinyblas"
-              mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
-              rm -r ggml/src/ggml-cuda
-              cp -R ../tinyBLAS ggml/src/ggml-cuda
-              mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
-            fi
-        
-            for f in examples/server/public/*;do
-                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
-            done
-          shell: bash
-
         - id: add_licenses
           name: Add licenses
           run: |
+            mkdir -p build/licenses
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
             if [[ "${{ matrix.arch }}" == "linux_tinyblas" || "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
               curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
@@ -84,6 +58,7 @@ jobs:
             sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list https://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
             sudo apt-get update -y
             sudo apt-get install -y build-essential vulkan-sdk
+            mkdir -p build/libs
             cp /lib/x86_64-linux-gnu/libvulkan.so.1 build/libs/
 
         - id: setup_cuda_linux
@@ -168,35 +143,10 @@ jobs:
           with:
             submodules: recursive
 
-        - id: setup_llama_cpp
-          name: Setup llama.cpp
-          run: |
-            mkdir -p build/licenses build/libs
-        
-            git clone https://github.com/ggerganov/llama.cpp llama.cpp
-            cd llama.cpp
-            git checkout ${{ env.LLAMACPP_VERSION }}
-        
-            for f in ../patches/*;do
-              git apply $f
-            done
-        
-            if [[ "${{ matrix.arch }}" == "linux_tinyblas" || "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
-              echo "tinyblas"
-              mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
-              rm -r ggml/src/ggml-cuda
-              cp -R ../tinyBLAS ggml/src/ggml-cuda
-              mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
-            fi
-        
-            for f in examples/server/public/*;do
-                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
-            done
-          shell: bash
-
         - id: add_licenses
           name: Add licenses
           run: |
+            mkdir -p build/licenses
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
             if [[ "${{ matrix.arch }}" == "linux_tinyblas" || "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
               curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
@@ -257,35 +207,10 @@ jobs:
           with:
             submodules: recursive
 
-        - id: setup_llama_cpp
-          name: Setup llama.cpp
-          run: |
-            mkdir -p build/licenses build/libs
-        
-            git clone https://github.com/ggerganov/llama.cpp llama.cpp
-            cd llama.cpp
-            git checkout ${{ env.LLAMACPP_VERSION }}
-        
-            for f in ../patches/*;do
-              git apply $f
-            done
-        
-            if [[ "${{ matrix.arch }}" == "linux_tinyblas" || "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
-              echo "tinyblas"
-              mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
-              rm -r ggml/src/ggml-cuda
-              cp -R ../tinyBLAS ggml/src/ggml-cuda
-              mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
-            fi
-        
-            for f in examples/server/public/*;do
-                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
-            done
-          shell: bash
-
         - id: add_licenses
           name: Add licenses
           run: |
+            mkdir -p build/licenses
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
             if [[ "${{ matrix.arch }}" == "linux_tinyblas" || "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
               curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
@@ -354,35 +279,10 @@ jobs:
           with:
             submodules: recursive
 
-        - id: setup_llama_cpp
-          name: Setup llama.cpp
-          run: |
-            mkdir -p build/licenses build/libs
-        
-            git clone https://github.com/ggerganov/llama.cpp llama.cpp
-            cd llama.cpp
-            git checkout ${{ env.LLAMACPP_VERSION }}
-        
-            for f in ../patches/*;do
-              git apply $f
-            done
-        
-            if [[ "${{ matrix.arch }}" == "linux_tinyblas" || "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
-              echo "tinyblas"
-              mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
-              rm -r ggml/src/ggml-cuda
-              cp -R ../tinyBLAS ggml/src/ggml-cuda
-              mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
-            fi
-        
-            for f in examples/server/public/*;do
-                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
-            done
-          shell: bash
-
         - id: add_licenses
           name: Add licenses
           run: |
+            mkdir -p build/licenses
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
             if [[ "${{ matrix.arch }}" == "linux_tinyblas" || "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
               curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
@@ -454,35 +354,10 @@ jobs:
           with:
             submodules: recursive
 
-        - id: setup_llama_cpp
-          name: Setup llama.cpp
-          run: |
-            mkdir -p build/licenses build/libs
-        
-            git clone https://github.com/ggerganov/llama.cpp llama.cpp
-            cd llama.cpp
-            git checkout ${{ env.LLAMACPP_VERSION }}
-        
-            for f in ../patches/*;do
-              git apply $f
-            done
-        
-            if [[ "${{ matrix.arch }}" == "linux_tinyblas" || "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
-              echo "tinyblas"
-              mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
-              rm -r ggml/src/ggml-cuda
-              cp -R ../tinyBLAS ggml/src/ggml-cuda
-              mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
-            fi
-        
-            for f in examples/server/public/*;do
-                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
-            done
-          shell: bash
-
         - id: add_licenses
           name: Add licenses
           run: |
+            mkdir -p build/licenses
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
             if [[ "${{ matrix.arch }}" == "linux_tinyblas" || "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
               curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
@@ -594,35 +469,10 @@ jobs:
           with:
             submodules: recursive
 
-        - id: setup_llama_cpp
-          name: Setup llama.cpp
-          run: |
-            mkdir -p build/licenses build/libs
-        
-            git clone https://github.com/ggerganov/llama.cpp llama.cpp
-            cd llama.cpp
-            git checkout ${{ env.LLAMACPP_VERSION }}
-        
-            for f in ../patches/*;do
-              git apply $f
-            done
-        
-            if [[ "${{ matrix.arch }}" == "linux_tinyblas" || "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
-              echo "tinyblas"
-              mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
-              rm -r ggml/src/ggml-cuda
-              cp -R ../tinyBLAS ggml/src/ggml-cuda
-              mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
-            fi
-        
-            for f in examples/server/public/*;do
-                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
-            done
-          shell: bash
-
         - id: add_licenses
           name: Add licenses
           run: |
+            mkdir -p build/licenses
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
             if [[ "${{ matrix.arch }}" == "linux_tinyblas" || "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
               curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
@@ -663,7 +513,7 @@ jobs:
             $env:HIP_PATH=$(Resolve-Path 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' | split-path | split-path)
             $env:CMAKE_PREFIX_PATH="${env:HIP_PATH}"
             cd build
-            cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DCMAKE_CXX_FLAGS="-I$($PWD.Path.Replace('\', '/'))/rocwmma/library/include/" -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs//Release -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs//Release ${{ matrix.cmake_vars }} -DARCHITECTURE=${{ matrix.arch }}
+            cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DCMAKE_CXX_FLAGS="-I$($PWD.Path.Replace('\', '/'))/rocwmma/library/include/" -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs/Release -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs/Release ${{ matrix.cmake_vars }} -DARCHITECTURE=${{ matrix.arch }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
             mkdir Release
 
@@ -719,35 +569,10 @@ jobs:
           with:
             submodules: recursive
 
-        - id: setup_llama_cpp
-          name: Setup llama.cpp
-          run: |
-            mkdir -p build/licenses build/libs
-        
-            git clone https://github.com/ggerganov/llama.cpp llama.cpp
-            cd llama.cpp
-            git checkout ${{ env.LLAMACPP_VERSION }}
-        
-            for f in ../patches/*;do
-              git apply $f
-            done
-        
-            if [[ "${{ matrix.arch }}" == "linux_tinyblas" || "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
-              echo "tinyblas"
-              mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
-              rm -r ggml/src/ggml-cuda
-              cp -R ../tinyBLAS ggml/src/ggml-cuda
-              mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
-            fi
-        
-            for f in examples/server/public/*;do
-                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
-            done
-          shell: bash
-
         - id: add_licenses
           name: Add licenses
           run: |
+            mkdir -p build/licenses
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
             if [[ "${{ matrix.arch }}" == "linux_tinyblas" || "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
               curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
@@ -817,35 +642,10 @@ jobs:
           with:
             submodules: recursive
 
-        - id: setup_llama_cpp
-          name: Setup llama.cpp
-          run: |
-            mkdir -p build/licenses build/libs
-        
-            git clone https://github.com/ggerganov/llama.cpp llama.cpp
-            cd llama.cpp
-            git checkout ${{ env.LLAMACPP_VERSION }}
-        
-            for f in ../patches/*;do
-              git apply $f
-            done
-        
-            if [[ "${{ matrix.arch }}" == "linux_tinyblas" || "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
-              echo "tinyblas"
-              mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
-              rm -r ggml/src/ggml-cuda
-              cp -R ../tinyBLAS ggml/src/ggml-cuda
-              mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
-            fi
-        
-            for f in examples/server/public/*;do
-                cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
-            done
-          shell: bash
-
         - id: add_licenses
           name: Add licenses
           run: |
+            mkdir -p build/licenses
             cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
             if [[ "${{ matrix.arch }}" == "linux_tinyblas" || "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
               curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
