@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
-project("undreamai" C CXX)
+
+include("${CMAKE_SOURCE_DIR}/cmake/LlamaLibCommon.cmake")
+project(LlamaLib VERSION ${LLAMALIB_VERSION} LANGUAGES C CXX)
 
 ################################################ OPTIONS ################################################
 
@@ -32,17 +34,6 @@ find_package(OpenSSL REQUIRED)
 ################################################ BUILD ################################################
 
 set(LLAMA_CPP_ROOT ${CMAKE_SOURCE_DIR}/third_party/llama.cpp)
-
-set(LLAMALIB_INCLUDE_DIRS 
-    "${CMAKE_SOURCE_DIR}/include"
-    "${LLAMA_CPP_ROOT}"
-    "${LLAMA_CPP_ROOT}/include"
-    "${LLAMA_CPP_ROOT}/common"
-    "${LLAMA_CPP_ROOT}/ggml/include"
-    "${LLAMA_CPP_ROOT}/examples/server"
-    "${LLAMA_CPP_ROOT}/vendor/nlohmann"
-    "${CMAKE_SOURCE_DIR}/third_party/FeatureDetector/src/x86"
-)
 
 function(LLAMALIB_COMPILE_DEFS NAME)
     target_compile_features(${NAME} PRIVATE cxx_std_11)
