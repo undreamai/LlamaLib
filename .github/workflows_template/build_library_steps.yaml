@@ -255,43 +255,46 @@ jobs:
         id: download_artifacts
         uses: actions/download-artifact@v4
         with:
-          path: artifacts
+          path: release
 
-      - id: unzip_artifacts
-        name: Unzip and merge artifacts
+      - id: structure_artifacts
+        name: Unzip and combine artifacts
         run: |
-          cd artifacts
+          cd release
           ls -R
+
+          mkdir ../servers
+          for d in windows_noavx.zip linux_noavx.zip macos_*_no_acc.zip;do
+            unzip -o $d/$d -d $d llamalib*server*
+          done
+          lipo -create -output ../servers/llamalib_macos_server macos_*_no_acc.zip/llamalib_macos_server
+          rm macos_*_no_acc.zip/llamalib_macos_server
+          mv */llamalib*server* ../servers
+          
           for d in *.zip;do
             platform=`echo $d|cut -d'.' -f1|cut -d'_' -f1`
             mkdir -p libs/$platform
-            unzip -o $d/$d -d libs/$platform
+            unzip -o $d/$d -d libs/$platform -x llamalib*server*
             rm -r $d
           done
 
-      - id: combine_macos_libraries
-        name: Merge macOS libraries
-        run: |
-          cd artifacts/libs/macos/
           for acc in acc no_acc;do
-              lipo -create -output libllamalib_macos_${acc}.dylib libllamalib_macos_x64_${acc}.dylib libllamalib_macos_arm64_${acc}.dylib
-              rm libllamalib_macos_x64_${acc}.dylib libllamalib_macos_arm64_${acc}.dylib
+              lipo -create -output libs/macos/libllamalib_macos_${acc}.dylib libs/macos/libllamalib_macos_x64_${acc}.dylib libs/macos/libllamalib_macos_arm64_${acc}.dylib
+              rm libs/macos/libllamalib_macos_x64_${acc}.dylib libs/macos/libllamalib_macos_arm64_${acc}.dylib
           done
 
-      - name: Merge artifacts
-        id: merge_artifacts
+      - name: Create release
+        id: create_release
         run: |
-          cd artifacts
-          servers=`find . -name llamalib_server*`
-          if [ "$servers" != "" ];then
-            zip -r $PREFIX-server.zip $servers
-            rm $servers
-          fi
-          zip -r $PREFIX.zip libs
+          ./.github/scripts/release.sh release release
+          zip -r release.zip release
+          zip -r servers.zip servers
 
       - name: Release
         id: release
         uses: softprops/action-gh-release@v2
         with:
           name: "Release ${{ github.ref_name }}"
-          files: "artifacts/*.zip"
+          iles: | 
+            release.zip
+            servers.zip

@@ -243,7 +243,6 @@ jobs:
         @@checkout@@
         @@set_release_prefix@@
         @@download_artifacts@@
-        @@unzip_artifacts@@
-        @@combine_macos_libraries@@
-        @@merge_artifacts@@
+        @@structure_artifacts@@
+        @@create_release@@
         @@release@@

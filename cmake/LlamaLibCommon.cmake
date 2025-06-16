@@ -14,7 +14,7 @@ file(READ "${VERSION_PATH}" LLAMALIB_VERSION)
 string(STRIP "${LLAMALIB_VERSION}" LLAMALIB_VERSION)
 
 # Example for include dirs
-set(_relative_include_paths
+set(include_paths
     "include"
     "third_party/llama.cpp/include"
     "third_party/llama.cpp/common"
@@ -24,7 +24,7 @@ set(_relative_include_paths
 )
 
 set(LLAMALIB_INCLUDE_DIRS "")
-foreach(_rel_path IN LISTS _relative_include_paths)
-    find_path_in_current_or_parent(_abs_path "${_rel_path}")
-    list(APPEND LLAMALIB_INCLUDE_DIRS "${_abs_path}")
+foreach(rel_path IN LISTS include_paths)
+    find_path_in_current_or_parent(abs_path "${rel_path}")
+    list(APPEND LLAMALIB_INCLUDE_DIRS "${abs_path}")
 endforeach()
