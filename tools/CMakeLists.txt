@@ -1,6 +1,6 @@
 if (LLAMALIB_BUILD_SERVER AND LLAMALIB_BUILD_RUNTIME_LIB)
     set(NAME llamalib_${OS}_server)
-    add_executable(${NAME} ${NAME}.cpp)
+    add_executable(${NAME} llamalib_server.cpp)
     LLAMALIB_COMPILE_DEFS(${NAME})
     target_link_libraries(${NAME} PRIVATE ${LLAMALIB_RUNTIME_LIBRARY})
     install(TARGETS ${NAME} RUNTIME)

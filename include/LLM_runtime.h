@@ -5,6 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <setjmp.h>
+#include <type_traits>
 
 #include "defs.h"
 #include "error_handling.h"

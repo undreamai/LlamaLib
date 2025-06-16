@@ -1,5 +1,5 @@
 set(NAME llamalib_tests)
-add_executable(${NAME} ${NAME}.cpp)
+add_executable(${NAME} llamalib_tests.cpp)
 LLAMALIB_COMPILE_DEFS(${NAME})
 target_link_libraries(${NAME} PRIVATE ${LLAMALIB_STATIC_LIBRARY})
 if (LLAMALIB_BUILD_RUNTIME_LIB)

@@ -28,7 +28,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p build/licenses
-          cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
+          cp third_party/llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
           if [[ "${{ matrix.arch }}" == "linux_tinyblas" || "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
             curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
           fi
@@ -47,7 +47,7 @@ jobs:
       - name: Build OpenSSL
         id: build_openssl
         run: |
-          .github/build_openssl.sh ${{ matrix.arch }}
+          .github/scripts/build_openssl.sh ${{ matrix.arch }}
 
 ################################ Linux ################################
 
@@ -192,10 +192,9 @@ jobs:
           ls -R build
           mkdir artifacts
           move .\build\licenses\* .\artifacts\
-          move .\build\Release\* .\artifacts\
           move .\build\libs\Release\*dll .\artifacts\
           del artifacts/llamalib_tests.*
-          $serverPath = '.\build\libs\Release\llamalib_server.exe'
+          $serverPath = '.\build\libs\Release\llamalib_windows_server.exe'
           if (Test-Path $serverPath) {
               move $serverPath -Destination '.\artifacts\'
           }
@@ -227,19 +226,13 @@ jobs:
 
 ################################ iOS ################################
 
-      - id: pack_artifacts_ios
-        name: Pack artifacts
-        run: |
-          zip -j ${{ matrix.arch }}.zip build/licenses/* build/libllamalib*.a
-
       - id: link_libraries_ios
         name: Link libraries
-        run: |
-          mkdir build/combo
+        run: |            
+          mkdir build/combo build/libs
           cd build/combo
           for f in `find .. -name "*.a"`;do ar -x $f;done
-          lib=`ls ../libllamalib*.a |grep -v runtime`
-          mv $lib $lib.orig
+          lib=../libs/libllamalib_${{ matrix.arch }}.a
           ld -r -o $lib *.o
           nm -u $lib
 
@@ -295,6 +288,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           name: "Release ${{ github.ref_name }}"
-          iles: | 
+          files: | 
             release.zip
             servers.zip

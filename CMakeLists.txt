@@ -19,6 +19,12 @@ SET(BUILD_SHARED_LIBS OFF)
 
 ################################################ SETUP ################################################
 
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED true)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED true)
+
 # Set CUDA architectures
 set(CMAKE_CUDA_ARCHITECTURES "52;61;70;75;86;89")
 set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} /Zm1000")
@@ -37,7 +43,6 @@ find_package(OpenSSL REQUIRED)
 set(LLAMA_CPP_ROOT ${CMAKE_SOURCE_DIR}/third_party/llama.cpp)
 
 function(LLAMALIB_COMPILE_DEFS NAME)
-    target_compile_features(${NAME} PRIVATE cxx_std_11)
     add_compile_definitions(${NAME} PRIVATE UNDREAMAI_EXPORTS)
     target_include_directories(${NAME} PRIVATE ${LLAMALIB_INCLUDE_DIRS})
     target_compile_definitions(${NAME} PRIVATE CPPHTTPLIB_OPENSSL_SUPPORT)

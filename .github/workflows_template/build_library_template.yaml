@@ -222,7 +222,7 @@ jobs:
         @@cmake_build@@
         @@link_libraries_ios@@
 
-        @@pack_artifacts_ios@@
+        @@pack_artifacts_unix@@
         @@upload_llamalib@@
 
 ################################ Release ################################

@@ -7,7 +7,7 @@ release_dir=$2
 
 mkdir -p $release_dir
 
-includes=$(awk '/set\s*\(\s*include_paths/,/\)/' ../cmake/LlamaLibCommon.cmake | grep -o '".*"' | sed 's/"//g')
+includes=$(awk '/set\s*\(\s*include_paths/,/\)/' $root_dir/cmake/LlamaLibCommon.cmake | grep -o '".*"' | sed 's/"//g')
 for d in ${includes};do
     mkdir -p $release_dir/$d
     cp $root_dir/$d/*.h $root_dir/$d/*.hpp $release_dir/$d

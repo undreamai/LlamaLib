@@ -636,16 +636,21 @@ index eac0b422..d96727d3 100644
      } while (0)
  
 diff --git a/ggml/src/ggml.c b/ggml/src/ggml.c
-index 7654ae17..441aa30b 100644
+index 7654ae17..9748ebdc 100644
 --- a/ggml/src/ggml.c
 +++ b/ggml/src/ggml.c
-@@ -182,7 +182,8 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {
+@@ -182,7 +182,13 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {
      fprintf(stderr, "\n");
  
      ggml_print_backtrace();
 -    abort();
 +    raise(SIGSEGV);
++#ifdef _MSC_VER
++    __assume(0);
++#else
 +    __builtin_unreachable();
++#endif
++
  }
  
  //
