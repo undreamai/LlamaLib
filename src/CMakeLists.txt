@@ -6,7 +6,7 @@ endif()
 set(LIBRARY_FILES LLM.cpp LLM_client.cpp logging.cpp error_handling.cpp)
 
 # build static library
-add_library(${LLAMALIB_STATIC_LIBRARY} LLM_service.cpp ${LIBRARY_FILES})
+add_library(${LLAMALIB_STATIC_LIBRARY} ${LIBRARY_TYPE} LLM_service.cpp ${LIBRARY_FILES})
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_link_options(${LLAMALIB_STATIC_LIBRARY} PRIVATE -Wl,--no-undefined)
 endif()

@@ -1,3 +1,9 @@
+################################################ FeatureDetector ################################################
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    add_subdirectory("FeatureDetector/src/x86")
+endif()
+
 ################################################ LLAMA.CPP FLAGS ################################################
 
 SET(LLAMA_BUILD_COMMON ON)
@@ -60,39 +66,9 @@ else()
     message(FATAL_ERROR "Unknown architecture: ${ARCHITECTURE}")
 endif()
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    SET(CMAKE_BUILD_RPATH_USE_ORIGIN ON)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    SET(LLAMA_FATAL_WARNINGS ON)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
-    SET(CMAKE_OSX_DEPLOYMENT_TARGET 14.0)
-    SET(CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM UndreamAI)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "visionOS")
-    SET(CMAKE_SYSTEM_NAME visionOS)
-    SET(CMAKE_OSX_DEPLOYMENT_TARGET 1.0)
-    SET(CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM UndreamAI)
-endif()
-
-if (NOT WIN32)
-    foreach (target common ggml-base ggml-cpu ggml-amx ggml-blas ggml-cann ggml-cuda ggml-hip ggml-kompute ggml-metal ggml-musa ggml-rpc ggml-sycl ggml-vulkan ggml llama)
-        if (TARGET ${target})
-            set_target_properties(${target} PROPERTIES COMPILE_FLAGS ${STATIC_FLAGS})
-            target_compile_options(${target} PRIVATE -Wno-return-type -Wno-sometimes-uninitialized)
-        endif()
-    endforeach()
-endif()
-
-if(ARCHITECTURE STREQUAL "windows_tinyblas" OR ARCHITECTURE STREQUAL "linux_tinyblas")
-    foreach (target common ggml-cuda ggml-hip ggml-musa)
-        if (TARGET ${target})
-            target_compile_definitions(${target} PUBLIC GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS)
-        endif()
-    endforeach()
-endif()
-
 ################################################ SETUP LLAMA.CPP ################################################
 
-set(PATCH_MARKER "${CMAKE_BINARY_DIR}/patched.llama.cpp")
+set(PATCH_MARKER "${LLAMA_CPP_ROOT}/patched.llama.cpp")
 
 if(NOT EXISTS ${PATCH_MARKER})
     execute_process(
@@ -146,10 +122,24 @@ add_custom_target(generate_assets ALL DEPENDS ${GENERATED_HEADERS})
 
 ################################################ BUILD ################################################
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    add_subdirectory("FeatureDetector/src/x86")
-endif()
 add_subdirectory("llama.cpp")
 
 # Output override
 set_property(DIRECTORY llama.cpp PROPERTY CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+
+if (NOT WIN32)
+    foreach (target common ggml-base ggml-cpu ggml-amx ggml-blas ggml-cann ggml-cuda ggml-hip ggml-kompute ggml-metal ggml-musa ggml-rpc ggml-sycl ggml-vulkan ggml llama)
+        if (TARGET ${target})
+            set_target_properties(${target} PROPERTIES COMPILE_FLAGS ${STATIC_FLAGS})
+            target_compile_options(${target} PRIVATE -Wno-return-type -Wno-sometimes-uninitialized)
+        endif()
+    endforeach()
+endif()
+
+if(ARCHITECTURE STREQUAL "windows_tinyblas" OR ARCHITECTURE STREQUAL "linux_tinyblas")
+    foreach (target common ggml-cuda ggml-hip ggml-musa)
+        if (TARGET ${target})
+            target_compile_definitions(${target} PUBLIC GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS)
+        endif()
+    endforeach()
+endif()

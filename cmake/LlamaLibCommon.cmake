@@ -16,7 +16,6 @@ string(STRIP "${LLAMALIB_VERSION}" LLAMALIB_VERSION)
 # Example for include dirs
 set(_relative_include_paths
     "include"
-    "third_party/llama.cpp"
     "third_party/llama.cpp/include"
     "third_party/llama.cpp/common"
     "third_party/llama.cpp/ggml/include"

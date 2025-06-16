@@ -29,6 +29,7 @@ if (ARCHITECTURE STREQUAL "android_arm64" OR ARCHITECTURE STREQUAL "android_x64"
     set(OPENSSL_SSL_LIBRARY ${CMAKE_SOURCE_DIR}/openssl/${ARCHITECTURE}/lib/libssl.a)
     set(OPENSSL_CRYPTO_LIBRARY ${CMAKE_SOURCE_DIR}/openssl/${ARCHITECTURE}/lib/libcrypto.a)
 endif()
+set(OPENSSL_USE_STATIC_LIBS ON)
 find_package(OpenSSL REQUIRED)
 
 ################################################ BUILD ################################################
@@ -57,6 +58,18 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 endif()
 set(LLAMALIB_RUNTIME_LIBRARY "llamalib_${OS}_runtime")
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    SET(CMAKE_BUILD_RPATH_USE_ORIGIN ON)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    SET(LLAMA_FATAL_WARNINGS ON)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    SET(CMAKE_OSX_DEPLOYMENT_TARGET 14.0)
+    SET(CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM UndreamAI)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "visionOS")
+    SET(CMAKE_SYSTEM_NAME visionOS)
+    SET(CMAKE_OSX_DEPLOYMENT_TARGET 1.0)
+    SET(CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM UndreamAI)
+endif()
 
 ################################################ BUILD DIRS ################################################
 
