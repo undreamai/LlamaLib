@@ -6,6 +6,7 @@
 #include <setjmp.h>
 #include <signal.h>
 #include <functional>
+#include <iostream>
 
 #ifdef _WIN32
 #include <windows.h>

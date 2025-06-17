@@ -4,7 +4,6 @@
 
 #include <openssl/err.h>
 #include <openssl/ssl.h>
-#include "error_handling.h"
 
 #include "common.h"
 
@@ -26,8 +25,8 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         static X509* load_cert(const std::string& cert_str);
 
         //=================================== LLM METHODS START ===================================//
-        int status_code() override;
-        std::string status_message() override;
+        // int status_code() override;
+        // std::string status_message() override;
 
         void start_server() override;
         void stop_server() override;
@@ -73,38 +72,6 @@ class UNDREAMAI_API LLMService : public LLMProvider {
             std::function<bool()> is_connection_closed = always_false
         );
         bool middleware_validate_api_key(const httplib::Request & req, httplib::Response & res);
-};
-
-class LLMServiceRegistry {
-public:
-    static LLMServiceRegistry& instance() {
-        static LLMServiceRegistry registry;
-        return registry;
-    }
-
-    void register_instance(LLMService* service) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        instances_.push_back(service);
-    }
-
-    void unregister_instance(LLMService* service) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        instances_.erase(std::remove(instances_.begin(), instances_.end(), service), instances_.end());
-    }
-
-    std::vector<LLMService*> get_instances() {
-        std::lock_guard<std::mutex> lock(mutex_);
-        return instances_;
-    }
-
-private:
-    std::mutex mutex_;
-    std::vector<LLMService*> instances_;
-
-    LLMServiceRegistry() = default;
-    ~LLMServiceRegistry() = default;
-    LLMServiceRegistry(const LLMServiceRegistry&) = delete;
-    LLMServiceRegistry& operator=(const LLMServiceRegistry&) = delete;
 };
 
 extern "C" {

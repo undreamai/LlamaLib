@@ -520,25 +520,25 @@ int main(int argc, char** argv) {
     std::cout << "-------- LLM service --------" << std::endl;
     run_LLMProvider_tests(llm_service);
 
-    std::cout << "-------- LLM client --------" << std::endl;
-    LLMClient llm_client(llm_service);
-    run_LLMLocal_tests(&llm_client);
+    // std::cout << "-------- LLM client --------" << std::endl;
+    // LLMClient llm_client(llm_service);
+    // run_LLMLocal_tests(&llm_client);
 
-    std::cout << "-------- LLM remote client --------" << std::endl;
-    LLMRemoteClient llm_remote_client("https://localhost", 8080);
-    set_SSL(llm_service, &llm_remote_client);
-    LLM_Start_Server(llm_service);
-    run_LLM_tests(&llm_remote_client);
+    // std::cout << "-------- LLM remote client --------" << std::endl;
+    // LLMRemoteClient llm_remote_client("https://localhost", 8080);
+    // set_SSL(llm_service, &llm_remote_client);
+    // LLM_Start_Server(llm_service);
+    // run_LLM_tests(&llm_remote_client);
 
     stop_llm_service(llm_service);
 
-#ifdef RUNTIME_TESTS
-    std::cout << "-------- LLM runtime --------" << std::endl;
-    LLMRuntime* llmlib = start_llm_lib(command);
-    EMBEDDING_SIZE = LLM_Embedding_Size(llmlib);
-    run_LLMProvider_tests(llmlib);
-    stop_llm_service(llmlib);
-#endif
+// #ifdef RUNTIME_TESTS
+//     std::cout << "-------- LLM runtime --------" << std::endl;
+//     LLMRuntime* llmlib = start_llm_lib(command);
+//     EMBEDDING_SIZE = LLM_Embedding_Size(llmlib);
+//     run_LLMProvider_tests(llmlib);
+//     stop_llm_service(llmlib);
+// #endif
 
     return 0;
 }

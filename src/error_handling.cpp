@@ -66,9 +66,11 @@ void handle_signal(int sig, siginfo_t*, void*) {
 
 void set_error_handlers(bool crash_handlers, bool sigint_handlers) {
     init_status();
+    std::cout<<"set_error_handlers"<<std::endl;
 
     if (crash_handlers)
     {
+    std::cout<<"crash_handlers"<<std::endl;
         struct sigaction sa {};
         sigemptyset(&sa.sa_mask);
         sa.sa_flags = SA_NODEFER;
@@ -82,6 +84,7 @@ void set_error_handlers(bool crash_handlers, bool sigint_handlers) {
 
     if (sigint_handlers)
     {
+    std::cout<<"sigint_handlers"<<std::endl;
         struct sigaction shutdown {};
         shutdown.sa_handler = sigint_signal_handler;
         sigemptyset(&shutdown.sa_mask);
@@ -109,6 +112,7 @@ void sigint_signal_handler(int sig) {
 }
 
 void register_sigint_hook(Hook hook) {
+    std::cout<<"register_sigint_hook"<<std::endl;
     std::lock_guard<std::mutex> lock(sigint_hook_mutex);
     sigint_hooks.push_back(std::move(hook));
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "logging.h"
+#include "error_handling.h"
 // increase max payload length to allow use of larger context size
 #define CPPHTTPLIB_FORM_URL_ENCODED_PAYLOAD_MAX_LENGTH 1048576
 // disable Nagle's algorithm
@@ -105,8 +106,8 @@ public:
     virtual std::vector<LoraIdScalePath> parse_lora_list_json(const json& result);
     virtual std::vector<LoraIdScalePath> lora_list();
 
-    virtual int status_code() = 0;
-    virtual std::string status_message() = 0;
+    virtual int status_code();
+    virtual std::string status_message();
 
     virtual void start_server() = 0;
     virtual void stop_server() = 0;
@@ -119,6 +120,39 @@ public:
 
     virtual int embedding_size() = 0;
 };
+
+class LLMProviderRegistry {
+public:
+    static LLMProviderRegistry& instance() {
+        static LLMProviderRegistry registry;
+        return registry;
+    }
+
+    void register_instance(LLMProvider* service) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        instances_.push_back(service);
+    }
+
+    void unregister_instance(LLMProvider* service) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        instances_.erase(std::remove(instances_.begin(), instances_.end(), service), instances_.end());
+    }
+
+    std::vector<LLMProvider*> get_instances() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return instances_;
+    }
+
+private:
+    std::mutex mutex_;
+    std::vector<LLMProvider*> instances_;
+
+    LLMProviderRegistry() = default;
+    ~LLMProviderRegistry() = default;
+    LLMProviderRegistry(const LLMProviderRegistry&) = delete;
+    LLMProviderRegistry& operator=(const LLMProviderRegistry&) = delete;
+};
+
 
 extern "C" {
     UNDREAMAI_API const char* LLM_Tokenize(LLM* llm, const char* json_data);

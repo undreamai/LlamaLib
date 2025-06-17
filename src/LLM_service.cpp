@@ -3,36 +3,6 @@
 #define SERVER_H
 #include "server.cpp"
 #endif // SERVER_H
-//============================= ERROR HANDLING =============================//
-
-std::atomic_flag sigint_terminating = ATOMIC_FLAG_INIT;
-
-void llm_sigint_signal_handler(int sig) {
-    if (sigint_terminating.test_and_set()) {
-        // in case it hangs, we can force terminate the server by hitting Ctrl+C twice
-        // this is for better developer experience, we can remove when the server is stable enough
-        fprintf(stderr, "Received second interrupt, terminating immediately.\n");
-        exit(1);
-    }
-
-    for (auto* inst : LLMServiceRegistry::instance().get_instances()) {
-        inst->stop();
-        inst->stop_server();
-    }
-}
-
-#ifndef REGISTER_SIGINT
-#define REGISTER_SIGINT
-
-struct SigintHookRegistrar {
-    SigintHookRegistrar() {
-        register_sigint_hook(llm_sigint_signal_handler);
-    }
-};
-
-static SigintHookRegistrar _sigintHookRegistrarInstance;
-
-#endif
 
 //============================= LLMService IMPLEMENTATION =============================//
 
@@ -190,7 +160,7 @@ void LLMService::init(const char* params) {
 }
 
 void LLMService::init(int argc, char ** argv){
-    set_error_handlers();
+    // set_error_handlers();
     if (setjmp(sigjmp_buf_point) != 0) return;
     try{
         ctx_server = new server_context();
@@ -476,18 +446,10 @@ void LLMService::join_server(){
     server_thread.join();
 }
 
-int LLMService::status_code(){
-    return status;
-}
-
-std::string LLMService::status_message(){
-    return status_msg;
-}
-
 void LLMService::start(){
     std::lock_guard<std::mutex> lock(start_stop_mutex);
     service_thread = std::thread([&]() {
-        LLMServiceRegistry::instance().register_instance(this);
+        LLMProviderRegistry::instance().register_instance(this);
         LOG_INFO("starting service", {});
         ctx_server->queue_tasks.start_loop();
         LOG_INFO("stopped service loop", {});
@@ -521,7 +483,7 @@ void LLMService::stop(){
 
         join_service();
 
-        LLMServiceRegistry::instance().unregister_instance(this);
+        LLMProviderRegistry::instance().unregister_instance(this);
     } catch(...) {
         handle_exception();
     }

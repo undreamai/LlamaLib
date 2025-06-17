@@ -2,6 +2,25 @@
 
 //============================= LIBRARY LOADING =============================//
 
+const std::string os_library_dir() {
+#if defined(_WIN32)
+    return "windows";
+#elif defined(__linux__)
+    return "linux";
+#elif defined(__APPLE__)
+#if TARGET_OS_VISION
+    return "visionos";
+#elif TARGET_OS_IOS
+    return "ios";
+#else
+    return "macos";
+#endif
+#elif defined(__ANDROID__)
+    return "android";
+#endif
+    return "";
+}
+
 const std::vector<std::string> available_architectures(bool gpu) {
     std::vector<std::string> architectures;
 
@@ -52,6 +71,103 @@ const std::vector<std::string> available_architectures(bool gpu) {
     return architectures;
 }
 
+std::filesystem::path get_executable_directory() {
+#ifdef _WIN32
+    char path[MAX_PATH];
+    DWORD result = GetModuleFileNameA(nullptr, path, MAX_PATH);
+    if (result == 0 || result == MAX_PATH) {
+        return std::filesystem::current_path();
+    }
+    return std::filesystem::path(path).parent_path();
+#elif defined(__APPLE__)
+    char path[PATH_MAX];
+    uint32_t size = sizeof(path);
+    if (_NSGetExecutablePath(path, &size) != 0) {
+        return std::filesystem::current_path();
+    }
+    return std::filesystem::path(path).parent_path();
+#else
+    char path[PATH_MAX];
+    ssize_t count = readlink("/proc/self/exe", path, PATH_MAX);
+    if (count == -1) {
+        return std::filesystem::current_path();
+    }
+    path[count] = '\0';
+    return std::filesystem::path(path).parent_path();
+#endif
+}
+
+std::filesystem::path get_current_directory() {
+    return std::filesystem::current_path();
+}
+
+std::vector<std::string> get_default_library_env_vars() {
+#ifdef _WIN32
+    return {"PATH"};
+#elif defined(__APPLE__)
+    return {"DYLD_LIBRARY_PATH", "DYLD_FALLBACK_LIBRARY_PATH", "LD_LIBRARY_PATH"};
+#else
+    return {"LD_LIBRARY_PATH", "LIBRARY_PATH"};
+#endif
+}
+
+std::vector<std::filesystem::path> get_env_library_paths(const std::vector<std::string>& env_vars) {
+    std::vector<std::filesystem::path> paths;
+    
+    for (const auto& env_var : env_vars) {
+        const char* env_value = std::getenv(env_var.c_str());
+        if (!env_value) continue;
+        
+        std::string env_string(env_value);
+        if (env_string.empty()) continue;
+        
+        // Split by path separator
+#ifdef _WIN32
+        const char delimiter = ';';
+#else
+        const char delimiter = ':';
+#endif
+        
+        std::stringstream ss(env_string);
+        std::string path_str;
+        while (std::getline(ss, path_str, delimiter)) {
+            if (!path_str.empty()) {
+                paths.emplace_back(path_str);
+            }
+        }
+    }
+    
+    return paths;
+}
+
+std::vector<std::filesystem::path> get_search_directories() {
+    std::vector<std::filesystem::path> search_paths;
+    // Current directory
+    search_paths.push_back(get_current_directory());
+    // Executable directory
+    search_paths.push_back(get_executable_directory());
+    // Common relative paths from executable
+    auto exe_dir = get_executable_directory();
+    search_paths.push_back(exe_dir / "libs");
+    search_paths.push_back(exe_dir / ".." / "libs");
+    std::string os_dir = os_library_dir();
+    if (os_dir != "")
+    {
+        search_paths.push_back(exe_dir / "libs" / os_dir);
+        search_paths.push_back(exe_dir / ".." / "libs" / os_dir);
+    }    
+    // Environment variable paths
+    auto default_env_vars = get_default_library_env_vars();
+    auto env_paths = get_env_library_paths(default_env_vars);
+    search_paths.insert(search_paths.end(), env_paths.begin(), env_paths.end());
+
+    std::vector<std::filesystem::path> return_paths;
+    for (const std::filesystem::path& search_path : search_paths) {
+        if (std::filesystem::exists(search_path)) return_paths.push_back(search_path);
+    }
+    return return_paths;
+}
+
 inline LibHandle load_library(const char* path) {
     return LOAD_LIB(path);
 }
@@ -78,16 +194,6 @@ LibHandle load_library_safe(const std::string& path) {
 }
 
 bool LLMRuntime::create_LLM_library_from_path(const std::string& command, const std::string& path) {
-    std::cout << "Trying " << path << std::endl;
-
-    if (setjmp(sigjmp_buf_point) != 0) {
-        std::cout << "Error occurred while loading the library" << std::endl;
-        return false;
-    }
-
-    handle = load_library_safe(path);
-    if (!handle) return false;
-
     auto load_sym = [&](auto& fn_ptr, const char* name) {
         fn_ptr = reinterpret_cast<std::decay_t<decltype(fn_ptr)>>(load_symbol(handle, name));
         if (!fn_ptr) {
@@ -95,14 +201,32 @@ bool LLMRuntime::create_LLM_library_from_path(const std::string& command, const 
         }
     };
 
-#define DECLARE_AND_LOAD(name, ret, ...) \
-    load_sym(this->name, #name); \
-    if (!this->name) return false;
-    LLM_FUNCTIONS_LIST(DECLARE_AND_LOAD)
-#undef DECLARE_AND_LOAD
+    std::vector<std::filesystem::path> full_paths;
+    full_paths.push_back(path);
+    for (const std::filesystem::path& search_path : search_paths) full_paths.push_back(search_path / path);
 
-    llm = (LLMProvider*) LLMService_Construct(command.c_str());
-    return true;
+    std::cout << "Trying " << path << std::endl;
+    for (const std::filesystem::path& full_path : full_paths) {
+        if (std::filesystem::exists(full_path) && std::filesystem::is_regular_file(full_path)) {
+            if (setjmp(sigjmp_buf_point) != 0) {
+                std::cout << "Error occurred while loading the library" << std::endl;
+                continue;
+            }
+
+            handle = load_library_safe(full_path.c_str());
+            if (!handle) continue;
+            
+            #define DECLARE_AND_LOAD(name, ret, ...) \
+            load_sym(this->name, #name); \
+            if (!this->name) return false;
+            LLM_FUNCTIONS_LIST(DECLARE_AND_LOAD)
+            #undef DECLARE_AND_LOAD
+
+            llm = (LLMProvider*) LLMService_Construct(command.c_str());
+            return true;
+        }
+    }
+    return false;
 }
 
 bool LLMRuntime::create_LLM_library(const std::string& command, const std::string& path) {
@@ -144,7 +268,8 @@ bool LLMRuntime::create_LLM_library(const std::string& command, const std::strin
 
 LLMRuntime::LLMRuntime(const std::string& command, const std::string& path)
 {
-    set_error_handlers(true, false);
+    // set_error_handlers();
+    search_paths = get_search_directories();
     create_LLM_library(command, path);
 }
 

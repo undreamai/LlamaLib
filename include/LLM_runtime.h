@@ -6,6 +6,8 @@
 #include <iostream>
 #include <setjmp.h>
 #include <type_traits>
+#include <algorithm>
+#include <cstdlib>
 
 #include "defs.h"
 #include "error_handling.h"
@@ -21,12 +23,19 @@
 
 #if defined(_WIN32)
 #include <windows.h>
+#include <libloaderapi.h>
 using LibHandle = HMODULE;
 #define LOAD_LIB(path) LoadLibraryA(path)
 #define GET_SYM(handle, name) GetProcAddress(handle, name)
 #define CLOSE_LIB(handle) FreeLibrary(handle)
 #else
 #include <dlfcn.h>
+#include <unistd.h>
+#include <limits.h>
+#ifdef __APPLE__
+#include <mach-o/dyld.h>
+#endif
+
 using LibHandle = void*;
 #define LOAD_LIB(path) dlopen(path, RTLD_LAZY)
 #define GET_SYM(handle, name) dlsym(handle, name)
@@ -74,13 +83,13 @@ public:
     bool create_LLM_library(const std::string& command, const std::string& path="");
 
     //=================================== LLM METHODS START ===================================//
-    int status_code() override {
-        return LLM_Status_Code((LLMProvider*)llm);
-    }
+    // int status_code() override {
+    //     return LLM_Status_Code((LLMProvider*)llm);
+    // }
 
-    std::string status_message() override {
-        return LLM_Status_Message((LLMProvider*)llm);
-    }
+    // std::string status_message() override {
+    //     return LLM_Status_Message((LLMProvider*)llm);
+    // }
 
     void start_server() override { LLM_Start_Server((LLMProvider*)llm); }
     void stop_server() override { LLM_Stop_Server((LLMProvider*)llm); }
@@ -102,6 +111,7 @@ public:
 #undef DECLARE_FN
 
 protected:
+    std::vector<std::filesystem::path> search_paths;
     //=================================== LLM METHODS START ===================================//
     std::string tokenize_impl(const json& data) override {
         return LLM_Tokenize((LLM*)llm, data.dump().c_str());
@@ -136,7 +146,13 @@ protected:
     //=================================== LLM METHODS END ===================================//
 };
 
+const std::string os_library_dir();
 const std::vector<std::string> available_architectures(bool gpu);
+static std::filesystem::path get_executable_directory();
+static std::filesystem::path get_current_directory();
+static std::vector<std::filesystem::path> get_env_library_paths(const std::vector<std::string>& env_vars);
+static std::vector<std::filesystem::path> get_search_directories();
+std::vector<std::string> get_default_library_env_vars();
 
 //=================================== EXTERNAL API ===================================//
 
