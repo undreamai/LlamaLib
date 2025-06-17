@@ -2,7 +2,7 @@
 
 void fail(std::string message, int code) {
     status = code;
-    status_message = message;
+    status_msg = message;
 }
 
 void handle_exception(int code) {
@@ -19,7 +19,7 @@ void handle_exception(int code) {
 
 void init_status() {
     status = 0;
-    status_message.clear();
+    status_msg.clear();
 }
 
 void clear_status() {

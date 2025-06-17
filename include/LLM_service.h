@@ -25,30 +25,33 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         static EVP_PKEY* load_key(const std::string& key_str);
         static X509* load_cert(const std::string& cert_str);
 
-        //================ LLM ================//
-        int get_status() override;
-        std::string get_status_message() override;
-
-        std::string handle_tokenize_impl(const json& data) override;
-        std::string handle_detokenize_impl(const json& data) override;
-        std::string handle_embeddings_impl(const json& data, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_false) override;
-        std::string handle_lora_adapters_apply_impl(const json& data, httplib::Response* res=nullptr) override;
-        std::string handle_lora_adapters_list_impl() override;
-        std::string handle_completions_impl(const json& data, CharArrayFn callback=nullptr, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0) override;
-        std::string handle_slots_action_impl(const json& data, httplib::Response* res=nullptr) override;
-        void handle_cancel_action_impl(int id_slot) override;
+        //=================================== LLM METHODS START ===================================//
+        int status_code() override;
+        std::string status_message() override;
 
         void start_server() override;
         void stop_server() override;
         void join_server() override;
-        void start_service() override;
-        void stop_service() override;
+        void start() override;
+        void stop() override;
         void join_service() override;
         void set_SSL(const char* SSL_cert, const char* SSL_key) override;
-        bool is_running() override;
+        bool started() override;
 
         int embedding_size() override;
-        //================ LLM ================//
+        //=================================== LLM METHODS END ===================================//
+
+    protected:
+        //=================================== LLM METHODS START ===================================//
+        std::string tokenize_impl(const json& data) override;
+        std::string detokenize_impl(const json& data) override;
+        std::string embeddings_impl(const json& data, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_false) override;
+        std::string lora_weight_impl(const json& data, httplib::Response* res=nullptr) override;
+        std::string lora_list_impl() override;
+        std::string completion_impl(const json& data, CharArrayFn callback=nullptr, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0) override;
+        std::string slot_impl(const json& data, httplib::Response* res=nullptr) override;
+        void cancel_impl(int id_slot) override;
+        //=================================== LLM METHODS END ===================================//
 
     private:
         common_params params;
@@ -63,7 +66,7 @@ class UNDREAMAI_API LLMService : public LLMProvider {
 
         std::vector<char*> jsonToArguments(const json& params);
         std::vector<std::string> splitArguments(const std::string& inputString);
-        std::string handle_completions_streaming(
+        std::string completion_streaming(
             std::unordered_set<int> id_tasks,
             CharArrayFn callback=nullptr,
             httplib::DataSink* sink=nullptr,
@@ -105,5 +108,5 @@ private:
 };
 
 extern "C" {
-    UNDREAMAI_API LLMService* LLM_Construct(const char* params_string);
+    UNDREAMAI_API LLMService* LLMService_Construct(const char* params_string);
 };

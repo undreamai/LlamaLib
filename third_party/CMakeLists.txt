@@ -66,6 +66,10 @@ else()
     message(FATAL_ERROR "Unknown architecture: ${ARCHITECTURE}")
 endif()
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    SET(LLAMA_FATAL_WARNINGS ON)
+endif()
+
 ################################################ SETUP LLAMA.CPP ################################################
 
 set(PATCH_MARKER "${LLAMA_CPP_ROOT}/patched.llama.cpp")

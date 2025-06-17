@@ -2,42 +2,41 @@
 
 LLMClient::LLMClient(LLMProvider* llm_): llm(llm_){ }
 
-std::string LLMClient::handle_tokenize_impl(const json& data)
+std::string LLMClient::tokenize_impl(const json& data)
 {
-    return llm->handle_tokenize_impl(data);
+    return llm->tokenize_json(data);
 }
 
-std::string LLMClient::handle_detokenize_impl(const json& data)
+std::string LLMClient::detokenize_impl(const json& data)
 {
-    return llm->handle_detokenize_impl(data);
+    return llm->detokenize_json(data);
 }
 
-std::string LLMClient::handle_embeddings_impl(const json& data, httplib::Response* res, std::function<bool()> is_connection_closed)
+std::string LLMClient::embeddings_impl(const json& data, httplib::Response* res, std::function<bool()> is_connection_closed)
 {
-    return llm->handle_embeddings_impl(data, res, is_connection_closed);
+    return llm->embeddings_json(data, res, is_connection_closed);
 }
 
-std::string LLMClient::handle_completions_impl(const json& data, CharArrayFn callback, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
+std::string LLMClient::completion_impl(const json& data, CharArrayFn callback, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
 {
-    return llm->handle_completions_impl(data, callback, res, is_connection_closed, oaicompat);
+    return llm->completion_json(data, callback, res, is_connection_closed, oaicompat);
 }
 
-std::string LLMClient::handle_slots_action_impl(const json& data, httplib::Response* res)
+std::string LLMClient::slot_impl(const json& data, httplib::Response* res)
 {
-    return llm->handle_slots_action_impl(data, res);
+    return llm->slot_json(data, res);
 }
 
-void LLMClient::handle_cancel_action_impl(int id_slot)
+void LLMClient::cancel_impl(int id_slot)
 {
-    llm->handle_cancel_action_impl(id_slot);
+    llm->cancel(id_slot);
 }
-
 
 //================ Remote requests ================//
 
-RemoteLLMClient::RemoteLLMClient(const std::string& url_, const int port_) : url(url_), port(port_) { }
+LLMRemoteClient::LLMRemoteClient(const std::string& url_, const int port_) : url(url_), port(port_) { }
 
-X509_STORE* RemoteLLMClient::load_cert(const std::string& cert_str)
+X509_STORE* LLMRemoteClient::load_cert(const std::string& cert_str)
 {
   BIO* mem = BIO_new_mem_buf(cert_str.data(), (int) cert_str.size());
   if (!mem) { return nullptr; }
@@ -61,11 +60,11 @@ X509_STORE* RemoteLLMClient::load_cert(const std::string& cert_str)
   return cts;
 }
 
-void RemoteLLMClient::set_SSL(const char* SSL_cert){
+void LLMRemoteClient::set_SSL(const char* SSL_cert){
     this->SSL_cert = SSL_cert;
 }
 
-std::string RemoteLLMClient::post_request(
+std::string LLMRemoteClient::post_request(
     const std::string& path,
     const json& payload,
     CharArrayFn callback
@@ -120,22 +119,35 @@ std::string RemoteLLMClient::post_request(
     return context.buffer;
 }
 
-std::string RemoteLLMClient::handle_tokenize_impl(const json& data)
+std::string LLMRemoteClient::tokenize_impl(const json& data)
 {
     return post_request("tokenize", data);
 }
 
-std::string RemoteLLMClient::handle_detokenize_impl(const json& data)
+std::string LLMRemoteClient::detokenize_impl(const json& data)
 {
     return post_request("detokenize", data);
 }
 
-std::string RemoteLLMClient::handle_embeddings_impl(const json& data, httplib::Response* res, std::function<bool()> is_connection_closed)
+std::string LLMRemoteClient::embeddings_impl(const json& data, httplib::Response* res, std::function<bool()> is_connection_closed)
 {
     return post_request("embeddings", data);
 }
 
-std::string RemoteLLMClient::handle_completions_impl(const json& data, CharArrayFn callback, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
+std::string LLMRemoteClient::completion_impl(const json& data, CharArrayFn callback, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
 {
     return post_request("completion", data, callback);
+}
+
+
+//================ API ================//
+
+LLMClient* LLMClient_Construct(LLMProvider* llm)
+{
+    return new LLMClient(llm);
+}
+
+LLMRemoteClient* LLMRemoteClient_Construct(const char* url, const int port)
+{
+    return new LLMRemoteClient(url, port);
 }

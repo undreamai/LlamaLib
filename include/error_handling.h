@@ -17,7 +17,7 @@
 using Hook = std::function<void(int)>;
 
 static int status;
-static std::string status_message;
+static std::string status_msg;
 thread_local static sigjmp_buf sigjmp_buf_point;
 static std::mutex sigint_hook_mutex;
 static std::vector<Hook> sigint_hooks;

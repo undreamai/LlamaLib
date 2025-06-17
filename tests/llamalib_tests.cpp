@@ -144,12 +144,12 @@ void test_lora(LLMProvider* llm) {
     ASSERT(reply_data.size() == 0);
 }
 
-void test_cancel(LLMWithSlot* llm) {
+void test_cancel(LLMLocal* llm) {
     std::cout << "LLM_Cancel" << std::endl;
     LLM_Cancel(llm, ID_SLOT);
 }
 
-void test_slot_save_restore(LLMWithSlot* llm) {
+void test_slot_save_restore(LLMLocal* llm) {
     std::cout << "LLM_Slot Save" << std::endl;
     std::string filename = "test_undreamai.save";
     json data;
@@ -193,7 +193,7 @@ void test_slot_save_restore(LLMWithSlot* llm) {
 
 LLMService* start_llm_service(const std::string& command)
 {
-    LLMService* llm_service = LLM_Construct(command.c_str());
+    LLMService* llm_service = LLMService_Construct(command.c_str());
     LLM_Start(llm_service);
     return llm_service;
 }
@@ -233,68 +233,69 @@ public:
     };
     std::string SAVE_PATH = "test.save";
 
-    std::string handle_tokenize_impl(const json& data) override {
+    bool cancel_called = false;
+    int cancelled_slot = -1;
+
+    int status_code() override { return 0; }
+    std::string status_message() override { return ""; }
+    void start_server() override { }
+    void stop_server() override { }
+    void join_server() override { }
+    void start() override { }
+    void stop() override { }
+    void join_service() override { }
+    void set_SSL(const char* SSL_cert, const char* SSL_key) override { }
+    bool started() override { return true; }
+    int embedding_size() override { return 0; }
+
+protected:
+    std::string tokenize_impl(const json& data) override {
         json result;
         result["tokens"] = TOKENS;
         return result.dump();
     }
 
-    std::string handle_detokenize_impl(const json& data) override {
+    std::string detokenize_impl(const json& data) override {
         json result;
         result["content"] = CONTENT;
         return result.dump();
     }
 
-    std::string handle_embeddings_impl(const json& data, httplib::Response*, std::function<bool()>) override {
+    std::string embeddings_impl(const json& data, httplib::Response*, std::function<bool()>) override {
         json result;
         result["embedding"] = EMBEDDING;
         return result.dump();
     }
 
-    std::string handle_completions_impl(const json& data, CharArrayFn, httplib::Response*, std::function<bool()>, int) override {
+    std::string completion_impl(const json& data, CharArrayFn, httplib::Response*, std::function<bool()>, int) override {
         json result;
         result["content"] = CONTENT;
         return result.dump();
     }
 
-    std::string handle_slots_action_impl(const json& data, httplib::Response*) override {
+    std::string slot_impl(const json& data, httplib::Response*) override {
         json result;
         result["filename"] = SAVE_PATH;
         return result.dump();
     }
 
-    void handle_cancel_action_impl(int id_slot) override {
+    void cancel_impl(int id_slot) override {
         cancel_called = true;
         cancelled_slot = id_slot;
     }
 
-    std::string handle_lora_adapters_apply_impl(const json& data, httplib::Response*) override {
+    std::string lora_weight_impl(const json& data, httplib::Response*) override {
         json result;
         result["success"] = true;
         return result.dump();
     }
 
-    std::string handle_lora_adapters_list_impl() override {
+    std::string lora_list_impl() override {
         json j = json::array();
         for (auto& l : LORAS)
             j.push_back({{"id", l.id}, {"scale", l.scale}, {"path", l.path}});
         return j.dump();
     }
-
-    bool cancel_called = false;
-    int cancelled_slot = -1;
-
-    int get_status() override { return 0; }
-    std::string get_status_message() override { return ""; }
-    void start_server() override { }
-    void stop_server() override { }
-    void join_server() override { }
-    void start_service() override { }
-    void stop_service() override { }
-    void join_service() override { }
-    void set_SSL(const char* SSL_cert, const char* SSL_key) override { }
-    bool is_running() override { return true; }
-    int embedding_size() override { return 0; }
 };
 
 void run_mock_tests() {
@@ -307,13 +308,13 @@ void run_mock_tests() {
 
         ASSERT(llm.build_tokenize_json(llm.CONTENT) == input_json);
         ASSERT(llm.parse_tokenize_json(output_json) == llm.TOKENS);
-        ASSERT(json::parse(llm.handle_tokenize_json(llm.CONTENT))["tokens"] == llm.TOKENS);
-        ASSERT(llm.handle_tokenize(llm.CONTENT.c_str()) == llm.TOKENS);
-        ASSERT(llm.handle_tokenize(llm.CONTENT) == llm.TOKENS);
-        ASSERT(llm.handle_tokenize(input_json) == llm.TOKENS);
-        ASSERT(llm.handle_tokenize_json(llm.CONTENT.c_str()) == output_json.dump());
-        ASSERT(llm.handle_tokenize_json(llm.CONTENT) == output_json.dump());
-        ASSERT(llm.handle_tokenize_json(input_json) == output_json.dump());
+        ASSERT(json::parse(llm.tokenize_json(llm.CONTENT))["tokens"] == llm.TOKENS);
+        ASSERT(llm.tokenize(llm.CONTENT.c_str()) == llm.TOKENS);
+        ASSERT(llm.tokenize(llm.CONTENT) == llm.TOKENS);
+        ASSERT(llm.tokenize(input_json) == llm.TOKENS);
+        ASSERT(llm.tokenize_json(llm.CONTENT.c_str()) == output_json.dump());
+        ASSERT(llm.tokenize_json(llm.CONTENT) == output_json.dump());
+        ASSERT(llm.tokenize_json(input_json) == output_json.dump());
     }
 
     // --- Detokenize ---
@@ -323,10 +324,10 @@ void run_mock_tests() {
 
         ASSERT(llm.build_detokenize_json(llm.TOKENS)["tokens"] == llm.TOKENS);
         ASSERT(llm.parse_detokenize_json(output_json) == llm.CONTENT);
-        ASSERT(llm.handle_detokenize(llm.TOKENS) == llm.CONTENT);
-        ASSERT(llm.handle_detokenize(input_json) == llm.CONTENT);
-        ASSERT(llm.handle_detokenize_json(llm.TOKENS) == output_json.dump());
-        ASSERT(llm.handle_detokenize_json(input_json) == output_json.dump());
+        ASSERT(llm.detokenize(llm.TOKENS) == llm.CONTENT);
+        ASSERT(llm.detokenize(input_json) == llm.CONTENT);
+        ASSERT(llm.detokenize_json(llm.TOKENS) == output_json.dump());
+        ASSERT(llm.detokenize_json(input_json) == output_json.dump());
     }
 
     // --- Embeddings ---
@@ -336,14 +337,14 @@ void run_mock_tests() {
 
         ASSERT(llm.build_embeddings_json(llm.CONTENT) == input_json);
         ASSERT(llm.parse_embeddings_json(output_json) == llm.EMBEDDING);
-        ASSERT(json::parse(llm.handle_embeddings_json(llm.CONTENT))["embedding"] == llm.EMBEDDING);
-        ASSERT(json::parse(llm.handle_embeddings_json(llm.CONTENT.c_str()))["embedding"] == llm.EMBEDDING);
-        ASSERT(llm.handle_embeddings(llm.CONTENT) == llm.EMBEDDING);
-        ASSERT(llm.handle_embeddings(llm.CONTENT.c_str()) == llm.EMBEDDING);
-        ASSERT(llm.handle_embeddings(input_json) == llm.EMBEDDING);
+        ASSERT(json::parse(llm.embeddings_json(llm.CONTENT))["embedding"] == llm.EMBEDDING);
+        ASSERT(json::parse(llm.embeddings_json(llm.CONTENT.c_str()))["embedding"] == llm.EMBEDDING);
+        ASSERT(llm.embeddings(llm.CONTENT) == llm.EMBEDDING);
+        ASSERT(llm.embeddings(llm.CONTENT.c_str()) == llm.EMBEDDING);
+        ASSERT(llm.embeddings(input_json) == llm.EMBEDDING);
     }
 
-    // --- Completions ---
+    // --- completion ---
     {
         int id_slot = 1;
         json params = {{"temp", 0.7}};
@@ -354,11 +355,11 @@ void run_mock_tests() {
         };
         json output_json = {{"content", llm.CONTENT}};
 
-        ASSERT(llm.build_completions_json(llm.CONTENT, id_slot, params) == input_json);
-        ASSERT(llm.parse_completions_json(output_json) == llm.CONTENT);
-        ASSERT(llm.handle_completions(llm.CONTENT, id_slot, params) == llm.CONTENT);
-        ASSERT(llm.handle_completions(input_json) == llm.CONTENT);
-        ASSERT(llm.handle_completions_json(llm.CONTENT, id_slot, params) == output_json.dump());
+        ASSERT(llm.build_completion_json(llm.CONTENT, id_slot, params) == input_json);
+        ASSERT(llm.parse_completion_json(output_json) == llm.CONTENT);
+        ASSERT(llm.completion(llm.CONTENT, id_slot, params) == llm.CONTENT);
+        ASSERT(llm.completion(input_json) == llm.CONTENT);
+        ASSERT(llm.completion_json(llm.CONTENT, id_slot, params) == output_json.dump());
     }
 
     // --- Slots Action ---
@@ -372,11 +373,11 @@ void run_mock_tests() {
         };
         json output_json = {{"filename", llm.SAVE_PATH}};
 
-        ASSERT(llm.build_slots_action_json(id_slot, action, llm.SAVE_PATH) == input_json);
-        ASSERT(llm.parse_slots_action_json(output_json) == llm.SAVE_PATH);
-        ASSERT(llm.handle_slots_action(id_slot, action, llm.SAVE_PATH) == llm.SAVE_PATH);
-        ASSERT(llm.handle_slots_action(input_json) == llm.SAVE_PATH);
-        ASSERT(llm.handle_slots_action_json(id_slot, action, llm.SAVE_PATH) == output_json.dump());
+        ASSERT(llm.build_slot_json(id_slot, action, llm.SAVE_PATH) == input_json);
+        ASSERT(llm.parse_slot_json(output_json) == llm.SAVE_PATH);
+        ASSERT(llm.slot(id_slot, action, llm.SAVE_PATH) == llm.SAVE_PATH);
+        ASSERT(llm.slot(input_json) == llm.SAVE_PATH);
+        ASSERT(llm.slot_json(id_slot, action, llm.SAVE_PATH) == output_json.dump());
     }
 
     // --- LoRA Apply ---
@@ -390,11 +391,11 @@ void run_mock_tests() {
             input_json.push_back({{"id", l.id}, {"scale", l.scale}});
         json output_json = {{"success", true}};
 
-        ASSERT(llm.build_lora_adapters_apply_json(loras) == input_json);
-        ASSERT(llm.parse_lora_adapters_apply_json(output_json));
-        ASSERT(llm.handle_lora_adapters_apply_json(loras) == output_json.dump());
-        ASSERT(llm.handle_lora_adapters_apply(input_json));
-        ASSERT(llm.handle_lora_adapters_apply(loras));
+        ASSERT(llm.build_lora_weight_json(loras) == input_json);
+        ASSERT(llm.parse_lora_weight_json(output_json));
+        ASSERT(llm.lora_weight_json(loras) == output_json.dump());
+        ASSERT(llm.lora_weight(input_json));
+        ASSERT(llm.lora_weight(loras));
     }
 
     // --- LoRA List ---
@@ -403,8 +404,8 @@ void run_mock_tests() {
         for (const auto& l : llm.LORAS)
             input_json.push_back({{"id", l.id}, {"scale", l.scale}, {"path", l.path}});
 
-        ASSERT(llm.parse_lora_adapters_list_json(input_json) == llm.LORAS);
-        ASSERT(llm.handle_lora_adapters_list() == llm.LORAS);
+        ASSERT(llm.parse_lora_list_json(input_json) == llm.LORAS);
+        ASSERT(llm.lora_list() == llm.LORAS);
     }
 }
 
@@ -416,7 +417,7 @@ void run_LLM_tests(LLM* llm)
     test_embedding(llm);
 }
 
-void run_LLMWithSlot_tests(LLMWithSlot* llm)
+void run_LLMLocal_tests(LLMLocal* llm)
 {
     run_LLM_tests(llm);
     test_cancel(llm);
@@ -425,11 +426,11 @@ void run_LLMWithSlot_tests(LLMWithSlot* llm)
 
 void run_LLMProvider_tests(LLMProvider* llm)
 {
-    run_LLMWithSlot_tests(llm);
+    run_LLMLocal_tests(llm);
     test_lora(llm);
 }
 
-void set_SSL(LLMProvider* llm, RemoteLLMClient* llm_remote_client)
+void set_SSL(LLMProvider* llm, LLMRemoteClient* llm_remote_client)
 {
     std::string server_crt = "-----BEGIN CERTIFICATE-----\n"
 "MIIDJDCCAgwCFCurq2NTlmOrL3EBdiAnx2+x9YkqMA0GCSqGSIb3DQEBCwUAMEwx\n"
@@ -502,7 +503,7 @@ void set_SSL(LLMProvider* llm, RemoteLLMClient* llm_remote_client)
 "n8CVEjaTnlwiTA93kzQF6bWZgTUe3QDBNTpFSVAywg==\n"
 "-----END CERTIFICATE-----\n";
 
-    LLM_SetSSL(llm, server_crt.c_str(), server_key.c_str());
+    LLM_Set_SSL(llm, server_crt.c_str(), server_key.c_str());
     llm_remote_client->set_SSL(client_crt.c_str());
 }
 
@@ -521,10 +522,10 @@ int main(int argc, char** argv) {
 
     std::cout << "-------- LLM client --------" << std::endl;
     LLMClient llm_client(llm_service);
-    run_LLMWithSlot_tests(&llm_client);
+    run_LLMLocal_tests(&llm_client);
 
     std::cout << "-------- LLM remote client --------" << std::endl;
-    RemoteLLMClient llm_remote_client("https://localhost", 8080);
+    LLMRemoteClient llm_remote_client("https://localhost", 8080);
     set_SSL(llm_service, &llm_remote_client);
     LLM_Start_Server(llm_service);
     run_LLM_tests(&llm_remote_client);
@@ -532,7 +533,7 @@ int main(int argc, char** argv) {
     stop_llm_service(llm_service);
 
 #ifdef RUNTIME_TESTS
-    std::cout << "-------- LLM lib --------" << std::endl;
+    std::cout << "-------- LLM runtime --------" << std::endl;
     LLMRuntime* llmlib = start_llm_lib(command);
     EMBEDDING_SIZE = LLM_Embedding_Size(llmlib);
     run_LLMProvider_tests(llmlib);

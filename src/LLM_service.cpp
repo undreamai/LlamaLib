@@ -16,7 +16,7 @@ void llm_sigint_signal_handler(int sig) {
     }
 
     for (auto* inst : LLMServiceRegistry::instance().get_instances()) {
-        inst->stop_service();
+        inst->stop();
         inst->stop_server();
     }
 }
@@ -379,46 +379,46 @@ void LLMService::start_server(){
         return httplib::Server::HandlerResponse::Unhandled;
     });
     
-    const auto handle_completions_post = [this, &res_error](const httplib::Request & req, httplib::Response & res) {
+    const auto completion_post = [this, &res_error](const httplib::Request & req, httplib::Response & res) {
         json data = handle_post(req, res);
-        handle_completions_impl(data, nullptr, &res, req.is_connection_closed, OAICOMPAT_TYPE_NONE);
+        completion_impl(data, nullptr, &res, req.is_connection_closed, OAICOMPAT_TYPE_NONE);
     };
     
-    const auto handle_chat_completions_post = [this, &res_error](const httplib::Request & req, httplib::Response & res) {
+    const auto chat_completion_post = [this, &res_error](const httplib::Request & req, httplib::Response & res) {
         json body = handle_post(req, res);
         json data = oaicompat_completion_params_parse(body, params.use_jinja, params.reasoning_format, ctx_server->chat_templates.get());
         LOG_DEBUG("formatted prompt", data);
-        handle_completions_impl(data, nullptr, &res, req.is_connection_closed, OAICOMPAT_TYPE_CHAT);
+        completion_impl(data, nullptr, &res, req.is_connection_closed, OAICOMPAT_TYPE_CHAT);
     };
 
-    const auto handle_apply_template_post = [this](const httplib::Request& req, httplib::Response& res) {
+    const auto apply_template_post = [this](const httplib::Request& req, httplib::Response& res) {
         json body = handle_post(req, res);
         json data = oaicompat_completion_params_parse(body, params.use_jinja, params.reasoning_format, ctx_server->chat_templates.get());
         return res_ok(res, safe_json_to_str({ { "prompt", std::move(data.at("prompt")) } }));
     };
 
-    const auto handle_tokenize_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return res_ok(res, handle_tokenize_impl(handle_post(req, res)));
+    const auto tokenize_post = [this](const httplib::Request & req, httplib::Response & res) {
+        return res_ok(res, tokenize_impl(handle_post(req, res)));
     };
 
-    const auto handle_detokenize_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return res_ok(res, handle_detokenize_impl(handle_post(req, res)));
+    const auto detokenize_post = [this](const httplib::Request & req, httplib::Response & res) {
+        return res_ok(res, detokenize_impl(handle_post(req, res)));
     };
 
-    const auto handle_embeddings_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return handle_embeddings_impl(handle_post(req, res), &res, req.is_connection_closed);
+    const auto embeddings_post = [this](const httplib::Request & req, httplib::Response & res) {
+        return embeddings_impl(handle_post(req, res), &res, req.is_connection_closed);
     };
 
-    const auto handle_lora_adapters_list_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return res_ok(res, handle_lora_adapters_list_impl());
+    const auto lora_list_post = [this](const httplib::Request & req, httplib::Response & res) {
+        return res_ok(res, lora_list_impl());
     };
 
-    const auto handle_lora_adapters_apply_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return handle_lora_adapters_apply_impl(handle_post(req, res), &res);
+    const auto lora_weight_post = [this](const httplib::Request & req, httplib::Response & res) {
+        return lora_weight_impl(handle_post(req, res), &res);
     };
 
-    const auto handle_slots_action_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return handle_slots_action_impl(handle_post(req, res), &res);
+    const auto slots_post = [this](const httplib::Request & req, httplib::Response & res) {
+        return slot_impl(handle_post(req, res), &res);
     };
 
     //
@@ -426,19 +426,19 @@ void LLMService::start_server(){
     //
 
     // register API routes
-    svr->Post("/completion",          handle_completions_post); // legacy
-    svr->Post("/completions",         handle_completions_post);
-    svr->Post("/chat/completions",    handle_chat_completions_post);
-    svr->Post("/v1/chat/completions", handle_chat_completions_post);
-    svr->Post("/tokenize",            handle_tokenize_post);
-    svr->Post("/detokenize",          handle_detokenize_post);
-    svr->Post("/apply-template",      handle_apply_template_post);
-    svr->Post("/embedding",           handle_embeddings_post); // legacy
-    svr->Post("/embeddings",          handle_embeddings_post);
-    // svr->Get ("/lora-adapters",       handle_lora_adapters_list_post);
-    // svr->Post("/lora-adapters-list",  handle_lora_adapters_list_post);
-    // svr->Post("/lora-adapters",       handle_lora_adapters_apply_post);
-    // svr->Post("/slots",               handle_slots_action_post);
+    svr->Post("/completion",          completion_post); // legacy
+    svr->Post("/completions",         completion_post);
+    svr->Post("/chat/completions",    chat_completion_post);
+    svr->Post("/v1/chat/completions", chat_completion_post);
+    svr->Post("/tokenize",            tokenize_post);
+    svr->Post("/detokenize",          detokenize_post);
+    svr->Post("/apply-template",      apply_template_post);
+    svr->Post("/embedding",           embeddings_post); // legacy
+    svr->Post("/embeddings",          embeddings_post);
+    // svr->Get ("/lora-adapters",       lora_list_post);
+    // svr->Post("/lora-adapters-list",  lora_list_post);
+    // svr->Post("/lora-adapters",       lora_weight_post);
+    // svr->Post("/slots",               slots_post);
 
     //
     // Start the server
@@ -476,15 +476,15 @@ void LLMService::join_server(){
     server_thread.join();
 }
 
-int LLMService::get_status(){
+int LLMService::status_code(){
     return status;
 }
 
-std::string LLMService::get_status_message(){
-    return status_message;
+std::string LLMService::status_message(){
+    return status_msg;
 }
 
-void LLMService::start_service(){
+void LLMService::start(){
     std::lock_guard<std::mutex> lock(start_stop_mutex);
     service_thread = std::thread([&]() {
         LLMServiceRegistry::instance().register_instance(this);
@@ -493,13 +493,13 @@ void LLMService::start_service(){
         LOG_INFO("stopped service loop", {});
         return 1; 
     });
-    while (!is_running()) {}
+    while (!started()) {}
 }
 
-void LLMService::stop_service(){
+void LLMService::stop(){
     try {
         std::lock_guard<std::mutex> lock(start_stop_mutex);
-        if (!is_running()) return;
+        if (!started()) return;
         LOG_INFO("shutting down tasks", {});
 
         // hack completion slots to think task is completed
@@ -531,7 +531,7 @@ void LLMService::join_service() {
     service_thread.join();
 }
 
-bool LLMService::is_running(){
+bool LLMService::started(){
     return ctx_server->queue_tasks.running;
 }
 
@@ -577,7 +577,7 @@ bool LLMService::middleware_validate_api_key(const httplib::Request & req, httpl
     return false;
 }
 
-std::string LLMService::handle_tokenize_impl(const json& body) {
+std::string LLMService::tokenize_impl(const json& body) {
     if (setjmp(sigjmp_buf_point) != 0) return "";
     clear_status();
     try {
@@ -622,7 +622,7 @@ std::string LLMService::handle_tokenize_impl(const json& body) {
     return "";
 }
 
-std::string LLMService::handle_detokenize_impl(const json& body) {
+std::string LLMService::detokenize_impl(const json& body) {
     if (setjmp(sigjmp_buf_point) != 0) return "";
     clear_status();
     try {
@@ -640,7 +640,7 @@ std::string LLMService::handle_detokenize_impl(const json& body) {
     return "";
 }
 
-std::string LLMService::handle_embeddings_impl(
+std::string LLMService::embeddings_impl(
     const json& body,
     httplib::Response* res,
     std::function<bool()> is_connection_closed
@@ -731,7 +731,7 @@ std::string LLMService::handle_embeddings_impl(
     return root;
 };
 
-std::string LLMService::handle_lora_adapters_apply_impl(const json& body, httplib::Response* res) {
+std::string LLMService::lora_weight_impl(const json& body, httplib::Response* res) {
     if (!body.is_array()) {
         if(res != nullptr) handle_error (*res, format_error_response("Request body must be an array", ERROR_TYPE_INVALID_REQUEST));
         return "";
@@ -781,7 +781,7 @@ std::string LLMService::handle_lora_adapters_apply_impl(const json& body, httpli
     return safe_json_to_str(result_data);
 };
 
-std::string LLMService::handle_lora_adapters_list_impl(){
+std::string LLMService::lora_list_impl(){
     json result = json::array();
     const auto & loras = ctx_server->params_base.lora_adapters;
     for (size_t i = 0; i < loras.size(); ++i) {
@@ -812,7 +812,7 @@ static void server_sent_event_with_stringswrapper(
     }
 }
 
-std::string LLMService::handle_completions_streaming(
+std::string LLMService::completion_streaming(
     std::unordered_set<int> task_ids,
     CharArrayFn callback,
     httplib::DataSink* sink,
@@ -837,7 +837,7 @@ std::string LLMService::handle_completions_streaming(
     return result_data;
 }
 
-std::string LLMService::handle_completions_impl(
+std::string LLMService::completion_impl(
     const json& data,
     CharArrayFn callback,
     httplib::Response* res,
@@ -925,13 +925,13 @@ std::string LLMService::handle_completions_impl(
                 ctx_server->queue_results.remove_waiting_task_ids(task_ids);
             };
             if(res == nullptr){
-                result_data = handle_completions_streaming(task_ids, callback, nullptr);
+                result_data = completion_streaming(task_ids, callback, nullptr);
                 on_complete(true);
             } else {
                 const auto chunked_content_provider = [task_ids, this, oaicompat](size_t, httplib::DataSink & sink) {
                     bool ok = true;
                     try {
-                        handle_completions_streaming(task_ids, nullptr, &sink, [&sink]() {return !sink.is_writable();});
+                        completion_streaming(task_ids, nullptr, &sink, [&sink]() {return !sink.is_writable();});
                     } catch (const SinkException& e) {
                         ok = false;
                     }
@@ -954,7 +954,7 @@ std::string LLMService::handle_completions_impl(
     return result_data;
 }
 
-std::string LLMService::handle_slots_action_impl(
+std::string LLMService::slot_impl(
     const json& data,
     httplib::Response* res
 ) {
@@ -995,7 +995,7 @@ std::string LLMService::handle_slots_action_impl(
         json result_json = result->to_json();
         result_data = result_json.dump();
         if (result->is_error()) {
-            LOG_ERROR("Error processing handle_slots_action", result_data);
+            LOG_ERROR("Error processing slots", result_data);
             if(res != nullptr) handle_error(*res, result_json);
         } else {
             if(res != nullptr) res_ok(*res, result_json);
@@ -1006,7 +1006,7 @@ std::string LLMService::handle_slots_action_impl(
     return result_data;
 }
 
-void LLMService::handle_cancel_action_impl(int id_slot) {
+void LLMService::cancel_impl(int id_slot) {
     if (setjmp(sigjmp_buf_point) != 0) return;
     clear_status();
     try {
@@ -1026,7 +1026,7 @@ int LLMService::embedding_size()
     return ctx_server->model_meta()["n_embd"];
 }
 
-LLMService* LLM_Construct(const char* params) {
+LLMService* LLMService_Construct(const char* params) {
     std::string params_string(params);
     try {
         json j = json::parse(params_string);

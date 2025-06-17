@@ -101,7 +101,7 @@ bool LLMRuntime::create_LLM_library_from_path(const std::string& command, const 
     LLM_FUNCTIONS_LIST(DECLARE_AND_LOAD)
 #undef DECLARE_AND_LOAD
 
-    llm = (LLMProvider*) LLM_Construct(command.c_str());
+    llm = (LLMProvider*) LLMService_Construct(command.c_str());
     return true;
 }
 
