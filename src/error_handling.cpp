@@ -1,8 +1,36 @@
 #include "error_handling.h"
 
+int& get_status_code() {
+    static int status_code = 0;
+    return status_code;
+}
+
+std::string& get_status_message() {
+    static std::string status_message = "";
+    return status_message;
+}
+
+sigjmp_buf& get_sigjmp_buf_point() {
+    static sigjmp_buf sigjmp_buf_point;
+    return sigjmp_buf_point;
+}
+
+std::mutex& get_sigint_hook_mutex() {
+    static std::mutex sigint_hook_mutex;
+    return sigint_hook_mutex;
+}
+
+std::vector<Hook>& get_sigint_hooks() {
+    static std::vector<Hook> sigint_hooks;
+    std::lock_guard<std::mutex> lock(get_sigint_hook_mutex());
+    return sigint_hooks;
+}
+
 void fail(std::string message, int code) {
-    status = code;
-    status_msg = message;
+    int& status_code = get_status_code();
+    std::string& status_message = get_status_message();
+    status_code = code;
+    status_message = message;
 }
 
 void handle_exception(int code) {
@@ -17,13 +45,20 @@ void handle_exception(int code) {
     }
 }
 
-void init_status() {
-    status = 0;
-    status_msg.clear();
-}
-
-void clear_status() {
-    if (status < 0) init_status();
+sigjmp_buf& get_jump_point(bool clear_status) {
+    std::cout<<"get_jump_point"<<std::endl;
+    sigjmp_buf& sigjmp_buf_point = get_sigjmp_buf_point();
+    std::cout<<"sigjmp_buf_point"<<std::endl;
+    if (clear_status)
+    {
+    std::cout<<"clear_status"<<std::endl;
+        int& status_code = get_status_code();
+        std::string& status_message = get_status_message();
+        status_code = 0;
+        status_message.clear();
+    }
+    std::cout<<"setjmp"<<std::endl;
+    return sigjmp_buf_point;
 }
 
 static void handle_terminate() {
@@ -41,7 +76,8 @@ BOOL WINAPI console_ctrl_handler(DWORD ctrl_type) {
 }
 
 void set_error_handlers(bool crash_handlers, bool sigint_handlers) {
-    init_status();
+    get_status_code();
+    get_status_message();
 
     if (crash_handlers)
     {
@@ -65,7 +101,8 @@ void handle_signal(int sig, siginfo_t*, void*) {
 }
 
 void set_error_handlers(bool crash_handlers, bool sigint_handlers) {
-    init_status();
+    get_status_code();
+    get_status_message();
     std::cout<<"set_error_handlers"<<std::endl;
 
     if (crash_handlers)
@@ -98,11 +135,12 @@ void set_error_handlers(bool crash_handlers, bool sigint_handlers) {
 
 void crash_signal_handler(int sig) {
     fail("Severe error occurred", sig);
+    sigjmp_buf& sigjmp_buf_point = get_sigjmp_buf_point();
     siglongjmp(sigjmp_buf_point, 1);
 }
 
 void sigint_signal_handler(int sig) {
-    std::lock_guard<std::mutex> lock(sigint_hook_mutex);
+    std::vector<Hook>& sigint_hooks = get_sigint_hooks();
     for (auto& hook : sigint_hooks) {
         try {
             hook(sig);
@@ -113,6 +151,6 @@ void sigint_signal_handler(int sig) {
 
 void register_sigint_hook(Hook hook) {
     std::cout<<"register_sigint_hook"<<std::endl;
-    std::lock_guard<std::mutex> lock(sigint_hook_mutex);
+    std::vector<Hook>& sigint_hooks = get_sigint_hooks();
     sigint_hooks.push_back(std::move(hook));
 }

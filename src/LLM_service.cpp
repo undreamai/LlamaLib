@@ -161,9 +161,12 @@ void LLMService::init(const char* params) {
 
 void LLMService::init(int argc, char ** argv){
     // set_error_handlers();
-    if (setjmp(sigjmp_buf_point) != 0) return;
+        std::cout<<"init get_jump_point"<<std::endl;
+    if (setjmp(get_jump_point()) != 0) return;
+        std::cout<<"init try"<<std::endl;
     try{
         ctx_server = new server_context();
+        std::cout<<"init context"<<std::endl;
         ctx_server->batch = { 0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
         if (!common_params_parse(argc, argv, params, LLAMA_EXAMPLE_SERVER)) {
@@ -494,7 +497,7 @@ void LLMService::join_service() {
 }
 
 bool LLMService::started(){
-    return ctx_server->queue_tasks.running;
+    return ctx_server != nullptr && ctx_server->queue_tasks.running;
 }
 
 void LLMService::set_SSL(const char* SSL_cert_str, const char* SSL_key_str){
@@ -540,8 +543,7 @@ bool LLMService::middleware_validate_api_key(const httplib::Request & req, httpl
 }
 
 std::string LLMService::tokenize_impl(const json& body) {
-    if (setjmp(sigjmp_buf_point) != 0) return "";
-    clear_status();
+    if (setjmp(get_jump_point(true)) != 0) return "";
     try {
         json tokens_response = json::array();
         if (body.count("content") != 0) {
@@ -585,8 +587,7 @@ std::string LLMService::tokenize_impl(const json& body) {
 }
 
 std::string LLMService::detokenize_impl(const json& body) {
-    if (setjmp(sigjmp_buf_point) != 0) return "";
-    clear_status();
+    if (setjmp(get_jump_point(true)) != 0) return "";
     try {
         std::string content;
         if (body.count("tokens") != 0) {
@@ -806,8 +807,7 @@ std::string LLMService::completion_impl(
     std::function<bool()> is_connection_closed,
     int oaicompat_int
 ) {
-    if (setjmp(sigjmp_buf_point) != 0) return "";
-    clear_status();
+    if (setjmp(get_jump_point(true)) != 0) return "";
     std::string result_data = "";
     try {
         server_task_type type = SERVER_TASK_TYPE_COMPLETION;
@@ -920,8 +920,7 @@ std::string LLMService::slot_impl(
     const json& data,
     httplib::Response* res
 ) {
-    if (setjmp(sigjmp_buf_point) != 0) return "";
-    clear_status();
+    if (setjmp(get_jump_point(true)) != 0) return "";
     std::string result_data = "";
     try {
         server_task_type task_type;
@@ -969,8 +968,7 @@ std::string LLMService::slot_impl(
 }
 
 void LLMService::cancel_impl(int id_slot) {
-    if (setjmp(sigjmp_buf_point) != 0) return;
-    clear_status();
+    if (setjmp(get_jump_point(true)) != 0) return;
     try {
         for (auto & slot : ctx_server->slots) {
             if (slot.id == id_slot) {
@@ -991,10 +989,12 @@ int LLMService::embedding_size()
 LLMService* LLMService_Construct(const char* params) {
     std::string params_string(params);
     try {
+        std::cout<<"here"<<std::endl;
         json j = json::parse(params_string);
         return new LLMService(j);
     }
     catch (const json::parse_error&) {
+        std::cout<<"here2"<<std::endl;
         return new LLMService(params_string);
     }
 }

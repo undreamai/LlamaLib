@@ -181,7 +181,7 @@ inline void unload_library(LibHandle handle) {
 }
 
 LibHandle load_library_safe(const std::string& path) {
-    if (setjmp(sigjmp_buf_point) != 0) {
+    if (setjmp(get_jump_point()) != 0) {
         std::cerr << "Error loading library: " << path << std::endl;
         return nullptr;
     }
@@ -208,7 +208,7 @@ bool LLMRuntime::create_LLM_library_from_path(const std::string& command, const 
     std::cout << "Trying " << path << std::endl;
     for (const std::filesystem::path& full_path : full_paths) {
         if (std::filesystem::exists(full_path) && std::filesystem::is_regular_file(full_path)) {
-            if (setjmp(sigjmp_buf_point) != 0) {
+            if (setjmp(get_jump_point()) != 0) {
                 std::cout << "Error occurred while loading the library" << std::endl;
                 continue;
             }
@@ -249,7 +249,7 @@ bool LLMRuntime::create_LLM_library(const std::string& command, const std::strin
     }
 
     for (const auto& llmlibPath : llmlibPaths) {
-        if (setjmp(sigjmp_buf_point) != 0) {
+        if (setjmp(get_jump_point()) != 0) {
             std::cout << "Error occurred while loading llmlib: " << llmlibPath << ", trying next." << std::endl;
             continue;
         }

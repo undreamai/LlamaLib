@@ -17,16 +17,15 @@
 
 using Hook = std::function<void(int)>;
 
-static int status;
-static std::string status_msg;
-thread_local static sigjmp_buf sigjmp_buf_point;
-static std::mutex sigint_hook_mutex;
-static std::vector<Hook> sigint_hooks;
+int& get_status_code();
+std::string& get_status_message();
+sigjmp_buf& get_sigjmp_buf_point();
+std::mutex& get_sigint_hook_mutex();
+std::vector<Hook>& get_sigint_hooks();
 
 void fail(std::string message, int code = 1);
 void handle_exception(int code = -1);
-void init_status();
-void clear_status();
+sigjmp_buf& get_jump_point(bool clear_status=false);
 #ifdef _WIN32
 BOOL WINAPI console_ctrl_handler(DWORD ctrl_type);
 #else

@@ -194,7 +194,9 @@ void test_slot_save_restore(LLMLocal* llm) {
 LLMService* start_llm_service(const std::string& command)
 {
     LLMService* llm_service = LLMService_Construct(command.c_str());
+    std::cout<<"LLMService_Construct"<<std::endl;
     LLM_Start(llm_service);
+    std::cout<<"LLM_Start"<<std::endl;
     return llm_service;
 }
 
@@ -236,8 +238,6 @@ public:
     bool cancel_called = false;
     int cancelled_slot = -1;
 
-    int status_code() override { return 0; }
-    std::string status_message() override { return ""; }
     void start_server() override { }
     void stop_server() override { }
     void join_server() override { }

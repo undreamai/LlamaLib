@@ -106,9 +106,6 @@ public:
     virtual std::vector<LoraIdScalePath> parse_lora_list_json(const json& result);
     virtual std::vector<LoraIdScalePath> lora_list();
 
-    virtual int status_code();
-    virtual std::string status_message();
-
     virtual void start_server() = 0;
     virtual void stop_server() = 0;
     virtual void join_server() = 0;

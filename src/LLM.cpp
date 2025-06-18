@@ -318,17 +318,6 @@ std::vector<LoraIdScalePath> LLMProvider::lora_list()
     return parse_lora_list_json(json::parse(lora_list_json()));
 }
 
-
-//=========================== Error status ===========================//
-
-int LLMProvider::status_code(){
-    return status;
-}
-
-std::string LLMProvider::status_message(){
-    return status_msg;
-}
-
 //=========================== API ===========================//
 
 const char* LLM_Tokenize(LLM* llm, const char* json_data) {
@@ -414,11 +403,11 @@ void LLM_Set_SSL(LLMProvider* llm, const char* SSL_cert, const char* SSL_key){
 }
 
 const int LLM_Status_Code(LLMProvider* llm) {
-    return llm->status_code();
+    return get_status_code();
 }
 
 const char* LLM_Status_Message(LLMProvider* llm) {
-    std::string result = llm->status_message();
+    std::string result = get_status_message();
     return stringToCharArray(result);
 }
 
