@@ -1,13 +1,9 @@
 #include "LLM.h"
 
-//============================= ERROR HANDLING =============================//
-
 std::atomic_flag sigint_terminating = ATOMIC_FLAG_INIT;
 
 void llm_sigint_signal_handler(int sig) {
-    std::cout<<"llm_sigint_signal_handler"<<std::endl;
     if (sigint_terminating.test_and_set()) {
-    std::cout<<"llm_sigint_signal_handler test_and_set"<<std::endl;
         // in case it hangs, we can force terminate the server by hitting Ctrl+C twice
         // this is for better developer experience, we can remove when the server is stable enough
         fprintf(stderr, "Received second interrupt, terminating immediately.\n");
@@ -20,19 +16,14 @@ void llm_sigint_signal_handler(int sig) {
     }
 }
 
-#ifndef REGISTER_SIGINT
-#define REGISTER_SIGINT
-
-struct SigintHookRegistrar {
-    SigintHookRegistrar() {
+// Use a function to ensure the setup only happens once across all libraries
+void ensure_error_handlers_initialized() {
+    static std::once_flag initialized;
+    std::call_once(initialized, []() {
         set_error_handlers();
         register_sigint_hook(llm_sigint_signal_handler);
-    }
-};
-
-static SigintHookRegistrar _sigintHookRegistrarInstance;
-
-#endif
+    });
+}
 
 //=========================== Tokenize ===========================//
 

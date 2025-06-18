@@ -161,12 +161,10 @@ void LLMService::init(const char* params) {
 
 void LLMService::init(int argc, char ** argv){
     // set_error_handlers();
-        std::cout<<"init get_jump_point"<<std::endl;
+    ensure_error_handlers_initialized();
     if (setjmp(get_jump_point()) != 0) return;
-        std::cout<<"init try"<<std::endl;
     try{
         ctx_server = new server_context();
-        std::cout<<"init context"<<std::endl;
         ctx_server->batch = { 0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
         if (!common_params_parse(argc, argv, params, LLAMA_EXAMPLE_SERVER)) {
@@ -989,12 +987,10 @@ int LLMService::embedding_size()
 LLMService* LLMService_Construct(const char* params) {
     std::string params_string(params);
     try {
-        std::cout<<"here"<<std::endl;
         json j = json::parse(params_string);
         return new LLMService(j);
     }
     catch (const json::parse_error&) {
-        std::cout<<"here2"<<std::endl;
         return new LLMService(params_string);
     }
 }

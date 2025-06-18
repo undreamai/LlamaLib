@@ -181,11 +181,6 @@ inline void unload_library(LibHandle handle) {
 }
 
 LibHandle load_library_safe(const std::string& path) {
-    if (setjmp(get_jump_point()) != 0) {
-        std::cerr << "Error loading library: " << path << std::endl;
-        return nullptr;
-    }
-
     LibHandle handle_out = load_library(path.c_str());
     if (!handle_out) {
         std::cerr << "Failed to load library: " << path << std::endl;
@@ -193,7 +188,7 @@ LibHandle load_library_safe(const std::string& path) {
     return handle_out;
 }
 
-bool LLMRuntime::create_LLM_library_from_path(const std::string& command, const std::string& path) {
+bool LLMRuntime::create_LLM_library_backend(const std::string& command, const std::string& path) {
     auto load_sym = [&](auto& fn_ptr, const char* name) {
         fn_ptr = reinterpret_cast<std::decay_t<decltype(fn_ptr)>>(load_symbol(handle, name));
         if (!fn_ptr) {
@@ -204,7 +199,8 @@ bool LLMRuntime::create_LLM_library_from_path(const std::string& command, const 
     std::vector<std::filesystem::path> full_paths;
     full_paths.push_back(path);
     for (const std::filesystem::path& search_path : search_paths) full_paths.push_back(search_path / path);
-
+    
+    ensure_error_handlers_initialized();
     std::cout << "Trying " << path << std::endl;
     for (const std::filesystem::path& full_path : full_paths) {
         if (std::filesystem::exists(full_path) && std::filesystem::is_regular_file(full_path)) {
@@ -249,12 +245,7 @@ bool LLMRuntime::create_LLM_library(const std::string& command, const std::strin
     }
 
     for (const auto& llmlibPath : llmlibPaths) {
-        if (setjmp(get_jump_point()) != 0) {
-            std::cout << "Error occurred while loading llmlib: " << llmlibPath << ", trying next." << std::endl;
-            continue;
-        }
-
-        bool success = create_LLM_library_from_path(command, llmlibPath);
+        bool success = create_LLM_library_backend(command, llmlibPath);
         if (success) {
             std::cout << "Successfully loaded: " << llmlibPath << std::endl;
             return true;

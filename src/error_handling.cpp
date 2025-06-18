@@ -46,18 +46,14 @@ void handle_exception(int code) {
 }
 
 sigjmp_buf& get_jump_point(bool clear_status) {
-    std::cout<<"get_jump_point"<<std::endl;
     sigjmp_buf& sigjmp_buf_point = get_sigjmp_buf_point();
-    std::cout<<"sigjmp_buf_point"<<std::endl;
     if (clear_status)
     {
-    std::cout<<"clear_status"<<std::endl;
         int& status_code = get_status_code();
         std::string& status_message = get_status_message();
         status_code = 0;
         status_message.clear();
     }
-    std::cout<<"setjmp"<<std::endl;
     return sigjmp_buf_point;
 }
 
@@ -103,11 +99,9 @@ void handle_signal(int sig, siginfo_t*, void*) {
 void set_error_handlers(bool crash_handlers, bool sigint_handlers) {
     get_status_code();
     get_status_message();
-    std::cout<<"set_error_handlers"<<std::endl;
 
     if (crash_handlers)
     {
-    std::cout<<"crash_handlers"<<std::endl;
         struct sigaction sa {};
         sigemptyset(&sa.sa_mask);
         sa.sa_flags = SA_NODEFER;
@@ -121,7 +115,6 @@ void set_error_handlers(bool crash_handlers, bool sigint_handlers) {
 
     if (sigint_handlers)
     {
-    std::cout<<"sigint_handlers"<<std::endl;
         struct sigaction shutdown {};
         shutdown.sa_handler = sigint_signal_handler;
         sigemptyset(&shutdown.sa_mask);
@@ -150,7 +143,6 @@ void sigint_signal_handler(int sig) {
 }
 
 void register_sigint_hook(Hook hook) {
-    std::cout<<"register_sigint_hook"<<std::endl;
     std::vector<Hook>& sigint_hooks = get_sigint_hooks();
     sigint_hooks.push_back(std::move(hook));
 }

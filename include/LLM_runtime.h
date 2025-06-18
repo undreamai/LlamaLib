@@ -79,7 +79,6 @@ public:
     LibHandle handle = nullptr;
     LLMProvider* llm = nullptr;
 
-    bool create_LLM_library_from_path(const std::string& command, const std::string& path);
     bool create_LLM_library(const std::string& command, const std::string& path="");
 
     //=================================== LLM METHODS START ===================================//
@@ -144,6 +143,8 @@ protected:
         return LLM_Lora_List((LLMProvider*)llm);
     }
     //=================================== LLM METHODS END ===================================//
+
+    bool create_LLM_library_backend(const std::string& command, const std::string& path);
 };
 
 const std::string os_library_dir();

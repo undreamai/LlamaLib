@@ -27,6 +27,8 @@ struct LoraIdScalePath {
     }
 };
 
+void ensure_error_handlers_initialized();
+
 class UNDREAMAI_API LLM {
 protected:
     virtual std::string tokenize_impl(const json& data) = 0;
