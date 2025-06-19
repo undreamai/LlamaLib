@@ -51,12 +51,12 @@ inline bool always_false()
     return false;
 }
 
-inline std::string args_to_command(int argc, char** argv)
+inline const char* args_to_command(int argc, char** argv)
 {
     std::string command = "";
     for (int i = 1; i < argc; ++i) {
         command += argv[i];
         if (i < argc - 1) command += " ";
     }
-    return command;
+    return command.c_str();
 }

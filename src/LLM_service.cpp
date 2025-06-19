@@ -24,6 +24,11 @@ X509* LLMService::load_cert(const std::string& cert_str) {
     return cert;
 }
 
+LLMService::LLMService(const char* model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char** lora_paths)
+{
+    init(LLM::LLM_args_to_command(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_count, lora_paths));
+}
+
 LLMService::LLMService(const json& params)
 {
     std::vector<char*> argv = jsonToArguments(params);
@@ -242,7 +247,11 @@ void release_slot(server_slot& slot)
     }
 }
 
-void LLMService::start_server(){
+void LLMService::start_server(const char* host, int port, const char* API_key){
+    params.hostname = host;
+    params.port = port;
+    if (API_key != "") params.api_keys.push_back(API_key);
+
     std::lock_guard<std::mutex> lock(start_stop_mutex);
     if (params.ssl_file_key != "" && params.ssl_file_cert != "") {
         LOG_INFO("Running with SSL", {{"key", params.ssl_file_key}, {"cert", params.ssl_file_cert}});
@@ -984,7 +993,13 @@ int LLMService::embedding_size()
     return ctx_server->model_meta()["n_embd"];
 }
 
-LLMService* LLMService_Construct(const char* params) {
+
+LLMService* LLMService_Construct(const char* model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char** lora_paths)
+{
+    return new LLMService(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_count, lora_paths);
+}
+
+LLMService* LLMService_From_Command(const char* params) {
     std::string params_string(params);
     try {
         json j = json::parse(params_string);

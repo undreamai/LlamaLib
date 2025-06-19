@@ -25,6 +25,27 @@ void ensure_error_handlers_initialized() {
     });
 }
 
+//=========================== Helpers ===========================//
+
+const char* LLM::LLM_args_to_command(const char* model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char** lora_paths)
+{
+    std::string command = std::string("-m ") + model_path
+                        + " -t " + std::to_string(num_threads)
+                        + " -ngl " + std::to_string(num_GPU_layers)
+                        + " -np " + std::to_string(num_parallel)
+                        + " -c " + std::to_string(context_size)
+                        + " -b " + std::to_string(batch_size);
+    if (flash_attention) command += " --flash-attn";
+    if (embedding_only) command += " --embedding";
+    if (lora_paths != nullptr && lora_count > 0)
+    {
+        for (int i = 0; i < lora_count; ++i) {
+            command += " --lora " + std::string(lora_paths[i]);
+        }
+    }
+    return command.c_str();
+}
+
 //=========================== Tokenize ===========================//
 
 json LLM::build_tokenize_json(const std::string& query)
@@ -359,8 +380,8 @@ void LLM_Delete(LLMProvider* llm) {
     }
 }
 
-void LLM_Start_Server(LLMProvider* llm) {
-    llm->start_server();
+void LLM_Start_Server(LLMProvider* llm, const char* host, int port, const char* API_key) {
+    llm->start_server(host, port, API_key);
 }
 
 void LLM_Stop_Server(LLMProvider* llm) {

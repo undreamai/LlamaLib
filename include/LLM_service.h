@@ -11,6 +11,7 @@ struct server_context;
 
 class UNDREAMAI_API LLMService : public LLMProvider {
     public:
+        LLMService(const char* model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, int lora_count=0, const char** lora_paths=nullptr);
         LLMService(const json& params);
         LLMService(const std::string& params);
         LLMService(const char* params);
@@ -25,10 +26,7 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         static X509* load_cert(const std::string& cert_str);
 
         //=================================== LLM METHODS START ===================================//
-        // int status_code() override;
-        // std::string status_message() override;
-
-        void start_server() override;
+        void start_server(const char* host="0.0.0.0", int port=0, const char* API_key="") override;
         void stop_server() override;
         void join_server() override;
         void start() override;
@@ -75,5 +73,6 @@ class UNDREAMAI_API LLMService : public LLMProvider {
 };
 
 extern "C" {
-    UNDREAMAI_API LLMService* LLMService_Construct(const char* params_string);
+    UNDREAMAI_API LLMService* LLMService_Construct(const char* model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, const char** lora_paths=nullptr, int lora_path_count=0);
+    UNDREAMAI_API LLMService* LLMService_From_Command(const char* params_string);
 };

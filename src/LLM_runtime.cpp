@@ -218,7 +218,7 @@ bool LLMRuntime::create_LLM_library_backend(const std::string& command, const st
             LLM_FUNCTIONS_LIST(DECLARE_AND_LOAD)
             #undef DECLARE_AND_LOAD
 
-            llm = (LLMProvider*) LLMService_Construct(command.c_str());
+            llm = (LLMProvider*) LLMService_From_Command(command.c_str());
             return true;
         }
     }
@@ -257,16 +257,18 @@ bool LLMRuntime::create_LLM_library(const std::string& command, const std::strin
 
 //============================= LLMRuntime =============================//
 
+LLMRuntime::LLMRuntime(const char* model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char** lora_paths, const char* path)
+: LLMRuntime(LLM::LLM_args_to_command(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_count, lora_paths), path) { }
+
 LLMRuntime::LLMRuntime(const std::string& command, const std::string& path)
 {
-    // set_error_handlers();
     search_paths = get_search_directories();
     create_LLM_library(command, path);
 }
 
-LLMRuntime::LLMRuntime(const char* command, const std::string& path) : LLMRuntime(std::string(command), path) { }
+LLMRuntime::LLMRuntime(const char* command, const char* path) : LLMRuntime(std::string(command), std::string(path)) { }
 
-LLMRuntime::LLMRuntime(int argc, char ** argv, const std::string& path) : LLMRuntime(args_to_command(argc, argv), path) { }
+LLMRuntime::LLMRuntime(int argc, char ** argv, const char* path) : LLMRuntime(args_to_command(argc, argv), path) { }
 
 LLMRuntime::~LLMRuntime() {
     if (llm) {
@@ -295,7 +297,12 @@ const char* Available_Architectures(bool gpu)
     return result.c_str();
 }
 
-LLMRuntime* LLMRuntime_Construct(const std::string& command, const std::string& path) {
+LLMRuntime* LLMRuntime_Construct(const char* model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char** lora_paths, const char* path)
+{
+    return LLMRuntime_From_Command(LLM::LLM_args_to_command(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_count, lora_paths), path);
+}
+
+LLMRuntime* LLMRuntime_From_Command(const char* command, const char* path) {
     LLMRuntime* lib = new LLMRuntime(command, path);
     if(lib->llm == nullptr)
     {

@@ -193,8 +193,8 @@ void test_slot_save_restore(LLMLocal* llm) {
 
 LLMService* start_llm_service(const std::string& command)
 {
-    LLMService* llm_service = LLMService_Construct(command.c_str());
-    std::cout<<"LLMService_Construct"<<std::endl;
+    LLMService* llm_service = LLMService_From_Command(command.c_str());
+    std::cout<<"LLMService_From_Command"<<std::endl;
     LLM_Start(llm_service);
     std::cout<<"LLM_Start"<<std::endl;
     return llm_service;
@@ -203,7 +203,7 @@ LLMService* start_llm_service(const std::string& command)
 #ifdef RUNTIME_TESTS
 LLMRuntime* start_llm_lib(std::string command)
 {
-    LLMRuntime* llmlib = LLMRuntime_Construct(command);
+    LLMRuntime* llmlib = LLMRuntime_From_Command(command.c_str());
     if (!llmlib) {
         std::cerr << "Failed to load any backend." << std::endl;
         return nullptr;
@@ -238,7 +238,7 @@ public:
     bool cancel_called = false;
     int cancelled_slot = -1;
 
-    void start_server() override { }
+    void start_server(const char* host="0.0.0.0", int port=0, const char* API_key="") override { }
     void stop_server() override { }
     void join_server() override { }
     void start() override { }
@@ -508,7 +508,7 @@ void set_SSL(LLMProvider* llm, LLMRemoteClient* llm_remote_client)
 }
 
 int main(int argc, char** argv) {
-    SetDebugLevel(ERR);
+    LLM_Debug(ERR);
 
     run_mock_tests();
 
@@ -520,25 +520,25 @@ int main(int argc, char** argv) {
     std::cout << "-------- LLM service --------" << std::endl;
     run_LLMProvider_tests(llm_service);
 
-    // std::cout << "-------- LLM client --------" << std::endl;
-    // LLMClient llm_client(llm_service);
-    // run_LLMLocal_tests(&llm_client);
+    std::cout << "-------- LLM client --------" << std::endl;
+    LLMClient llm_client(llm_service);
+    run_LLMLocal_tests(&llm_client);
 
-    // std::cout << "-------- LLM remote client --------" << std::endl;
-    // LLMRemoteClient llm_remote_client("https://localhost", 8080);
-    // set_SSL(llm_service, &llm_remote_client);
-    // LLM_Start_Server(llm_service);
-    // run_LLM_tests(&llm_remote_client);
+    std::cout << "-------- LLM remote client --------" << std::endl;
+    LLMRemoteClient llm_remote_client("https://localhost", 8080);
+    set_SSL(llm_service, &llm_remote_client);
+    LLM_Start_Server(llm_service);
+    run_LLM_tests(&llm_remote_client);
 
     stop_llm_service(llm_service);
 
-// #ifdef RUNTIME_TESTS
-//     std::cout << "-------- LLM runtime --------" << std::endl;
-//     LLMRuntime* llmlib = start_llm_lib(command);
-//     EMBEDDING_SIZE = LLM_Embedding_Size(llmlib);
-//     run_LLMProvider_tests(llmlib);
-//     stop_llm_service(llmlib);
-// #endif
+#ifdef RUNTIME_TESTS
+    std::cout << "-------- LLM runtime --------" << std::endl;
+    LLMRuntime* llmlib = start_llm_lib(command);
+    EMBEDDING_SIZE = LLM_Embedding_Size(llmlib);
+    run_LLMProvider_tests(llmlib);
+    stop_llm_service(llmlib);
+#endif
 
     return 0;
 }

@@ -37,6 +37,8 @@ protected:
     virtual std::string completion_impl(const json& data, CharArrayFn callback = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0) = 0;
 
 public:
+    static const char* LLM_args_to_command(const char* model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, int lora_count=0, const char** lora_paths=nullptr);
+
     virtual json build_tokenize_json(const std::string& query);
     virtual std::vector<int> parse_tokenize_json(const json& result);
     virtual std::string tokenize_json(const json& data);
@@ -108,7 +110,7 @@ public:
     virtual std::vector<LoraIdScalePath> parse_lora_list_json(const json& result);
     virtual std::vector<LoraIdScalePath> lora_list();
 
-    virtual void start_server() = 0;
+    virtual void start_server(const char* host="0.0.0.0", int port=0, const char* API_key="") = 0;
     virtual void stop_server() = 0;
     virtual void join_server() = 0;
     virtual void start() = 0;
@@ -168,7 +170,7 @@ extern "C" {
     UNDREAMAI_API void LLM_Start(LLMProvider* llm);
     UNDREAMAI_API const bool LLM_Started(LLMProvider* llm);
     UNDREAMAI_API void LLM_Stop(LLMProvider* llm);
-    UNDREAMAI_API void LLM_Start_Server(LLMProvider* llm);
+    UNDREAMAI_API void LLM_Start_Server(LLMProvider* llm, const char* host="0.0.0.0", int port=0, const char* API_key="");
     UNDREAMAI_API void LLM_Stop_Server(LLMProvider* llm);
     UNDREAMAI_API void LLM_Join_Service(LLMProvider* llm);
     UNDREAMAI_API void LLM_Join_Server(LLMProvider* llm);

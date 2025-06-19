@@ -45,9 +45,9 @@ using LibHandle = void*;
 //=================================== FUNCTION LISTS ===================================//
 
 class LLMService;
-
 #define LLM_FUNCTIONS_LIST(M) \
-    M(LLMService_Construct,       LLMService*, const char*) \
+    M(LLMService_Construct,     LLMService*, const char*, int, int, int, bool, int, int, bool, int, const char**) \
+    M(LLMService_From_Command,  LLMService*, const char*) \
     M(LLM_Tokenize,        const char*, LLM*, const char*) \
     M(LLM_Detokenize,      const char*, LLM*, const char*) \
     M(LLM_Embeddings,      const char*, LLM*, const char*) \
@@ -60,20 +60,21 @@ class LLMService;
     M(LLM_Start,           void,        LLMProvider*) \
     M(LLM_Started,         bool,        LLMProvider*) \
     M(LLM_Stop,            void,        LLMProvider*) \
-    M(LLM_Start_Server,    void,        LLMProvider*) \
+    M(LLM_Start_Server,    void,        LLMProvider*, const char*, int, const char*) \
     M(LLM_Stop_Server,     void,        LLMProvider*) \
     M(LLM_Join_Service,    void,        LLMProvider*) \
     M(LLM_Join_Server,     void,        LLMProvider*) \
-    M(LLM_Set_SSL,          void,        LLMProvider*, const char*, const char*) \
+    M(LLM_Set_SSL,         void,        LLMProvider*, const char*, const char*) \
     M(LLM_Status_Code,     int,         LLMProvider*) \
     M(LLM_Status_Message,  const char*, LLMProvider*) \
     M(LLM_Embedding_Size,  int,         LLMProvider*)
 
 class UNDREAMAI_API LLMRuntime : public LLMProvider {
 public:
+    LLMRuntime(const char* model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, int lora_count=0, const char** lora_paths=nullptr, const char* path="");
     LLMRuntime(const std::string& command, const std::string& path = "");
-    LLMRuntime(const char* command, const std::string& path = "");
-    LLMRuntime(int argc, char ** argv, const std::string& path = "");
+    LLMRuntime(const char* command, const char* path = "");
+    LLMRuntime(int argc, char ** argv, const char* path = "");
     ~LLMRuntime();
 
     LibHandle handle = nullptr;
@@ -90,7 +91,7 @@ public:
     //     return LLM_Status_Message((LLMProvider*)llm);
     // }
 
-    void start_server() override { LLM_Start_Server((LLMProvider*)llm); }
+    void start_server(const char* host="0.0.0.0", int port=0, const char* API_key="") override { LLM_Start_Server((LLMProvider*)llm, host, port, API_key); }
     void stop_server() override { LLM_Stop_Server((LLMProvider*)llm); }
     void join_server() override { LLM_Join_Server((LLMProvider*)llm); }
     void start() override { LLM_Start((LLMProvider*)llm); }
@@ -159,5 +160,6 @@ std::vector<std::string> get_default_library_env_vars();
 
 extern "C" {
     UNDREAMAI_API const char* Available_Architectures(bool gpu);
-    UNDREAMAI_API LLMRuntime* LLMRuntime_Construct(const std::string& command, const std::string& path="");
+    UNDREAMAI_API LLMRuntime* LLMRuntime_Construct(const char* model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, const char** lora_paths=nullptr, int lora_path_count=0, const char* path="");
+    UNDREAMAI_API LLMRuntime* LLMRuntime_From_Command(const char* command, const char* path="");
 }
