@@ -72,31 +72,28 @@ endif()
 
 ################################################ SETUP LLAMA.CPP ################################################
 
-set(PATCH_MARKER "${LLAMA_CPP_ROOT}/patched.llama.cpp")
+function(APPLY_PATCH PATCH ROOT)
+    get_filename_component(PATCHNAME ${PATCH} NAME)
+    set(PATCH_MARKER "${ROOT}/${PATCHNAME}")
+    if(NOT EXISTS ${PATCH_MARKER})
+        execute_process(
+            COMMAND git apply ${PATCH}
+            WORKING_DIRECTORY ${ROOT}
+            RESULT_VARIABLE result
+        )
 
-if(NOT EXISTS ${PATCH_MARKER})
-    execute_process(
-        COMMAND git apply ${CMAKE_SOURCE_DIR}/patches/llama.cpp.patch
-        WORKING_DIRECTORY ${LLAMA_CPP_ROOT}
-        RESULT_VARIABLE result
-    )
-
-    if(NOT result EQUAL 0)
-        message(FATAL_ERROR "Failed to apply llama.patch")
-    else()
-        file(WRITE ${PATCH_MARKER} "llama.cpp patch applied")
-        message(STATUS "llama.cpp patch applied")
+        if(NOT result EQUAL 0)
+            message(FATAL_ERROR "Failed to apply ${PATCH}")
+        else()
+            file(WRITE ${PATCH_MARKER} "${PATCH} patch applied")
+            message(STATUS "${PATCH} patch applied")
+        endif()
     endif()
-endif()
+endfunction()
 
+APPLY_PATCH(${CMAKE_SOURCE_DIR}/patches/llama.cpp.patch ${LLAMA_CPP_ROOT})
 if(ARCHITECTURE STREQUAL "windows_tinyblas" OR ARCHITECTURE STREQUAL "linux_tinyblas")
-    MESSAGE(STATUS "Replace CUDA with tinyBLAS implementation")
-    file(GLOB_RECURSE GGML_CUDA_CONTENTS "${LLAMA_CPP_ROOT}/ggml/src/ggml-cuda/*")
-    list(FILTER GGML_CUDA_CONTENTS EXCLUDE REGEX ".*/CMakeLists\\.txt$")
-    file(REMOVE_RECURSE ${GGML_CUDA_CONTENTS})
-
-    file(GLOB TINYBLAS_CONTENTS "${CMAKE_SOURCE_DIR}/patches/tinyBLAS/*")
-    file(COPY ${TINYBLAS_CONTENTS} DESTINATION "${LLAMA_CPP_ROOT}/ggml/src/ggml-cuda")
+    APPLY_PATCH(${CMAKE_SOURCE_DIR}/patches/tinyBLAS.patch ${LLAMA_CPP_ROOT})
 endif()
 
 set(TARGET_SRCS
@@ -143,7 +140,7 @@ endif()
 if(ARCHITECTURE STREQUAL "windows_tinyblas" OR ARCHITECTURE STREQUAL "linux_tinyblas")
     foreach (target common ggml-cuda ggml-hip ggml-musa)
         if (TARGET ${target})
-            target_compile_definitions(${target} PUBLIC GGML_USE_TINYBLAS NDEBUG GGML_MINIMIZE_CODE_SIZE GGML_NO_IQUANTS)
+            target_compile_definitions(${target} PUBLIC GGML_USE_TINYBLAS NDEBUG GGML_CUDA_NO_FA GGML_CUDA_NO_IQUANTS)
         endif()
     endforeach()
 endif()
