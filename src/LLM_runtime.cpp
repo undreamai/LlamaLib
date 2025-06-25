@@ -71,6 +71,51 @@ const std::vector<std::string> available_architectures(bool gpu) {
     return architectures;
 }
 
+bool has_gpu_layers(const std::string& command) {
+    std::istringstream iss(command);
+    std::vector<std::string> args;
+    std::string token;
+
+    // Simple splitting (does not handle quoted args)
+    while (iss >> token) {
+        args.push_back(token);
+    }
+
+    for (size_t i = 0; i < args.size(); ++i) {
+        const std::string& arg = args[i];
+
+        // Match separate argument + value
+        if (arg == "-ngl" || arg == "--gpu-layers" || arg == "--n-gpu-layers") {
+            if (i + 1 < args.size()) {
+                try {
+                    int val = std::stoi(args[i + 1]);
+                    return val > 0;
+                } catch (...) {
+                    continue;
+                }
+            }
+        }
+
+        // Match inline --flag=value
+        size_t eqPos = arg.find('=');
+        if (eqPos != std::string::npos) {
+            std::string key = arg.substr(0, eqPos);
+            std::string value = arg.substr(eqPos + 1);
+
+            if (key == "-ngl" || key == "--gpu-layers" || key == "--n-gpu-layers") {
+                try {
+                    int val = std::stoi(value);
+                    return val > 0;
+                } catch (...) {
+                    continue;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 std::filesystem::path get_executable_directory() {
 #ifdef _WIN32
     char path[MAX_PATH];
@@ -226,16 +271,7 @@ bool LLMRuntime::create_LLM_library_backend(const std::string& command, const st
 }
 
 bool LLMRuntime::create_LLM_library(const std::string& command, const std::string& path) {
-    bool gpu = false;
-
-    std::istringstream iss(command);
-    std::string arg;
-    while(iss >> arg) {
-        if (arg == "-ngl" || arg == "--gpu-layers" || arg == "--n-gpu-layers") {
-            gpu = true;
-            break;
-        }
-    }
+    bool gpu = has_gpu_layers(command);
 
     std::vector<std::string> llmlibPaths;
     if (is_file(path)) {
@@ -282,6 +318,11 @@ LLMRuntime::~LLMRuntime() {
 }
 
 //============================= API =============================//
+
+bool Has_GPU_Layers(const std::string& command)
+{
+    return has_gpu_layers(command);
+}
 
 const char* Available_Architectures(bool gpu)
 {

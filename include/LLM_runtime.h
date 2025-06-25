@@ -149,6 +149,7 @@ protected:
 };
 
 const std::string os_library_dir();
+bool has_gpu_layers(const std::string& command);
 const std::vector<std::string> available_architectures(bool gpu);
 static std::filesystem::path get_executable_directory();
 static std::filesystem::path get_current_directory();
@@ -159,6 +160,7 @@ std::vector<std::string> get_default_library_env_vars();
 //=================================== EXTERNAL API ===================================//
 
 extern "C" {
+    UNDREAMAI_API bool Has_GPU_Layers(const std::string& command);
     UNDREAMAI_API const char* Available_Architectures(bool gpu);
     UNDREAMAI_API LLMRuntime* LLMRuntime_Construct(const char* model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, const char** lora_paths=nullptr, int lora_path_count=0, const char* path="");
     UNDREAMAI_API LLMRuntime* LLMRuntime_From_Command(const char* command, const char* path="");
