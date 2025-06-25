@@ -27,7 +27,7 @@ void ensure_error_handlers_initialized() {
 
 //=========================== Helpers ===========================//
 
-const char* LLM::LLM_args_to_command(const char* model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char** lora_paths)
+std::string LLM::LLM_args_to_command(const char* model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char** lora_paths)
 {
     std::string command = std::string("-m ") + model_path
                         + " -t " + std::to_string(num_threads)
@@ -43,7 +43,7 @@ const char* LLM::LLM_args_to_command(const char* model_path, int num_threads, in
             command += " --lora " + std::string(lora_paths[i]);
         }
     }
-    return command.c_str();
+    return command;
 }
 
 //=========================== Tokenize ===========================//

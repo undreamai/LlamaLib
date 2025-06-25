@@ -340,7 +340,7 @@ const char* Available_Architectures(bool gpu)
 
 LLMRuntime* LLMRuntime_Construct(const char* model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char** lora_paths, const char* path)
 {
-    return LLMRuntime_From_Command(LLM::LLM_args_to_command(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_count, lora_paths), path);
+    return LLMRuntime_From_Command(LLM::LLM_args_to_command(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_count, lora_paths).c_str(), path);
 }
 
 LLMRuntime* LLMRuntime_From_Command(const char* command, const char* path) {
