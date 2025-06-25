@@ -134,8 +134,8 @@ namespace UndreamAI.LlamaLib
             int contextSize = 4096,
             int batchSize = 2048,
             [MarshalAs(UnmanagedType.I1)] bool embeddingOnly = false,
-            IntPtr loraPaths = default,
-            int loraPathCount = 0);
+            int loraPathCount = 0,
+            IntPtr loraPaths = default);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLMService_From_Command")]
         public static extern IntPtr LLMService_From_Command([MarshalAs(UnmanagedType.LPStr)] string paramsString);

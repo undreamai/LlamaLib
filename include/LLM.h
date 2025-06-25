@@ -28,6 +28,7 @@ struct LoraIdScalePath {
 };
 
 void ensure_error_handlers_initialized();
+bool has_gpu_layers(const std::string& command);
 
 class UNDREAMAI_API LLM {
 protected:
@@ -156,6 +157,8 @@ private:
 
 
 extern "C" {
+    UNDREAMAI_API bool Has_GPU_Layers(const std::string& command);
+
     UNDREAMAI_API const char* LLM_Tokenize(LLM* llm, const char* json_data);
     UNDREAMAI_API const char* LLM_Detokenize(LLM* llm, const char* json_data);
     UNDREAMAI_API const char* LLM_Embeddings(LLM* llm, const char* json_data);

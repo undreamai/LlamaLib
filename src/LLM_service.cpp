@@ -248,9 +248,13 @@ void release_slot(server_slot& slot)
 }
 
 void LLMService::start_server(const char* host, int port, const char* API_key){
-    params.hostname = host;
+    std::string host_str = host ? host : "";
+    std::string key_str = API_key ? API_key : "";
+
+    if (host_str.empty()) params.hostname = "0.0.0.0";
+    else params.hostname = host_str;
     params.port = port;
-    if (API_key != "") params.api_keys.push_back(API_key);
+    if (!key_str.empty()) params.api_keys.push_back(key_str);
 
     std::lock_guard<std::mutex> lock(start_stop_mutex);
     if (params.ssl_file_key != "" && params.ssl_file_cert != "") {

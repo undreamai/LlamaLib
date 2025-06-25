@@ -404,7 +404,7 @@ namespace UndreamAI.LlamaLib
                 var llm = llamaLib.LLMService_Construct(
                     modelPath, numThreads, numGpuLayers, numParallel,
                     flashAttention, contextSize, batchSize, embeddingOnly,
-                    loraPathsPtr, loraPathCount);
+                    loraPathCount, loraPathsPtr);
 
                 if (llm == IntPtr.Zero)
                     throw new InvalidOperationException("Failed to create LLMService");

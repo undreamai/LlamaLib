@@ -71,51 +71,6 @@ const std::vector<std::string> available_architectures(bool gpu) {
     return architectures;
 }
 
-bool has_gpu_layers(const std::string& command) {
-    std::istringstream iss(command);
-    std::vector<std::string> args;
-    std::string token;
-
-    // Simple splitting (does not handle quoted args)
-    while (iss >> token) {
-        args.push_back(token);
-    }
-
-    for (size_t i = 0; i < args.size(); ++i) {
-        const std::string& arg = args[i];
-
-        // Match separate argument + value
-        if (arg == "-ngl" || arg == "--gpu-layers" || arg == "--n-gpu-layers") {
-            if (i + 1 < args.size()) {
-                try {
-                    int val = std::stoi(args[i + 1]);
-                    return val > 0;
-                } catch (...) {
-                    continue;
-                }
-            }
-        }
-
-        // Match inline --flag=value
-        size_t eqPos = arg.find('=');
-        if (eqPos != std::string::npos) {
-            std::string key = arg.substr(0, eqPos);
-            std::string value = arg.substr(eqPos + 1);
-
-            if (key == "-ngl" || key == "--gpu-layers" || key == "--n-gpu-layers") {
-                try {
-                    int val = std::stoi(value);
-                    return val > 0;
-                } catch (...) {
-                    continue;
-                }
-            }
-        }
-    }
-
-    return false;
-}
-
 std::filesystem::path get_executable_directory() {
 #ifdef _WIN32
     char path[MAX_PATH];
@@ -226,6 +181,11 @@ inline void unload_library(LibHandle handle) {
 }
 
 LibHandle load_library_safe(const std::string& path) {
+    if (setjmp(get_jump_point()) != 0) {
+        std::cerr << "Error loading library: " << path << std::endl;
+        return nullptr;
+    }
+
     LibHandle handle_out = load_library(path.c_str());
     if (!handle_out) {
         std::cerr << "Failed to load library: " << path << std::endl;
@@ -234,6 +194,10 @@ LibHandle load_library_safe(const std::string& path) {
 }
 
 bool LLMRuntime::create_LLM_library_backend(const std::string& command, const std::string& path) {
+    if (setjmp(get_jump_point()) != 0) {
+        std::cerr << "Error occurred while loading the library" << std::endl;
+        return false;
+    }
     auto load_sym = [&](auto& fn_ptr, const char* name) {
         fn_ptr = reinterpret_cast<std::decay_t<decltype(fn_ptr)>>(load_symbol(handle, name));
         if (!fn_ptr) {
@@ -249,12 +213,7 @@ bool LLMRuntime::create_LLM_library_backend(const std::string& command, const st
     std::cout << "Trying " << path << std::endl;
     for (const std::filesystem::path& full_path : full_paths) {
         if (std::filesystem::exists(full_path) && std::filesystem::is_regular_file(full_path)) {
-            if (setjmp(get_jump_point()) != 0) {
-                std::cout << "Error occurred while loading the library" << std::endl;
-                continue;
-            }
-
-            handle = load_library_safe(full_path.c_str());
+            handle = load_library_safe(full_path.string());
             if (!handle) continue;
             
             #define DECLARE_AND_LOAD(name, ret, ...) \
@@ -318,11 +277,6 @@ LLMRuntime::~LLMRuntime() {
 }
 
 //============================= API =============================//
-
-bool Has_GPU_Layers(const std::string& command)
-{
-    return has_gpu_layers(command);
-}
 
 const char* Available_Architectures(bool gpu)
 {

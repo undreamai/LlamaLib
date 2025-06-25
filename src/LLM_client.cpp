@@ -69,8 +69,6 @@ std::string LLMRemoteClient::post_request(
     const json& payload,
     CharArrayFn callback
 ) {
-    httplib::Client cli(url.c_str(), port);
-
     StreamingContext context;
     context.callback = callback;
 

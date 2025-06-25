@@ -46,6 +46,51 @@ std::string LLM::LLM_args_to_command(const char* model_path, int num_threads, in
     return command;
 }
 
+bool has_gpu_layers(const std::string& command) {
+    std::istringstream iss(command);
+    std::vector<std::string> args;
+    std::string token;
+
+    // Simple splitting (does not handle quoted args)
+    while (iss >> token) {
+        args.push_back(token);
+    }
+
+    for (size_t i = 0; i < args.size(); ++i) {
+        const std::string& arg = args[i];
+
+        // Match separate argument + value
+        if (arg == "-ngl" || arg == "--gpu-layers" || arg == "--n-gpu-layers") {
+            if (i + 1 < args.size()) {
+                try {
+                    int val = std::stoi(args[i + 1]);
+                    return val > 0;
+                } catch (...) {
+                    continue;
+                }
+            }
+        }
+
+        // Match inline --flag=value
+        size_t eqPos = arg.find('=');
+        if (eqPos != std::string::npos) {
+            std::string key = arg.substr(0, eqPos);
+            std::string value = arg.substr(eqPos + 1);
+
+            if (key == "-ngl" || key == "--gpu-layers" || key == "--n-gpu-layers") {
+                try {
+                    int val = std::stoi(value);
+                    return val > 0;
+                } catch (...) {
+                    continue;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 //=========================== Tokenize ===========================//
 
 json LLM::build_tokenize_json(const std::string& query)
@@ -331,6 +376,11 @@ std::vector<LoraIdScalePath> LLMProvider::lora_list()
 }
 
 //=========================== API ===========================//
+
+bool Has_GPU_Layers(const std::string& command)
+{
+    return has_gpu_layers(command);
+}
 
 const char* LLM_Tokenize(LLM* llm, const char* json_data) {
     std::string result = llm->tokenize_json(json::parse(json_data));
