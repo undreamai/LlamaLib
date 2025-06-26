@@ -148,14 +148,18 @@ std::vector<std::filesystem::path> get_search_directories() {
     search_paths.push_back(get_executable_directory());
     // Common relative paths from executable
     auto exe_dir = get_executable_directory();
-    search_paths.push_back(exe_dir / "libs");
-    search_paths.push_back(exe_dir / ".." / "libs");
-    std::string os_dir = os_library_dir();
-    if (os_dir != "")
+    for (const std::string& lib_folder_name : { "lib", "libs", "runtimes" } )
     {
-        search_paths.push_back(exe_dir / "libs" / os_dir);
-        search_paths.push_back(exe_dir / ".." / "libs" / os_dir);
-    }    
+
+        search_paths.push_back(exe_dir / lib_folder_name);
+        search_paths.push_back(exe_dir / ".." / lib_folder_name);
+        std::string os_dir = os_library_dir();
+        if (os_dir != "")
+        {
+            search_paths.push_back(exe_dir / lib_folder_name / os_dir);
+            search_paths.push_back(exe_dir / ".." / lib_folder_name / os_dir);
+        }    
+    }
     // Environment variable paths
     auto default_env_vars = get_default_library_env_vars();
     auto env_paths = get_env_library_paths(default_env_vars);
@@ -193,7 +197,7 @@ LibHandle load_library_safe(const std::string& path) {
     return handle_out;
 }
 
-bool LLMRuntime::create_LLM_library_backend(const std::string& command, const std::string& path) {
+bool LLMRuntime::create_LLM_library_backend(const std::string& command, const std::string& llm_lib_filename) {
     if (setjmp(get_jump_point()) != 0) {
         std::cerr << "Error occurred while loading the library" << std::endl;
         return false;
@@ -206,11 +210,11 @@ bool LLMRuntime::create_LLM_library_backend(const std::string& command, const st
     };
 
     std::vector<std::filesystem::path> full_paths;
-    full_paths.push_back(path);
-    for (const std::filesystem::path& search_path : search_paths) full_paths.push_back(search_path / path);
+    full_paths.push_back(llm_lib_filename);
+    for (const std::filesystem::path& search_path : search_paths) full_paths.push_back(search_path / llm_lib_filename);
     
     ensure_error_handlers_initialized();
-    std::cout << "Trying " << path << std::endl;
+    std::cout << "Trying " << llm_lib_filename << std::endl;
     for (const std::filesystem::path& full_path : full_paths) {
         if (std::filesystem::exists(full_path) && std::filesystem::is_regular_file(full_path)) {
             handle = load_library_safe(full_path.string());
@@ -229,41 +233,30 @@ bool LLMRuntime::create_LLM_library_backend(const std::string& command, const st
     return false;
 }
 
-bool LLMRuntime::create_LLM_library(const std::string& command, const std::string& path) {
+bool LLMRuntime::create_LLM_library(const std::string& command) {
     bool gpu = has_gpu_layers(command);
-
-    std::vector<std::string> llmlibPaths;
-    if (is_file(path)) {
-        llmlibPaths.push_back(path);
-    } else {
-        for (const auto& arch : available_architectures(gpu)) llmlibPaths.push_back(join_paths(path, arch));
-    }
-
-    for (const auto& llmlibPath : llmlibPaths) {
-        bool success = create_LLM_library_backend(command, llmlibPath);
+    for (const auto& llm_lib_filename : available_architectures(gpu)) {
+        bool success = create_LLM_library_backend(command, llm_lib_filename);
         if (success) {
-            std::cout << "Successfully loaded: " << llmlibPath << std::endl;
+            std::cout << "Successfully loaded: " << llm_lib_filename << std::endl;
             return true;
         }
     }
-
     return false;
 }
 
 //============================= LLMRuntime =============================//
 
-LLMRuntime::LLMRuntime(const char* model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char** lora_paths, const char* path)
-: LLMRuntime(LLM::LLM_args_to_command(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_count, lora_paths), path) { }
+LLMRuntime::LLMRuntime(const char* model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char** lora_paths)
+: LLMRuntime(LLM::LLM_args_to_command(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_count, lora_paths)) { }
 
-LLMRuntime::LLMRuntime(const std::string& command, const std::string& path)
+LLMRuntime::LLMRuntime(const std::string& command)
 {
     search_paths = get_search_directories();
-    create_LLM_library(command, path);
+    create_LLM_library(command);
 }
 
-LLMRuntime::LLMRuntime(const char* command, const char* path) : LLMRuntime(std::string(command), std::string(path)) { }
-
-LLMRuntime::LLMRuntime(int argc, char ** argv, const char* path) : LLMRuntime(args_to_command(argc, argv), path) { }
+LLMRuntime::LLMRuntime(int argc, char ** argv) : LLMRuntime(args_to_command(argc, argv)) { }
 
 LLMRuntime::~LLMRuntime() {
     if (llm) {
@@ -292,13 +285,13 @@ const char* Available_Architectures(bool gpu)
     return result.c_str();
 }
 
-LLMRuntime* LLMRuntime_Construct(const char* model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char** lora_paths, const char* path)
+LLMRuntime* LLMRuntime_Construct(const char* model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char** lora_paths)
 {
-    return LLMRuntime_From_Command(LLM::LLM_args_to_command(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_count, lora_paths).c_str(), path);
+    return LLMRuntime_From_Command(LLM::LLM_args_to_command(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_count, lora_paths).c_str());
 }
 
-LLMRuntime* LLMRuntime_From_Command(const char* command, const char* path) {
-    LLMRuntime* lib = new LLMRuntime(command, path);
+LLMRuntime* LLMRuntime_From_Command(const char* command) {
+    LLMRuntime* lib = new LLMRuntime(std::string(command));
     if(lib->llm == nullptr)
     {
         delete lib;

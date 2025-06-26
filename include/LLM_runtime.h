@@ -71,26 +71,17 @@ class LLMService;
 
 class UNDREAMAI_API LLMRuntime : public LLMProvider {
 public:
-    LLMRuntime(const char* model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, int lora_count=0, const char** lora_paths=nullptr, const char* path="");
-    LLMRuntime(const std::string& command, const std::string& path = "");
-    LLMRuntime(const char* command, const char* path = "");
-    LLMRuntime(int argc, char ** argv, const char* path = "");
+    LLMRuntime(const char* model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, int lora_count=0, const char** lora_paths=nullptr);
+    LLMRuntime(const std::string& command);
+    LLMRuntime(int argc, char ** argv);
     ~LLMRuntime();
 
     LibHandle handle = nullptr;
     LLMProvider* llm = nullptr;
 
-    bool create_LLM_library(const std::string& command, const std::string& path="");
+    bool create_LLM_library(const std::string& command);
 
     //=================================== LLM METHODS START ===================================//
-    // int status_code() override {
-    //     return LLM_Status_Code((LLMProvider*)llm);
-    // }
-
-    // std::string status_message() override {
-    //     return LLM_Status_Message((LLMProvider*)llm);
-    // }
-
     void start_server(const char* host="0.0.0.0", int port=0, const char* API_key="") override { LLM_Start_Server((LLMProvider*)llm, host, port, API_key); }
     void stop_server() override { LLM_Stop_Server((LLMProvider*)llm); }
     void join_server() override { LLM_Join_Server((LLMProvider*)llm); }
@@ -99,10 +90,7 @@ public:
     void join_service() override { LLM_Join_Service((LLMProvider*)llm); }
     void set_SSL(const char* cert, const char* key) override { LLM_Set_SSL((LLMProvider*)llm, cert, key); }
     bool started() override { return LLM_Started((LLMProvider*)llm); }
-
-    int embedding_size() override {
-        return LLM_Embedding_Size((LLMProvider*)llm);
-    }
+    int embedding_size() override { return LLM_Embedding_Size((LLMProvider*)llm);}
     //=================================== LLM METHODS END ===================================//
 
 #define DECLARE_FN(name, ret, ...) \
@@ -145,7 +133,7 @@ protected:
     }
     //=================================== LLM METHODS END ===================================//
 
-    bool create_LLM_library_backend(const std::string& command, const std::string& path);
+    bool create_LLM_library_backend(const std::string& command, const std::string& llm_lib_filename);
 };
 
 const std::string os_library_dir();
@@ -160,6 +148,6 @@ std::vector<std::string> get_default_library_env_vars();
 
 extern "C" {
     UNDREAMAI_API const char* Available_Architectures(bool gpu);
-    UNDREAMAI_API LLMRuntime* LLMRuntime_Construct(const char* model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, const char** lora_paths=nullptr, int lora_path_count=0, const char* path="");
-    UNDREAMAI_API LLMRuntime* LLMRuntime_From_Command(const char* command, const char* path="");
+    UNDREAMAI_API LLMRuntime* LLMRuntime_Construct(const char* model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, int lora_count=0, const char** lora_paths=nullptr);
+    UNDREAMAI_API LLMRuntime* LLMRuntime_From_Command(const char* command);
 }
