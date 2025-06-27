@@ -6,36 +6,22 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Platforms>AnyCPU;x64;ARM64</Platforms>
   </PropertyGroup>
-
-  <!-- Conditional compilation symbols -->
-  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'win-x64' OR '$(OS)' == 'Windows_NT'">
-    <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'linux-x64'">
-    <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'osx-x64' OR '$(RuntimeIdentifier)' == 'osx-arm64'">
-    <DefineConstants>$(DefineConstants);MACOS</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'android-arm64' OR '$(RuntimeIdentifier)' == 'android-x64'">
-    <DefineConstants>$(DefineConstants);ANDROID</DefineConstants>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'ios-arm64'">
-    <DefineConstants>$(DefineConstants);IOS</DefineConstants>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'visionos-arm64'">
-    <DefineConstants>$(DefineConstants);VISIONOS</DefineConstants>
+  <!-- Auto-detect platform and set constants -->
+  <PropertyGroup>  
+    <PlatformTarget Condition="'$(PlatformTarget)' == ''">AnyCPU</PlatformTarget>
+    
+    <!-- Detect from target framework -->
+    <DefineConstants Condition="$(TargetFramework.Contains('android'))">$(DefineConstants);ANDROID</DefineConstants>
+    <DefineConstants Condition="$(TargetFramework.Contains('ios'))">$(DefineConstants);IOS</DefineConstants>
+    <DefineConstants Condition="$(TargetFramework.Contains('visionos'))">$(DefineConstants);VISIONOS</DefineConstants>
   </PropertyGroup>
 
   <!-- Native libraries for Windows x64 -->
   <ItemGroup Condition="'$(RuntimeIdentifier)' == 'win-x64' OR ('$(RuntimeIdentifier)' == '' AND '$(OS)' == 'Windows_NT')">
     <Content Include="runtimes/windows/*.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Pack>true</Pack>
       <PackagePath>runtimes/windows</PackagePath>
     </Content>
   </ItemGroup>
@@ -43,14 +29,19 @@
   <!-- Native libraries for Linux x64 -->
   <ItemGroup Condition="'$(RuntimeIdentifier)' == 'linux-x64' OR ('$(RuntimeIdentifier)' == '' AND '$(OS)' != 'Windows_NT')">
     <Content Include="runtimes/linux/*.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackagePath>runtimes/linux</PackagePath>
+    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    <Pack>true</Pack>
+    <PackagePath>runtimes/linux</PackagePath>
     </Content>
   </ItemGroup>
+
   <!-- Native libraries for macOS x64 -->
   <ItemGroup Condition="'$(RuntimeIdentifier)' == 'osx-x64'">
     <Content Include="runtimes/macos/*.dylib">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Pack>true</Pack>
       <PackagePath>runtimes/macos</PackagePath>
     </Content>
   </ItemGroup>
@@ -58,7 +49,9 @@
   <!-- Native libraries for macOS ARM64 -->
   <ItemGroup Condition="'$(RuntimeIdentifier)' == 'osx-arm64'">
     <Content Include="runtimes/macos/*.dylib">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Pack>true</Pack>
       <PackagePath>runtimes/macos</PackagePath>
     </Content>
   </ItemGroup>
@@ -66,7 +59,9 @@
   <!-- Native libraries for Android ARM64 -->
   <ItemGroup Condition="'$(RuntimeIdentifier)' == 'android-arm64'">
     <Content Include="runtimes/android/*arm64.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Pack>true</Pack>
       <PackagePath>runtimes/android</PackagePath>
     </Content>
   </ItemGroup>
@@ -74,7 +69,9 @@
   <!-- Native libraries for Android x64 -->
   <ItemGroup Condition="'$(RuntimeIdentifier)' == 'android-x64'">
     <Content Include="runtimes/android/*x64.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Pack>true</Pack>
       <PackagePath>runtimes/android</PackagePath>
     </Content>
   </ItemGroup>
@@ -82,7 +79,9 @@
   <!-- Native libraries for iOS -->
   <ItemGroup Condition="'$(RuntimeIdentifier)' == 'ios-arm64'">
     <Content Include="runtimes/ios/*.a">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Pack>true</Pack>
       <PackagePath>runtimes/ios</PackagePath>
     </Content>
   </ItemGroup>
@@ -90,7 +89,9 @@
   <!-- Native libraries for visionOS -->
   <ItemGroup Condition="'$(RuntimeIdentifier)' == 'visionos-arm64'">
     <Content Include="runtimes/visionos/*.a">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Pack>true</Pack>
       <PackagePath>runtimes/visionos</PackagePath>
     </Content>
   </ItemGroup>
