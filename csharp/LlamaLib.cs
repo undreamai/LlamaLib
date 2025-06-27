@@ -9,22 +9,6 @@ namespace UndreamAI.LlamaLib
     public class LlamaLib
     {
         public string architecture { get; private set; }
-        private IntPtr libraryHandle = IntPtr.Zero;
-
-        private static IntPtr runtimeLibraryHandle = IntPtr.Zero;
-        private static string libraryBasePath => GetLibraryBasePath();
-
-        // Mobile platforms (static linking)
-#if ANDROID
-        public const string DllName = "libllamalib_android";
-#elif IOS
-        public const string DllName = "__Internal";
-#elif VISIONOS
-        public const string DllName = "__Internal";
-#else
-        // Desktop platforms use dynamic loading
-        private const string DllName = null;
-#endif
 
         // Function delegates
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -32,100 +16,118 @@ namespace UndreamAI.LlamaLib
 
 #if ANDROID || IOS || VISIONOS
         // Static P/Invoke declarations for mobile platforms
-        public LlamaLib() { }
+#if ANDROID
+        public const string DllName = "libllamalib_android";
+#else
+        public const string DllName = "__Internal";
+#endif
+
+        public LlamaLib(bool gpu=false) {
+#if ANDROID
+            architecture = "android";
+#elif IOS
+            architecture = "ios";
+#elif VISIONOS
+            architecture = "visionos";
+#endif
+        }
 
         // Base LLM functions
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "level")]
+        public static extern void LLM_Debug_Static(int level);
+        public void LLM_Debug(int level) => LLM_Debug_Static(level);
+
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Tokenize")]
-        public static extern IntPtr LLM_Tokenize(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
+        public static extern IntPtr LLM_Tokenize_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
+        public IntPtr LLM_Tokenize(IntPtr llm, string jsonData) => LlamaLib.LLM_Tokenize_Static(llm, jsonData);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Detokenize")]
-        public static extern IntPtr LLM_Detokenize(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
+        public static extern IntPtr LLM_Detokenize_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
+        public IntPtr LLM_Detokenize(IntPtr llm, string jsonData) => LlamaLib.LLM_Detokenize_Static(llm, jsonData);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Embeddings")]
-        public static extern IntPtr LLM_Embeddings(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
+        public static extern IntPtr LLM_Embeddings_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
+        public IntPtr LLM_Embeddings(IntPtr llm, string jsonData) => LlamaLib.LLM_Embeddings_Static(llm, jsonData);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Completion")]
-        public static extern IntPtr LLM_Completion(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData, CharArrayCallback callback);
+        public static extern IntPtr LLM_Completion_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData, CharArrayCallback callback);
+        public IntPtr LLM_Completion(IntPtr llm, string jsonData, CharArrayCallback callback) => LlamaLib.LLM_Completion_Static(llm, jsonData, callback);
 
         // LLMLocal functions
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Slot")]
-        public static extern IntPtr LLM_Slot(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
+        public static extern IntPtr LLM_Slot_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
+        public IntPtr LLM_Slot(IntPtr llm, string jsonData) => LlamaLib.LLM_Slot_Static(llm, jsonData);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Cancel")]
-        public static extern void LLM_Cancel(IntPtr llm, int idSlot);
+        public static extern void LLM_Cancel_Static(IntPtr llm, int idSlot);
+        public void LLM_Cancel(IntPtr llm, int idSlot) => LlamaLib.LLM_Cancel_Static(llm, idSlot);
 
         // LLMProvider functions
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Lora_Weight")]
-        public static extern IntPtr LLM_Lora_Weight(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
+        public static extern IntPtr LLM_Lora_Weight_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
+        public IntPtr LLM_Lora_Weight(IntPtr llm, string jsonData) => LlamaLib.LLM_Lora_Weight_Static(llm, jsonData);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Lora_List")]
-        public static extern IntPtr LLM_Lora_List(IntPtr llm);
+        public static extern IntPtr LLM_Lora_List_Static(IntPtr llm);
+        public IntPtr LLM_Lora_List(IntPtr llm) => LlamaLib.LLM_Lora_List_Static(llm);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Delete")]
-        public static extern void LLM_Delete(IntPtr llm);
+        public static extern void LLM_Delete_Static(IntPtr llm);
+        public void LLM_Delete(IntPtr llm) => LlamaLib.LLM_Delete_Static(llm);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Start")]
-        public static extern void LLM_Start(IntPtr llm);
+        public static extern void LLM_Start_Static(IntPtr llm);
+        public void LLM_Start(IntPtr llm) => LlamaLib.LLM_Start_Static(llm);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Started")]
         [return: MarshalAs(UnmanagedType.I1)]
-        public static extern bool LLM_Started(IntPtr llm);
+        public static extern bool LLM_Started_Static(IntPtr llm);
+        public bool LLM_Started(IntPtr llm) => LlamaLib.LLM_Started_Static(llm);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Stop")]
-        public static extern void LLM_Stop(IntPtr llm);
+        public static extern void LLM_Stop_Static(IntPtr llm);
+        public void LLM_Stop(IntPtr llm) => LlamaLib.LLM_Stop_Static(llm);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Start_Server")]
-        public static extern void LLM_Start_Server(IntPtr llm, 
-            [MarshalAs(UnmanagedType.LPStr)] string host, 
-            int port, 
-            [MarshalAs(UnmanagedType.LPStr)] string apiKey);
+        public static extern void LLM_Start_Server_Static(IntPtr llm, 
+            [MarshalAs(UnmanagedType.LPStr)] string host="0.0.0.0", 
+            int port=0, 
+            [MarshalAs(UnmanagedType.LPStr)] string apiKey="");
+        public void LLM_Start_Server(IntPtr llm, string host="0.0.0.0", int port=0, string apiKey="") => LlamaLib.LLM_Start_Server_Static(llm, host, port, apiKey);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Stop_Server")]
-        public static extern void LLM_Stop_Server(IntPtr llm);
+        public static extern void LLM_Stop_Server_Static(IntPtr llm);
+        public void LLM_Stop_Server(IntPtr llm) => LlamaLib.LLM_Stop_Server_Static(llm);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Join_Service")]
-        public static extern void LLM_Join_Service(IntPtr llm);
+        public static extern void LLM_Join_Service_Static(IntPtr llm);
+        public void LLM_Join_Service(IntPtr llm) => LlamaLib.LLM_Join_Service_Static(llm);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Join_Server")]
-        public static extern void LLM_Join_Server(IntPtr llm);
+        public static extern void LLM_Join_Server_Static(IntPtr llm);
+        public void LLM_Join_Server(IntPtr llm) => LlamaLib.LLM_Join_Server_Static(llm);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Set_SSL")]
-        public static extern void LLM_Set_SSL(IntPtr llm, 
+        public static extern void LLM_Set_SSL_Static(IntPtr llm, 
             [MarshalAs(UnmanagedType.LPStr)] string sslCert, 
             [MarshalAs(UnmanagedType.LPStr)] string sslKey);
+        public void LLM_Set_SSL(IntPtr llm, string sslCert, string sslKey) => LlamaLib.LLM_Set_SSL_Static(llm, sslCert, sslKey);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Status_Code")]
-        public static extern int LLM_Status_Code(IntPtr llm);
+        public static extern int LLM_Status_Code_Static(IntPtr llm);
+        public int LLM_Status_Code(IntPtr llm) => LlamaLib.LLM_Status_Code_Static(llm);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Status_Message")]
-        public static extern IntPtr LLM_Status_Message(IntPtr llm);
+        public static extern IntPtr LLM_Status_Message_Static(IntPtr llm);
+        public IntPtr LLM_Status_Message(IntPtr llm) => LlamaLib.LLM_Status_Message_Static(llm);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Embedding_Size")]
-        public static extern int LLM_Embedding_Size(IntPtr llm);
-
-        // LLMRuntime functions
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLMRuntime_Construct")]
-        public static extern IntPtr LLMRuntime_Construct(
-            [MarshalAs(UnmanagedType.LPStr)] string modelPath,
-            int numThreads = -1,
-            int numGpuLayers = 0,
-            int numParallel = 1,
-            [MarshalAs(UnmanagedType.I1)] bool flashAttention = false,
-            int contextSize = 4096,
-            int batchSize = 2048,
-            [MarshalAs(UnmanagedType.I1)] bool embeddingOnly = false,
-            IntPtr loraPaths = default,
-            int loraPathCount = 0,
-            [MarshalAs(UnmanagedType.LPStr)] string path = "");
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLMRuntime_From_Command")]
-        public static extern IntPtr LLMRuntime_From_Command(
-            [MarshalAs(UnmanagedType.LPStr)] string command,
-            [MarshalAs(UnmanagedType.LPStr)] string path = "");
+        public static extern int LLM_Embedding_Size_Static(IntPtr llm);
+        public int LLM_Embedding_Size(IntPtr llm) => LlamaLib.LLM_Embedding_Size_Static(llm);
 
         // LLMService functions
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLMService_Construct")]
-        public static extern IntPtr LLMService_Construct(
+        public static extern IntPtr LLMService_Construct_Static(
             [MarshalAs(UnmanagedType.LPStr)] string modelPath,
             int numThreads = -1,
             int numGpuLayers = 0,
@@ -134,45 +136,62 @@ namespace UndreamAI.LlamaLib
             int contextSize = 4096,
             int batchSize = 2048,
             [MarshalAs(UnmanagedType.I1)] bool embeddingOnly = false,
-            int loraPathCount = 0,
+            int loraCount = 0,
             IntPtr loraPaths = default);
+        public IntPtr LLMService_Construct(
+            string modelPath,
+            int numThreads = -1,
+            int numGpuLayers = 0,
+            int numParallel = 1,
+            bool flashAttention = false,
+            int contextSize = 4096,
+            int batchSize = 2048,
+            bool embeddingOnly = false,
+            int loraCount = 0,
+            IntPtr loraPaths = default)
+            => LlamaLib.LLMService_Construct_Static(modelPath, numThreads, numGpuLayers, numParallel, flashAttention,
+                                            contextSize, batchSize, embeddingOnly, loraCount, loraPaths);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLMService_From_Command")]
-        public static extern IntPtr LLMService_From_Command([MarshalAs(UnmanagedType.LPStr)] string paramsString);
+        public static extern IntPtr LLMService_From_Command_Static([MarshalAs(UnmanagedType.LPStr)] string paramsString);
+        public IntPtr LLMService_From_Command(string paramsString) => LlamaLib.LLMService_From_Command_Static(paramsString);
 
         // LLMClient functions
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLMClient_Construct")]
-        public static extern IntPtr LLMClient_Construct(IntPtr llm);
+        public static extern IntPtr LLMClient_Construct_Static(IntPtr llm);
+        public IntPtr LLMClient_Construct(IntPtr llm) => LlamaLib.LLMClient_Construct_Static(llm);
 
         // LLMRemoteClient functions
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLMRemoteClient_Construct")]
-        public static extern IntPtr LLMRemoteClient_Construct(
+        public static extern IntPtr LLMRemoteClient_Construct_Static(
             [MarshalAs(UnmanagedType.LPStr)] string url,
             int port);
-
-        // Runtime functions for mobile platforms
-        public static bool Has_GPU_Layers(string command)
-        {
-            return false;
-        }
-
-        public static string Available_Architectures(bool gpu)
-        {
-            return "";
-        }
-
+        public IntPtr LLMRemoteClient_Construct(string url, int port) => LlamaLib.LLMRemoteClient_Construct_Static(url, port);
 #else
         // Desktop platform implementation with dynamic loading
+        private static string libraryBasePath => GetLibraryBasePath();
+        private static int instanceCount = 0;
+        private static readonly object runtimeLock = new object();
+        private static IntPtr runtimeLibraryHandle = IntPtr.Zero;
+        private IntPtr libraryHandle = IntPtr.Zero;
 
         static LlamaLib()
         {
+            LoadRuntimeLibrary();
+        }
+
+        private static void LoadRuntimeLibrary()
+        {
             try
             {
-                runtimeLibraryHandle = LibraryLoader.LoadLibrary(GetRuntimeLibraryPath());
-                if (runtimeLibraryHandle != IntPtr.Zero)
+                lock (runtimeLock)
                 {
-                    Has_GPU_Layers = LibraryLoader.GetSymbolDelegate<Has_GPU_Layers_Delegate>(runtimeLibraryHandle, "Has_GPU_Layers");
-                    Available_Architectures = LibraryLoader.GetSymbolDelegate<Available_Architectures_Delegate>(runtimeLibraryHandle, "Available_Architectures");
+                    if (runtimeLibraryHandle == IntPtr.Zero)
+                    {
+                        runtimeLibraryHandle = LibraryLoader.LoadLibrary(GetRuntimeLibraryPath());
+                        Has_GPU_Layers = LibraryLoader.GetSymbolDelegate<Has_GPU_Layers_Delegate>(runtimeLibraryHandle, "Has_GPU_Layers");
+                        Available_Architectures = LibraryLoader.GetSymbolDelegate<Available_Architectures_Delegate>(runtimeLibraryHandle, "Available_Architectures");
+                    }
                 }
             }
             catch (Exception ex)
@@ -184,29 +203,49 @@ namespace UndreamAI.LlamaLib
 
         public LlamaLib(bool gpu = false)
         {
+            lock (runtimeLock)
+            {
+                instanceCount++;
+            }
             LoadLibraries(gpu);
+        }
+
+        public static string GetLibraryBasePath()
+        {
+            string baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string OS;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) OS = "linux";
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) OS = "macos";
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) OS = "windows";
+            else throw new ArgumentException("Unknown platform " + RuntimeInformation.OSDescription);
+
+            string[] librariesDirNames = new string[] { "runtimes", "libraries", "libs" };
+            foreach (string librariesDirName in librariesDirNames)
+            {
+                string librariesPath = Path.Combine(baseDir, librariesDirName, OS);
+                if (Directory.Exists(librariesPath)) return librariesPath;
+            }
+
+            return baseDir;
         }
 
         static string GetRuntimeLibraryPath()
         {
-#if LINUX
-            string libName = "libllamalib_linux_runtime.so";
-#elif MACOS
-            string libName = "libllamalib_macos_runtime.dylib";
-#else
-            string libName = "llamalib_windows_runtime.dll";
-#endif
+            string libName;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                libName = "libllamalib_linux_runtime.so";
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                libName = "libllamalib_macos_runtime.dylib";
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                libName = "llamalib_windows_runtime.dll";
+            else
+                throw new ArgumentException("Unknown platform " + RuntimeInformation.OSDescription);
             return Path.Combine(libraryBasePath, libName);
         }
 
         private void LoadLibraries(bool gpu)
         {
-            if (Available_Architectures == null)
-            {
-                throw new InvalidOperationException("Runtime library not loaded. Cannot determine available architectures.");
-            }
-
-            string architecturesString = Available_Architectures(gpu);
+            string architecturesString = Marshal.PtrToStringAnsi(Available_Architectures(gpu));
             if (string.IsNullOrEmpty(architecturesString))
             {
                 throw new InvalidOperationException("No architectures available for the specified GPU setting.");
@@ -221,11 +260,6 @@ namespace UndreamAI.LlamaLib
                 {
                     string libraryPath = Path.Combine(libraryBasePath, library.Trim());
                     libraryHandle = LibraryLoader.LoadLibrary(libraryPath);
-                    if (libraryHandle == IntPtr.Zero)
-                    {
-                        Console.WriteLine($"Failed to load library {library}.");
-                        continue;
-                    }
                     LoadFunctionPointers();
                     architecture = library.Trim();
                     return;
@@ -244,6 +278,7 @@ namespace UndreamAI.LlamaLib
 
         private void LoadFunctionPointers()
         {
+            LLM_Debug = LibraryLoader.GetSymbolDelegate<LLM_Debug_Delegate>(libraryHandle, "LLM_Debug");
             LLM_Tokenize = LibraryLoader.GetSymbolDelegate<LLM_Tokenize_Delegate>(libraryHandle, "LLM_Tokenize");
             LLM_Detokenize = LibraryLoader.GetSymbolDelegate<LLM_Detokenize_Delegate>(libraryHandle, "LLM_Detokenize");
             LLM_Embeddings = LibraryLoader.GetSymbolDelegate<LLM_Embeddings_Delegate>(libraryHandle, "LLM_Embeddings");
@@ -264,8 +299,6 @@ namespace UndreamAI.LlamaLib
             LLM_Status_Code = LibraryLoader.GetSymbolDelegate<LLM_Status_Code_Delegate>(libraryHandle, "LLM_Status_Code");
             LLM_Status_Message = LibraryLoader.GetSymbolDelegate<LLM_Status_Message_Delegate>(libraryHandle, "LLM_Status_Message");
             LLM_Embedding_Size = LibraryLoader.GetSymbolDelegate<LLM_Embedding_Size_Delegate>(libraryHandle, "LLM_Embedding_Size");
-            LLMRuntime_Construct = LibraryLoader.GetSymbolDelegate<LLMRuntime_Construct_Delegate>(libraryHandle, "LLMRuntime_Construct");
-            LLMRuntime_From_Command = LibraryLoader.GetSymbolDelegate<LLMRuntime_From_Command_Delegate>(libraryHandle, "LLMRuntime_From_Command");
             LLMService_Construct = LibraryLoader.GetSymbolDelegate<LLMService_Construct_Delegate>(libraryHandle, "LLMService_Construct");
             LLMService_From_Command = LibraryLoader.GetSymbolDelegate<LLMService_From_Command_Delegate>(libraryHandle, "LLMService_From_Command");
             LLMClient_Construct = LibraryLoader.GetSymbolDelegate<LLMClient_Construct_Delegate>(libraryHandle, "LLMClient_Construct");
@@ -273,12 +306,17 @@ namespace UndreamAI.LlamaLib
         }
 
         // Delegate definitions for desktop platforms
+        // Runtime lib
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate string Available_Architectures_Delegate([MarshalAs(UnmanagedType.I1)] bool gpu);
+        public delegate IntPtr Available_Architectures_Delegate([MarshalAs(UnmanagedType.I1)] bool gpu);
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate bool Has_GPU_Layers_Delegate([MarshalAs(UnmanagedType.LPStr)] string command);
         
+        // Main lib
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void LLM_Debug_Delegate(int level);
+
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr LLM_Tokenize_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
         
@@ -316,7 +354,7 @@ namespace UndreamAI.LlamaLib
         public delegate void LLM_Stop_Delegate(IntPtr llm);
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void LLM_Start_Server_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string host, int port, [MarshalAs(UnmanagedType.LPStr)] string apiKey);
+        public delegate void LLM_Start_Server_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string host="0.0.0.0", int port=0, [MarshalAs(UnmanagedType.LPStr)] string apiKey="");
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void LLM_Stop_Server_Delegate(IntPtr llm);
@@ -338,36 +376,19 @@ namespace UndreamAI.LlamaLib
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int LLM_Embedding_Size_Delegate(IntPtr llm);
-        
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr LLMRuntime_Construct_Delegate(
-            [MarshalAs(UnmanagedType.LPStr)] string modelPath,
-            int numThreads,
-            int numGpuLayers,
-            int numParallel,
-            [MarshalAs(UnmanagedType.I1)] bool flashAttention,
-            int contextSize,
-            int batchSize,
-            [MarshalAs(UnmanagedType.I1)] bool embeddingOnly,
-            IntPtr loraPaths,
-            int loraPathCount,
-            [MarshalAs(UnmanagedType.LPStr)] string path);
-        
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr LLMRuntime_From_Command_Delegate([MarshalAs(UnmanagedType.LPStr)] string command, [MarshalAs(UnmanagedType.LPStr)] string path);
-        
+
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr LLMService_Construct_Delegate(
             [MarshalAs(UnmanagedType.LPStr)] string modelPath,
-            int numThreads,
-            int numGpuLayers,
-            int numParallel,
-            [MarshalAs(UnmanagedType.I1)] bool flashAttention,
-            int contextSize,
-            int batchSize,
-            [MarshalAs(UnmanagedType.I1)] bool embeddingOnly,
-            IntPtr loraPaths,
-            int loraPathCount);
+            int numThreads = -1,
+            int numGpuLayers = 0,
+            int numParallel = 1,
+            [MarshalAs(UnmanagedType.I1)] bool flashAttention = false,
+            int contextSize = 4096,
+            int batchSize = 2048,
+            [MarshalAs(UnmanagedType.I1)] bool embeddingOnly = false,
+            int loraCount = 0,
+            IntPtr loraPaths = default);
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr LLMService_From_Command_Delegate([MarshalAs(UnmanagedType.LPStr)] string paramsString);
@@ -384,6 +405,7 @@ namespace UndreamAI.LlamaLib
         public static Has_GPU_Layers_Delegate Has_GPU_Layers;
         
         // Main lib
+        public LLM_Debug_Delegate LLM_Debug;
         public LLM_Tokenize_Delegate LLM_Tokenize;
         public LLM_Detokenize_Delegate LLM_Detokenize;
         public LLM_Embeddings_Delegate LLM_Embeddings;
@@ -404,55 +426,31 @@ namespace UndreamAI.LlamaLib
         public LLM_Status_Code_Delegate LLM_Status_Code;
         public LLM_Status_Message_Delegate LLM_Status_Message;
         public LLM_Embedding_Size_Delegate LLM_Embedding_Size;
-        public LLMRuntime_Construct_Delegate LLMRuntime_Construct;
-        public LLMRuntime_From_Command_Delegate LLMRuntime_From_Command;
         public LLMService_Construct_Delegate LLMService_Construct;
         public LLMService_From_Command_Delegate LLMService_From_Command;
         public LLMClient_Construct_Delegate LLMClient_Construct;
         public LLMRemoteClient_Construct_Delegate LLMRemoteClient_Construct;
-#endif
-
-        public static string GetLibraryBasePath()
-        {
-            // Get the directory where the executable is located
-            string baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            
-#if LINUX
-            string os = "linux";
-#elif MACOS
-            string os = "macos";
-#else
-            string os = "windows";
-#endif
-
-            string[] librariesDirNames = new string[] { "runtimes", "libraries", "libs" };
-            foreach (string librariesDirName in librariesDirNames)
-            {
-                string librariesPath = Path.Combine(baseDir, librariesDirName, os);
-                if (Directory.Exists(librariesPath)) return librariesPath;
-            }
-
-            return baseDir;
-        }
 
         public void Dispose()
         {
-#if !ANDROID && !IOS && !VISIONOS
-            if (libraryHandle != IntPtr.Zero)
+            LibraryLoader.FreeLibrary(libraryHandle);
+            libraryHandle = IntPtr.Zero;
+
+            lock (runtimeLock)
             {
-                LibraryLoader.FreeLibrary(libraryHandle);
-                libraryHandle = IntPtr.Zero;
+                instanceCount--;
+                if(instanceCount == 0)
+                {
+                    LibraryLoader.FreeLibrary(runtimeLibraryHandle);
+                    runtimeLibraryHandle = IntPtr.Zero;
+                }
             }
-            if (runtimeLibraryHandle != IntPtr.Zero)
-            {
-                LibraryLoader.FreeLibrary(runtimeLibraryHandle);
-            }
-#endif
         }
 
         ~LlamaLib()
         {
             Dispose();
         }
+#endif
     }
 }

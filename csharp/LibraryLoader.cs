@@ -31,27 +31,26 @@ namespace UndreamAI.LlamaLib
 
             return Marshal.GetDelegateForFunctionPointer<T>(symbol);
         }
-
         /// <summary>
         /// Loads the provided library in a cross-platform manner
         /// </summary>
-        /// <param name="libraryName">library path</param>
+        /// <param name="libraryPath">library path</param>
         /// <returns>library handle</returns>
-        public static IntPtr LoadLibrary(string libraryName)
+        public static IntPtr LoadLibrary(string libraryPath)
         {
-            if (string.IsNullOrEmpty(libraryName))
-                throw new ArgumentNullException(nameof(libraryName));
+            if (string.IsNullOrEmpty(libraryPath))
+                throw new ArgumentNullException(nameof(libraryPath));
 
-#if WINDOWS
-            return Win32.LoadLibrary(libraryName);
-#elif LINUX
-            return Linux.dlopen(libraryName);
-#elif MACOS
-            return Mac.dlopen(libraryName);
-#elif ANDROID || IOS || VISIONOS
-            return Mobile.dlopen(libraryName);
+#if ANDROID || IOS || VISIONOS
+            return Mobile.dlopen(libraryPath);
 #else
-            throw new PlatformNotSupportedException($"Current platform is unknown, unable to load library '{libraryName}'.");
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                return Win32.LoadLibrary(libraryPath);
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return Linux.dlopen(libraryPath);
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                return Mac.dlopen(libraryPath);
+            else throw new PlatformNotSupportedException($"Current platform is unknown, unable to load library '{libraryPath}'.");
 #endif
         }
 
@@ -66,16 +65,16 @@ namespace UndreamAI.LlamaLib
             if (string.IsNullOrEmpty(symbolName))
                 throw new ArgumentNullException(nameof(symbolName));
 
-#if WINDOWS
-            return Win32.GetProcAddress(library, symbolName);
-#elif LINUX
-            return Linux.dlsym(library, symbolName);
-#elif MACOS
-            return Mac.dlsym(library, symbolName);
-#elif ANDROID || IOS || VISIONOS
+#if ANDROID || IOS || VISIONOS
             return Mobile.dlsym(library, symbolName);
 #else
-            throw new PlatformNotSupportedException($"Current platform is unknown, unable to load symbol '{symbolName}' from library {library}.");
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                return Win32.GetProcAddress(library, symbolName);
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return Linux.dlsym(library, symbolName);
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                return Mac.dlsym(library, symbolName);
+            else throw new PlatformNotSupportedException($"Current platform is unknown, unable to load symbol '{symbolName}' from library {library}.");
 #endif
         }
 
@@ -88,16 +87,16 @@ namespace UndreamAI.LlamaLib
             if (library == IntPtr.Zero)
                 return;
 
-#if WINDOWS
-            Win32.FreeLibrary(library);
-#elif LINUX
-            Linux.dlclose(library);
-#elif MACOS
-            Mac.dlclose(library);
-#elif ANDROID || IOS || VISIONOS
+#if ANDROID || IOS || VISIONOS
             Mobile.dlclose(library);
 #else
-            throw new PlatformNotSupportedException($"Current platform is unknown, unable to close library '{library}'.");
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                Win32.FreeLibrary(library);
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                Linux.dlclose(library);
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                Mac.dlclose(library);
+            else throw new PlatformNotSupportedException($"Current platform is unknown, unable to close library '{library}'.");
 #endif
         }
 

@@ -14,13 +14,17 @@ namespace UndreamAI.LlamaLib
         protected readonly object _disposeLock = new object();
         public bool disposed = false;
 
-        protected LLM()
-        {
-        }
+        protected LLM() { }
 
         protected LLM(LlamaLib llamaLibInstance)
         {
             llamaLib = llamaLibInstance ?? throw new ArgumentNullException(nameof(llamaLibInstance));
+        }
+
+        public void Debug(int level)
+        {
+            CheckLlamaLib();
+            llamaLib.LLM_Debug(level);
         }
 
         public string Tokenize(string jsonData)
@@ -28,7 +32,6 @@ namespace UndreamAI.LlamaLib
             if (string.IsNullOrEmpty(jsonData))
                 throw new ArgumentNullException(nameof(jsonData));
             
-            CheckDisposed();
             CheckLlamaLib();
             
             var result = llamaLib.LLM_Tokenize(llm, jsonData);
@@ -40,45 +43,39 @@ namespace UndreamAI.LlamaLib
             if (string.IsNullOrEmpty(jsonData))
                 throw new ArgumentNullException(nameof(jsonData));
             
-            CheckDisposed();
             CheckLlamaLib();
             
             var result = llamaLib.LLM_Detokenize(llm, jsonData);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
-        public string GetEmbeddings(string jsonData)
+        public string Embeddings(string jsonData)
         {
             if (string.IsNullOrEmpty(jsonData))
                 throw new ArgumentNullException(nameof(jsonData));
             
-            CheckDisposed();
             CheckLlamaLib();
             
             var result = llamaLib.LLM_Embeddings(llm, jsonData);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
-        public string Complete(string jsonData, LlamaLib.CharArrayCallback callback = null)
+        public string Completion(string jsonData, LlamaLib.CharArrayCallback callback = null)
         {
             if (string.IsNullOrEmpty(jsonData))
                 throw new ArgumentNullException(nameof(jsonData));
             
-            CheckDisposed();
             CheckLlamaLib();
             
             var result = llamaLib.LLM_Completion(llm, jsonData, callback);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
-        protected void CheckDisposed()
+        protected void CheckLlamaLib()
         {
             if (disposed)
                 throw new ObjectDisposedException(GetType().Name);
-        }
 
-        protected void CheckLlamaLib()
-        {
             if (llamaLib == null)
                 throw new InvalidOperationException("LlamaLib instance is not initialized");
             
@@ -88,37 +85,11 @@ namespace UndreamAI.LlamaLib
 
         public virtual void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            lock (_disposeLock)
-            {
-                if (!disposed)
-                {
-                    if (disposing)
-                    {
-                        // Dispose managed resources
-                    }
-
-                    // Dispose unmanaged resources
-                    if (llm != IntPtr.Zero)
-                    {
-                        // Base LLM doesn't have a specific delete function
-                        // Derived classes should override this method to properly dispose their LLM instances
-                        llm = IntPtr.Zero;
-                    }
-                    
-                    disposed = true;
-                }
-            }
         }
 
         ~LLM()
         {
-            Dispose(false);
+            Dispose();
         }
     }
 
@@ -138,7 +109,6 @@ namespace UndreamAI.LlamaLib
             if (string.IsNullOrEmpty(jsonData))
                 throw new ArgumentNullException(nameof(jsonData));
             
-            CheckDisposed();
             CheckLlamaLib();
             
             var result = llamaLib.LLM_Slot(llm, jsonData);
@@ -147,7 +117,6 @@ namespace UndreamAI.LlamaLib
 
         public void Cancel(int idSlot)
         {
-            CheckDisposed();
             CheckLlamaLib();
             
             llamaLib.LLM_Cancel(llm, idSlot);
@@ -165,21 +134,19 @@ namespace UndreamAI.LlamaLib
         {
         }
 
-        public string SetLoraWeight(string jsonData)
+        public string Lora_Weight(string jsonData)
         {
             if (string.IsNullOrEmpty(jsonData))
                 throw new ArgumentNullException(nameof(jsonData));
             
-            CheckDisposed();
             CheckLlamaLib();
             
             var result = llamaLib.LLM_Lora_Weight(llm, jsonData);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
-        public string GetLoraList()
+        public string Lora_List()
         {
-            CheckDisposed();
             CheckLlamaLib();
             
             var result = llamaLib.LLM_Lora_List(llm);
@@ -188,15 +155,13 @@ namespace UndreamAI.LlamaLib
 
         public void Start()
         {
-            CheckDisposed();
             CheckLlamaLib();
             
             llamaLib.LLM_Start(llm);
         }
 
-        public bool IsStarted()
+        public bool Started()
         {
-            CheckDisposed();
             CheckLlamaLib();
             
             return llamaLib.LLM_Started(llm);
@@ -204,15 +169,13 @@ namespace UndreamAI.LlamaLib
 
         public void Stop()
         {
-            CheckDisposed();
             CheckLlamaLib();
             
             llamaLib.LLM_Stop(llm);
         }
 
-        public void StartServer(string host = "0.0.0.0", int port = 0, string apiKey = "")
+        public void Start_Server(string host = "0.0.0.0", int port = 0, string apiKey = "")
         {
-            CheckDisposed();
             CheckLlamaLib();
             
             if (string.IsNullOrEmpty(host))
@@ -221,17 +184,15 @@ namespace UndreamAI.LlamaLib
             llamaLib.LLM_Start_Server(llm, host, port, apiKey ?? string.Empty);
         }
 
-        public void StopServer()
+        public void Stop_Server()
         {
-            CheckDisposed();
             CheckLlamaLib();
             
             llamaLib.LLM_Stop_Server(llm);
         }
 
-        public void JoinService()
+        public void Join_Service()
         {
-            CheckDisposed();
             CheckLlamaLib();
             
             llamaLib.LLM_Join_Service(llm);
@@ -239,51 +200,46 @@ namespace UndreamAI.LlamaLib
 
         public void JoinServer()
         {
-            CheckDisposed();
             CheckLlamaLib();
             
             llamaLib.LLM_Join_Server(llm);
         }
 
-        public void SetSSL(string sslCert, string sslKey)
+        public void Set_SSL(string sslCert, string sslKey)
         {
             if (string.IsNullOrEmpty(sslCert))
                 throw new ArgumentNullException(nameof(sslCert));
             if (string.IsNullOrEmpty(sslKey))
                 throw new ArgumentNullException(nameof(sslKey));
             
-            CheckDisposed();
             CheckLlamaLib();
             
             llamaLib.LLM_Set_SSL(llm, sslCert, sslKey);
         }
 
-        public int GetStatusCode()
+        public int Status_Code()
         {
-            CheckDisposed();
             CheckLlamaLib();
             
             return llamaLib.LLM_Status_Code(llm);
         }
 
-        public string GetStatusMessage()
+        public string Status_Message()
         {
-            CheckDisposed();
             CheckLlamaLib();
             
             var result = llamaLib.LLM_Status_Message(llm);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
-        public int GetEmbeddingSize()
+        public int Embedding_Size()
         {
-            CheckDisposed();
             CheckLlamaLib();
             
             return llamaLib.LLM_Embedding_Size(llm);
         }
 
-        protected override void Dispose(bool disposing)
+        public override void Dispose()
         {
             lock (_disposeLock)
             {
@@ -293,21 +249,17 @@ namespace UndreamAI.LlamaLib
                     {
                         try
                         {
+                            llamaLib.LLM_Stop(llm);
                             llamaLib.LLM_Delete(llm);
                         }
-                        catch (Exception)
-                        {
-                            // Ignore exceptions during disposal
-                        }
-                        finally
-                        {
-                            llm = IntPtr.Zero;
-                        }
+                        catch (Exception){ }
                     }
+                    llamaLib?.Dispose();
+                    llamaLib = null;
+                    llm = IntPtr.Zero;
                 }
+                disposed = true;
             }
-            
-            base.Dispose(disposing);
         }
     }
 
@@ -336,29 +288,31 @@ namespace UndreamAI.LlamaLib
             }
         }
 
-        public LLMService(string paramsString)
+        public LLMService(LlamaLib llamaLibInstance, IntPtr llmInstance)
+        {
+            llamaLib = llamaLibInstance ?? throw new ArgumentNullException(nameof(llamaLibInstance));
+            if (llmInstance == IntPtr.Zero) throw new ArgumentNullException(nameof(llmInstance));
+            llm = llmInstance;
+        }
+
+        public static LLMService From_Command(string paramsString)
         {
             if (string.IsNullOrEmpty(paramsString))
                 throw new ArgumentNullException(nameof(paramsString));
 
+            LlamaLib llamaLibInstance = null;
+            IntPtr llmInstance;
             try
             {
-                llamaLib = new LlamaLib(LlamaLib.Has_GPU_Layers(paramsString));
-                llm = CreateFromCommand(paramsString);
+                llamaLibInstance = new LlamaLib(LlamaLib.Has_GPU_Layers(paramsString));
+                llmInstance = llamaLibInstance.LLMService_From_Command(paramsString);
             }
             catch
             {
-                llamaLib?.Dispose();
+                llamaLibInstance?.Dispose();
                 throw;
             }
-        }
-
-        private IntPtr CreateFromCommand(string paramsString)
-        {
-            var llm = llamaLib.LLMService_From_Command(paramsString);
-            if (llm == IntPtr.Zero)
-                throw new InvalidOperationException("Failed to create LLMService from command string");
-            return llm;
+            return new LLMService(llamaLibInstance, llmInstance);
         }
 
         private IntPtr CreateLLM(string modelPath, int numThreads, int numGpuLayers,
@@ -447,33 +401,6 @@ namespace UndreamAI.LlamaLib
                 throw new InvalidOperationException("Failed to create LLMClient");
             return llm;
         }
-
-        // protected override void Dispose(bool disposing)
-        // {
-        //     lock (_disposeLock)
-        //     {
-        //         if (!disposed)
-        //         {
-        //             if (llm != IntPtr.Zero && llamaLib != null)
-        //             {
-        //                 try
-        //                 {
-        //                     llamaLib.LLMClient_Delete(llm);
-        //                 }
-        //                 catch (Exception)
-        //                 {
-        //                     // Ignore exceptions during disposal
-        //                 }
-        //                 finally
-        //                 {
-        //                     llm = IntPtr.Zero;
-        //                 }
-        //             }
-        //         }
-        //     }
-            
-        //     base.Dispose(disposing);
-        // }
     }
 
     // LLMRemoteClient class
@@ -503,32 +430,5 @@ namespace UndreamAI.LlamaLib
                 throw new InvalidOperationException($"Failed to create LLMRemoteClient for {url}:{port}");
             return llm;
         }
-
-        // protected override void Dispose(bool disposing)
-        // {
-        //     lock (_disposeLock)
-        //     {
-        //         if (!disposed)
-        //         {
-        //             if (llm != IntPtr.Zero && llamaLib != null)
-        //             {
-        //                 try
-        //                 {
-        //                     llamaLib.LLMRemoteClient_Delete(llm);
-        //                 }
-        //                 catch (Exception)
-        //                 {
-        //                     // Ignore exceptions during disposal
-        //                 }
-        //                 finally
-        //                 {
-        //                     llm = IntPtr.Zero;
-        //                 }
-        //             }
-        //         }
-        //     }
-            
-        //     base.Dispose(disposing);
-        // }
     }
 }
