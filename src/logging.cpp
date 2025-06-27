@@ -110,9 +110,9 @@ static bool AmIBeingDebugged(void)
 
 //=========================== API ===========================//
 
-void LLM_Debug(DEBUG_LEVEL level)
+void LLM_Debug(int level)
 {
-    DEBUG_LEVEL_SET = level;
+    DEBUG_LEVEL_SET = static_cast<DEBUG_LEVEL>(level);
 }
 
 void LLM_Logging_Callback(CharArrayFn callback)
