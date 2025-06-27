@@ -469,7 +469,9 @@ void LLMService::start(){
         LOG_INFO("stopped service loop", {});
         return 1; 
     });
-    while (!started()) {}
+    while (!started()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
 }
 
 void LLMService::stop(){
