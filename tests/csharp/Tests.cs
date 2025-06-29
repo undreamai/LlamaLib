@@ -215,10 +215,10 @@ namespace UndreamAI.LlamaLib.Tests
             TestStart(llmService.Start, llmService.Started);
             TestTokenization(llmService.Tokenize, llmService.Detokenize);
             TestCompletion(llmService.Completion);
-            TestEmbedding(llmService.Embeddings, llmService.Embedding_Size);
+            TestEmbedding(llmService.Embeddings, llmService.EmbeddingSize);
             TestCancel(llmService.Cancel);
             TestSlotSaveRestore(llmService.Slot);
-            TestLoraList(llmService.Lora_List);
+            TestLoraList(llmService.LoraList);
             
             llmService?.Dispose();
         }
@@ -226,7 +226,7 @@ namespace UndreamAI.LlamaLib.Tests
         [TestMethod]
         public void Tests_LLMClient()
         {
-            LLMService llmService = new LLMService(testModelPath);
+            LLMService llmService = LLMService.FromCommand(new String("-m " + testModelPath));
             llmService.Debug(3);
             TestStart(llmService.Start, llmService.Started);
 
@@ -234,7 +234,7 @@ namespace UndreamAI.LlamaLib.Tests
 
             TestTokenization(llmClient.Tokenize, llmClient.Detokenize);
             TestCompletion(llmClient.Completion);
-            TestEmbedding(llmClient.Embeddings, llmService.Embedding_Size);
+            TestEmbedding(llmClient.Embeddings, llmService.EmbeddingSize);
             TestCancel(llmClient.Cancel);
             TestSlotSaveRestore(llmClient.Slot);
 
@@ -247,13 +247,13 @@ namespace UndreamAI.LlamaLib.Tests
             LLMService llmService = new LLMService(testModelPath);
             llmService.Debug(3);
             TestStart(llmService.Start, llmService.Started);
-            llmService.Start_Server("", 13333);
+            llmService.StartServer("", 13333);
 
             LLMRemoteClient llmClient = new LLMRemoteClient("http://localhost", 13333);
 
             TestTokenization(llmClient.Tokenize, llmClient.Detokenize);
             TestCompletion(llmClient.Completion);
-            TestEmbedding(llmClient.Embeddings, llmService.Embedding_Size);
+            TestEmbedding(llmClient.Embeddings, llmService.EmbeddingSize);
 
             llmService?.Dispose();
         }

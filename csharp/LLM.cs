@@ -134,7 +134,7 @@ namespace UndreamAI.LlamaLib
         {
         }
 
-        public string Lora_Weight(string jsonData)
+        public string LoraWeight(string jsonData)
         {
             if (string.IsNullOrEmpty(jsonData))
                 throw new ArgumentNullException(nameof(jsonData));
@@ -145,7 +145,7 @@ namespace UndreamAI.LlamaLib
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
-        public string Lora_List()
+        public string LoraList()
         {
             CheckLlamaLib();
             
@@ -174,7 +174,7 @@ namespace UndreamAI.LlamaLib
             llamaLib.LLM_Stop(llm);
         }
 
-        public void Start_Server(string host = "0.0.0.0", int port = 0, string apiKey = "")
+        public void StartServer(string host = "0.0.0.0", int port = 0, string apiKey = "")
         {
             CheckLlamaLib();
             
@@ -184,14 +184,14 @@ namespace UndreamAI.LlamaLib
             llamaLib.LLM_Start_Server(llm, host, port, apiKey ?? string.Empty);
         }
 
-        public void Stop_Server()
+        public void StopServer()
         {
             CheckLlamaLib();
             
             llamaLib.LLM_Stop_Server(llm);
         }
 
-        public void Join_Service()
+        public void JoinService()
         {
             CheckLlamaLib();
             
@@ -205,7 +205,7 @@ namespace UndreamAI.LlamaLib
             llamaLib.LLM_Join_Server(llm);
         }
 
-        public void Set_SSL(string sslCert, string sslKey)
+        public void SetSSL(string sslCert, string sslKey)
         {
             if (string.IsNullOrEmpty(sslCert))
                 throw new ArgumentNullException(nameof(sslCert));
@@ -217,25 +217,22 @@ namespace UndreamAI.LlamaLib
             llamaLib.LLM_Set_SSL(llm, sslCert, sslKey);
         }
 
-        public int Status_Code()
+        public int StatusCode()
         {
             CheckLlamaLib();
-            
             return llamaLib.LLM_Status_Code(llm);
         }
 
-        public string Status_Message()
+        public string StatusMessage()
         {
             CheckLlamaLib();
-            
             var result = llamaLib.LLM_Status_Message(llm);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
-        public int Embedding_Size()
+        public int EmbeddingSize()
         {
             CheckLlamaLib();
-            
             return llamaLib.LLM_Embedding_Size(llm);
         }
 
@@ -290,18 +287,19 @@ namespace UndreamAI.LlamaLib
 
         public LLMService(LlamaLib llamaLibInstance, IntPtr llmInstance)
         {
-            llamaLib = llamaLibInstance ?? throw new ArgumentNullException(nameof(llamaLibInstance));
+            if (llamaLibInstance == null) throw new ArgumentNullException(nameof(llamaLibInstance));
             if (llmInstance == IntPtr.Zero) throw new ArgumentNullException(nameof(llmInstance));
+            llamaLib = llamaLibInstance;
             llm = llmInstance;
         }
 
-        public static LLMService From_Command(string paramsString)
+        public static LLMService FromCommand(string paramsString)
         {
             if (string.IsNullOrEmpty(paramsString))
                 throw new ArgumentNullException(nameof(paramsString));
 
             LlamaLib llamaLibInstance = null;
-            IntPtr llmInstance;
+            IntPtr llmInstance = IntPtr.Zero;
             try
             {
                 llamaLibInstance = new LlamaLib(LlamaLib.Has_GPU_Layers(paramsString));

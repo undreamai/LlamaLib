@@ -259,9 +259,11 @@ namespace UndreamAI.LlamaLib
                 try
                 {
                     string libraryPath = Path.Combine(libraryBasePath, library.Trim());
+                    Console.WriteLine("Trying " + libraryPath);
                     libraryHandle = LibraryLoader.LoadLibrary(libraryPath);
                     LoadFunctionPointers();
                     architecture = library.Trim();
+                    Console.WriteLine("Successfully loaded: " + libraryPath);
                     return;
                 }
                 catch (Exception ex)
