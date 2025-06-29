@@ -11,28 +11,30 @@ struct server_context;
 
 class UNDREAMAI_API LLMService : public LLMProvider {
     public:
-        LLMService(const char* model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, int lora_count=0, const char** lora_paths=nullptr);
-        LLMService(const json& params);
-        LLMService(const std::string& params);
-        LLMService(const char* params);
-        LLMService(int argc, char ** argv);
+        LLMService();
+        LLMService(const std::string& model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, const std::vector<std::string>& lora_paths = {});
         ~LLMService();
+
+        static LLMService* from_params(const json& params);
+        static LLMService* from_command(const std::string& command);
+        static LLMService* from_command(int argc, char ** argv);
+
+        static EVP_PKEY* load_key(const std::string& key_str);
+        static X509* load_cert(const std::string& cert_str);
+        static std::vector<char*> jsonToArguments(const json& params);
 
         void init(int argc, char** argv);
         void init(const std::string& params);
         void init(const char* params);
 
-        static EVP_PKEY* load_key(const std::string& key_str);
-        static X509* load_cert(const std::string& cert_str);
-
         //=================================== LLM METHODS START ===================================//
-        void start_server(const char* host="0.0.0.0", int port=0, const char* API_key="") override;
+        void start_server(const std::string& host="0.0.0.0", int port=0, const std::string& API_key="") override;
         void stop_server() override;
         void join_server() override;
         void start() override;
         void stop() override;
         void join_service() override;
-        void set_SSL(const char* SSL_cert, const char* SSL_key) override;
+        void set_SSL(const std::string& SSL_cert, const std::string& SSL_key) override;
         bool started() override;
 
         int embedding_size() override;
@@ -61,7 +63,6 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         std::string SSL_key = "";
         std::mutex start_stop_mutex;
 
-        std::vector<char*> jsonToArguments(const json& params);
         std::vector<std::string> splitArguments(const std::string& inputString);
         std::string completion_streaming(
             std::unordered_set<int> id_tasks,

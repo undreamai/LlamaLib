@@ -28,7 +28,6 @@ struct LoraIdScalePath {
 };
 
 void ensure_error_handlers_initialized();
-bool has_gpu_layers(const std::string& command);
 
 class UNDREAMAI_API LLM {
 protected:
@@ -38,7 +37,8 @@ protected:
     virtual std::string completion_impl(const json& data, CharArrayFn callback = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0) = 0;
 
 public:
-    static std::string LLM_args_to_command(const char* model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, int lora_count=0, const char** lora_paths=nullptr);
+    static bool has_gpu_layers(const std::string& command);
+    static std::string LLM_args_to_command(const std::string& model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, const std::vector<std::string>& lora_paths = {});
 
     virtual json build_tokenize_json(const std::string& query);
     virtual std::vector<int> parse_tokenize_json(const json& result);
@@ -79,12 +79,12 @@ protected:
     virtual void cancel_impl(int id_slot) = 0;
 
 public:
-    virtual json build_slot_json(int id_slot, std::string action, std::string filepath);
+    virtual json build_slot_json(int id_slot, const std::string& action, const std::string& filepath);
     virtual std::string parse_slot_json(const json& result);
     virtual std::string slot_json(const json& data, httplib::Response* res = nullptr);
-    virtual std::string slot_json(int id_slot, std::string action, std::string filepath, httplib::Response* res = nullptr);
+    virtual std::string slot_json(int id_slot, const std::string& action, const std::string& filepath, httplib::Response* res = nullptr);
     virtual std::string slot(const json& data, httplib::Response* res = nullptr);
-    virtual std::string slot(int id_slot, std::string action, std::string filepath, httplib::Response* res = nullptr);
+    virtual std::string slot(int id_slot, const std::string& action, const std::string& filepath, httplib::Response* res = nullptr);
 
     virtual void cancel(int id_slot);
 };
@@ -111,13 +111,13 @@ public:
     virtual std::vector<LoraIdScalePath> parse_lora_list_json(const json& result);
     virtual std::vector<LoraIdScalePath> lora_list();
 
-    virtual void start_server(const char* host="0.0.0.0", int port=0, const char* API_key="") = 0;
+    virtual void start_server(const std::string& host="0.0.0.0", int port=0, const std::string& API_key="") = 0;
     virtual void stop_server() = 0;
     virtual void join_server() = 0;
     virtual void start() = 0;
     virtual void stop() = 0;
     virtual void join_service() = 0;
-    virtual void set_SSL(const char* SSL_cert, const char* SSL_key) = 0;
+    virtual void set_SSL(const std::string& SSL_cert, const std::string& SSL_key) = 0;
     virtual bool started() = 0;
 
     virtual int embedding_size() = 0;
@@ -157,7 +157,7 @@ private:
 
 
 extern "C" {
-    UNDREAMAI_API bool Has_GPU_Layers(const std::string& command);
+    UNDREAMAI_API bool Has_GPU_Layers(const char* command);
 
     UNDREAMAI_API const char* LLM_Tokenize(LLM* llm, const char* json_data);
     UNDREAMAI_API const char* LLM_Detokenize(LLM* llm, const char* json_data);

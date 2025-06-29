@@ -71,26 +71,28 @@ class LLMService;
 
 class UNDREAMAI_API LLMRuntime : public LLMProvider {
 public:
-    LLMRuntime(const char* model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, int lora_count=0, const char** lora_paths=nullptr);
-    LLMRuntime(const std::string& command);
-    LLMRuntime(int argc, char ** argv);
+    LLMRuntime();
+    LLMRuntime(const std::string& model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, const std::vector<std::string>& lora_paths = {});
     ~LLMRuntime();
 
+    static LLMRuntime* from_command(const std::string& command);
+    static LLMRuntime* from_command(int argc, char ** argv);
+    
     LibHandle handle = nullptr;
     LLMProvider* llm = nullptr;
 
     bool create_LLM_library(const std::string& command);
 
     //=================================== LLM METHODS START ===================================//
-    void start_server(const char* host="0.0.0.0", int port=0, const char* API_key="") override { LLM_Start_Server((LLMProvider*)llm, host, port, API_key); }
-    void stop_server() override { LLM_Stop_Server((LLMProvider*)llm); }
-    void join_server() override { LLM_Join_Server((LLMProvider*)llm); }
-    void start() override { LLM_Start((LLMProvider*)llm); }
-    void stop() override { LLM_Stop((LLMProvider*)llm); }
-    void join_service() override { LLM_Join_Service((LLMProvider*)llm); }
-    void set_SSL(const char* cert, const char* key) override { LLM_Set_SSL((LLMProvider*)llm, cert, key); }
-    bool started() override { return LLM_Started((LLMProvider*)llm); }
-    int embedding_size() override { return LLM_Embedding_Size((LLMProvider*)llm);}
+    void start_server(const std::string& host="0.0.0.0", int port=0, const std::string& API_key="") override { ((LLMProvider*)llm)->start_server(host, port, API_key); }
+    void stop_server() override { ((LLMProvider*)llm)->stop_server(); }
+    void join_server() override { ((LLMProvider*)llm)->join_server(); }
+    void start() override { ((LLMProvider*)llm)->start(); }
+    void stop() override { ((LLMProvider*)llm)->stop();; }
+    void join_service() override { ((LLMProvider*)llm)->join_service(); }
+    void set_SSL(const std::string& cert, const std::string& key) override { ((LLMProvider*)llm)->set_SSL(cert, key); }
+    bool started() override { return ((LLMProvider*)llm)->started(); }
+    int embedding_size() override { return ((LLMProvider*)llm)->embedding_size();}
     //=================================== LLM METHODS END ===================================//
 
 #define DECLARE_FN(name, ret, ...) \
@@ -100,6 +102,7 @@ public:
 
 protected:
     std::vector<std::filesystem::path> search_paths;
+
     //=================================== LLM METHODS START ===================================//
     std::string tokenize_impl(const json& data) override {
         return LLM_Tokenize((LLM*)llm, data.dump().c_str());

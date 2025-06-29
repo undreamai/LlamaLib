@@ -193,7 +193,7 @@ void test_slot_save_restore(LLMLocal* llm) {
 
 LLMService* start_llm_service(const std::string& command)
 {
-    LLMService* llm_service = LLMService_From_Command(command.c_str());
+    LLMService* llm_service = LLMService::from_command(command);
     std::cout<<"LLMService_From_Command"<<std::endl;
     LLM_Start(llm_service);
     std::cout<<"LLM_Start"<<std::endl;
@@ -203,7 +203,7 @@ LLMService* start_llm_service(const std::string& command)
 #ifdef RUNTIME_TESTS
 LLMRuntime* start_llm_lib(std::string command)
 {
-    LLMRuntime* llmlib = LLMRuntime_From_Command(command.c_str());
+    LLMRuntime* llmlib = LLMRuntime::from_command(command);
     if (!llmlib) {
         std::cerr << "Failed to load any backend." << std::endl;
         return nullptr;
@@ -238,13 +238,13 @@ public:
     bool cancel_called = false;
     int cancelled_slot = -1;
 
-    void start_server(const char* host="0.0.0.0", int port=0, const char* API_key="") override { }
+    void start_server(const std::string& host="0.0.0.0", int port=0, const std::string& API_key="") override { }
     void stop_server() override { }
     void join_server() override { }
     void start() override { }
     void stop() override { }
     void join_service() override { }
-    void set_SSL(const char* SSL_cert, const char* SSL_key) override { }
+    void set_SSL(const std::string& SSL_cert, const std::string& SSL_key) override { }
     bool started() override { return true; }
     int embedding_size() override { return 0; }
 

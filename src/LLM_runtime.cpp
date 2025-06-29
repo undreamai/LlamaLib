@@ -247,16 +247,29 @@ bool LLMRuntime::create_LLM_library(const std::string& command) {
 
 //============================= LLMRuntime =============================//
 
-LLMRuntime::LLMRuntime(const char* model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char** lora_paths)
-: LLMRuntime(LLM::LLM_args_to_command(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_count, lora_paths)) { }
-
-LLMRuntime::LLMRuntime(const std::string& command)
+LLMRuntime::LLMRuntime()
 {
     search_paths = get_search_directories();
+}
+
+LLMRuntime::LLMRuntime(const std::string& model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, const std::vector<std::string>& lora_paths)
+: LLMRuntime()
+{
+    std::string command = LLM::LLM_args_to_command(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_paths);
     create_LLM_library(command);
 }
 
-LLMRuntime::LLMRuntime(int argc, char ** argv) : LLMRuntime(args_to_command(argc, argv)) { }
+LLMRuntime* LLMRuntime::from_command(const std::string& command)
+{
+    LLMRuntime* llmRuntime = new LLMRuntime();
+    llmRuntime->create_LLM_library(command);
+    return llmRuntime;
+}
+
+LLMRuntime* LLMRuntime::from_command(int argc, char ** argv)
+{
+    return from_command(args_to_command(argc, argv));
+}
 
 LLMRuntime::~LLMRuntime() {
     if (llm) {
@@ -287,15 +300,30 @@ const char* Available_Architectures(bool gpu)
 
 LLMRuntime* LLMRuntime_Construct(const char* model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char** lora_paths)
 {
-    return LLMRuntime_From_Command(LLM::LLM_args_to_command(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_count, lora_paths).c_str());
-}
-
-LLMRuntime* LLMRuntime_From_Command(const char* command) {
-    LLMRuntime* lib = new LLMRuntime(std::string(command));
-    if(lib->llm == nullptr)
+    std::vector<std::string> lora_paths_vector;
+    if (lora_paths != nullptr && lora_count > 0)
     {
-        delete lib;
+        for (int i = 0; i < lora_count; ++i) {
+            lora_paths_vector.push_back(std::string(lora_paths[i]));
+        }
+    }
+    LLMRuntime* llmRuntime = new LLMRuntime(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_paths_vector);
+
+    if(llmRuntime->llm == nullptr)
+    {
+        delete llmRuntime;
         return nullptr;
     }
-    return lib;
+    return llmRuntime;
+}
+
+LLMRuntime* LLMRuntime_From_Command(const char* command)
+{
+    LLMRuntime* llmRuntime = new LLMRuntime(std::string(command));
+    if(llmRuntime->llm == nullptr)
+    {
+        delete llmRuntime;
+        return nullptr;
+    }
+    return llmRuntime;
 }

@@ -27,26 +27,22 @@ void ensure_error_handlers_initialized() {
 
 //=========================== Helpers ===========================//
 
-std::string LLM::LLM_args_to_command(const char* model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char** lora_paths)
+std::string LLM::LLM_args_to_command(const std::string& model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, const std::vector<std::string>& lora_paths)
 {
-    std::string command = std::string("-m ") + model_path
-                        + " -t " + std::to_string(num_threads)
-                        + " -ngl " + std::to_string(num_GPU_layers)
-                        + " -np " + std::to_string(num_parallel)
-                        + " -c " + std::to_string(context_size)
-                        + " -b " + std::to_string(batch_size);
+    std::string command = "-m " + model_path +
+                          " -t " + std::to_string(num_threads) +
+                          " -ngl " + std::to_string(num_GPU_layers) +
+                          " -np " + std::to_string(num_parallel) +
+                          " -c " + std::to_string(context_size) +
+                          " -b " + std::to_string(batch_size);
+
     if (flash_attention) command += " --flash-attn";
     if (embedding_only) command += " --embedding";
-    if (lora_paths != nullptr && lora_count > 0)
-    {
-        for (int i = 0; i < lora_count; ++i) {
-            command += " --lora " + std::string(lora_paths[i]);
-        }
-    }
+    for (const auto& lora_path : lora_paths) command += " --lora " + lora_path;
     return command;
 }
 
-bool has_gpu_layers(const std::string& command) {
+bool LLM::has_gpu_layers(const std::string& command) {
     std::istringstream iss(command);
     std::vector<std::string> args;
     std::string token;
@@ -258,7 +254,7 @@ std::string LLM::completion(const std::string& prompt, int id_slot, const json& 
 
 //=========================== Slot Action ===========================//
 
-json LLMLocal::build_slot_json(int id_slot, std::string action, std::string filepath)
+json LLMLocal::build_slot_json(int id_slot, const std::string& action, const std::string& filepath)
 {
     json j;
     j["id_slot"] = id_slot;
@@ -281,7 +277,7 @@ std::string LLMLocal::slot_json(const json& data, httplib::Response* res)
     return slot_impl(data, res);
 }
 
-std::string LLMLocal::slot_json(int id_slot, std::string action, std::string filepath, httplib::Response* res)
+std::string LLMLocal::slot_json(int id_slot, const std::string& action, const std::string& filepath, httplib::Response* res)
 {
     return slot_json(build_slot_json(id_slot, action, filepath), res);
 }
@@ -291,7 +287,7 @@ std::string LLMLocal::slot(const json& data, httplib::Response* res)
     return parse_slot_json(json::parse(slot_json(data, res)));
 }
 
-std::string LLMLocal::slot(int id_slot, std::string action, std::string filepath, httplib::Response* res)
+std::string LLMLocal::slot(int id_slot, const std::string& action, const std::string& filepath, httplib::Response* res)
 {
     return slot(build_slot_json(id_slot, action, filepath), res);
 }
@@ -377,9 +373,9 @@ std::vector<LoraIdScalePath> LLMProvider::lora_list()
 
 //=========================== API ===========================//
 
-bool Has_GPU_Layers(const std::string& command)
+bool Has_GPU_Layers(const char* command)
 {
-    return has_gpu_layers(command);
+    return LLM::has_gpu_layers(command);
 }
 
 const char* LLM_Tokenize(LLM* llm, const char* json_data) {

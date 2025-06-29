@@ -4,7 +4,7 @@ int main(int argc, char ** argv) {
     std::string command = args_to_command(argc, argv);
     std::cout << command << std::endl;
 
-    LLMRuntime* llm = LLMRuntime_From_Command(command.c_str());
+    LLMRuntime* llm = LLMRuntime::from_command(command.c_str());
     if (!llm) {
         std::cout << "Failed to load any backend." << std::endl;
         return 1;

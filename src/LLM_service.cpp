@@ -24,30 +24,33 @@ X509* LLMService::load_cert(const std::string& cert_str) {
     return cert;
 }
 
-LLMService::LLMService(const char* model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char** lora_paths)
+LLMService::LLMService(){ }
+
+LLMService::LLMService(const std::string& model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, const std::vector<std::string>& lora_paths)
 {
-    init(LLM::LLM_args_to_command(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_count, lora_paths));
+    init(LLM::LLM_args_to_command(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_paths));
 }
 
-LLMService::LLMService(const json& params)
+LLMService* LLMService::from_params(const json& params)
 {
-    std::vector<char*> argv = jsonToArguments(params);
-    init(static_cast<int>(argv.size()), argv.data());
+    std::vector<char*> argv = LLMService::jsonToArguments(params);
+    LLMService* llmService = new LLMService();
+    llmService->init(argv.size(), argv.data());
+    return llmService;
 }
 
-LLMService::LLMService(const std::string& params)
+LLMService* LLMService::from_command(const std::string& command)
 {
-    init(params);
+    LLMService* llmService = new LLMService();
+    llmService->init(command);
+    return llmService;
 }
 
-LLMService::LLMService(const char* params)
+LLMService* LLMService::from_command(int argc, char ** argv)
 {
-    init(params);
-}
-
-LLMService::LLMService(int argc, char ** argv)
-{
-    init(argc, argv);
+    LLMService* llmService = new LLMService();
+    llmService->init(argc, argv);
+    return llmService;
 }
 
 LLMService::~LLMService() {
@@ -107,7 +110,6 @@ std::vector<char*> LLMService::jsonToArguments(const json& params) {
         {
             std::string err = "Unused parameter in JSON: " + key;
             LOG_WARNING(err.c_str(), {});
-
         }
     }
 
@@ -247,14 +249,11 @@ void release_slot(server_slot& slot)
     }
 }
 
-void LLMService::start_server(const char* host, int port, const char* API_key){
-    std::string host_str = host ? host : "";
-    std::string key_str = API_key ? API_key : "";
-
-    if (host_str.empty()) params.hostname = "0.0.0.0";
-    else params.hostname = host_str;
+void LLMService::start_server(const std::string& host, int port, const std::string& API_key){
+    if (host.empty()) params.hostname = "0.0.0.0";
+    else params.hostname = host;
     params.port = port;
-    if (!key_str.empty()) params.api_keys.push_back(key_str);
+    if (!API_key.empty()) params.api_keys.push_back(API_key);
 
     std::lock_guard<std::mutex> lock(start_stop_mutex);
     if (params.ssl_file_key != "" && params.ssl_file_cert != "") {
@@ -513,7 +512,7 @@ bool LLMService::started(){
     return ctx_server != nullptr && ctx_server->queue_tasks.running;
 }
 
-void LLMService::set_SSL(const char* SSL_cert_str, const char* SSL_key_str){
+void LLMService::set_SSL(const std::string& SSL_cert_str, const std::string& SSL_key_str){
     SSL_cert = SSL_cert_str;
     SSL_key = SSL_key_str;
 }
@@ -1002,16 +1001,23 @@ int LLMService::embedding_size()
 
 LLMService* LLMService_Construct(const char* model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char** lora_paths)
 {
-    return new LLMService(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_count, lora_paths);
+    std::vector<std::string> lora_paths_vector;
+    if (lora_paths != nullptr && lora_count > 0)
+    {
+        for (int i = 0; i < lora_count; ++i) {
+            lora_paths_vector.push_back(std::string(lora_paths[i]));
+        }
+    }
+    return new LLMService(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_paths_vector);
 }
 
 LLMService* LLMService_From_Command(const char* params) {
     std::string params_string(params);
     try {
         json j = json::parse(params_string);
-        return new LLMService(j);
+        return LLMService::from_params(j);
     }
     catch (const json::parse_error&) {
-        return new LLMService(params_string);
+        return LLMService::from_command(params_string);
     }
 }
