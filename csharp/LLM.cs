@@ -1,9 +1,39 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 namespace UndreamAI.LlamaLib
 {
+
+    // Data structures for LoRA operations
+    public struct LoraIdScale
+    {
+        public int Id { get; set; }
+        public float Scale { get; set; }
+        
+        public LoraIdScale(int id, float scale)
+        {
+            Id = id;
+            Scale = scale;
+        }
+    }
+
+    public struct LoraIdScalePath
+    {
+        public int Id { get; set; }
+        public float Scale { get; set; }
+        public string Path { get; set; }
+        
+        public LoraIdScalePath(int id, float scale, string path)
+        {
+            Id = id;
+            Scale = scale;
+            Path = path;
+        }
+    }
+
     // Base LLM class
     public abstract class LLM : IDisposable
     {
@@ -25,7 +55,41 @@ namespace UndreamAI.LlamaLib
             llamaLib.LLM_Debug(level);
         }
 
-        public string Tokenize(string jsonData)
+        protected void CheckLlamaLib()
+        {
+            if (disposed) throw new ObjectDisposedException(GetType().Name);
+            if (llamaLib == null) throw new InvalidOperationException("LlamaLib instance is not initialized");
+            if (llm == IntPtr.Zero) throw new InvalidOperationException("LLM instance is not initialized");
+        }
+
+        public virtual void Dispose() { }
+
+        ~LLM()
+        {
+            Dispose();
+        }
+
+        // Tokenize methods
+        public static string BuildTokenizeJSON(string content)
+        {
+            var json = new JObject{["content"] = content};
+            return json.ToString();
+        }
+
+        public static List<int> ParseTokenizeJSON(string result)
+        {
+            try
+            {
+                var json = JObject.Parse(result);
+                return json["tokens"]?.ToObject<List<int>>() ?? new List<int>();
+            }
+            catch
+            {
+                return new List<int>();
+            }
+        }
+        
+        public string TokenizeJSON(string jsonData)
         {
             if (string.IsNullOrEmpty(jsonData))
                 throw new ArgumentNullException(nameof(jsonData));
@@ -36,83 +100,206 @@ namespace UndreamAI.LlamaLib
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
-        public string Detokenize(string jsonData)
+        public List<int> Tokenize(string content)
+        {
+            if (string.IsNullOrEmpty(content))
+                throw new ArgumentNullException(nameof(content));
+            
+            var jsonInput = BuildTokenizeJSON(content);
+            var jsonResult = TokenizeJSON(jsonInput);
+            return ParseTokenizeJSON(jsonResult);
+        }
+
+        // Detokenize methods
+        public static string BuildDetokenizeJSON(List<int> tokens)
+        {
+            var json = new JObject{["tokens"] = JArray.FromObject(tokens)};
+            return json.ToString();
+        }
+
+        public static string ParseDetokenizeJSON(string result)
+        {
+            try
+            {
+                var json = JObject.Parse(result);
+                return json["content"]?.ToString() ?? string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        public string DetokenizeJSON(string jsonData)
         {
             if (string.IsNullOrEmpty(jsonData))
                 throw new ArgumentNullException(nameof(jsonData));
-            
+
             CheckLlamaLib();
-            
+
             var result = llamaLib.LLM_Detokenize(llm, jsonData);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
-        public string Embeddings(string jsonData)
+        public string Detokenize(List<int> tokens)
+        {
+            if (tokens == null)
+                throw new ArgumentNullException(nameof(tokens));
+            
+            var jsonInput = BuildDetokenizeJSON(tokens);
+            var jsonResult = DetokenizeJSON(jsonInput);
+            return ParseDetokenizeJSON(jsonResult);
+        }
+
+        public string Detokenize(int[] tokens)
+        {
+            if (tokens == null)
+                throw new ArgumentNullException(nameof(tokens));
+            
+            return Detokenize(new List<int>(tokens));
+        }
+
+        // Embeddings methods
+        public static string BuildEmbeddingsJSON(string content)
+        {
+            var json = new JObject{["content"] = content};
+            return json.ToString();
+        }
+
+        public static List<float> ParseEmbeddingsJSON(string result)
+        {
+            try
+            {
+                var json = JObject.Parse(result);
+                return json["embedding"]?.ToObject<List<float>>() ?? new List<float>();
+            }
+            catch
+            {
+                return new List<float>();
+            }
+        }
+
+        public string EmbeddingsJSON(string jsonData)
         {
             if (string.IsNullOrEmpty(jsonData))
                 throw new ArgumentNullException(nameof(jsonData));
-            
+
             CheckLlamaLib();
-            
+
             var result = llamaLib.LLM_Embeddings(llm, jsonData);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
-        public string Completion(string jsonData, LlamaLib.CharArrayCallback callback = null)
+        public List<float> Embeddings(string content)
+        {
+            if (string.IsNullOrEmpty(content))
+                throw new ArgumentNullException(nameof(content));
+            
+            var jsonInput = BuildEmbeddingsJSON(content);
+            var jsonResult = EmbeddingsJSON(jsonInput);
+            return ParseEmbeddingsJSON(jsonResult);
+        }
+
+        // Completion methods        
+        public static string BuildCompletionJSON(string prompt, int idSlot = 0, JObject parameters = null)
+        {
+            var json = new JObject{["prompt"] = prompt, ["id_slot"] = idSlot};
+            if (parameters != null)
+            {
+                foreach (var param in parameters)
+                {
+                    json[param.Key] = param.Value;
+                }
+            }
+            return json.ToString();
+        }
+
+        public static string ParseCompletionJSON(string result)
+        {
+            try
+            {
+                var json = JObject.Parse(result);
+                return json["content"]?.ToString() ?? string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        public string CompletionJSON(string jsonData, LlamaLib.CharArrayCallback callback = null)
         {
             if (string.IsNullOrEmpty(jsonData))
                 throw new ArgumentNullException(nameof(jsonData));
-            
+
             CheckLlamaLib();
-            
+
             var result = llamaLib.LLM_Completion(llm, jsonData, callback);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
-        protected void CheckLlamaLib()
+        public string Completion(string prompt, LlamaLib.CharArrayCallback callback = null, int idSlot = -1, JObject parameters = null)
         {
-            if (disposed)
-                throw new ObjectDisposedException(GetType().Name);
-
-            if (llamaLib == null)
-                throw new InvalidOperationException("LlamaLib instance is not initialized");
+            if (string.IsNullOrEmpty(prompt))
+                throw new ArgumentNullException(nameof(prompt));
             
-            if (llm == IntPtr.Zero)
-                throw new InvalidOperationException("LLM instance is not initialized");
-        }
-
-        public virtual void Dispose()
-        {
-        }
-
-        ~LLM()
-        {
-            Dispose();
+            var jsonInput = BuildCompletionJSON(prompt, idSlot, parameters);
+            var jsonResult = CompletionJSON(jsonInput, callback);
+            return ParseCompletionJSON(jsonResult);
         }
     }
 
     // LLMLocal class
     public abstract class LLMLocal : LLM
     {
-        protected LLMLocal() : base()
+        protected LLMLocal() : base() { }
+
+        protected LLMLocal(LlamaLib llamaLibInstance) : base(llamaLibInstance) { }
+
+        // Slot methods
+        public static string BuildSlotJSON(int idSlot, string action, string filepath)
         {
+            var json = new JObject{["id_slot"] = idSlot, ["action"] = action, ["filepath"] = filepath};
+            return json.ToString();
         }
 
-        protected LLMLocal(LlamaLib llamaLibInstance) : base(llamaLibInstance)
+        public static string ParseSlotJSON(string result)
         {
+            try
+            {
+                var json = JObject.Parse(result);
+                return json["filename"]?.ToString() ?? string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
         }
 
-        public string Slot(string jsonData)
+        public string SlotJSON(string jsonData)
         {
             if (string.IsNullOrEmpty(jsonData))
                 throw new ArgumentNullException(nameof(jsonData));
-            
+
             CheckLlamaLib();
-            
+
             var result = llamaLib.LLM_Slot(llm, jsonData);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
+        public string Slot(int idSlot, string action, string filepath)
+        {
+            if (string.IsNullOrEmpty(action))
+                throw new ArgumentNullException(nameof(action));
+            if (string.IsNullOrEmpty(filepath))
+                throw new ArgumentNullException(nameof(filepath));
+            
+            var jsonInput = BuildSlotJSON(idSlot, action, filepath);
+            var jsonResult = SlotJSON(jsonInput);
+            return ParseSlotJSON(jsonResult);
+        }
+
+        // Cancel methods
         public void Cancel(int idSlot)
         {
             CheckLlamaLib();
@@ -124,15 +311,35 @@ namespace UndreamAI.LlamaLib
     // LLMProvider class
     public abstract class LLMProvider : LLMLocal
     {
-        protected LLMProvider() : base()
+        protected LLMProvider() : base() { }
+
+        protected LLMProvider(LlamaLib llamaLibInstance) : base(llamaLibInstance) { }
+
+        // LoRA Weight methods
+        public static string BuildLoraWeightJSON(List<LoraIdScale> loras)
         {
+            var jsonArray = new JArray();
+            foreach (var lora in loras)
+            {
+                jsonArray.Add(new JObject{["id"] = lora.Id, ["scale"] = lora.Scale});
+            }
+            return jsonArray.ToString();
         }
 
-        protected LLMProvider(LlamaLib llamaLibInstance) : base(llamaLibInstance)
+        public static bool ParseLoraWeightJSON(string result)
         {
+            try
+            {
+                var json = JObject.Parse(result);
+                return json["success"]?.ToObject<bool>() ?? false;
+            }
+            catch
+            {
+                return false;
+            }
         }
-
-        public string LoraWeight(string jsonData)
+        
+        public string LoraWeightJSON(string jsonData)
         {
             if (string.IsNullOrEmpty(jsonData))
                 throw new ArgumentNullException(nameof(jsonData));
@@ -143,7 +350,47 @@ namespace UndreamAI.LlamaLib
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
-        public string LoraList()
+        public bool LoraWeight(List<LoraIdScale> loras)
+        {
+            if (loras == null)
+                throw new ArgumentNullException(nameof(loras));
+            
+            var jsonInput = BuildLoraWeightJSON(loras);
+            var jsonResult = LoraWeightJSON(jsonInput);
+            return ParseLoraWeightJSON(jsonResult);
+        }
+
+        public bool LoraWeight(params LoraIdScale[] loras)
+        {
+            if (loras == null)
+                throw new ArgumentNullException(nameof(loras));
+
+            return LoraWeight(new List<LoraIdScale>(loras));
+        }
+
+        // LoRA List methods
+        public static List<LoraIdScalePath> ParseLoraListJSON(string result)
+        {
+            var loras = new List<LoraIdScalePath>();
+            try
+            {
+                var jsonArray = JArray.Parse(result);
+                foreach (var item in jsonArray)
+                {
+                    int id = item["id"]?.ToObject<int>() ?? -1;
+                    if (id < 0) continue;
+                    loras.Add(new LoraIdScalePath(
+                        id,
+                        item["scale"]?.ToObject<float>() ?? 0.0f,
+                        item["path"]?.ToString() ?? string.Empty
+                    ));
+                }
+            }
+            catch{ }
+            return loras;
+        }
+
+        public string LoraListJSON()
         {
             CheckLlamaLib();
             
@@ -151,6 +398,13 @@ namespace UndreamAI.LlamaLib
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
+        public List<LoraIdScalePath> LoraList()
+        {
+            var jsonResult = LoraListJSON();
+            return ParseLoraListJSON(jsonResult);
+        }
+
+        // Server methods
         public void Start()
         {
             CheckLlamaLib();

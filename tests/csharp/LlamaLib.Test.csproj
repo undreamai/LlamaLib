@@ -15,8 +15,9 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
-<ItemGroup>
-  <PackageReference Include="MSTest" Version="3.2.0" />
-  <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="17.10.1" />
-</ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MSTest" Version="3.2.0" />
+    <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="17.10.1" />
+  </ItemGroup>
 </Project>
