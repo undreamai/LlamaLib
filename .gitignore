@@ -1,8 +1,6 @@
 .vs
 .vscode
+*.sln
 build*/*
-csharp/bin
-csharp/obj
-tests/csharp/bin
-tests/csharp/obj
-tests/csharp/TestResults
+csharp/*/*
+tests/csharp/*/*

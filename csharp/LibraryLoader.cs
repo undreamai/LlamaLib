@@ -2,8 +2,6 @@
 /// @brief File implementing the LlamaLib library loader
 /// \cond HIDE
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Runtime.InteropServices;
 
 namespace UndreamAI.LlamaLib
