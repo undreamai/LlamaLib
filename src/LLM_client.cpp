@@ -2,32 +2,32 @@
 
 LLMClient::LLMClient(LLMProvider* llm_): llm(llm_){ }
 
-std::string LLMClient::tokenize_impl(const json& data)
+std::string LLMClient::tokenize_json(const json& data)
 {
     return llm->tokenize_json(data);
 }
 
-std::string LLMClient::detokenize_impl(const json& data)
+std::string LLMClient::detokenize_json(const json& data)
 {
     return llm->detokenize_json(data);
 }
 
-std::string LLMClient::embeddings_impl(const json& data, httplib::Response* res, std::function<bool()> is_connection_closed)
+std::string LLMClient::embeddings_json(const json& data)
 {
-    return llm->embeddings_json(data, res, is_connection_closed);
+    return llm->embeddings_json(data);
 }
 
-std::string LLMClient::completion_impl(const json& data, CharArrayFn callback, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
+std::string LLMClient::completion_json(const json& data, CharArrayFn callback)
 {
-    return llm->completion_json(data, callback, res, is_connection_closed, oaicompat);
+    return llm->completion_json(data, callback);
 }
 
-std::string LLMClient::slot_impl(const json& data, httplib::Response* res)
+std::string LLMClient::slot_json(const json& data)
 {
-    return llm->slot_json(data, res);
+    return llm->slot_json(data);
 }
 
-void LLMClient::cancel_impl(int id_slot)
+void LLMClient::cancel(int id_slot)
 {
     llm->cancel(id_slot);
 }
@@ -72,9 +72,12 @@ std::string LLMRemoteClient::post_request(
     StreamingContext context;
     context.callback = callback;
 
+    bool stream = callback != nullptr;
+    if (payload.contains("stream")) stream = payload["stream"];
+
     httplib::Headers headers = {
         {"Content-Type", "application/json"},
-        {"Accept", "text/event-stream"},
+        {"Accept", stream? "text/event-stream": "application/json"},
         {"Cache-Control", "no-cache"}
     };
 
@@ -84,12 +87,44 @@ std::string LLMRemoteClient::post_request(
     req.headers = headers;
     req.body = payload.dump();
 
+    std::string concat_string = "";
+    std::vector<int> concat_tokens;
     req.content_receiver = [&](const char* data, size_t data_length, uint64_t /*offset*/, uint64_t /*total_length*/) {
-        context.buffer.append(data, data_length);
-        if (context.callback != nullptr) {
+        if(stream)
+        {
             std::string chunk_str(data, data_length);
-            chunk_str.push_back('\0');
-            context.callback(chunk_str.c_str());
+            // remove preceding "data: "
+            const std::string prefix = "data: ";
+            if (chunk_str.rfind(prefix, 0) == 0) {
+                chunk_str.erase(0, prefix.length());
+            }
+            // Remove any trailing newlines or carriage returns
+            while (!chunk_str.empty() && (chunk_str.back() == '\n' || chunk_str.back() == '\r')) {
+                chunk_str.pop_back();
+            }
+            if (context.callback != nullptr) {
+                context.callback(chunk_str.c_str());
+            }
+
+            json data_json = json::parse(chunk_str);
+            if (data_json.contains("content")) {
+                concat_string += data_json["content"].get<std::string>();
+            }
+            if (data_json.contains("tokens")) {
+                for (const auto& tok : data_json["tokens"]) {
+                    concat_tokens.push_back(tok.get<int>());
+                }
+            }
+
+            json concat_data = data_json;
+            concat_data["content"] = concat_string;
+            concat_data["tokens"] = concat_tokens;
+            context.buffer = concat_data.dump();
+        }
+        else
+        {
+            std::string chunk_str(data, data_length);
+            context.buffer += chunk_str;
         }
         return true;
     };
@@ -117,23 +152,29 @@ std::string LLMRemoteClient::post_request(
     return context.buffer;
 }
 
-std::string LLMRemoteClient::tokenize_impl(const json& data)
+std::string LLMRemoteClient::tokenize_json(const json& data)
 {
     return post_request("tokenize", data);
 }
 
-std::string LLMRemoteClient::detokenize_impl(const json& data)
+std::string LLMRemoteClient::detokenize_json(const json& data)
 {
     return post_request("detokenize", data);
 }
 
-std::string LLMRemoteClient::embeddings_impl(const json& data, httplib::Response* res, std::function<bool()> is_connection_closed)
+std::string LLMRemoteClient::embeddings_json(const json& data)
 {
     return post_request("embeddings", data);
 }
 
-std::string LLMRemoteClient::completion_impl(const json& data, CharArrayFn callback, httplib::Response* res, std::function<bool()> is_connection_closed, int oaicompat)
+std::string LLMRemoteClient::completion_json(const json& data, CharArrayFn callback)
 {
+    // bool stream = callback != nullptr;
+    // if (data.contains("stream")) stream = data["stream"];
+
+    // json data_send = data;
+    // data_send["stream"] = stream;
+    // return post_request("completion", data_send, callback);
     return post_request("completion", data, callback);
 }
 

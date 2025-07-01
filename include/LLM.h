@@ -30,63 +30,50 @@ struct LoraIdScalePath {
 void ensure_error_handlers_initialized();
 
 class UNDREAMAI_API LLM {
-protected:
-    virtual std::string tokenize_impl(const json& data) = 0;
-    virtual std::string detokenize_impl(const json& data) = 0;
-    virtual std::string embeddings_impl(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false) = 0;
-    virtual std::string completion_impl(const json& data, CharArrayFn callback = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0) = 0;
-
 public:
+    uint32_t seed = 0;
+    int32_t n_predict = -1;
+    int32_t n_keep = 0;
+    float temperature = 0.80f;
+    std::string json_schema = "";
+    std::string grammar = "";
+
+    virtual std::string tokenize_json(const json& data) = 0;
+    virtual std::string detokenize_json(const json& data) = 0;
+    virtual std::string embeddings_json(const json& data) = 0;
+    virtual std::string completion_json(const json& data, CharArrayFn callback) = 0;
+
     static bool has_gpu_layers(const std::string& command);
     static std::string LLM_args_to_command(const std::string& model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, const std::vector<std::string>& lora_paths = {});
 
     virtual json build_tokenize_json(const std::string& query);
     virtual std::vector<int> parse_tokenize_json(const json& result);
-    virtual std::string tokenize_json(const json& data);
-    virtual std::string tokenize_json(const std::string& query);
-    virtual std::string tokenize_json(const char* query);
-    virtual std::vector<int> tokenize(const json& data);
     virtual std::vector<int> tokenize(const std::string& query);
-    virtual std::vector<int> tokenize(const char* query);
 
     virtual json build_detokenize_json(const std::vector<int32_t>& tokens);
     virtual std::string parse_detokenize_json(const json& result);
-    virtual std::string detokenize_json(const json& data);
-    virtual std::string detokenize_json(const std::vector<int32_t>& tokens);
-    virtual std::string detokenize(const json& data);
     virtual std::string detokenize(const std::vector<int32_t>& tokens);
 
     virtual json build_embeddings_json(const std::string& query);
     virtual std::vector<float> parse_embeddings_json(const json& result);
-    virtual std::string embeddings_json(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false);
-    virtual std::string embeddings_json(const std::string& query, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false);
-    virtual std::string embeddings_json(const char* query, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false);
-    virtual std::vector<float> embeddings(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false);
-    virtual std::vector<float> embeddings(const std::string& query, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false);
-    virtual std::vector<float> embeddings(const char* query, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false);
+    virtual std::vector<float> embeddings(const std::string& query);
 
-    virtual json build_completion_json(const std::string& prompt, int id_slot, const json& params);
+    virtual json build_completion_json(const std::string& prompt, int id_slot, const json& params=json({}));
     virtual std::string parse_completion_json(const json& result);
-    virtual std::string completion_json(const json& data, CharArrayFn callback = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
-    virtual std::string completion_json(const std::string& prompt, int id_slot, const json& params, CharArrayFn callback = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
-    virtual std::string completion(const json& data, CharArrayFn callback = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
-    virtual std::string completion(const std::string& prompt, int id_slot, const json& params, CharArrayFn callback = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
+    virtual std::string completion(const std::string& prompt, int id_slot, CharArrayFn callback = nullptr, const json& params=json({}));
+
+private:
+    CharArrayFn CallbackAfterParsing(CharArrayFn callback);
 };
 
 class UNDREAMAI_API LLMLocal : public LLM {
-protected:
-    virtual std::string slot_impl(const json& data, httplib::Response* res = nullptr) = 0;
-    virtual void cancel_impl(int id_slot) = 0;
-
 public:
+    virtual std::string slot_json(const json& data) = 0;
+    virtual void cancel(int id_slot) = 0;
+
     virtual json build_slot_json(int id_slot, const std::string& action, const std::string& filepath);
     virtual std::string parse_slot_json(const json& result);
-    virtual std::string slot_json(const json& data, httplib::Response* res = nullptr);
-    virtual std::string slot_json(int id_slot, const std::string& action, const std::string& filepath, httplib::Response* res = nullptr);
-    virtual std::string slot(const json& data, httplib::Response* res = nullptr);
-    virtual std::string slot(int id_slot, const std::string& action, const std::string& filepath, httplib::Response* res = nullptr);
-
-    virtual void cancel(int id_slot);
+    virtual std::string slot(int id_slot, const std::string& action, const std::string& filepath);
 };
 
 class UNDREAMAI_API LLMRemote: public LLM {
@@ -95,19 +82,14 @@ protected:
 };
 
 class UNDREAMAI_API LLMProvider : public LLMLocal {
-protected:
-    virtual std::string lora_weight_impl(const json& data, httplib::Response* res = nullptr) = 0;
-    virtual std::string lora_list_impl() = 0;
-
 public:
+    virtual std::string lora_weight_json(const json& data) = 0;
+    virtual std::string lora_list_json() = 0;
+
     virtual json build_lora_weight_json(const std::vector<LoraIdScale>& loras);
     virtual bool parse_lora_weight_json(const json& result);
-    virtual std::string lora_weight_json(const json& data, httplib::Response* res = nullptr);
-    virtual std::string lora_weight_json(const std::vector<LoraIdScale>& loras, httplib::Response* res = nullptr);
-    virtual bool lora_weight(const json& data, httplib::Response* res = nullptr);
-    virtual bool lora_weight(const std::vector<LoraIdScale>& loras, httplib::Response* res = nullptr);
+    virtual bool lora_weight(const std::vector<LoraIdScale>& loras);
 
-    virtual std::string lora_list_json();
     virtual std::vector<LoraIdScalePath> parse_lora_list_json(const json& result);
     virtual std::vector<LoraIdScalePath> lora_list();
 
@@ -162,7 +144,7 @@ extern "C" {
     UNDREAMAI_API const char* LLM_Tokenize(LLM* llm, const char* json_data);
     UNDREAMAI_API const char* LLM_Detokenize(LLM* llm, const char* json_data);
     UNDREAMAI_API const char* LLM_Embeddings(LLM* llm, const char* json_data);
-    UNDREAMAI_API const char* LLM_Completion(LLM* llm, const char* json_data, CharArrayFn callback);
+    UNDREAMAI_API const char* LLM_Completion(LLM* llm, const char* json_data, CharArrayFn callback=nullptr);
 
     UNDREAMAI_API const char* LLM_Slot(LLMLocal* llm, const char* json_data);
     UNDREAMAI_API void LLM_Cancel(LLMLocal* llm, int id_slot);

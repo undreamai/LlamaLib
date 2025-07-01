@@ -104,34 +104,34 @@ protected:
     std::vector<std::filesystem::path> search_paths;
 
     //=================================== LLM METHODS START ===================================//
-    std::string tokenize_impl(const json& data) override {
+    std::string tokenize_json(const json& data) override {
         return LLM_Tokenize((LLM*)llm, data.dump().c_str());
     }
 
-    std::string detokenize_impl(const json& data) override {
+    std::string detokenize_json(const json& data) override {
         return LLM_Detokenize((LLM*)llm, data.dump().c_str());
     }
 
-    std::string embeddings_impl(const json& data, httplib::Response*, std::function<bool()> = [] { return false; }) override {
+    std::string embeddings_json(const json& data) override {
         return LLM_Embeddings((LLM*)llm, data.dump().c_str());
     }
-    std::string completion_impl(const json& data, CharArrayFn callback = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0) override {
+    std::string completion_json(const json& data, CharArrayFn callback = nullptr) override {
         return LLM_Completion((LLM*)llm, data.dump().c_str(), callback);
     }
 
-    std::string slot_impl(const json& data, httplib::Response* = nullptr) override {
+    std::string slot_json(const json& data) override {
         return LLM_Slot((LLMLocal*)llm, data.dump().c_str());
     }
 
-    void cancel_impl(int id_slot) override {
+    void cancel(int id_slot) override {
         LLM_Cancel((LLMLocal*)llm, id_slot);
     }
 
-    std::string lora_weight_impl(const json& data, httplib::Response* = nullptr) override {
+    std::string lora_weight_json(const json& data) override {
         return LLM_Lora_Weight((LLMProvider*)llm, data.dump().c_str());
     }
 
-    std::string lora_list_impl() override {
+    std::string lora_list_json() override {
         return LLM_Lora_List((LLMProvider*)llm);
     }
     //=================================== LLM METHODS END ===================================//

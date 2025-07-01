@@ -27,7 +27,21 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         void init(const std::string& params);
         void init(const char* params);
 
+        std::string embeddings_json(const json& data, httplib::Response* res, std::function<bool()> is_connection_closed = always_false);
+        std::string lora_weight_json(const json& data, httplib::Response* res);
+        std::string completion_json(const json& data, CharArrayFn callback, httplib::Response* res, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
+        std::string slot_json(const json& data, httplib::Response* res);
+
         //=================================== LLM METHODS START ===================================//
+        std::string tokenize_json(const json& data) override;
+        std::string detokenize_json(const json& data) override;
+        std::string embeddings_json(const json& data) override;
+        std::string lora_weight_json(const json& data) override;
+        std::string lora_list_json() override;
+        std::string completion_json(const json& data, CharArrayFn callback=nullptr) override;
+        std::string slot_json(const json& data) override;
+        void cancel(int id_slot) override;
+        
         void start_server(const std::string& host="0.0.0.0", int port=0, const std::string& API_key="") override;
         void stop_server() override;
         void join_server() override;
@@ -36,20 +50,7 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         void join_service() override;
         void set_SSL(const std::string& SSL_cert, const std::string& SSL_key) override;
         bool started() override;
-
         int embedding_size() override;
-        //=================================== LLM METHODS END ===================================//
-
-    protected:
-        //=================================== LLM METHODS START ===================================//
-        std::string tokenize_impl(const json& data) override;
-        std::string detokenize_impl(const json& data) override;
-        std::string embeddings_impl(const json& data, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_false) override;
-        std::string lora_weight_impl(const json& data, httplib::Response* res=nullptr) override;
-        std::string lora_list_impl() override;
-        std::string completion_impl(const json& data, CharArrayFn callback=nullptr, httplib::Response* res=nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0) override;
-        std::string slot_impl(const json& data, httplib::Response* res=nullptr) override;
-        void cancel_impl(int id_slot) override;
         //=================================== LLM METHODS END ===================================//
 
     private:

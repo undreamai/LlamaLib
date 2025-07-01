@@ -306,7 +306,7 @@ void LLMService::start_server(const std::string& host, int port, const std::stri
     });
 
     // set timeouts and change hostname and port
-    svr->set_read_timeout (params.timeout_read);
+    svr->set_read_timeout(params.timeout_read);
     svr->set_write_timeout(params.timeout_write);
 
     bool was_bound = false;
@@ -364,14 +364,14 @@ void LLMService::start_server(const std::string& host, int port, const std::stri
     
     const auto completion_post = [this, &res_error](const httplib::Request & req, httplib::Response & res) {
         json data = handle_post(req, res);
-        completion_impl(data, nullptr, &res, req.is_connection_closed, OAICOMPAT_TYPE_NONE);
+        completion_json(data, nullptr, &res, req.is_connection_closed, OAICOMPAT_TYPE_NONE);
     };
     
     const auto chat_completion_post = [this, &res_error](const httplib::Request & req, httplib::Response & res) {
         json body = handle_post(req, res);
         json data = oaicompat_completion_params_parse(body, params.use_jinja, params.reasoning_format, ctx_server->chat_templates.get());
         LOG_DEBUG("formatted prompt", data);
-        completion_impl(data, nullptr, &res, req.is_connection_closed, OAICOMPAT_TYPE_CHAT);
+        completion_json(data, nullptr, &res, req.is_connection_closed, OAICOMPAT_TYPE_CHAT);
     };
 
     const auto apply_template_post = [this](const httplib::Request& req, httplib::Response& res) {
@@ -381,27 +381,27 @@ void LLMService::start_server(const std::string& host, int port, const std::stri
     };
 
     const auto tokenize_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return res_ok(res, tokenize_impl(handle_post(req, res)));
+        return res_ok(res, tokenize_json(handle_post(req, res)));
     };
 
     const auto detokenize_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return res_ok(res, detokenize_impl(handle_post(req, res)));
+        return res_ok(res, detokenize_json(handle_post(req, res)));
     };
 
     const auto embeddings_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return embeddings_impl(handle_post(req, res), &res, req.is_connection_closed);
+        return embeddings_json(handle_post(req, res), &res, req.is_connection_closed);
     };
 
     const auto lora_list_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return res_ok(res, lora_list_impl());
+        return res_ok(res, lora_list_json());
     };
 
     const auto lora_weight_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return lora_weight_impl(handle_post(req, res), &res);
+        return lora_weight_json(handle_post(req, res), &res);
     };
 
     const auto slots_post = [this](const httplib::Request & req, httplib::Response & res) {
-        return slot_impl(handle_post(req, res), &res);
+        return slot_json(handle_post(req, res), &res);
     };
 
     //
@@ -554,7 +554,7 @@ bool LLMService::middleware_validate_api_key(const httplib::Request & req, httpl
     return false;
 }
 
-std::string LLMService::tokenize_impl(const json& body) {
+std::string LLMService::tokenize_json(const json& body) {
     if (setjmp(get_jump_point(true)) != 0) return "";
     try {
         json tokens_response = json::array();
@@ -598,7 +598,7 @@ std::string LLMService::tokenize_impl(const json& body) {
     return "";
 }
 
-std::string LLMService::detokenize_impl(const json& body) {
+std::string LLMService::detokenize_json(const json& body) {
     if (setjmp(get_jump_point(true)) != 0) return "";
     try {
         std::string content;
@@ -615,7 +615,12 @@ std::string LLMService::detokenize_impl(const json& body) {
     return "";
 }
 
-std::string LLMService::embeddings_impl(
+std::string LLMService::embeddings_json(const json& body)
+{
+    return embeddings_json(body, nullptr);
+}
+
+std::string LLMService::embeddings_json(
     const json& body,
     httplib::Response* res,
     std::function<bool()> is_connection_closed
@@ -701,12 +706,17 @@ std::string LLMService::embeddings_impl(
         : json(responses);
 
     // take the pooled data
-    root = safe_json_to_str(root["data"][0]);
-    if(res != nullptr) res_ok(*res, root);
-    return root;
+    std::string result = safe_json_to_str(root["data"][0]);
+    if(res != nullptr) res_ok(*res, result);
+    return result;
 };
 
-std::string LLMService::lora_weight_impl(const json& body, httplib::Response* res) {
+std::string LLMService::lora_weight_json(const json& body)
+{
+    return lora_weight_json(body, nullptr);
+}
+
+std::string LLMService::lora_weight_json(const json& body, httplib::Response* res) {
     if (!body.is_array()) {
         if(res != nullptr) handle_error (*res, format_error_response("Request body must be an array", ERROR_TYPE_INVALID_REQUEST));
         return "";
@@ -756,7 +766,7 @@ std::string LLMService::lora_weight_impl(const json& body, httplib::Response* re
     return safe_json_to_str(result_data);
 };
 
-std::string LLMService::lora_list_impl(){
+std::string LLMService::lora_list_json(){
     json result = json::array();
     const auto & loras = ctx_server->params_base.lora_adapters;
     for (size_t i = 0; i < loras.size(); ++i) {
@@ -775,15 +785,22 @@ class SinkException : public std::exception {};
 static void server_sent_event_with_stringswrapper(
     CharArrayFn callback,
     httplib::DataSink* sink,
-    std::string* result_data,
     const char* event,
-    const json& data
+    const json& data,
+    std::string& concat_string,
+    std::vector<int>& concat_tokens
 ) {
-    const std::string str = std::string(event) + ": " + safe_json_to_str(data) + "\n\n";
-    *result_data += str;
-    if (callback) callback(result_data->c_str());
+    std::string data_str = safe_json_to_str(data);
+    if (callback) callback(data_str.c_str());
+
+    concat_string += json_value(data, "content", std::string(""));
+    for (const auto& tok : json_value(data, "tokens", std::vector<int>())) {
+        concat_tokens.push_back(tok);
+    }
+
     if (sink != nullptr){
-        if (!sink->write(str.c_str(), str.size())) throw SinkException();
+        const std::string sink_str = std::string(event) + ": " + data_str + "\n\n";
+        if (!sink->write(sink_str.c_str(), sink_str.size())) throw SinkException();
     }
 }
 
@@ -793,26 +810,38 @@ std::string LLMService::completion_streaming(
     httplib::DataSink* sink,
     std::function<bool()> is_connection_closed
 ) {
-    std::string result_data = "";
+    std::string concat_string = "";
+    std::vector<int> concat_tokens;
+    json result_data;
+
     ctx_server->receive_cmpl_results_stream(task_ids, [&](server_task_result_ptr & result) -> bool {
         json res_json = result->to_json();
         if (res_json.is_array()) {
             for (const auto & res : res_json) {
-                server_sent_event_with_stringswrapper(callback, sink, &result_data, "data", res);
+                server_sent_event_with_stringswrapper(callback, sink, "data", res, concat_string, concat_tokens);
+                result_data = res;
             }
         } else {
-            server_sent_event_with_stringswrapper(callback, sink, &result_data, "data", res_json);
+            server_sent_event_with_stringswrapper(callback, sink, "data", res_json, concat_string, concat_tokens);
+            result_data = res_json;
         }
         return true;
     }, [&](const json & error_data) {
-        server_sent_event_with_stringswrapper(callback, sink, &result_data, "error", error_data);
+        server_sent_event_with_stringswrapper(callback, sink, "error", error_data, concat_string, concat_tokens);
     }, is_connection_closed
     );
     if (sink != nullptr) sink->done();
-    return result_data;
+    result_data["content"] = concat_string;
+    result_data["tokens"] = concat_tokens;
+    return safe_json_to_str(result_data);
 }
 
-std::string LLMService::completion_impl(
+std::string LLMService::completion_json(const json& data, CharArrayFn callback)
+{
+    return completion_json(data, callback, nullptr);
+}
+
+std::string LLMService::completion_json(
     const json& data,
     CharArrayFn callback,
     httplib::Response* res,
@@ -824,6 +853,7 @@ std::string LLMService::completion_impl(
     try {
         server_task_type type = SERVER_TASK_TYPE_COMPLETION;
         oaicompat_type oaicompat = static_cast<oaicompat_type>(oaicompat_int);
+        bool stream = json_value(data, "stream", callback != nullptr);
 
         // GGML_ASSERT(type == SERVER_TASK_TYPE_COMPLETION || type == SERVER_TASK_TYPE_INFILL);
 
@@ -834,7 +864,6 @@ std::string LLMService::completion_impl(
 
         auto completion_id = gen_chatcmplid();
         std::unordered_set<int> task_ids;
-
         std::vector<server_task> tasks;
         try {
             std::vector<llama_tokens> tokenized_prompts = tokenize_input_prompts(ctx_server->vocab, data.at("prompt"), true, true);
@@ -850,6 +879,7 @@ std::string LLMService::completion_impl(
                                             ctx_server->ctx,
                                             ctx_server->params_base,
                                             data);
+                task.params.stream = stream;
                 task.id_selected_slot = json_value(data, "id_slot", -1);
 
                 // OAI-compat
@@ -870,8 +900,6 @@ std::string LLMService::completion_impl(
 
         ctx_server->queue_results.add_waiting_tasks(tasks);
         ctx_server->queue_tasks.post(tasks);
-
-        bool stream = json_value(data, "stream", false);
 
         if (!stream) {
             ctx_server->receive_multi_results(task_ids, [&](std::vector<server_task_result_ptr> & results) {
@@ -902,21 +930,21 @@ std::string LLMService::completion_impl(
                 result_data = completion_streaming(task_ids, callback, nullptr);
                 on_complete(true);
             } else {
-                const auto chunked_content_provider = [task_ids, this, oaicompat](size_t, httplib::DataSink & sink) {
+                const auto chunked_content_provider = [task_ids, this, oaicompat, &result_data](size_t, httplib::DataSink & sink) {
                     bool ok = true;
                     try {
-                        completion_streaming(task_ids, nullptr, &sink, [&sink]() {return !sink.is_writable();});
-                    } catch (const SinkException& e) {
-                        ok = false;
-                    }
-                    // ctx_server->queue_results.remove_waiting_task_ids(task_ids);
-                    if(ok && &sink != nullptr){
+                        result_data = completion_streaming(task_ids, nullptr, &sink, [&sink]() {return !sink.is_writable();});
                         if (oaicompat != OAICOMPAT_TYPE_NONE) {
                             static const std::string ev_done = "data: [DONE]\n\n";
                             sink.write(ev_done.data(), ev_done.size());
                         }
-                        sink.done(); 
+                    } catch (const SinkException& e) {
+                        ok = false;
                     }
+                    // ctx_server->queue_results.remove_waiting_task_ids(task_ids);
+                    try {
+                        sink.done();
+                    } catch (...) {}
                     return ok;
                 };
                 res->set_chunked_content_provider("text/event-stream", chunked_content_provider, on_complete);
@@ -928,7 +956,12 @@ std::string LLMService::completion_impl(
     return result_data;
 }
 
-std::string LLMService::slot_impl(
+std::string LLMService::slot_json(const json& data)
+{
+    return slot_json(data, nullptr);
+}
+
+std::string LLMService::slot_json(
     const json& data,
     httplib::Response* res
 ) {
@@ -979,7 +1012,7 @@ std::string LLMService::slot_impl(
     return result_data;
 }
 
-void LLMService::cancel_impl(int id_slot) {
+void LLMService::cancel(int id_slot) {
     if (setjmp(get_jump_point(true)) != 0) return;
     try {
         for (auto & slot : ctx_server->slots) {

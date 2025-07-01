@@ -18,12 +18,12 @@ public:
 
 protected:
     //=================================== LLM METHODS START ===================================//
-    std::string tokenize_impl(const json& data) override;
-    std::string detokenize_impl(const json& data) override;
-    std::string embeddings_impl(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false) override;
-    std::string completion_impl(const json& data, CharArrayFn callback = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0) override;
-    std::string slot_impl(const json& data, httplib::Response* res = nullptr) override;
-    void cancel_impl(int id_slot) override;
+    std::string tokenize_json(const json& data) override;
+    std::string detokenize_json(const json& data) override;
+    std::string embeddings_json(const json& data) override;
+    std::string completion_json(const json& data, CharArrayFn callback = nullptr) override;
+    std::string slot_json(const json& data) override;
+    void cancel(int id_slot) override;
     //=================================== LLM METHODS END ===================================//
 
 private:
@@ -42,10 +42,10 @@ public:
 
 protected:
     //=================================== LLM METHODS START ===================================//
-    std::string tokenize_impl(const json& data) override;
-    std::string detokenize_impl(const json& data) override;
-    std::string embeddings_impl(const json& data, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false) override;
-    std::string completion_impl(const json& data, CharArrayFn callback = nullptr, httplib::Response* res = nullptr, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0) override;
+    std::string tokenize_json(const json& data) override;
+    std::string detokenize_json(const json& data) override;
+    std::string embeddings_json(const json& data) override;
+    std::string completion_json(const json& data, CharArrayFn callback = nullptr) override;
     //=================================== LLM METHODS END ===================================//
 
 private:

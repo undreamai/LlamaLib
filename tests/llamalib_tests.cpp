@@ -69,7 +69,15 @@ std::string concatenate_streaming_result(std::string input)
     return output;
 }
 
-void test_tokenization(LLM* llm) {
+
+int counter = 0;
+
+void count_calls(const char* c)
+{
+    counter++;
+}
+
+void test_LLM_Tokenize(LLM* llm) {
     std::cout << "LLM_Tokenize" << std::endl;
     json data, reply_data;
     std::string reply;
@@ -86,45 +94,61 @@ void test_tokenization(LLM* llm) {
     ASSERT(trim(reply_data["content"]) == data["content"]);
 }
 
-int counter = 0;
+void test_tokenize(LLM* llm) {
+    std::cout << "tokenize" << std::endl;
+    std::vector<int> tokens = llm->tokenize(PROMPT);
+    ASSERT(tokens.size() > 0);
 
-void count_calls(const char* c)
-{
-    counter++;
+    std::cout << "detokenize" << std::endl;
+    std::string reply = trim(llm->detokenize(tokens));
+    ASSERT(reply == PROMPT);
 }
 
-void test_completion(LLM* llm, bool stream) {
+void test_LLM_Completion(LLM* llm, bool stream) {
     std::cout << "LLM_Completion ( ";
     if (!stream) std::cout << "no ";
     std::cout << "streaming )" << std::endl;
 
     json data;
-    std::string reply;
-
     data["id_slot"] = ID_SLOT;
     data["prompt"] = PROMPT;
-    data["cache_prompt"] = true;
-    data["n_predict"] = 10;
-    data["n_keep"] = 30;
-    data["stream"] = stream;
+    data["n_predict"] = llm->n_predict;
 
     counter = 0;
-    reply = std::string(LLM_Completion(llm, data.dump().c_str(), static_cast<CharArrayFn>(count_calls)));
-
-    std::string reply_data;
+    std::string reply_data, reply;
     if (stream)
     {
+        reply = std::string(LLM_Completion(llm, data.dump().c_str(), static_cast<CharArrayFn>(count_calls)));
         ASSERT(counter > 0);
-        reply_data = concatenate_streaming_result(reply);
     }
     else
     {
-        reply_data = json::parse(reply)["content"];
+        reply = std::string(LLM_Completion(llm, data.dump().c_str()));
     }
+    reply_data = json::parse(reply)["content"];
     ASSERT(reply_data != "");
 }
 
-void test_embedding(LLM* llm) {
+void test_completion(LLM* llm, bool stream) {
+    std::cout << "completion ( ";
+    if (!stream) std::cout << "no ";
+    std::cout << "streaming )" << std::endl;
+
+    counter = 0;
+    std::string reply;
+    if (stream)
+    {
+        reply = llm->completion(PROMPT, ID_SLOT, static_cast<CharArrayFn>(count_calls));
+        ASSERT(counter > 0);
+    }
+    else
+    {
+        reply = llm->completion(PROMPT, ID_SLOT);
+    }
+    ASSERT(reply != "");
+}
+
+void test_LLM_Embeddings(LLM* llm) {
     std::cout << "LLM_Embeddings" << std::endl;
     json data, reply_data;
     std::string reply;
@@ -136,7 +160,12 @@ void test_embedding(LLM* llm) {
     ASSERT(reply_data["embedding"].size() == EMBEDDING_SIZE);
 }
 
-void test_lora(LLMProvider* llm) {
+void test_embeddings(LLM* llm) {
+    std::vector<float> embeddings = llm->embeddings(PROMPT);
+    ASSERT(embeddings.size() == EMBEDDING_SIZE);
+}
+
+void test_LLM_Lora_List(LLMProvider* llm) {
     std::cout << "LLM_Lora_List" << std::endl;
     std::string reply;
     reply = std::string(LLM_Lora_List(llm));
@@ -144,12 +173,23 @@ void test_lora(LLMProvider* llm) {
     ASSERT(reply_data.size() == 0);
 }
 
-void test_cancel(LLMLocal* llm) {
+void test_lora_list(LLMProvider* llm) {
+    std::cout << "lora_list" << std::endl;
+    std::vector<LoraIdScalePath> loras = llm->lora_list();
+    ASSERT(loras.size() == 0);
+}
+
+void test_LLM_Cancel(LLMLocal* llm) {
     std::cout << "LLM_Cancel" << std::endl;
     LLM_Cancel(llm, ID_SLOT);
 }
 
-void test_slot_save_restore(LLMLocal* llm) {
+void test_cancel(LLMLocal* llm) {
+    std::cout << "cancel" << std::endl;
+    llm->cancel(ID_SLOT);
+}
+
+void test_LLM_Slot(LLMLocal* llm) {
     std::cout << "LLM_Slot Save" << std::endl;
     std::string filename = "test_undreamai.save";
     json data;
@@ -188,6 +228,34 @@ void test_slot_save_restore(LLMLocal* llm) {
     ASSERT(reply_data["filename"] == filename);
     ASSERT(reply_data["n_restored"] == n_saved);
 
+    std::remove(filename.c_str());
+}
+
+void test_slot(LLMLocal* llm) {
+    std::cout << "slot Save" << std::endl;
+    std::string filename = "test_undreamai.save";
+    std::string filepath;
+#ifdef _WIN32
+    char buffer[MAX_PATH];
+    GetCurrentDirectoryA(MAX_PATH, buffer);
+    filepath = std::string(buffer) + "\\" + filename;
+#else
+    char buffer[PATH_MAX];
+    if (getcwd(buffer, sizeof(buffer)) != nullptr)
+        filepath = std::string(buffer) + "/" + filename;
+    else
+        filepath = filename;
+#endif
+    std::string reply = llm->slot(ID_SLOT, "save", filepath);
+    ASSERT(reply == filename);
+
+    std::ifstream f(filename);
+    ASSERT(f.good());
+    f.close();
+
+    std::cout << "slot Restore" << std::endl;
+    reply = llm->slot(ID_SLOT, "restore", filepath);
+    ASSERT(reply == filename);
     std::remove(filename.c_str());
 }
 
@@ -248,49 +316,48 @@ public:
     bool started() override { return true; }
     int embedding_size() override { return 0; }
 
-protected:
-    std::string tokenize_impl(const json& data) override {
+    std::string tokenize_json(const json& data) override {
         json result;
         result["tokens"] = TOKENS;
         return result.dump();
     }
 
-    std::string detokenize_impl(const json& data) override {
+    std::string detokenize_json(const json& data) override {
         json result;
         result["content"] = CONTENT;
         return result.dump();
     }
 
-    std::string embeddings_impl(const json& data, httplib::Response*, std::function<bool()>) override {
+    std::string embeddings_json(const json& data) override {
         json result;
         result["embedding"] = EMBEDDING;
         return result.dump();
     }
 
-    std::string completion_impl(const json& data, CharArrayFn, httplib::Response*, std::function<bool()>, int) override {
+    std::string completion_json(const json& data, CharArrayFn callback = nullptr) override {
         json result;
         result["content"] = CONTENT;
         return result.dump();
     }
 
-    std::string slot_impl(const json& data, httplib::Response*) override {
+    std::string slot_json(const json& data) override {
         json result;
         result["filename"] = SAVE_PATH;
         return result.dump();
     }
 
-    void cancel_impl(int id_slot) override {
+    void cancel(int id_slot) override {
         cancel_called = true;
         cancelled_slot = id_slot;
     }
 
-    std::string lora_weight_impl(const json& data, httplib::Response*) override {
+    std::string lora_weight_json(const json& data) override {
         json result;
         result["success"] = true;
         return result.dump();
     }
 
-    std::string lora_list_impl() override {
+    std::string lora_list_json() override {
         json j = json::array();
         for (auto& l : LORAS)
             j.push_back({{"id", l.id}, {"scale", l.scale}, {"path", l.path}});
@@ -308,12 +375,8 @@ void run_mock_tests() {
 
         ASSERT(llm.build_tokenize_json(llm.CONTENT) == input_json);
         ASSERT(llm.parse_tokenize_json(output_json) == llm.TOKENS);
-        ASSERT(json::parse(llm.tokenize_json(llm.CONTENT))["tokens"] == llm.TOKENS);
         ASSERT(llm.tokenize(llm.CONTENT.c_str()) == llm.TOKENS);
         ASSERT(llm.tokenize(llm.CONTENT) == llm.TOKENS);
-        ASSERT(llm.tokenize(input_json) == llm.TOKENS);
-        ASSERT(llm.tokenize_json(llm.CONTENT.c_str()) == output_json.dump());
-        ASSERT(llm.tokenize_json(llm.CONTENT) == output_json.dump());
         ASSERT(llm.tokenize_json(input_json) == output_json.dump());
     }
 
@@ -325,8 +388,6 @@ void run_mock_tests() {
         ASSERT(llm.build_detokenize_json(llm.TOKENS)["tokens"] == llm.TOKENS);
         ASSERT(llm.parse_detokenize_json(output_json) == llm.CONTENT);
         ASSERT(llm.detokenize(llm.TOKENS) == llm.CONTENT);
-        ASSERT(llm.detokenize(input_json) == llm.CONTENT);
-        ASSERT(llm.detokenize_json(llm.TOKENS) == output_json.dump());
         ASSERT(llm.detokenize_json(input_json) == output_json.dump());
     }
 
@@ -337,29 +398,29 @@ void run_mock_tests() {
 
         ASSERT(llm.build_embeddings_json(llm.CONTENT) == input_json);
         ASSERT(llm.parse_embeddings_json(output_json) == llm.EMBEDDING);
-        ASSERT(json::parse(llm.embeddings_json(llm.CONTENT))["embedding"] == llm.EMBEDDING);
-        ASSERT(json::parse(llm.embeddings_json(llm.CONTENT.c_str()))["embedding"] == llm.EMBEDDING);
+        ASSERT(json::parse(llm.embeddings_json(input_json))["embedding"] == llm.EMBEDDING);
         ASSERT(llm.embeddings(llm.CONTENT) == llm.EMBEDDING);
         ASSERT(llm.embeddings(llm.CONTENT.c_str()) == llm.EMBEDDING);
-        ASSERT(llm.embeddings(input_json) == llm.EMBEDDING);
     }
 
     // --- completion ---
     {
         int id_slot = 1;
-        json params = {{"temp", 0.7}};
+        json params = {{"temperature", 0.7}};
         json input_json = {
             {"prompt", llm.CONTENT},
             {"id_slot", id_slot},
-            {"temp", 0.7}
+            {"seed", 0},
+            {"n_predict", -1},
+            {"n_keep", 0},
+            {"temperature", 0.7}
         };
         json output_json = {{"content", llm.CONTENT}};
 
         ASSERT(llm.build_completion_json(llm.CONTENT, id_slot, params) == input_json);
         ASSERT(llm.parse_completion_json(output_json) == llm.CONTENT);
-        ASSERT(llm.completion(llm.CONTENT, id_slot, params) == llm.CONTENT);
-        ASSERT(llm.completion(input_json) == llm.CONTENT);
-        ASSERT(llm.completion_json(llm.CONTENT, id_slot, params) == output_json.dump());
+        ASSERT(llm.completion(llm.CONTENT, id_slot, nullptr, params) == llm.CONTENT);
+        ASSERT(llm.completion_json(input_json) == output_json.dump());
     }
 
     // --- Slots Action ---
@@ -376,8 +437,7 @@ void run_mock_tests() {
         ASSERT(llm.build_slot_json(id_slot, action, llm.SAVE_PATH) == input_json);
         ASSERT(llm.parse_slot_json(output_json) == llm.SAVE_PATH);
         ASSERT(llm.slot(id_slot, action, llm.SAVE_PATH) == llm.SAVE_PATH);
-        ASSERT(llm.slot(input_json) == llm.SAVE_PATH);
-        ASSERT(llm.slot_json(id_slot, action, llm.SAVE_PATH) == output_json.dump());
+        ASSERT(llm.slot_json(input_json) == output_json.dump());
     }
 
     // --- LoRA Apply ---
@@ -393,8 +453,7 @@ void run_mock_tests() {
 
         ASSERT(llm.build_lora_weight_json(loras) == input_json);
         ASSERT(llm.parse_lora_weight_json(output_json));
-        ASSERT(llm.lora_weight_json(loras) == output_json.dump());
-        ASSERT(llm.lora_weight(input_json));
+        ASSERT(llm.lora_weight_json(input_json) == output_json.dump());
         ASSERT(llm.lora_weight(loras));
     }
 
@@ -411,23 +470,35 @@ void run_mock_tests() {
 
 void run_LLM_tests(LLM* llm)
 {
-    test_tokenization(llm);
+    test_LLM_Tokenize(llm);
+    test_LLM_Completion(llm, false);
+    test_LLM_Completion(llm, true);
+    test_LLM_Embeddings(llm);
+
+    test_tokenize(llm);
     test_completion(llm, false);
     test_completion(llm, true);
-    test_embedding(llm);
+    test_embeddings(llm);
 }
 
 void run_LLMLocal_tests(LLMLocal* llm)
 {
     run_LLM_tests(llm);
+
+    test_LLM_Cancel(llm);
+    test_LLM_Slot(llm);
+
     test_cancel(llm);
-    test_slot_save_restore(llm);
+    test_slot(llm);
 }
 
 void run_LLMProvider_tests(LLMProvider* llm)
 {
     run_LLMLocal_tests(llm);
-    test_lora(llm);
+
+    test_LLM_Lora_List(llm);
+
+    test_lora_list(llm);
 }
 
 void set_SSL(LLMProvider* llm, LLMRemoteClient* llm_remote_client)
@@ -515,6 +586,7 @@ int main(int argc, char** argv) {
     std::string command = args_to_command(argc, argv);
 
     LLMService* llm_service = start_llm_service(command);
+    llm_service->n_predict = 10;
     EMBEDDING_SIZE = LLM_Embedding_Size(llm_service);
 
     std::cout << "-------- LLM service --------" << std::endl;
@@ -522,10 +594,12 @@ int main(int argc, char** argv) {
 
     std::cout << "-------- LLM client --------" << std::endl;
     LLMClient llm_client(llm_service);
+    llm_client.n_predict = 10;
     run_LLMLocal_tests(&llm_client);
 
     std::cout << "-------- LLM remote client --------" << std::endl;
     LLMRemoteClient llm_remote_client("https://localhost", 8080);
+    llm_remote_client.n_predict = 10;
     set_SSL(llm_service, &llm_remote_client);
     LLM_Start_Server(llm_service, "", 8080);
     run_LLM_tests(&llm_remote_client);
@@ -535,6 +609,7 @@ int main(int argc, char** argv) {
 #ifdef RUNTIME_TESTS
     std::cout << "-------- LLM runtime --------" << std::endl;
     LLMRuntime* llmlib = start_llm_lib(command);
+    llmlib->n_predict = 10;
     EMBEDDING_SIZE = LLM_Embedding_Size(llmlib);
     run_LLMProvider_tests(llmlib);
     stop_llm_service(llmlib);
