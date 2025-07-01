@@ -71,9 +71,17 @@ std::string concatenate_streaming_result(std::string input)
 
 
 int counter = 0;
-
+std::string concat_result = "";
 void count_calls(const char* c)
 {
+    std::string result(c);
+    try {
+        json j = json::parse(result);
+        concat_result += j["content"];
+    }
+    catch (const json::parse_error&) {
+        concat_result += result;
+    }
     counter++;
 }
 
@@ -115,7 +123,8 @@ void test_LLM_Completion(LLM* llm, bool stream) {
     data["n_predict"] = llm->n_predict;
 
     counter = 0;
-    std::string reply_data, reply;
+    concat_result = "";
+    std::string reply;
     if (stream)
     {
         reply = std::string(LLM_Completion(llm, data.dump().c_str(), static_cast<CharArrayFn>(count_calls)));
@@ -125,8 +134,9 @@ void test_LLM_Completion(LLM* llm, bool stream) {
     {
         reply = std::string(LLM_Completion(llm, data.dump().c_str()));
     }
-    reply_data = json::parse(reply)["content"];
-    ASSERT(reply_data != "");
+    reply = json::parse(reply)["content"];
+    ASSERT(reply != "");
+    if (stream) ASSERT(reply == concat_result);
 }
 
 void test_completion(LLM* llm, bool stream) {
@@ -135,6 +145,7 @@ void test_completion(LLM* llm, bool stream) {
     std::cout << "streaming )" << std::endl;
 
     counter = 0;
+    concat_result = "";
     std::string reply;
     if (stream)
     {
@@ -146,6 +157,7 @@ void test_completion(LLM* llm, bool stream) {
         reply = llm->completion(PROMPT, ID_SLOT);
     }
     ASSERT(reply != "");
+    if (stream) ASSERT(reply == concat_result);
 }
 
 void test_LLM_Embeddings(LLM* llm) {
