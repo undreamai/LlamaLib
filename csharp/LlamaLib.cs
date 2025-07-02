@@ -11,7 +11,7 @@ namespace UndreamAI.LlamaLib
 
         // Function delegates
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void CharArrayCallback(IntPtr charArray);
+        public delegate void CharArrayCallback([MarshalAs(UnmanagedType.LPStr)] string charArray);
 
 #if ANDROID || IOS || VISIONOS
         // Static P/Invoke declarations for mobile platforms
@@ -49,8 +49,8 @@ namespace UndreamAI.LlamaLib
         public IntPtr LLM_Embeddings(IntPtr llm, string jsonData) => LlamaLib.LLM_Embeddings_Static(llm, jsonData);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Completion")]
-        public static extern IntPtr LLM_Completion_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData, CharArrayCallback callback);
-        public IntPtr LLM_Completion(IntPtr llm, string jsonData, CharArrayCallback callback) => LlamaLib.LLM_Completion_Static(llm, jsonData, callback);
+        public static extern IntPtr LLM_Completion_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData, CharArrayCallback callback, bool callbackWithJSON=true);
+        public IntPtr LLM_Completion(IntPtr llm, string jsonData, CharArrayCallback callback, bool callbackWithJSON) => LlamaLib.LLM_Completion_Static(llm, jsonData, callback, callbackWithJSON);
 
         // LLMLocal functions
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Slot")]
@@ -328,7 +328,7 @@ namespace UndreamAI.LlamaLib
         public delegate IntPtr LLM_Embeddings_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr LLM_Completion_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData, CharArrayCallback callback);
+        public delegate IntPtr LLM_Completion_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData, CharArrayCallback callback, bool callbackWithJSON=true);
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr LLM_Slot_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);

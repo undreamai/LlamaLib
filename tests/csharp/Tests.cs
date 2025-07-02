@@ -15,11 +15,14 @@ namespace UndreamAI.LlamaLib.Tests
     {
         private const string PROMPT = "you are an artificial intelligence assistant\n\n### user: Hello, how are you?\n### assistant";
         private const int ID_SLOT = 0;
+        private static readonly object completionLock = new object();
         private static int counter = 0;
+        private static string concatData = "";
         string testModelPath = "/home/benuix/.config/LLMUnity/models/smol_llama-220m-openhermes.q4_k_m.gguf";
 
-        private static void CountCalls(IntPtr charArray)
+        private static void CountCalls(string input)
         {
+            concatData += input;
             counter++;
         }
 
@@ -42,16 +45,25 @@ namespace UndreamAI.LlamaLib.Tests
             Assert.AreEqual(PROMPT.Trim(), detokenizedContent.Trim());
         }
         
-        private void TestCompletionWithStreaming(Func<string, LlamaLib.CharArrayCallback, int, JObject, string> completionFunc, bool stream)
+        private void TestCompletionWithStreaming(Func<string, int, LlamaLib.CharArrayCallback, JObject, string> completionFunc, bool stream)
         {
             Console.WriteLine($"LLM_Completion ({(stream ? "" : "no ")}streaming)");
 
-            counter = 0;
-            string content = completionFunc(PROMPT, stream? CountCalls: null, ID_SLOT, null);
-            Assert.IsFalse(string.IsNullOrEmpty(content));
+            lock (completionLock)
+            {
+                counter = 0;
+                concatData = "";
+                string content = completionFunc(PROMPT, ID_SLOT, stream? CountCalls: null, null);
+                Assert.IsFalse(string.IsNullOrEmpty(content));
+                if (stream)
+                {
+                    Assert.IsTrue(counter > 0);
+                    Assert.IsTrue(content == concatData);
+                }
+            }
         }
         
-        public void TestCompletion(Func<string, LlamaLib.CharArrayCallback, int, JObject, string> completionFunc)
+        public void TestCompletion(Func<string, int, LlamaLib.CharArrayCallback, JObject, string> completionFunc)
         {
             TestCompletionWithStreaming(completionFunc, false);
             TestCompletionWithStreaming(completionFunc, true);
@@ -103,6 +115,7 @@ namespace UndreamAI.LlamaLib.Tests
         {
             LLMService llmService = new LLMService(testModelPath);
             llmService.Debug(3);
+            llmService.numPredict = 10;
 
             TestStart(llmService.Start, llmService.Started);
             TestTokenization(llmService.Tokenize, llmService.Detokenize);
@@ -123,6 +136,7 @@ namespace UndreamAI.LlamaLib.Tests
             TestStart(llmService.Start, llmService.Started);
 
             LLMClient llmClient = new LLMClient(llmService);
+            llmClient.numPredict = 10;
 
             TestTokenization(llmClient.Tokenize, llmClient.Detokenize);
             TestCompletion(llmClient.Completion);
@@ -142,6 +156,7 @@ namespace UndreamAI.LlamaLib.Tests
             llmService.StartServer("", 13333);
 
             LLMRemoteClient llmClient = new LLMRemoteClient("http://localhost", 13333);
+            llmClient.numPredict = 10;
 
             TestTokenization(llmClient.Tokenize, llmClient.Detokenize);
             TestCompletion(llmClient.Completion);

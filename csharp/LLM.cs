@@ -41,6 +41,12 @@ namespace UndreamAI.LlamaLib
         public IntPtr llm = IntPtr.Zero;
         protected readonly object _disposeLock = new object();
         public bool disposed = false;
+        public int seed = 0;
+        public int numPredict = -1;
+        public int numKeep = 0;
+        public float temperature = 0.80f;
+        public string jsonSchema = "";
+        public string grammar = "";
 
         protected LLM() { }
 
@@ -70,13 +76,13 @@ namespace UndreamAI.LlamaLib
         }
 
         // Tokenize methods
-        public static string BuildTokenizeJSON(string content)
+        public string BuildTokenizeJSON(string content)
         {
             var json = new JObject{["content"] = content};
             return json.ToString();
         }
 
-        public static List<int> ParseTokenizeJSON(string result)
+        public List<int> ParseTokenizeJSON(string result)
         {
             try
             {
@@ -111,13 +117,13 @@ namespace UndreamAI.LlamaLib
         }
 
         // Detokenize methods
-        public static string BuildDetokenizeJSON(List<int> tokens)
+        public string BuildDetokenizeJSON(List<int> tokens)
         {
             var json = new JObject{["tokens"] = JArray.FromObject(tokens)};
             return json.ToString();
         }
 
-        public static string ParseDetokenizeJSON(string result)
+        public string ParseDetokenizeJSON(string result)
         {
             try
             {
@@ -160,13 +166,13 @@ namespace UndreamAI.LlamaLib
         }
 
         // Embeddings methods
-        public static string BuildEmbeddingsJSON(string content)
+        public string BuildEmbeddingsJSON(string content)
         {
             var json = new JObject{["content"] = content};
             return json.ToString();
         }
 
-        public static List<float> ParseEmbeddingsJSON(string result)
+        public List<float> ParseEmbeddingsJSON(string result)
         {
             try
             {
@@ -201,9 +207,19 @@ namespace UndreamAI.LlamaLib
         }
 
         // Completion methods        
-        public static string BuildCompletionJSON(string prompt, int idSlot = 0, JObject parameters = null)
+        public string BuildCompletionJSON(string prompt, int idSlot = 0, JObject parameters = null)
         {
-            var json = new JObject{["prompt"] = prompt, ["id_slot"] = idSlot};
+            var json = new JObject
+            {
+                ["prompt"] = prompt,
+                ["id_slot"] = idSlot,
+                ["seed"] = seed,
+                ["n_predict"] = numPredict,
+                ["n_keep"] = numKeep,
+                ["temperature"] = temperature,
+            };
+            if (jsonSchema != "") json["json_schema"] = jsonSchema;
+            if (grammar != "") json["grammar"] = grammar;
             if (parameters != null)
             {
                 foreach (var param in parameters)
@@ -234,17 +250,20 @@ namespace UndreamAI.LlamaLib
 
             CheckLlamaLib();
 
-            var result = llamaLib.LLM_Completion(llm, jsonData, callback);
+            var result = llamaLib.LLM_Completion(llm, jsonData, callback, true);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
-        public string Completion(string prompt, LlamaLib.CharArrayCallback callback = null, int idSlot = -1, JObject parameters = null)
+        public string Completion(string prompt, int idSlot = -1, LlamaLib.CharArrayCallback callback = null, JObject parameters = null)
         {
             if (string.IsNullOrEmpty(prompt))
                 throw new ArgumentNullException(nameof(prompt));
-            
-            var jsonInput = BuildCompletionJSON(prompt, idSlot, parameters);
-            var jsonResult = CompletionJSON(jsonInput, callback);
+
+            CheckLlamaLib();
+
+            var jsonData = BuildCompletionJSON(prompt, idSlot, parameters);
+            var result = llamaLib.LLM_Completion(llm, jsonData, callback, false);
+            var jsonResult = Marshal.PtrToStringAnsi(result) ?? string.Empty;
             return ParseCompletionJSON(jsonResult);
         }
     }
@@ -257,13 +276,13 @@ namespace UndreamAI.LlamaLib
         protected LLMLocal(LlamaLib llamaLibInstance) : base(llamaLibInstance) { }
 
         // Slot methods
-        public static string BuildSlotJSON(int idSlot, string action, string filepath)
+        public string BuildSlotJSON(int idSlot, string action, string filepath)
         {
             var json = new JObject{["id_slot"] = idSlot, ["action"] = action, ["filepath"] = filepath};
             return json.ToString();
         }
 
-        public static string ParseSlotJSON(string result)
+        public string ParseSlotJSON(string result)
         {
             try
             {
@@ -316,7 +335,7 @@ namespace UndreamAI.LlamaLib
         protected LLMProvider(LlamaLib llamaLibInstance) : base(llamaLibInstance) { }
 
         // LoRA Weight methods
-        public static string BuildLoraWeightJSON(List<LoraIdScale> loras)
+        public string BuildLoraWeightJSON(List<LoraIdScale> loras)
         {
             var jsonArray = new JArray();
             foreach (var lora in loras)
@@ -326,7 +345,7 @@ namespace UndreamAI.LlamaLib
             return jsonArray.ToString();
         }
 
-        public static bool ParseLoraWeightJSON(string result)
+        public bool ParseLoraWeightJSON(string result)
         {
             try
             {
@@ -369,7 +388,7 @@ namespace UndreamAI.LlamaLib
         }
 
         // LoRA List methods
-        public static List<LoraIdScalePath> ParseLoraListJSON(string result)
+        public List<LoraIdScalePath> ParseLoraListJSON(string result)
         {
             var loras = new List<LoraIdScalePath>();
             try
