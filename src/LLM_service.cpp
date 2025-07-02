@@ -364,14 +364,14 @@ void LLMService::start_server(const std::string& host, int port, const std::stri
     
     const auto completion_post = [this, &res_error](const httplib::Request & req, httplib::Response & res) {
         json data = handle_post(req, res);
-        completion_json(data, nullptr, &res, req.is_connection_closed, OAICOMPAT_TYPE_NONE);
+        completion_json(data, nullptr, true, &res, req.is_connection_closed, OAICOMPAT_TYPE_NONE);
     };
     
     const auto chat_completion_post = [this, &res_error](const httplib::Request & req, httplib::Response & res) {
         json body = handle_post(req, res);
         json data = oaicompat_completion_params_parse(body, params.use_jinja, params.reasoning_format, ctx_server->chat_templates.get());
         LOG_DEBUG("formatted prompt", data);
-        completion_json(data, nullptr, &res, req.is_connection_closed, OAICOMPAT_TYPE_CHAT);
+        completion_json(data, nullptr, true, &res, req.is_connection_closed, OAICOMPAT_TYPE_CHAT);
     };
 
     const auto apply_template_post = [this](const httplib::Request& req, httplib::Response& res) {
@@ -784,18 +784,31 @@ class SinkException : public std::exception {};
 
 static void server_sent_event_with_stringswrapper(
     CharArrayFn callback,
+    bool callbackWithJSON,
     httplib::DataSink* sink,
     const char* event,
     const json& data,
     std::string& concat_string,
-    std::vector<int>& concat_tokens
+    std::vector<int>& concat_tokens,
+    bool return_tokens
 ) {
     std::string data_str = safe_json_to_str(data);
-    if (callback) callback(data_str.c_str());
+    std::string data_content = json_value(data, "content", std::string(""));
+    if (callback)
+    {
+        if (callbackWithJSON) callback(data_str.c_str());
+        else
+        {
+            if(data_content != "") callback(data_content.c_str());
+        }
+    }
 
-    concat_string += json_value(data, "content", std::string(""));
-    for (const auto& tok : json_value(data, "tokens", std::vector<int>())) {
-        concat_tokens.push_back(tok);
+    concat_string += data_content;
+    if (return_tokens)
+    {
+        for (const auto& tok : json_value(data, "tokens", std::vector<int>())) {
+            concat_tokens.push_back(tok);
+        }
     }
 
     if (sink != nullptr){
@@ -807,6 +820,8 @@ static void server_sent_event_with_stringswrapper(
 std::string LLMService::completion_streaming(
     std::unordered_set<int> task_ids,
     CharArrayFn callback,
+    bool callbackWithJSON,
+    bool return_tokens,
     httplib::DataSink* sink,
     std::function<bool()> is_connection_closed
 ) {
@@ -818,16 +833,16 @@ std::string LLMService::completion_streaming(
         json res_json = result->to_json();
         if (res_json.is_array()) {
             for (const auto & res : res_json) {
-                server_sent_event_with_stringswrapper(callback, sink, "data", res, concat_string, concat_tokens);
+                server_sent_event_with_stringswrapper(callback, callbackWithJSON, sink, "data", res, concat_string, concat_tokens, return_tokens);
                 result_data = res;
             }
         } else {
-            server_sent_event_with_stringswrapper(callback, sink, "data", res_json, concat_string, concat_tokens);
+            server_sent_event_with_stringswrapper(callback, callbackWithJSON, sink, "data", res_json, concat_string, concat_tokens, return_tokens);
             result_data = res_json;
         }
         return true;
     }, [&](const json & error_data) {
-        server_sent_event_with_stringswrapper(callback, sink, "error", error_data, concat_string, concat_tokens);
+        server_sent_event_with_stringswrapper(callback, callbackWithJSON, sink, "error", error_data, concat_string, concat_tokens, return_tokens);
     }, is_connection_closed
     );
     if (sink != nullptr) sink->done();
@@ -836,14 +851,15 @@ std::string LLMService::completion_streaming(
     return safe_json_to_str(result_data);
 }
 
-std::string LLMService::completion_json(const json& data, CharArrayFn callback)
+std::string LLMService::completion_json(const json& data, CharArrayFn callback, bool callbackWithJSON)
 {
-    return completion_json(data, callback, nullptr);
+    return completion_json(data, callback, callbackWithJSON, nullptr);
 }
 
 std::string LLMService::completion_json(
     const json& data,
     CharArrayFn callback,
+    bool callbackWithJSON,
     httplib::Response* res,
     std::function<bool()> is_connection_closed,
     int oaicompat_int
@@ -854,6 +870,7 @@ std::string LLMService::completion_json(
         server_task_type type = SERVER_TASK_TYPE_COMPLETION;
         oaicompat_type oaicompat = static_cast<oaicompat_type>(oaicompat_int);
         bool stream = json_value(data, "stream", callback != nullptr);
+        bool return_tokens = json_value(data, "return_tokens", false);
 
         // GGML_ASSERT(type == SERVER_TASK_TYPE_COMPLETION || type == SERVER_TASK_TYPE_INFILL);
 
@@ -916,7 +933,11 @@ std::string LLMService::completion_json(
                 }
                 result_data = safe_json_to_str(result_json);
                 if (res != nullptr) res_ok(*res, result_data);
-                if (callback) callback(result_data.c_str());
+                if (callback)
+                {
+                    if (callbackWithJSON) callback(result_data.c_str());
+                    else callback(json_value(result_data, "content", std::string("")).c_str());
+                }
             }, [&](const json & error_data) {
                 if(res != nullptr) handle_error(*res, error_data);
             }, is_connection_closed);
@@ -927,13 +948,13 @@ std::string LLMService::completion_json(
                 ctx_server->queue_results.remove_waiting_task_ids(task_ids);
             };
             if(res == nullptr){
-                result_data = completion_streaming(task_ids, callback, nullptr);
+                result_data = completion_streaming(task_ids, callback, callbackWithJSON, return_tokens, nullptr);
                 on_complete(true);
             } else {
-                const auto chunked_content_provider = [task_ids, this, oaicompat, &result_data](size_t, httplib::DataSink & sink) {
+                const auto chunked_content_provider = [task_ids, this, oaicompat, callbackWithJSON, return_tokens, &result_data](size_t, httplib::DataSink & sink) {
                     bool ok = true;
                     try {
-                        result_data = completion_streaming(task_ids, nullptr, &sink, [&sink]() {return !sink.is_writable();});
+                        result_data = completion_streaming(task_ids, nullptr, callbackWithJSON, return_tokens, &sink, [&sink]() {return !sink.is_writable();});
                         if (oaicompat != OAICOMPAT_TYPE_NONE) {
                             static const std::string ev_done = "data: [DONE]\n\n";
                             sink.write(ev_done.data(), ev_done.size());

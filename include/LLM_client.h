@@ -21,7 +21,7 @@ protected:
     std::string tokenize_json(const json& data) override;
     std::string detokenize_json(const json& data) override;
     std::string embeddings_json(const json& data) override;
-    std::string completion_json(const json& data, CharArrayFn callback = nullptr) override;
+    std::string completion_json(const json& data, CharArrayFn callback = nullptr, bool callbackWithJSON=true) override;
     std::string slot_json(const json& data) override;
     void cancel(int id_slot) override;
     //=================================== LLM METHODS END ===================================//
@@ -45,7 +45,7 @@ protected:
     std::string tokenize_json(const json& data) override;
     std::string detokenize_json(const json& data) override;
     std::string embeddings_json(const json& data) override;
-    std::string completion_json(const json& data, CharArrayFn callback = nullptr) override;
+    std::string completion_json(const json& data, CharArrayFn callback = nullptr, bool callbackWithJSON=true) override;
     //=================================== LLM METHODS END ===================================//
 
 private:
@@ -53,7 +53,7 @@ private:
     const int port;
     std::string SSL_cert = "";
 
-    std::string post_request(const std::string& path, const json& payload, CharArrayFn callback = nullptr);
+    std::string post_request(const std::string& path, const json& payload, CharArrayFn callback = nullptr, bool callbackWithJSON=true);
 };
 
 

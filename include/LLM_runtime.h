@@ -51,7 +51,7 @@ class LLMService;
     M(LLM_Tokenize,        const char*, LLM*, const char*) \
     M(LLM_Detokenize,      const char*, LLM*, const char*) \
     M(LLM_Embeddings,      const char*, LLM*, const char*) \
-    M(LLM_Completion,      const char*, LLM*, const char*, CharArrayFn) \
+    M(LLM_Completion,      const char*, LLM*, const char*, CharArrayFn, bool) \
     M(LLM_Slot,            const char*, LLMLocal*, const char*) \
     M(LLM_Cancel,          void,        LLMLocal*, int) \
     M(LLM_Lora_Weight,     const char*, LLMProvider*, const char*) \
@@ -115,8 +115,8 @@ protected:
     std::string embeddings_json(const json& data) override {
         return LLM_Embeddings((LLM*)llm, data.dump().c_str());
     }
-    std::string completion_json(const json& data, CharArrayFn callback = nullptr) override {
-        return LLM_Completion((LLM*)llm, data.dump().c_str(), callback);
+    std::string completion_json(const json& data, CharArrayFn callback = nullptr, bool callbackWithJSON = true) override {
+        return LLM_Completion((LLM*)llm, data.dump().c_str(), callback, callbackWithJSON);
     }
 
     std::string slot_json(const json& data) override {

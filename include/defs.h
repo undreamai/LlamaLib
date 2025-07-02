@@ -16,7 +16,7 @@
 
 using json = nlohmann::ordered_json;
 
-typedef std::function<void(const char*)> CharArrayFn;
+typedef void (*CharArrayFn)(const char*);
 
 #ifdef _WIN32
     const char SEP = '\\';

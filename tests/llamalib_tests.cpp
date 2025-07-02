@@ -128,7 +128,7 @@ void test_LLM_Completion(LLM* llm, bool stream) {
     if (stream)
     {
         reply = std::string(LLM_Completion(llm, data.dump().c_str(), static_cast<CharArrayFn>(count_calls)));
-        ASSERT(counter > 0);
+        ASSERT(counter > 5);
     }
     else
     {
@@ -150,7 +150,7 @@ void test_completion(LLM* llm, bool stream) {
     if (stream)
     {
         reply = llm->completion(PROMPT, ID_SLOT, static_cast<CharArrayFn>(count_calls));
-        ASSERT(counter > 0);
+        ASSERT(counter > 5);
     }
     else
     {
@@ -346,7 +346,7 @@ public:
         return result.dump();
     }
 
-    std::string completion_json(const json& data, CharArrayFn callback = nullptr) override {
+    std::string completion_json(const json& data, CharArrayFn callback = nullptr, bool callbackWithJSON=true) override {
         json result;
         result["content"] = CONTENT;
         return result.dump();

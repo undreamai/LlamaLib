@@ -17,9 +17,9 @@ std::string LLMClient::embeddings_json(const json& data)
     return llm->embeddings_json(data);
 }
 
-std::string LLMClient::completion_json(const json& data, CharArrayFn callback)
+std::string LLMClient::completion_json(const json& data, CharArrayFn callback, bool callbackWithJSON)
 {
-    return llm->completion_json(data, callback);
+    return llm->completion_json(data, callback, callbackWithJSON);
 }
 
 std::string LLMClient::slot_json(const json& data)
@@ -67,13 +67,16 @@ void LLMRemoteClient::set_SSL(const char* SSL_cert){
 std::string LLMRemoteClient::post_request(
     const std::string& path,
     const json& payload,
-    CharArrayFn callback
+    CharArrayFn callback,
+    bool callbackWithJSON
 ) {
     StreamingContext context;
     context.callback = callback;
 
+    json body = payload;
     bool stream = callback != nullptr;
-    if (payload.contains("stream")) stream = payload["stream"];
+    if (body.contains("stream")) stream = body["stream"];
+    else body["stream"] = stream;
 
     httplib::Headers headers = {
         {"Content-Type", "application/json"},
@@ -85,7 +88,7 @@ std::string LLMRemoteClient::post_request(
     req.method = "POST";
     req.path = "/" + path;
     req.headers = headers;
-    req.body = payload.dump();
+    req.body = body.dump();
 
     std::string concat_string = "";
     std::vector<int> concat_tokens;
@@ -102,11 +105,20 @@ std::string LLMRemoteClient::post_request(
             while (!chunk_str.empty() && (chunk_str.back() == '\n' || chunk_str.back() == '\r')) {
                 chunk_str.pop_back();
             }
-            if (context.callback != nullptr) {
-                context.callback(chunk_str.c_str());
-            }
 
             json data_json = json::parse(chunk_str);
+            if (context.callback != nullptr) {
+                if(callbackWithJSON)
+                {
+                    context.callback(chunk_str.c_str());
+                }
+                else
+                {
+                    if (data_json.contains("content"))
+                        context.callback(data_json["content"].get<std::string>().c_str());
+                }
+            }
+
             if (data_json.contains("content")) {
                 concat_string += data_json["content"].get<std::string>();
             }
@@ -167,15 +179,9 @@ std::string LLMRemoteClient::embeddings_json(const json& data)
     return post_request("embeddings", data);
 }
 
-std::string LLMRemoteClient::completion_json(const json& data, CharArrayFn callback)
+std::string LLMRemoteClient::completion_json(const json& data, CharArrayFn callback, bool callbackWithJSON)
 {
-    // bool stream = callback != nullptr;
-    // if (data.contains("stream")) stream = data["stream"];
-
-    // json data_send = data;
-    // data_send["stream"] = stream;
-    // return post_request("completion", data_send, callback);
-    return post_request("completion", data, callback);
+    return post_request("completion", data, callback, callbackWithJSON);
 }
 
 

@@ -29,7 +29,7 @@ class UNDREAMAI_API LLMService : public LLMProvider {
 
         std::string embeddings_json(const json& data, httplib::Response* res, std::function<bool()> is_connection_closed = always_false);
         std::string lora_weight_json(const json& data, httplib::Response* res);
-        std::string completion_json(const json& data, CharArrayFn callback, httplib::Response* res, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
+        std::string completion_json(const json& data, CharArrayFn callback, bool callbackWithJSON, httplib::Response* res, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
         std::string slot_json(const json& data, httplib::Response* res);
 
         //=================================== LLM METHODS START ===================================//
@@ -38,7 +38,7 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         std::string embeddings_json(const json& data) override;
         std::string lora_weight_json(const json& data) override;
         std::string lora_list_json() override;
-        std::string completion_json(const json& data, CharArrayFn callback=nullptr) override;
+        std::string completion_json(const json& data, CharArrayFn callback=nullptr, bool callbackWithJSON=true) override;
         std::string slot_json(const json& data) override;
         void cancel(int id_slot) override;
         
@@ -68,6 +68,8 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         std::string completion_streaming(
             std::unordered_set<int> id_tasks,
             CharArrayFn callback=nullptr,
+            bool callbackWithJSON=true,
+            bool return_tokens=false,
             httplib::DataSink* sink=nullptr,
             std::function<bool()> is_connection_closed = always_false
         );

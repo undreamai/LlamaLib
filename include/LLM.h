@@ -41,7 +41,7 @@ public:
     virtual std::string tokenize_json(const json& data) = 0;
     virtual std::string detokenize_json(const json& data) = 0;
     virtual std::string embeddings_json(const json& data) = 0;
-    virtual std::string completion_json(const json& data, CharArrayFn callback) = 0;
+    virtual std::string completion_json(const json& data, CharArrayFn callback, bool callbackWithJSON) = 0;
 
     static bool has_gpu_layers(const std::string& command);
     static std::string LLM_args_to_command(const std::string& model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, const std::vector<std::string>& lora_paths = {});
@@ -61,9 +61,6 @@ public:
     virtual json build_completion_json(const std::string& prompt, int id_slot, const json& params=json({}));
     virtual std::string parse_completion_json(const json& result);
     virtual std::string completion(const std::string& prompt, int id_slot, CharArrayFn callback = nullptr, const json& params=json({}));
-
-private:
-    CharArrayFn CallbackAfterParsing(CharArrayFn callback);
 };
 
 class UNDREAMAI_API LLMLocal : public LLM {
@@ -144,7 +141,7 @@ extern "C" {
     UNDREAMAI_API const char* LLM_Tokenize(LLM* llm, const char* json_data);
     UNDREAMAI_API const char* LLM_Detokenize(LLM* llm, const char* json_data);
     UNDREAMAI_API const char* LLM_Embeddings(LLM* llm, const char* json_data);
-    UNDREAMAI_API const char* LLM_Completion(LLM* llm, const char* json_data, CharArrayFn callback=nullptr);
+    UNDREAMAI_API const char* LLM_Completion(LLM* llm, const char* json_data, CharArrayFn callback=nullptr, bool callbackWithJSON=true);
 
     UNDREAMAI_API const char* LLM_Slot(LLMLocal* llm, const char* json_data);
     UNDREAMAI_API void LLM_Cancel(LLMLocal* llm, int id_slot);

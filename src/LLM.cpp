@@ -182,22 +182,12 @@ std::string LLM::parse_completion_json(const json& result)
     return "";
 }
 
-CharArrayFn LLM::CallbackAfterParsing(CharArrayFn callback)
-{
-    return [this, callback](const char* input) -> void
-    {
-        if (!callback) return;
-        thread_local std::string parsed_buffer;
-        parsed_buffer = parse_completion_json(json::parse(input));
-        callback(parsed_buffer.c_str());
-    };
-}
-
 std::string LLM::completion(const std::string& prompt, int id_slot, CharArrayFn callback, const json& params)
 {
     return parse_completion_json(json::parse(completion_json(
         build_completion_json(prompt, id_slot, params),
-        CallbackAfterParsing(callback)
+        callback,
+        false
     )));
 }
 
@@ -303,8 +293,8 @@ const char* LLM_Embeddings(LLM* llm, const char* json_data) {
     return stringToCharArray(result);
 }
 
-const char* LLM_Completion(LLM* llm, const char* json_data, CharArrayFn callback) {
-    std::string result = llm->completion_json(json::parse(json_data), callback);
+const char* LLM_Completion(LLM* llm, const char* json_data, CharArrayFn callback, bool callbackWithJSON) {
+    std::string result = llm->completion_json(json::parse(json_data), callback, callbackWithJSON);
     return stringToCharArray(result);
 }
 
