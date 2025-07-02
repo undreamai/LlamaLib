@@ -32,9 +32,9 @@ namespace UndreamAI.LlamaLib
         }
 
         // Base LLM functions
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "level")]
-        public static extern void LLM_Debug_Static(int level);
-        public void LLM_Debug(int level) => LLM_Debug_Static(level);
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Debug")]
+        public static extern void LLM_Debug_Static(bool debug);
+        public void LLM_Debug(bool debug) => LLM_Debug_Static(debug);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Tokenize")]
         public static extern IntPtr LLM_Tokenize_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
@@ -316,7 +316,7 @@ namespace UndreamAI.LlamaLib
         
         // Main lib
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void LLM_Debug_Delegate(int level);
+        public delegate void LLM_Debug_Delegate(bool debug);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr LLM_Tokenize_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);

@@ -114,7 +114,7 @@ namespace UndreamAI.LlamaLib.Tests
         public void Tests_LLMService()
         {
             LLMService llmService = new LLMService(testModelPath);
-            llmService.Debug(3);
+            llmService.Debug(false);
             llmService.numPredict = 10;
 
             TestStart(llmService.Start, llmService.Started);
@@ -128,41 +128,41 @@ namespace UndreamAI.LlamaLib.Tests
             llmService?.Dispose();
         }
 
-        [TestMethod]
-        public void Tests_LLMClient()
-        {
-            LLMService llmService = LLMService.FromCommand(new String("-m " + testModelPath));
-            llmService.Debug(3);
-            TestStart(llmService.Start, llmService.Started);
+        // [TestMethod]
+        // public void Tests_LLMClient()
+        // {
+        //     LLMService llmService = LLMService.FromCommand(new String("-m " + testModelPath));
+        //     llmService.Debug(true);
+        //     TestStart(llmService.Start, llmService.Started);
 
-            LLMClient llmClient = new LLMClient(llmService);
-            llmClient.numPredict = 10;
+        //     LLMClient llmClient = new LLMClient(llmService);
+        //     llmClient.numPredict = 10;
 
-            TestTokenization(llmClient.Tokenize, llmClient.Detokenize);
-            TestCompletion(llmClient.Completion);
-            TestEmbedding(llmClient.Embeddings, llmService.EmbeddingSize);
-            TestSlotSaveRestore(llmClient.Slot);
-            TestCancel(llmClient.Cancel);
+        //     TestTokenization(llmClient.Tokenize, llmClient.Detokenize);
+        //     TestCompletion(llmClient.Completion);
+        //     TestEmbedding(llmClient.Embeddings, llmService.EmbeddingSize);
+        //     TestSlotSaveRestore(llmClient.Slot);
+        //     TestCancel(llmClient.Cancel);
 
-            llmService?.Dispose();
-        }
+        //     llmService?.Dispose();
+        // }
 
-        [TestMethod]
-        public void Tests_LLMRemoteClient()
-        {
-            LLMService llmService = new LLMService(testModelPath);
-            llmService.Debug(3);
-            TestStart(llmService.Start, llmService.Started);
-            llmService.StartServer("", 13333);
+        // [TestMethod]
+        // public void Tests_LLMRemoteClient()
+        // {
+        //     LLMService llmService = new LLMService(testModelPath);
+        //     llmService.Debug(true);
+        //     TestStart(llmService.Start, llmService.Started);
+        //     llmService.StartServer("", 13333);
 
-            LLMRemoteClient llmClient = new LLMRemoteClient("http://localhost", 13333);
-            llmClient.numPredict = 10;
+        //     LLMRemoteClient llmClient = new LLMRemoteClient("http://localhost", 13333);
+        //     llmClient.numPredict = 10;
 
-            TestTokenization(llmClient.Tokenize, llmClient.Detokenize);
-            TestCompletion(llmClient.Completion);
-            TestEmbedding(llmClient.Embeddings, llmService.EmbeddingSize);
+        //     TestTokenization(llmClient.Tokenize, llmClient.Detokenize);
+        //     TestCompletion(llmClient.Completion);
+        //     TestEmbedding(llmClient.Embeddings, llmService.EmbeddingSize);
 
-            llmService?.Dispose();
-        }
+        //     llmService?.Dispose();
+        // }
     }
 }

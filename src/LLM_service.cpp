@@ -4,6 +4,89 @@
 #include "server.cpp"
 #endif // SERVER_H
 
+
+#ifdef _DEBUG
+#if (defined __linux__)
+#include <sys/stat.h>
+#include <string.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <ctype.h>
+
+static bool debuggerIsAttached()
+{
+    char buf[4096];
+
+    const int status_fd = open("/proc/self/status", O_RDONLY);
+    if (status_fd == -1)
+        return false;
+
+    const ssize_t num_read = read(status_fd, buf, sizeof(buf) - 1);
+    close(status_fd);
+
+    if (num_read <= 0)
+        return false;
+
+    buf[num_read] = '\0';
+    constexpr char tracerPidString[] = "TracerPid:";
+    const auto tracer_pid_ptr = strstr(buf, tracerPidString);
+    if (!tracer_pid_ptr)
+        return false;
+
+    for (const char* characterPtr = tracer_pid_ptr + sizeof(tracerPidString) - 1; characterPtr <= buf + num_read; ++characterPtr)
+    {
+        if (isspace(*characterPtr))
+            continue;
+
+        return isdigit(*characterPtr) != 0 && *characterPtr != '0';
+    }
+
+    return false;
+}
+#endif 
+
+#ifdef __APPLE__
+#include <assert.h>
+#include <stdbool.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/sysctl.h>
+
+static bool AmIBeingDebugged(void)
+// Returns true if the current process is being debugged (either 
+// running under the debugger or has a debugger attached post facto).
+{
+    int                 junk;
+    int                 mib[4];
+    struct kinfo_proc   info;
+    size_t              size;
+
+    // Initialize the flags so that, if sysctl fails for some bizarre 
+    // reason, we get a predictable result.
+
+    info.kp_proc.p_flag = 0;
+
+    // Initialize mib, which tells sysctl the info we want, in this case
+    // we're looking for information about a specific process ID.
+
+    mib[0] = CTL_KERN;
+    mib[1] = KERN_PROC;
+    mib[2] = KERN_PROC_PID;
+    mib[3] = getpid();
+
+    // Call sysctl.
+
+    size = sizeof(info);
+    junk = sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, NULL, 0);
+    assert(junk == 0);
+
+    // We're being debugged if the P_TRACED flag is set.
+
+    return ((info.kp_proc.p_flag & P_TRACED) != 0);
+}
+#endif
+#endif
+
 //============================= LLMService IMPLEMENTATION =============================//
 
 EVP_PKEY* LLMService::load_key(const std::string& key_str) {
@@ -94,7 +177,7 @@ std::vector<char*> LLMService::jsonToArguments(const json& params) {
             else if (opt.handler_str_str != nullptr) {
                 if (!value.is_array() || value.size() != 2) {
                     std::string err = "Expected array of 2 values for: " + json_key;
-                    LOG_WARNING(err.c_str(), {});
+                    LOG_WRN("%s\n", err.c_str());
                     continue;
                 }
                 args_str.push_back(value[0].is_string() ? value[0].get<std::string>() : value[0].dump());
@@ -109,7 +192,7 @@ std::vector<char*> LLMService::jsonToArguments(const json& params) {
         if (used_keys.find(key) == used_keys.end())
         {
             std::string err = "Unused parameter in JSON: " + key;
-            LOG_WARNING(err.c_str(), {});
+            LOG_WRN("%s\n", err.c_str());
         }
     }
 
@@ -170,14 +253,12 @@ void LLMService::init(int argc, char ** argv){
     ensure_error_handlers_initialized();
     if (setjmp(get_jump_point()) != 0) return;
     try{
-        common_log_set_verbosity_thold(DEBUG_LEVEL_SET == 0 ? 0: -1);
         ctx_server = new server_context();
         ctx_server->batch = { 0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
         if (!common_params_parse(argc, argv, params, LLAMA_EXAMPLE_SERVER)) {
             throw std::runtime_error("Invalid parameters!");
         }
-        params.verbosity = DEBUG_LEVEL_SET;
 
         common_init();
 
@@ -185,17 +266,7 @@ void LLMService::init(int argc, char ** argv){
         llama_backend_has_init = true;
         llama_numa_init(params.numa);
 
-        LOG_INFO("build info", {
-            {"build",  LLAMA_BUILD_NUMBER},
-            {"commit", LLAMA_COMMIT}
-        });
-
-        LOG_INFO("system info", {
-            {"n_threads",       params.cpuparams.n_threads},
-            {"n_threads_batch", params.cpuparams_batch.n_threads},
-            {"total_threads",   std::thread::hardware_concurrency()},
-            {"system_info",     llama_print_system_info()},
-        });
+        LLAMALIB_INF("system info: n_threads = %d, n_threads_batch = %d, total_threads = %d\n", params.cpuparams.n_threads, params.cpuparams_batch.n_threads, std::thread::hardware_concurrency());
 
         // Necessary similarity of prompt for slot selection
         ctx_server->slot_prompt_similarity = params.slot_prompt_similarity;
@@ -207,7 +278,7 @@ void LLMService::init(int argc, char ** argv){
             ctx_server->init();
         }
 
-        LOG_INFO("model loaded", {});
+        LLAMALIB_INF("model loaded\n");
 
         ctx_server->queue_tasks.on_new_task([this](const server_task & task) {
             this->ctx_server->process_single_task(task);
@@ -257,17 +328,17 @@ void LLMService::start_server(const std::string& host, int port, const std::stri
 
     std::lock_guard<std::mutex> lock(start_stop_mutex);
     if (params.ssl_file_key != "" && params.ssl_file_cert != "") {
-        LOG_INFO("Running with SSL", {{"key", params.ssl_file_key}, {"cert", params.ssl_file_cert}});
+        LLAMALIB_INF("Running with SSL: key = %s, cert = %s\n", params.ssl_file_key.c_str(), params.ssl_file_cert.c_str());
         svr.reset(
             new httplib::SSLServer(params.ssl_file_cert.c_str(), params.ssl_file_key.c_str())
         );
     } else if (SSL_cert != "" && SSL_key != "") {
-        LOG_INFO("Running with SSL", {});
+        LLAMALIB_INF("Running with SSL\n");
         svr.reset(
             new httplib::SSLServer(load_cert(SSL_cert), load_key(SSL_key))
         );
     } else {
-        LOG_INFO("Running without SSL", {});
+        LLAMALIB_INF("Running without SSL\n");
         svr.reset(new httplib::Server());
     }
 
@@ -291,10 +362,10 @@ void LLMService::start_server(const std::string& host, int port, const std::stri
 
         try {
             json formatted_error = format_error_response(message, ERROR_TYPE_SERVER);
-            LOG_WARNING("got exception: %s\n", formatted_error.dump().c_str());
+            LOG_WRN("got exception: %s\n", formatted_error.dump().c_str());
             res_error(res, formatted_error);
         } catch (const std::exception & e) {
-            LOG_ERROR("got exception: %s\n", e.what());
+            LOG_ERR("got exception: %s\n", e.what());
         }
     });
 
@@ -370,7 +441,7 @@ void LLMService::start_server(const std::string& host, int port, const std::stri
     const auto chat_completion_post = [this, &res_error](const httplib::Request & req, httplib::Response & res) {
         json body = handle_post(req, res);
         json data = oaicompat_completion_params_parse(body, params.use_jinja, params.reasoning_format, ctx_server->chat_templates.get());
-        LOG_DEBUG("formatted prompt", data);
+        LOG_DBG("formatted prompt: %s\n", data.dump().c_str());
         completion_json(data, nullptr, true, &res, req.is_connection_closed, OAICOMPAT_TYPE_CHAT);
     };
 
@@ -443,12 +514,12 @@ void LLMService::start_server(const std::string& host, int port, const std::stri
     });
     svr->wait_until_ready();
     
-    LOG_INFO("HTTP server is listening", {{"hostname", params.hostname.c_str()}, {"port", params.port}, {"threads", params.n_threads_http}});
+    LLAMALIB_INF("%s: HTTP server is listening, hostname: %s, port: %d, http threads: %d\n", __func__, params.hostname.c_str(), params.port, params.n_threads_http);
 }
 
 void LLMService::stop_server(){
     std::lock_guard<std::mutex> lock(start_stop_mutex);
-    LOG_INFO("stopping server", {});
+    LLAMALIB_INF("stopping server\n");
     if (svr.get() != nullptr) {
         svr->stop();
         join_server();
@@ -463,9 +534,9 @@ void LLMService::start(){
     std::lock_guard<std::mutex> lock(start_stop_mutex);
     service_thread = std::thread([&]() {
         LLMProviderRegistry::instance().register_instance(this);
-        LOG_INFO("starting service", {});
+        LLAMALIB_INF("starting service\n");
         ctx_server->queue_tasks.start_loop();
-        LOG_INFO("stopped service loop", {});
+        LLAMALIB_INF("stopped service loop\n");
         return 1; 
     });
     while (!started()) {
@@ -477,24 +548,24 @@ void LLMService::stop(){
     try {
         std::lock_guard<std::mutex> lock(start_stop_mutex);
         if (!started()) return;
-        LOG_INFO("shutting down tasks", {});
+        LLAMALIB_INF("shutting down tasks\n");
 
         // hack completion slots to think task is completed
         for (server_slot& slot : ctx_server->slots)
         {
             release_slot(slot);
         }
-        LOG_INFO("Wait until tasks are finished", {});
+        LLAMALIB_INF("Wait until tasks are finished\n");
 
         // wait until tasks are completed
         while (!ctx_server->queue_tasks.queue_tasks.empty()) {
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
-        LOG_INFO("Tasks are finished", {});
+        LLAMALIB_INF("Tasks are finished\n");
 
         ctx_server->queue_tasks.terminate();
         if(llama_backend_has_init) llama_backend_free();
-        LOG_INFO("service stopped", {});
+        LLAMALIB_INF("service stopped\n");
 
         join_service();
 
@@ -549,7 +620,7 @@ bool LLMService::middleware_validate_api_key(const httplib::Request & req, httpl
     // API key is invalid or not provided
     handle_error(res, format_error_response("Invalid API Key", ERROR_TYPE_AUTHENTICATION));
 
-    LOG_WARNING("Unauthorized: Invalid API Key\n", {});
+    LOG_WRN("Unauthorized: Invalid API Key\n");
 
     return false;
 }
@@ -634,7 +705,7 @@ std::string LLMService::embeddings_json(
         prompt = body.at("content");
     } else {
         std::string error = "\"input\" or \"content\" must be provided";
-        LOG_ERROR(error.c_str(), {});
+        LOG_ERR("%s\n", error.c_str());
         if(res != nullptr) handle_error(*res, format_error_response(error, ERROR_TYPE_INVALID_REQUEST));
         return "";
     }
@@ -738,7 +809,7 @@ std::string LLMService::lora_weight_json(const json& body, httplib::Response* re
             lora[id].scale = scale;
         } else {
             std::string error = "invalid adapter id";
-            LOG_ERROR(error.c_str(), {});
+            LOG_ERR("%s\n", error.c_str());
             if(res != nullptr) handle_error(*res, format_error_response(error, ERROR_TYPE_INVALID_REQUEST));
             return "";
         }
@@ -1022,7 +1093,7 @@ std::string LLMService::slot_json(
         json result_json = result->to_json();
         result_data = result_json.dump();
         if (result->is_error()) {
-            LOG_ERROR("Error processing slots", result_data);
+            LOG_ERR("Error processing slots: %s\n", result_data.c_str());
             if(res != nullptr) handle_error(*res, result_json);
         } else {
             if(res != nullptr) res_ok(*res, result_json);
@@ -1052,6 +1123,7 @@ int LLMService::embedding_size()
     return ctx_server->model_meta()["n_embd"];
 }
 
+//=========================== API ===========================//
 
 LLMService* LLMService_Construct(const char* model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char** lora_paths)
 {
@@ -1075,3 +1147,32 @@ LLMService* LLMService_From_Command(const char* params) {
         return LLMService::from_command(params_string);
     }
 }
+
+void LLM_Debug(bool debug)
+{
+    common_log_set_verbosity_thold(debug? 0: -1);
+}
+
+void LLM_Logging_Callback(CharArrayFn callback)
+{
+    logCallback = callback;
+}
+
+void LLM_Logging_Stop()
+{
+    logCallback = nullptr;
+}
+
+#ifdef _DEBUG
+const bool IsDebuggerAttached(void) {
+#ifdef _MSC_VER
+    return ::IsDebuggerPresent();
+#elif __APPLE__
+    return AmIBeingDebugged();
+#elif __linux__
+    return debuggerIsAttached();
+#else
+    return false;
+#endif
+}
+#endif

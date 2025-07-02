@@ -3,7 +3,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "iOS" OR CMAKE_SYSTEM_NAME STREQUAL "visionOS")
 else()
     set(LIBRARY_TYPE SHARED)
 endif()
-set(LIBRARY_FILES LLM.cpp LLM_client.cpp logging.cpp error_handling.cpp)
+set(LIBRARY_FILES LLM.cpp LLM_client.cpp error_handling.cpp)
 
 # build static library
 add_library(${LLAMALIB_STATIC_LIBRARY} ${LIBRARY_TYPE} LLM_service.cpp ${LIBRARY_FILES})

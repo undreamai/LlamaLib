@@ -46,6 +46,9 @@ using LibHandle = void*;
 
 class LLMService;
 #define LLM_FUNCTIONS_LIST(M) \
+    M(LLM_Debug,          void, bool) \
+    M(LLM_Logging_Callback,     void, CharArrayFn) \
+    M(LLM_Logging_Stop,    void) \
     M(LLMService_Construct,     LLMService*, const char*, int, int, int, bool, int, int, bool, int, const char**) \
     M(LLMService_From_Command,  LLMService*, const char*) \
     M(LLM_Tokenize,        const char*, LLM*, const char*) \

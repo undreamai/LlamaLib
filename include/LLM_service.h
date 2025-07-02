@@ -5,7 +5,10 @@
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 
+#include "log.h"
 #include "common.h"
+
+#define LLAMALIB_INF(...) LOG_TMPL(GGML_LOG_LEVEL_INFO, -1, __VA_ARGS__)
 
 struct server_context;
 
@@ -77,6 +80,13 @@ class UNDREAMAI_API LLMService : public LLMProvider {
 };
 
 extern "C" {
+    UNDREAMAI_API void LLM_Debug(bool debug=true);
+    UNDREAMAI_API void LLM_Logging_Callback(CharArrayFn callback);
+    UNDREAMAI_API void LLM_Logging_Stop();
+#ifdef _DEBUG
+    UNDREAMAI_API const bool IsDebuggerAttached(void);
+#endif
+
     UNDREAMAI_API LLMService* LLMService_Construct(const char* model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, int lora_count=0, const char** lora_paths=nullptr);
     UNDREAMAI_API LLMService* LLMService_From_Command(const char* params_string);
 };

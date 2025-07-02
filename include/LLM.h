@@ -1,6 +1,6 @@
 #pragma once
 
-#include "logging.h"
+#include "defs.h"
 #include "error_handling.h"
 // increase max payload length to allow use of larger context size
 #define CPPHTTPLIB_FORM_URL_ENCODED_PAYLOAD_MAX_LENGTH 1048576

@@ -55,10 +55,10 @@ namespace UndreamAI.LlamaLib
             llamaLib = llamaLibInstance ?? throw new ArgumentNullException(nameof(llamaLibInstance));
         }
 
-        public void Debug(int level)
+        public void Debug(bool debug)
         {
             CheckLlamaLib();
-            llamaLib.LLM_Debug(level);
+            llamaLib.LLM_Debug(debug);
         }
 
         protected void CheckLlamaLib()

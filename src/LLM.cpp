@@ -320,7 +320,6 @@ const char* LLM_Lora_List(LLMProvider* llm) {
 void LLM_Delete(LLMProvider* llm) {
     if (llm != nullptr)
     {
-        LOG_INFO("Deleting LLM service", {});
         delete llm;
         llm = nullptr;
     }

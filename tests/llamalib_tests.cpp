@@ -591,8 +591,6 @@ void set_SSL(LLMProvider* llm, LLMRemoteClient* llm_remote_client)
 }
 
 int main(int argc, char** argv) {
-    LLM_Debug(ERR);
-
     run_mock_tests();
 
     std::string command = args_to_command(argc, argv);

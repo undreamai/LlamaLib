@@ -3,6 +3,9 @@
 #include <string>
 #include "json.hpp"
 #include <sys/stat.h>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 #ifdef _WIN32
 #ifdef UNDREAMAI_EXPORTS
@@ -59,4 +62,19 @@ inline std::string args_to_command(int argc, char** argv)
         if (i < argc - 1) command += " ";
     }
     return command;
+}
+
+static inline const char* stringToCharArray(const std::string& input)
+{
+    char* content = new char[input.length() + 1];
+    strcpy(content, input.c_str());
+    return content;
+}
+
+extern "C" {
+    UNDREAMAI_API void CharArray_Delete(char* object);
+}
+
+inline void CharArray_Delete(char* str) {
+    delete[] str;
 }

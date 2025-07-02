@@ -1,3 +1,37 @@
+diff --git a/common/log.cpp b/common/log.cpp
+index 52b31470..e881121a 100644
+--- a/common/log.cpp
++++ b/common/log.cpp
+@@ -9,7 +9,8 @@
+ #include <thread>
+ #include <vector>
+ 
+-int common_log_verbosity_thold = LOG_DEFAULT_LLAMA;
++void (*logCallback)(const char*) = nullptr;
++int common_log_verbosity_thold = -1;
+ 
+ void common_log_set_verbosity_thold(int verbosity) {
+     common_log_verbosity_thold = verbosity;
+@@ -96,6 +97,7 @@ struct common_log_entry {
+         }
+ 
+         fprintf(fcur, "%s", msg.data());
++        if (logCallback) logCallback(msg.data());
+ 
+         if (level == GGML_LOG_LEVEL_WARN || level == GGML_LOG_LEVEL_ERROR || level == GGML_LOG_LEVEL_DEBUG) {
+             fprintf(fcur, "%s", g_col[COMMON_LOG_COL_DEFAULT]);
+diff --git a/common/log.h b/common/log.h
+index c56bb50d..0030aca5 100644
+--- a/common/log.h
++++ b/common/log.h
+@@ -24,6 +24,7 @@
+ #define LOG_DEFAULT_DEBUG 1
+ #define LOG_DEFAULT_LLAMA 0
+ 
++extern void (*logCallback)(const char*);
+ // needed by the LOG_TMPL macro to avoid computing log arguments if the verbosity lower
+ // set via common_log_set_verbosity()
+ extern int common_log_verbosity_thold;
 diff --git a/examples/server/server.cpp b/examples/server/server.cpp
 index c580ec12..84cc9584 100644
 --- a/examples/server/server.cpp
@@ -544,7 +578,7 @@ index c580ec12..84cc9584 100644
  
      ctx_server.queue_tasks.on_update_slots([&ctx_server]() {
 diff --git a/examples/server/utils.hpp b/examples/server/utils.hpp
-index b497959f..e2cc3699 100644
+index b497959f..ce397c84 100644
 --- a/examples/server/utils.hpp
 +++ b/examples/server/utils.hpp
 @@ -6,9 +6,9 @@
@@ -559,39 +593,6 @@ index b497959f..e2cc3699 100644
  #include "httplib.h"
  
  // Change JSON_ASSERT from assert() to GGML_ASSERT:
-@@ -26,20 +26,20 @@
- 
- using json = nlohmann::ordered_json;
- 
--#define SLT_INF(slot, fmt, ...) LOG_INF("slot %12.*s: id %2d | task %d | " fmt, 12, __func__, (slot).id, (slot).id_task, __VA_ARGS__)
--#define SLT_WRN(slot, fmt, ...) LOG_WRN("slot %12.*s: id %2d | task %d | " fmt, 12, __func__, (slot).id, (slot).id_task, __VA_ARGS__)
--#define SLT_ERR(slot, fmt, ...) LOG_ERR("slot %12.*s: id %2d | task %d | " fmt, 12, __func__, (slot).id, (slot).id_task, __VA_ARGS__)
--#define SLT_DBG(slot, fmt, ...) LOG_DBG("slot %12.*s: id %2d | task %d | " fmt, 12, __func__, (slot).id, (slot).id_task, __VA_ARGS__)
-+// #define SLT_INF(slot, fmt, ...) LOG_INF("slot %12.*s: id %2d | task %d | " fmt, 12, __func__, (slot).id, (slot).id_task, __VA_ARGS__)
-+// #define SLT_WRN(slot, fmt, ...) LOG_WRN("slot %12.*s: id %2d | task %d | " fmt, 12, __func__, (slot).id, (slot).id_task, __VA_ARGS__)
-+// #define SLT_ERR(slot, fmt, ...) LOG_ERR("slot %12.*s: id %2d | task %d | " fmt, 12, __func__, (slot).id, (slot).id_task, __VA_ARGS__)
-+// #define SLT_DBG(slot, fmt, ...) LOG_DBG("slot %12.*s: id %2d | task %d | " fmt, 12, __func__, (slot).id, (slot).id_task, __VA_ARGS__)
- 
--#define SRV_INF(fmt, ...) LOG_INF("srv  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
--#define SRV_WRN(fmt, ...) LOG_WRN("srv  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
--#define SRV_ERR(fmt, ...) LOG_ERR("srv  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
--#define SRV_DBG(fmt, ...) LOG_DBG("srv  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
-+// #define SRV_INF(fmt, ...) LOG_INF("srv  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
-+// #define SRV_WRN(fmt, ...) LOG_WRN("srv  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
-+// #define SRV_ERR(fmt, ...) LOG_ERR("srv  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
-+// #define SRV_DBG(fmt, ...) LOG_DBG("srv  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
- 
--#define QUE_INF(fmt, ...) LOG_INF("que  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
--#define QUE_WRN(fmt, ...) LOG_WRN("que  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
--#define QUE_ERR(fmt, ...) LOG_ERR("que  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
--#define QUE_DBG(fmt, ...) LOG_DBG("que  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
-+// #define QUE_INF(fmt, ...) LOG_INF("que  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
-+// #define QUE_WRN(fmt, ...) LOG_WRN("que  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
-+// #define QUE_ERR(fmt, ...) LOG_ERR("que  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
-+// #define QUE_DBG(fmt, ...) LOG_DBG("que  %12.*s: " fmt, 12, __func__, __VA_ARGS__)
- 
- template <typename T>
- static T json_value(const json & body, const std::string & key, const T & default_value) {
 diff --git a/ggml/src/CMakeLists.txt b/ggml/src/CMakeLists.txt
 index 43d9fc4f..0e8fa1db 100644
 --- a/ggml/src/CMakeLists.txt
