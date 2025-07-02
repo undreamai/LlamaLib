@@ -167,10 +167,10 @@ void LLMService::init(const char* params) {
 }
 
 void LLMService::init(int argc, char ** argv){
-    // set_error_handlers();
     ensure_error_handlers_initialized();
     if (setjmp(get_jump_point()) != 0) return;
     try{
+        common_log_set_verbosity_thold(DEBUG_LEVEL_SET == 0 ? 0: -1);
         ctx_server = new server_context();
         ctx_server->batch = { 0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
