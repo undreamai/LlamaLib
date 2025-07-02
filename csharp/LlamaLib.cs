@@ -36,6 +36,14 @@ namespace UndreamAI.LlamaLib
         public static extern void LLM_Debug_Static(bool debug);
         public void LLM_Debug(bool debug) => LLM_Debug_Static(debug);
 
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Logging_Callback")]
+        public static extern void LLM_Logging_Callback_Static(CharArrayCallback callback);
+        public void LLM_Logging_Callback(CharArrayCallback callback) => LLM_Logging_Callback_Static(callback);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Logging_Stop")]
+        public static extern void LLM_Logging_Stop_Static();
+        public void LLM_Logging_Stop() => LLM_Logging_Stop_Static();
+
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Tokenize")]
         public static extern IntPtr LLM_Tokenize_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
         public IntPtr LLM_Tokenize(IntPtr llm, string jsonData) => LlamaLib.LLM_Tokenize_Static(llm, jsonData);
@@ -280,6 +288,8 @@ namespace UndreamAI.LlamaLib
         private void LoadFunctionPointers()
         {
             LLM_Debug = LibraryLoader.GetSymbolDelegate<LLM_Debug_Delegate>(libraryHandle, "LLM_Debug");
+            LLM_Logging_Callback = LibraryLoader.GetSymbolDelegate<LLM_Logging_Callback_Delegate>(libraryHandle, "LLM_Logging_Callback");
+            LLM_Logging_Stop = LibraryLoader.GetSymbolDelegate<LLM_Logging_Stop_Delegate>(libraryHandle, "LLM_Logging_Stop");
             LLM_Tokenize = LibraryLoader.GetSymbolDelegate<LLM_Tokenize_Delegate>(libraryHandle, "LLM_Tokenize");
             LLM_Detokenize = LibraryLoader.GetSymbolDelegate<LLM_Detokenize_Delegate>(libraryHandle, "LLM_Detokenize");
             LLM_Embeddings = LibraryLoader.GetSymbolDelegate<LLM_Embeddings_Delegate>(libraryHandle, "LLM_Embeddings");
@@ -317,6 +327,12 @@ namespace UndreamAI.LlamaLib
         // Main lib
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void LLM_Debug_Delegate(bool debug);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void LLM_Logging_Callback_Delegate(CharArrayCallback callback);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void LLM_Logging_Stop_Delegate();
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr LLM_Tokenize_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
@@ -407,6 +423,8 @@ namespace UndreamAI.LlamaLib
         
         // Main lib
         public LLM_Debug_Delegate LLM_Debug;
+        public LLM_Logging_Callback_Delegate LLM_Logging_Callback;
+        public LLM_Logging_Stop_Delegate LLM_Logging_Stop;
         public LLM_Tokenize_Delegate LLM_Tokenize;
         public LLM_Detokenize_Delegate LLM_Detokenize;
         public LLM_Embeddings_Delegate LLM_Embeddings;

@@ -61,6 +61,18 @@ namespace UndreamAI.LlamaLib
             llamaLib.LLM_Debug(debug);
         }
 
+        public void Logging_Callback(LlamaLib.CharArrayCallback callback)
+        {
+            CheckLlamaLib();
+            llamaLib.LLM_Logging_Callback(callback);
+        }
+
+        public void Logging_Stop()
+        {
+            CheckLlamaLib();
+            llamaLib.LLM_Logging_Stop();
+        }
+
         protected void CheckLlamaLib()
         {
             if (disposed) throw new ObjectDisposedException(GetType().Name);
