@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Reflection;
+using System.Collections.Generic;
 
 namespace UndreamAI.LlamaLib
 {
@@ -33,16 +34,16 @@ namespace UndreamAI.LlamaLib
 
         // Base LLM functions
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Debug")]
-        public static extern void LLM_Debug_Static(bool debug);
-        public void LLM_Debug(bool debug) => LLM_Debug_Static(debug);
+        public static extern void LLM_Debug_Static(int debugLevel);
+        public static void Debug(int debugLevel) => LLM_Debug_Static(debugLevel);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Logging_Callback")]
         public static extern void LLM_Logging_Callback_Static(CharArrayCallback callback);
-        public void LLM_Logging_Callback(CharArrayCallback callback) => LLM_Logging_Callback_Static(callback);
+        public static void LoggingCallback(CharArrayCallback callback) => LLM_Logging_Callback_Static(callback);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Logging_Stop")]
         public static extern void LLM_Logging_Stop_Static();
-        public void LLM_Logging_Stop() => LLM_Logging_Stop_Static();
+        public static void LoggingStop() => LLM_Logging_Stop_Static();
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Tokenize")]
         public static extern IntPtr LLM_Tokenize_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
@@ -177,10 +178,12 @@ namespace UndreamAI.LlamaLib
 #else
         // Desktop platform implementation with dynamic loading
         private static string libraryBasePath => GetLibraryBasePath();
-        private static int instanceCount = 0;
+        private static List<LlamaLib> instances = new List<LlamaLib>();
         private static readonly object runtimeLock = new object();
         private static IntPtr runtimeLibraryHandle = IntPtr.Zero;
         private IntPtr libraryHandle = IntPtr.Zero;
+        private static int debugLevelGlobal = 0;
+        private static CharArrayCallback loggingCallbackGlobal = null;
 
         static LlamaLib()
         {
@@ -189,49 +192,39 @@ namespace UndreamAI.LlamaLib
 
         private static void LoadRuntimeLibrary()
         {
-            try
+            lock (runtimeLock)
             {
-                lock (runtimeLock)
+                if (runtimeLibraryHandle == IntPtr.Zero)
                 {
-                    if (runtimeLibraryHandle == IntPtr.Zero)
-                    {
-                        runtimeLibraryHandle = LibraryLoader.LoadLibrary(GetRuntimeLibraryPath());
-                        Has_GPU_Layers = LibraryLoader.GetSymbolDelegate<Has_GPU_Layers_Delegate>(runtimeLibraryHandle, "Has_GPU_Layers");
-                        Available_Architectures = LibraryLoader.GetSymbolDelegate<Available_Architectures_Delegate>(runtimeLibraryHandle, "Available_Architectures");
-                    }
+                    runtimeLibraryHandle = LibraryLoader.LoadLibrary(GetRuntimeLibraryPath());
+                    Has_GPU_Layers = LibraryLoader.GetSymbolDelegate<Has_GPU_Layers_Delegate>(runtimeLibraryHandle, "Has_GPU_Layers");
+                    Available_Architectures = LibraryLoader.GetSymbolDelegate<Available_Architectures_Delegate>(runtimeLibraryHandle, "Available_Architectures");
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Failed to load runtime library: {ex.Message}");
-                throw;
             }
         }
 
         public LlamaLib(bool gpu = false)
         {
+            LoadLibraries(gpu);
             lock (runtimeLock)
             {
-                instanceCount++;
+                instances.Add(this);
+                LLM_Debug(debugLevelGlobal);
+                if(loggingCallbackGlobal != null) LLM_Logging_Callback(loggingCallbackGlobal);
             }
-            LoadLibraries(gpu);
         }
 
         public static string GetLibraryBasePath()
         {
             string baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string OS;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) OS = "linux";
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) OS = "macos";
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) OS = "windows";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) OS = "linux-x64";
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) OS = "osx-x64";
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) OS = "win-x64";
             else throw new ArgumentException("Unknown platform " + RuntimeInformation.OSDescription);
 
-            string[] librariesDirNames = new string[] { "runtimes", "libraries", "libs" };
-            foreach (string librariesDirName in librariesDirNames)
-            {
-                string librariesPath = Path.Combine(baseDir, librariesDirName, OS);
-                if (Directory.Exists(librariesPath)) return librariesPath;
-            }
+            string librariesPath = Path.Combine(baseDir, "runtimes", OS, "native");
+            if (Directory.Exists(librariesPath)) return librariesPath;
 
             return baseDir;
         }
@@ -266,16 +259,16 @@ namespace UndreamAI.LlamaLib
                 try
                 {
                     string libraryPath = Path.Combine(libraryBasePath, library.Trim());
-                    Console.WriteLine("Trying " + libraryPath);
+                    if (debugLevelGlobal > 0) Console.WriteLine("Trying " + libraryPath);
                     libraryHandle = LibraryLoader.LoadLibrary(libraryPath);
                     LoadFunctionPointers();
                     architecture = library.Trim();
-                    Console.WriteLine("Successfully loaded: " + libraryPath);
+                    if (debugLevelGlobal > 0) Console.WriteLine("Successfully loaded: " + libraryPath);
                     return;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Failed to load library {library}: {ex.Message}.");
+                    if (debugLevelGlobal > 0) Console.WriteLine($"Failed to load library {library}: {ex.Message}.");
                     lastException = ex;
                     continue;
                 }
@@ -323,10 +316,9 @@ namespace UndreamAI.LlamaLib
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate bool Has_GPU_Layers_Delegate([MarshalAs(UnmanagedType.LPStr)] string command);
-        
-        // Main lib
+
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void LLM_Debug_Delegate(bool debug);
+        public delegate void LLM_Debug_Delegate(int debugLevel);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void LLM_Logging_Callback_Delegate(CharArrayCallback callback);
@@ -334,6 +326,7 @@ namespace UndreamAI.LlamaLib
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void LLM_Logging_Stop_Delegate();
 
+        // Main lib
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr LLM_Tokenize_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
         
@@ -420,7 +413,7 @@ namespace UndreamAI.LlamaLib
         // Runtime lib
         public static Available_Architectures_Delegate Available_Architectures;
         public static Has_GPU_Layers_Delegate Has_GPU_Layers;
-        
+
         // Main lib
         public LLM_Debug_Delegate LLM_Debug;
         public LLM_Logging_Callback_Delegate LLM_Logging_Callback;
@@ -450,6 +443,29 @@ namespace UndreamAI.LlamaLib
         public LLMClient_Construct_Delegate LLMClient_Construct;
         public LLMRemoteClient_Construct_Delegate LLMRemoteClient_Construct;
 
+        public static void Debug(int debugLevel)
+        {
+            debugLevelGlobal = debugLevel;
+            foreach (LlamaLib instance in instances)
+            {
+                instance.LLM_Debug(debugLevel);
+            }
+        }
+
+        public static void LoggingCallback(CharArrayCallback callback)
+        {
+            loggingCallbackGlobal = callback;
+            foreach (LlamaLib instance in instances)
+            {
+                instance.LLM_Logging_Callback(callback);
+            }
+        }
+
+        public static void LoggingStop()
+        {
+            LoggingCallback(null);
+        }
+
         public void Dispose()
         {
             LibraryLoader.FreeLibrary(libraryHandle);
@@ -457,8 +473,8 @@ namespace UndreamAI.LlamaLib
 
             lock (runtimeLock)
             {
-                instanceCount--;
-                if(instanceCount == 0)
+                instances.Remove(this);
+                if (instances.Count == 0)
                 {
                     LibraryLoader.FreeLibrary(runtimeLibraryHandle);
                     runtimeLibraryHandle = IntPtr.Zero;

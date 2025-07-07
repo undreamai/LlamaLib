@@ -1,7 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
 namespace UndreamAI.LlamaLib
@@ -55,22 +56,19 @@ namespace UndreamAI.LlamaLib
             llamaLib = llamaLibInstance ?? throw new ArgumentNullException(nameof(llamaLibInstance));
         }
 
-        public void Debug(bool debug)
+        public static void Debug(int debugLevel)
         {
-            CheckLlamaLib();
-            llamaLib.LLM_Debug(debug);
+            LlamaLib.Debug(debugLevel);
         }
 
-        public void Logging_Callback(LlamaLib.CharArrayCallback callback)
+        public static void LoggingCallback(LlamaLib.CharArrayCallback callback)
         {
-            CheckLlamaLib();
-            llamaLib.LLM_Logging_Callback(callback);
+            LlamaLib.LoggingCallback(callback);
         }
 
-        public void Logging_Stop()
+        public static void LoggingStop()
         {
-            CheckLlamaLib();
-            llamaLib.LLM_Logging_Stop();
+            LlamaLib.LoggingStop();
         }
 
         protected void CheckLlamaLib()
@@ -113,7 +111,6 @@ namespace UndreamAI.LlamaLib
                 throw new ArgumentNullException(nameof(jsonData));
             
             CheckLlamaLib();
-            
             var result = llamaLib.LLM_Tokenize(llm, jsonData);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
@@ -266,17 +263,30 @@ namespace UndreamAI.LlamaLib
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
+        public string CompletionInternal(string prompt, int idSlot = -1, LlamaLib.CharArrayCallback callback = null, JObject parameters = null)
+        {
+            var jsonData = BuildCompletionJSON(prompt, idSlot, parameters);
+            var result = llamaLib.LLM_Completion(llm, jsonData, callback, false);
+            var jsonResult = Marshal.PtrToStringAnsi(result) ?? string.Empty;
+            return ParseCompletionJSON(jsonResult);
+        }
+
         public string Completion(string prompt, int idSlot = -1, LlamaLib.CharArrayCallback callback = null, JObject parameters = null)
         {
             if (string.IsNullOrEmpty(prompt))
                 throw new ArgumentNullException(nameof(prompt));
 
             CheckLlamaLib();
+            return CompletionInternal(prompt, idSlot, callback, parameters);
+        }
 
-            var jsonData = BuildCompletionJSON(prompt, idSlot, parameters);
-            var result = llamaLib.LLM_Completion(llm, jsonData, callback, false);
-            var jsonResult = Marshal.PtrToStringAnsi(result) ?? string.Empty;
-            return ParseCompletionJSON(jsonResult);
+        public async Task<string> CompletionAsync(string prompt, int idSlot = -1, LlamaLib.CharArrayCallback callback = null, JObject parameters = null)
+        {
+            if (string.IsNullOrEmpty(prompt))
+                throw new ArgumentNullException(nameof(prompt));
+
+            CheckLlamaLib();
+            return await Task.Run(() => CompletionInternal(prompt, idSlot, callback, parameters));
         }
     }
 
@@ -334,7 +344,6 @@ namespace UndreamAI.LlamaLib
         public void Cancel(int idSlot)
         {
             CheckLlamaLib();
-            
             llamaLib.LLM_Cancel(llm, idSlot);
         }
     }
@@ -376,7 +385,6 @@ namespace UndreamAI.LlamaLib
                 throw new ArgumentNullException(nameof(jsonData));
             
             CheckLlamaLib();
-            
             var result = llamaLib.LLM_Lora_Weight(llm, jsonData);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
@@ -424,7 +432,6 @@ namespace UndreamAI.LlamaLib
         public string LoraListJSON()
         {
             CheckLlamaLib();
-            
             var result = llamaLib.LLM_Lora_List(llm);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
@@ -436,31 +443,37 @@ namespace UndreamAI.LlamaLib
         }
 
         // Server methods
-        public void Start()
+        public bool Start()
         {
             CheckLlamaLib();
-            
             llamaLib.LLM_Start(llm);
+            return llamaLib.LLM_Started(llm);
+        }
+
+        public async Task<bool> StartAsync()
+        {
+            CheckLlamaLib();
+            return await Task.Run(() => {
+                llamaLib.LLM_Start(llm);
+                return llamaLib.LLM_Started(llm);
+            });
         }
 
         public bool Started()
         {
             CheckLlamaLib();
-            
             return llamaLib.LLM_Started(llm);
         }
 
         public void Stop()
         {
             CheckLlamaLib();
-            
             llamaLib.LLM_Stop(llm);
         }
 
         public void StartServer(string host = "0.0.0.0", int port = 0, string apiKey = "")
         {
             CheckLlamaLib();
-            
             if (string.IsNullOrEmpty(host))
                 host = "0.0.0.0";
             
@@ -470,21 +483,18 @@ namespace UndreamAI.LlamaLib
         public void StopServer()
         {
             CheckLlamaLib();
-            
             llamaLib.LLM_Stop_Server(llm);
         }
 
         public void JoinService()
         {
             CheckLlamaLib();
-            
             llamaLib.LLM_Join_Service(llm);
         }
 
         public void JoinServer()
         {
             CheckLlamaLib();
-            
             llamaLib.LLM_Join_Server(llm);
         }
 
@@ -496,7 +506,6 @@ namespace UndreamAI.LlamaLib
                 throw new ArgumentNullException(nameof(sslKey));
             
             CheckLlamaLib();
-            
             llamaLib.LLM_Set_SSL(llm, sslCert, sslKey);
         }
 
