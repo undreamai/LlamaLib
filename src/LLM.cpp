@@ -25,17 +25,20 @@ void ensure_error_handlers_initialized() {
     });
 }
 
+int LLM::debug_level_global = 0;
+CharArrayFn LLM::log_callback_global = nullptr;
+
 //=========================== Helpers ===========================//
 
 std::string LLM::LLM_args_to_command(const std::string& model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, const std::vector<std::string>& lora_paths)
 {
     std::string command = "-m " + model_path +
                           " -t " + std::to_string(num_threads) +
-                          " -ngl " + std::to_string(num_GPU_layers) +
                           " -np " + std::to_string(num_parallel) +
                           " -c " + std::to_string(context_size) +
                           " -b " + std::to_string(batch_size);
 
+    if (num_GPU_layers > 0) command += " -ngl " + std::to_string(num_GPU_layers);
     if (flash_attention) command += " --flash-attn";
     if (embedding_only) command += " --embedding";
     for (const auto& lora_path : lora_paths) command += " --lora " + lora_path;
@@ -216,6 +219,13 @@ std::string LLMLocal::slot(int id_slot, const std::string& action, const std::st
     return parse_slot_json(json::parse(slot_json(build_slot_json(id_slot, action, filepath))));
 }
 
+//=========================== Logging ===========================//
+
+void LLMProvider::logging_stop()
+{
+    logging_callback(nullptr);
+}
+
 //=========================== Lora Adapters Apply ===========================//
 
 json LLMProvider::build_lora_weight_json(const std::vector<LoraIdScale>& loras)
@@ -277,6 +287,41 @@ bool Has_GPU_Layers(const char* command)
 {
     return LLM::has_gpu_layers(command);
 }
+
+void LLM_Debug(int debug_level)
+{
+    LLM::debug_level_global = debug_level;
+    for (auto* inst : LLMProviderRegistry::instance().get_instances()) {
+        inst->debug(debug_level);
+    }
+}
+
+void LLM_Logging_Callback(CharArrayFn callback)
+{
+    LLM::log_callback_global = callback;
+    for (auto* inst : LLMProviderRegistry::instance().get_instances()) {
+        inst->logging_callback(callback);
+    }
+}
+
+void LLM_Logging_Stop()
+{
+    LLM_Logging_Callback(nullptr);
+}
+
+#ifdef _DEBUG
+const bool IsDebuggerAttached(void) {
+#ifdef _MSC_VER
+    return ::IsDebuggerPresent();
+#elif __APPLE__
+    return AmIBeingDebugged();
+#elif __linux__
+    return debuggerIsAttached();
+#else
+    return false;
+#endif
+}
+#endif
 
 const char* LLM_Tokenize(LLM* llm, const char* json_data) {
     std::string result = llm->tokenize_json(json::parse(json_data));

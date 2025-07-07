@@ -1,5 +1,5 @@
 diff --git a/common/log.cpp b/common/log.cpp
-index 52b31470..e881121a 100644
+index 52b31470..6bbfeedb 100644
 --- a/common/log.cpp
 +++ b/common/log.cpp
 @@ -9,7 +9,8 @@
@@ -7,8 +7,8 @@ index 52b31470..e881121a 100644
  #include <vector>
  
 -int common_log_verbosity_thold = LOG_DEFAULT_LLAMA;
-+void (*logCallback)(const char*) = nullptr;
-+int common_log_verbosity_thold = -1;
++void (*log_callback)(const char*) = nullptr;
++int common_log_verbosity_thold = -2;
  
  void common_log_set_verbosity_thold(int verbosity) {
      common_log_verbosity_thold = verbosity;
@@ -16,19 +16,19 @@ index 52b31470..e881121a 100644
          }
  
          fprintf(fcur, "%s", msg.data());
-+        if (logCallback) logCallback(msg.data());
++        if (log_callback) log_callback(msg.data());
  
          if (level == GGML_LOG_LEVEL_WARN || level == GGML_LOG_LEVEL_ERROR || level == GGML_LOG_LEVEL_DEBUG) {
              fprintf(fcur, "%s", g_col[COMMON_LOG_COL_DEFAULT]);
 diff --git a/common/log.h b/common/log.h
-index c56bb50d..0030aca5 100644
+index c56bb50d..922a03fc 100644
 --- a/common/log.h
 +++ b/common/log.h
 @@ -24,6 +24,7 @@
  #define LOG_DEFAULT_DEBUG 1
  #define LOG_DEFAULT_LLAMA 0
  
-+extern void (*logCallback)(const char*);
++extern void (*log_callback)(const char*);
  // needed by the LOG_TMPL macro to avoid computing log arguments if the verbosity lower
  // set via common_log_set_verbosity()
  extern int common_log_verbosity_thold;

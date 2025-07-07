@@ -36,6 +36,9 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         std::string slot_json(const json& data, httplib::Response* res);
 
         //=================================== LLM METHODS START ===================================//
+        void debug(int debug_level) override;
+        void logging_callback(CharArrayFn callback) override;
+
         std::string tokenize_json(const json& data) override;
         std::string detokenize_json(const json& data) override;
         std::string embeddings_json(const json& data) override;
@@ -80,13 +83,6 @@ class UNDREAMAI_API LLMService : public LLMProvider {
 };
 
 extern "C" {
-    UNDREAMAI_API void LLM_Debug(bool debug=true);
-    UNDREAMAI_API void LLM_Logging_Callback(CharArrayFn callback);
-    UNDREAMAI_API void LLM_Logging_Stop();
-#ifdef _DEBUG
-    UNDREAMAI_API const bool IsDebuggerAttached(void);
-#endif
-
     UNDREAMAI_API LLMService* LLMService_Construct(const char* model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, int lora_count=0, const char** lora_paths=nullptr);
     UNDREAMAI_API LLMService* LLMService_From_Command(const char* params_string);
 };

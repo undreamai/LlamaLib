@@ -38,6 +38,9 @@ public:
     std::string json_schema = "";
     std::string grammar = "";
 
+    static int debug_level_global;
+    static CharArrayFn log_callback_global;
+
     virtual std::string tokenize_json(const json& data) = 0;
     virtual std::string detokenize_json(const json& data) = 0;
     virtual std::string embeddings_json(const json& data) = 0;
@@ -80,15 +83,11 @@ protected:
 
 class UNDREAMAI_API LLMProvider : public LLMLocal {
 public:
+    virtual void debug(int debug_level) = 0;
+    virtual void logging_callback(CharArrayFn callback) = 0;
+
     virtual std::string lora_weight_json(const json& data) = 0;
     virtual std::string lora_list_json() = 0;
-
-    virtual json build_lora_weight_json(const std::vector<LoraIdScale>& loras);
-    virtual bool parse_lora_weight_json(const json& result);
-    virtual bool lora_weight(const std::vector<LoraIdScale>& loras);
-
-    virtual std::vector<LoraIdScalePath> parse_lora_list_json(const json& result);
-    virtual std::vector<LoraIdScalePath> lora_list();
 
     virtual void start_server(const std::string& host="0.0.0.0", int port=0, const std::string& API_key="") = 0;
     virtual void stop_server() = 0;
@@ -98,8 +97,15 @@ public:
     virtual void join_service() = 0;
     virtual void set_SSL(const std::string& SSL_cert, const std::string& SSL_key) = 0;
     virtual bool started() = 0;
-
     virtual int embedding_size() = 0;
+
+    virtual void logging_stop();
+
+    virtual json build_lora_weight_json(const std::vector<LoraIdScale>& loras);
+    virtual bool parse_lora_weight_json(const json& result);
+    virtual bool lora_weight(const std::vector<LoraIdScale>& loras);
+    virtual std::vector<LoraIdScalePath> parse_lora_list_json(const json& result);
+    virtual std::vector<LoraIdScalePath> lora_list();
 };
 
 class LLMProviderRegistry {
@@ -137,6 +143,12 @@ private:
 
 extern "C" {
     UNDREAMAI_API bool Has_GPU_Layers(const char* command);
+    UNDREAMAI_API void LLM_Debug(int debug_level);
+    UNDREAMAI_API void LLM_Logging_Callback(CharArrayFn callback);
+    UNDREAMAI_API void LLM_Logging_Stop();
+#ifdef _DEBUG
+    UNDREAMAI_API const bool IsDebuggerAttached(void);
+#endif
 
     UNDREAMAI_API const char* LLM_Tokenize(LLM* llm, const char* json_data);
     UNDREAMAI_API const char* LLM_Detokenize(LLM* llm, const char* json_data);

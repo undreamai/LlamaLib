@@ -46,9 +46,6 @@ using LibHandle = void*;
 
 class LLMService;
 #define LLM_FUNCTIONS_LIST(M) \
-    M(LLM_Debug,          void, bool) \
-    M(LLM_Logging_Callback,     void, CharArrayFn) \
-    M(LLM_Logging_Stop,    void) \
     M(LLMService_Construct,     LLMService*, const char*, int, int, int, bool, int, int, bool, int, const char**) \
     M(LLMService_From_Command,  LLMService*, const char*) \
     M(LLM_Tokenize,        const char*, LLM*, const char*) \
@@ -87,6 +84,8 @@ public:
     bool create_LLM_library(const std::string& command);
 
     //=================================== LLM METHODS START ===================================//
+    void debug(int debug_level) override { ((LLMProvider*)llm)->debug(debug_level); }
+    void logging_callback(CharArrayFn callback) override { ((LLMProvider*)llm)->logging_callback(callback); }
     void start_server(const std::string& host="0.0.0.0", int port=0, const std::string& API_key="") override { ((LLMProvider*)llm)->start_server(host, port, API_key); }
     void stop_server() override { ((LLMProvider*)llm)->stop_server(); }
     void join_server() override { ((LLMProvider*)llm)->join_server(); }

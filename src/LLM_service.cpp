@@ -253,6 +253,9 @@ void LLMService::init(int argc, char ** argv){
     ensure_error_handlers_initialized();
     if (setjmp(get_jump_point()) != 0) return;
     try{
+        debug(debug_level_global);
+        logging_callback(log_callback_global);
+
         ctx_server = new server_context();
         ctx_server->batch = { 0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
@@ -286,9 +289,21 @@ void LLMService::init(int argc, char ** argv){
         ctx_server->queue_tasks.on_update_slots([this]() {
             this->ctx_server->update_slots();
         });
+
+        LLMProviderRegistry::instance().register_instance(this);
     } catch(...) {
         handle_exception(1);
     }
+}
+
+void LLMService::debug(int debug_level)
+{
+    common_log_set_verbosity_thold(debug_level - 2);
+}
+
+void LLMService::logging_callback(CharArrayFn callback)
+{
+    log_callback = callback;
 }
 
 const json handle_post(const httplib::Request & req, httplib::Response & res) {
@@ -533,7 +548,6 @@ void LLMService::join_server(){
 void LLMService::start(){
     std::lock_guard<std::mutex> lock(start_stop_mutex);
     service_thread = std::thread([&]() {
-        LLMProviderRegistry::instance().register_instance(this);
         LLAMALIB_INF("starting service\n");
         ctx_server->queue_tasks.start_loop();
         LLAMALIB_INF("stopped service loop\n");
@@ -1147,32 +1161,3 @@ LLMService* LLMService_From_Command(const char* params) {
         return LLMService::from_command(params_string);
     }
 }
-
-void LLM_Debug(bool debug)
-{
-    common_log_set_verbosity_thold(debug? 0: -1);
-}
-
-void LLM_Logging_Callback(CharArrayFn callback)
-{
-    logCallback = callback;
-}
-
-void LLM_Logging_Stop()
-{
-    logCallback = nullptr;
-}
-
-#ifdef _DEBUG
-const bool IsDebuggerAttached(void) {
-#ifdef _MSC_VER
-    return ::IsDebuggerPresent();
-#elif __APPLE__
-    return AmIBeingDebugged();
-#elif __linux__
-    return debuggerIsAttached();
-#else
-    return false;
-#endif
-}
-#endif

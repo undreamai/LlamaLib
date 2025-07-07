@@ -328,6 +328,9 @@ public:
     bool started() override { return true; }
     int embedding_size() override { return 0; }
 
+    void debug(int debug_level) override {}
+    void logging_callback(CharArrayFn callback) override {}
+
     std::string tokenize_json(const json& data) override {
         json result;
         result["tokens"] = TOKENS;
