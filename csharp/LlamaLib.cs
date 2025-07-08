@@ -177,7 +177,6 @@ namespace UndreamAI.LlamaLib
         public IntPtr LLMRemoteClient_Construct(string url, int port) => LlamaLib.LLMRemoteClient_Construct_Static(url, port);
 #else
         // Desktop platform implementation with dynamic loading
-        private static string libraryBasePath => GetLibraryBasePath();
         private static List<LlamaLib> instances = new List<LlamaLib>();
         private static readonly object runtimeLock = new object();
         private static IntPtr runtimeLibraryHandle = IntPtr.Zero;
@@ -214,19 +213,31 @@ namespace UndreamAI.LlamaLib
             }
         }
 
-        public static string GetLibraryBasePath()
+        public static string FindLibrary(string libraryName)
         {
             string baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string OS;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) OS = "linux-x64";
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) OS = "osx-x64";
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) OS = "win-x64";
+
+            List<string> OSes = new List<string>();
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) OSes.Add("linux-x64");
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                OSes.Add("osx-x64");
+                OSes.Add("osx-arm64");
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) OSes.Add("win-x64");
             else throw new ArgumentException("Unknown platform " + RuntimeInformation.OSDescription);
 
-            string librariesPath = Path.Combine(baseDir, "runtimes", OS, "native");
-            if (Directory.Exists(librariesPath)) return librariesPath;
+            List<string> lookupDirs = new List<string>();
+            foreach (string OS in OSes) lookupDirs.Add(Path.Combine(baseDir, "runtimes", OS, "native"));
+            lookupDirs.Add(baseDir);
 
-            return baseDir;
+            foreach (string lookupDir in lookupDirs)
+            {
+                string libraryPath = Path.Combine(lookupDir, libraryName);
+                if (File.Exists(libraryPath)) return libraryPath;
+            }
+
+            throw new InvalidOperationException($"Library {libraryName} not found!");
         }
 
         static string GetRuntimeLibraryPath()
@@ -240,7 +251,7 @@ namespace UndreamAI.LlamaLib
                 libName = "llamalib_windows_runtime.dll";
             else
                 throw new ArgumentException("Unknown platform " + RuntimeInformation.OSDescription);
-            return Path.Combine(libraryBasePath, libName);
+            return FindLibrary(libName);
         }
 
         private void LoadLibraries(bool gpu)
@@ -258,7 +269,7 @@ namespace UndreamAI.LlamaLib
             {
                 try
                 {
-                    string libraryPath = Path.Combine(libraryBasePath, library.Trim());
+                    string libraryPath = FindLibrary(library.Trim());
                     if (debugLevelGlobal > 0) Console.WriteLine("Trying " + libraryPath);
                     libraryHandle = LibraryLoader.LoadLibrary(libraryPath);
                     LoadFunctionPointers();
