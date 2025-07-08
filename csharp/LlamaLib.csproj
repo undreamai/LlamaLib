@@ -1,99 +1,111 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFrameworks>net6.0;net8.0;netstandard2.0</TargetFrameworks>
+
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Platforms>AnyCPU;x64;ARM64</Platforms>
+
+    <!-- NuGet Package Metadata -->
+    <PackageId>LlamaLib</PackageId>
+    <PackageVersion>2.0.0</PackageVersion>
+    <Authors>Antonis Maropoulos</Authors>
+    <Company>UndreamAI</Company>
+    <Description>LlamaLib - Cross-platform local LLM library</Description>
+    <PackageProjectUrl>https://github.com/undreamai/LlamaLib</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/undreamai/LlamaLib</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+
+    <!-- Include symbols for debugging -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <!-- Important: This ensures native libraries are copied to consuming projects -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
+
   <!-- Auto-detect platform and set constants -->
   <PropertyGroup>  
     <PlatformTarget Condition="'$(PlatformTarget)' == ''">AnyCPU</PlatformTarget>
-    
+
     <!-- Detect from target framework -->
     <DefineConstants Condition="$(TargetFramework.Contains('android'))">$(DefineConstants);ANDROID</DefineConstants>
     <DefineConstants Condition="$(TargetFramework.Contains('ios'))">$(DefineConstants);IOS</DefineConstants>
     <DefineConstants Condition="$(TargetFramework.Contains('visionos'))">$(DefineConstants);VISIONOS</DefineConstants>
   </PropertyGroup>
 
-  <!-- Native libraries for Windows x64 -->
-  <ItemGroup Condition="'$(RuntimeIdentifier)' == 'win-x64' OR ('$(RuntimeIdentifier)' == '' AND '$(OS)' == 'Windows_NT')">
-    <Content Include="runtimes/windows/*.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+  <!-- Native libraries -->
+  <ItemGroup>
+    <!-- Windows x64 -->
+    <Content Include="../libs/windows/*.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>true</Pack>
-      <PackagePath>runtimes/windows</PackagePath>
+      <PackagePath>runtimes/win-x64/native/</PackagePath>
+    </Content>
+
+    <!-- Linux x64 -->
+    <Content Include="../libs/linux/*.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Pack>true</Pack>
+      <PackagePath>runtimes/linux-x64/native/</PackagePath>
+    </Content>
+
+    <!-- macOS x64 -->
+    <Content Include="../libs/macos/*.dylib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Pack>true</Pack>
+      <PackagePath>runtimes/osx-x64/native/</PackagePath>
+    </Content>
+
+    <!-- macOS ARM64 -->
+    <Content Include="../libs/macos/*.dylib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Pack>true</Pack>
+      <PackagePath>runtimes/osx-arm64/native/</PackagePath>
+    </Content>
+
+    <!-- Android ARM64 -->
+    <Content Include="../libs/android/*arm64.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Pack>true</Pack>
+      <PackagePath>runtimes/android-arm64/native/</PackagePath>
+    </Content>
+
+    <!-- Android x64 -->
+    <Content Include="../libs/android/*x64.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Pack>true</Pack>
+      <PackagePath>runtimes/android-x64/native/</PackagePath>
+    </Content>
+
+    <!-- iOS ARM64 -->
+    <Content Include="../libs/ios/*.a">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Pack>true</Pack>
+      <PackagePath>runtimes/ios-arm64/native/</PackagePath>
+    </Content>
+
+    <!-- visionOS ARM64 -->
+    <Content Include="../libs/visionos/*.a">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Pack>true</Pack>
+      <PackagePath>runtimes/visionos-arm64/native/</PackagePath>
     </Content>
   </ItemGroup>
 
-  <!-- Native libraries for Linux x64 -->
-  <ItemGroup Condition="'$(RuntimeIdentifier)' == 'linux-x64' OR ('$(RuntimeIdentifier)' == '' AND '$(OS)' != 'Windows_NT')">
-    <Content Include="runtimes/linux/*.so">
-    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    <Pack>true</Pack>
-    <PackagePath>runtimes/linux</PackagePath>
-    </Content>
-  </ItemGroup>
-
-  <!-- Native libraries for macOS x64 -->
-  <ItemGroup Condition="'$(RuntimeIdentifier)' == 'osx-x64'">
-    <Content Include="runtimes/macos/*.dylib">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>true</Pack>
-      <PackagePath>runtimes/macos</PackagePath>
-    </Content>
-  </ItemGroup>
-  
-  <!-- Native libraries for macOS ARM64 -->
-  <ItemGroup Condition="'$(RuntimeIdentifier)' == 'osx-arm64'">
-    <Content Include="runtimes/macos/*.dylib">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>true</Pack>
-      <PackagePath>runtimes/macos</PackagePath>
-    </Content>
-  </ItemGroup>
-
-  <!-- Native libraries for Android ARM64 -->
-  <ItemGroup Condition="'$(RuntimeIdentifier)' == 'android-arm64'">
-    <Content Include="runtimes/android/*arm64.so">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>true</Pack>
-      <PackagePath>runtimes/android</PackagePath>
-    </Content>
-  </ItemGroup>
-  
-  <!-- Native libraries for Android x64 -->
-  <ItemGroup Condition="'$(RuntimeIdentifier)' == 'android-x64'">
-    <Content Include="runtimes/android/*x64.so">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>true</Pack>
-      <PackagePath>runtimes/android</PackagePath>
-    </Content>
-  </ItemGroup>
-
-  <!-- Native libraries for iOS -->
-  <ItemGroup Condition="'$(RuntimeIdentifier)' == 'ios-arm64'">
-    <Content Include="runtimes/ios/*.a">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>true</Pack>
-      <PackagePath>runtimes/ios</PackagePath>
-    </Content>
-  </ItemGroup>
-
-  <!-- Native libraries for visionOS -->
-  <ItemGroup Condition="'$(RuntimeIdentifier)' == 'visionos-arm64'">
-    <Content Include="runtimes/visionos/*.a">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>true</Pack>
-      <PackagePath>runtimes/visionos</PackagePath>
-    </Content>
+  <!-- Include README for NuGet -->
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" Condition="Exists('README.md')" />
   </ItemGroup>
 
   <ItemGroup>
