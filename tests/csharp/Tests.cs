@@ -26,10 +26,10 @@ namespace UndreamAI.LlamaLib.Tests
             counter++;
         }
 
-        public void TestStart(Action startAction, Func<bool> startedAction)
+        public void TestStart(Func<bool> startAction, Func<bool> startedAction)
         {
             Console.WriteLine("LLM_Start");
-            startAction();
+            Assert.IsTrue(startAction());
             Console.WriteLine("LLM_Started");
             Assert.IsTrue(startedAction());
         }
