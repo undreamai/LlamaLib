@@ -18,7 +18,8 @@ namespace UndreamAI.LlamaLib.Tests
         private static readonly object completionLock = new object();
         private static int counter = 0;
         private static string concatData = "";
-        string testModelPath = "/home/benuix/.config/LLMUnity/models/smol_llama-220m-openhermes.q4_k_m.gguf";
+        // place model.gguf inside the tests folder
+        string testModelPath = "../../../../model.gguf";
 
         private static void CountCalls(string input)
         {
