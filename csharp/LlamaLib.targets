@@ -1,0 +1,143 @@
+<Project>
+  <PropertyGroup>
+    <LlamaLibNativesVersion>2.0.0a</LlamaLibNativesVersion>
+    <LlamaLibCacheDir>$(NuGetPackageRoot)LlamaLib\runtimes\$(LlamaLibNativesVersion)</LlamaLibCacheDir>
+    <LlamaLibRuntimeDir>$(OutputPath)runtimes\$(RuntimeIdentifier)\native</LlamaLibRuntimeDir>
+    <LlamaLibReleaseUrl>https://github.com/undreamai/LlamaLib/releases/download/v$(LlamaLibNativesVersion)/release.zip</LlamaLibReleaseUrl>
+    <LlamaLibZipFile>$(LlamaLibCacheDir)\release.zip</LlamaLibZipFile>
+    <LlamaLibExtractDir>$(LlamaLibCacheDir)\extracted</LlamaLibExtractDir>
+  </PropertyGroup>
+
+  <!-- Main target to download and extract natives -->
+  <Target Name="DownloadLlamaLibNatives" BeforeTargets="Build">
+    <!-- Create cache directory -->
+    <MakeDir Directories="$(LlamaLibCacheDir)" />
+
+    <!-- Download release.zip if not cached -->
+    <Message Text="Checking for LlamaLib release.zip: $(LlamaLibZipFile)" Importance="high" />
+    <DownloadFile SourceUrl="$(LlamaLibReleaseUrl)" DestinationFolder="$(LlamaLibCacheDir)" DestinationFileName="release.zip" Condition="!Exists('$(LlamaLibZipFile)')" />
+    <Message Text="Downloaded LlamaLib release.zip from $(LlamaLibReleaseUrl)" Importance="high" Condition="!Exists('$(LlamaLibZipFile)')" />    
+    <!-- Extract zip if not already extracted -->
+    <Message Text="Extracting LlamaLib release.zip to $(LlamaLibExtractDir)" Importance="high" Condition="!Exists('$(LlamaLibExtractDir)')" />    
+    <Unzip SourceFiles="$(LlamaLibZipFile)" DestinationFolder="$(LlamaLibExtractDir)" Condition="!Exists('$(LlamaLibExtractDir)')" />
+  </Target>
+
+  <!-- Define native library mappings for each runtime -->
+  <ItemGroup>
+    <!-- Windows -->
+    <LlamaLibNativePattern Include="*.dll" Condition="'$(RuntimeIdentifier)' == 'win-x64'" SourcePath="$(LlamaLibExtractDir)\release\libs\windows" />
+    <!-- Linux -->
+    <LlamaLibNativePattern Include="*.so" Condition="'$(RuntimeIdentifier)' == 'linux-x64'" SourcePath="$(LlamaLibExtractDir)\release\libs\linux" />
+    <!-- macOS x64 -->
+    <LlamaLibNativePattern Include="*.dylib" Condition="'$(RuntimeIdentifier)' == 'osx-x64'" SourcePath="$(LlamaLibExtractDir)\release\libs\macos" />
+    <!-- macOS ARM64 -->
+    <LlamaLibNativePattern Include="*.dylib" Condition="'$(RuntimeIdentifier)' == 'osx-arm64'" SourcePath="$(LlamaLibExtractDir)\release\libs\macos" />
+    <!-- Android ARM64 -->
+    <LlamaLibNativePattern Include="*arm64.so" Condition="'$(RuntimeIdentifier)' == 'android-arm64'" SourcePath="$(LlamaLibExtractDir)\release\libs\android" />
+    <!-- Android x64 -->
+    <LlamaLibNativePattern Include="*x64.so" Condition="'$(RuntimeIdentifier)' == 'android-x64'" SourcePath="$(LlamaLibExtractDir)\release\libs\android" />
+    <!-- iOS -->
+    <LlamaLibNativePattern Include="*.a" Condition="'$(RuntimeIdentifier)' == 'ios-arm64'" SourcePath="$(LlamaLibExtractDir)\release\libs\ios" />
+    <!-- visionOS -->
+    <LlamaLibNativePattern Include="*.a" Condition="'$(RuntimeIdentifier)' == 'visionos-arm64'" SourcePath="$(LlamaLibExtractDir)\release\libs\visionos" />
+  </ItemGroup>
+
+  <!-- Runtime-specific native library copying -->
+  <Target Name="CopyLlamaLibRuntimeNatives" AfterTargets="DownloadLlamaLibNatives" Condition="'$(RuntimeIdentifier)' != '' AND '@(LlamaLibNativePattern)' != ''">
+    <!-- Find and copy native libraries for specific runtime -->
+    <ItemGroup> <LlamaLibNativeFiles Include="%(LlamaLibNativePattern.SourcePath)\%(LlamaLibNativePattern.Identity)" /> </ItemGroup>
+    <!-- Create runtime directory -->
+    <MakeDir Directories="$(LlamaLibRuntimeDir)" />
+    <!-- Copy native libraries to runtime directory -->
+    <Copy SourceFiles="@(LlamaLibNativeFiles)" DestinationFolder="$(LlamaLibRuntimeDir)" Condition="'@(LlamaLibNativeFiles)' != ''" /> 
+    <Message Text="Copied LlamaLib native libraries to $(LlamaLibRuntimeDir)" Importance="high" Condition="'@(LlamaLibNativeFiles)' != ''" />
+    <!-- Add to content for publish -->
+    <ItemGroup>
+        <Content Include="$(LlamaLibRuntimeDir)\**\*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <Link>runtimes\$(RuntimeIdentifier)\native\%(Filename)%(Extension)</Link>
+        </Content>
+    </ItemGroup>
+  </Target>
+
+  <!-- Portable build: Copy ALL native libraries -->
+  <Target Name="CopyLlamaLibPortableNatives" AfterTargets="DownloadLlamaLibNatives" Condition="'$(RuntimeIdentifier)' == ''">
+    <!-- Create all runtime directories -->
+    <MakeDir Directories="$(OutputPath)runtimes\win-x64\native" />
+    <MakeDir Directories="$(OutputPath)runtimes\linux-x64\native" />
+    <MakeDir Directories="$(OutputPath)runtimes\osx-x64\native" />
+    <MakeDir Directories="$(OutputPath)runtimes\osx-arm64\native" />
+    <MakeDir Directories="$(OutputPath)runtimes\android-arm64\native" />
+    <MakeDir Directories="$(OutputPath)runtimes\android-x64\native" />
+    <MakeDir Directories="$(OutputPath)runtimes\ios-arm64\native" />
+    <MakeDir Directories="$(OutputPath)runtimes\visionos-arm64\native" />
+
+    <!-- Copy Windows natives -->
+    <ItemGroup> <WindowsNatives Include="$(LlamaLibExtractDir)\release\libs\windows\*.dll" /> </ItemGroup>
+    <Copy SourceFiles="@(WindowsNatives)" DestinationFolder="$(OutputPath)runtimes\win-x64\native" Condition="'@(WindowsNatives)' != ''" />
+
+    <!-- Copy Linux natives -->
+    <ItemGroup> <LinuxNatives Include="$(LlamaLibExtractDir)\release\libs\linux\*.so" /> </ItemGroup>
+<!-- <Target Name="PrintLinuxNatives" BeforeTargets="Build">
+  <Message Importance="High" Text="Linux natives: @(LinuxNatives -> '%(FullPath)', ', ')" />
+</Target> -->
+
+    <Copy SourceFiles="@(LinuxNatives)" DestinationFolder="$(OutputPath)runtimes\linux-x64\native" Condition="'@(LinuxNatives)' != ''" />
+
+    <!-- Copy macOS natives (both x64 and arm64) -->
+    <ItemGroup> <MacOSNatives Include="$(LlamaLibExtractDir)\release\libs\macos\*.dylib" /> </ItemGroup>
+    <Copy SourceFiles="@(MacOSNatives)" DestinationFolder="$(OutputPath)runtimes\osx-x64\native" Condition="'@(MacOSNatives)' != ''" />
+    <Copy SourceFiles="@(MacOSNatives)" DestinationFolder="$(OutputPath)runtimes\osx-arm64\native" Condition="'@(MacOSNatives)' != ''" />
+
+    <!-- Copy Android natives -->
+    <ItemGroup> <AndroidArm64Natives Include="$(LlamaLibExtractDir)\release\libs\android\*arm64.so" /> <AndroidX64Natives Include="$(LlamaLibExtractDir)\release\libs\android\*x64.so" /> </ItemGroup>
+    <Copy SourceFiles="@(AndroidArm64Natives)" DestinationFolder="$(OutputPath)runtimes\android-arm64\native" Condition="'@(AndroidArm64Natives)' != ''" />
+    <Copy SourceFiles="@(AndroidX64Natives)" DestinationFolder="$(OutputPath)runtimes\android-x64\native" Condition="'@(AndroidX64Natives)' != ''" />
+
+    <!-- Copy iOS natives -->
+    <ItemGroup> <iOSNatives Include="$(LlamaLibExtractDir)\release\libs\ios\*.a" /> </ItemGroup>
+    <Copy SourceFiles="@(iOSNatives)" DestinationFolder="$(OutputPath)runtimes\ios-arm64\native" Condition="'@(iOSNatives)' != ''" />
+
+    <!-- Copy visionOS natives -->
+    <ItemGroup> <VisionOSNatives Include="$(LlamaLibExtractDir)\release\libs\visionos\*.a" /> </ItemGroup>
+    <Copy SourceFiles="@(VisionOSNatives)" DestinationFolder="$(OutputPath)runtimes\visionos-arm64\native" Condition="'@(VisionOSNatives)' != ''" />
+
+    <!-- Add all natives to content for publish -->
+    <ItemGroup> 
+        <Content Include="$(OutputPath)runtimes\**\*.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <Link>runtimes\%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </Content>
+        <Content Include="$(OutputPath)runtimes\**\*.so">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <Link>runtimes\%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </Content>
+        <Content Include="$(OutputPath)runtimes\**\*.dylib">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <Link>runtimes\%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </Content>
+        <Content Include="$(OutputPath)runtimes\**\*.a">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <Link>runtimes\%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </Content>
+    </ItemGroup>
+
+    <Message Text="Copied all LlamaLib native libraries for portable build" Importance="high" />
+  </Target>
+
+  <!-- Show info message -->
+  <Target Name="LlamaLibRuntimeInfo" AfterTargets="DownloadLlamaLibNatives">
+    <Message Text="LlamaLib: Building with RuntimeIdentifier '$(RuntimeIdentifier)' - copying runtime-specific natives" Importance="normal" Condition="'$(RuntimeIdentifier)' != ''" />
+    <Message Text="LlamaLib: Building portable (no RuntimeIdentifier) - copying all native libraries" Importance="normal" Condition="'$(RuntimeIdentifier)' == ''" />
+  </Target>
+
+  <!-- Clean up extracted files on clean -->
+  <Target Name="CleanLlamaLibNatives" AfterTargets="Clean">
+    <RemoveDir Directories="$(LlamaLibExtractDir)" Condition="Exists('$(LlamaLibExtractDir)')" />
+  </Target>
+</Project>

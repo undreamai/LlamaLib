@@ -8,11 +8,11 @@
 
     <!-- NuGet Package Metadata -->
     <PackageId>LlamaLib</PackageId>
-    <PackageVersion>2.0.0</PackageVersion>
+    <PackageVersion>2.0.0-a3</PackageVersion>
     <Authors>Antonis Maropoulos</Authors>
     <Company>UndreamAI</Company>
     <Description>LlamaLib - Cross-platform local LLM library</Description>
-    <PackageProjectUrl>https://github.com/undreamai/LlamaLib</PackageProjectUrl>
+    <PackageProjectUrl>https://undream.ai</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/undreamai/LlamaLib</RepositoryUrl>
@@ -21,9 +21,6 @@
     <!-- Include symbols for debugging -->
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-
-    <!-- Important: This ensures native libraries are copied to consuming projects -->
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <!-- Auto-detect platform and set constants -->
@@ -36,71 +33,10 @@
     <DefineConstants Condition="$(TargetFramework.Contains('visionos'))">$(DefineConstants);VISIONOS</DefineConstants>
   </PropertyGroup>
 
-  <!-- Native libraries -->
+  <!-- Include build targets for consuming projects -->
   <ItemGroup>
-    <!-- Windows x64 -->
-    <Content Include="../libs/windows/*.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>true</Pack>
-      <PackagePath>runtimes/win-x64/native/</PackagePath>
-    </Content>
-
-    <!-- Linux x64 -->
-    <Content Include="../libs/linux/*.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>true</Pack>
-      <PackagePath>runtimes/linux-x64/native/</PackagePath>
-    </Content>
-
-    <!-- macOS x64 -->
-    <Content Include="../libs/macos/*.dylib">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>true</Pack>
-      <PackagePath>runtimes/osx-x64/native/</PackagePath>
-    </Content>
-
-    <!-- macOS ARM64 -->
-    <Content Include="../libs/macos/*.dylib">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>true</Pack>
-      <PackagePath>runtimes/osx-arm64/native/</PackagePath>
-    </Content>
-
-    <!-- Android ARM64 -->
-    <Content Include="../libs/android/*arm64.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>true</Pack>
-      <PackagePath>runtimes/android-arm64/native/</PackagePath>
-    </Content>
-
-    <!-- Android x64 -->
-    <Content Include="../libs/android/*x64.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>true</Pack>
-      <PackagePath>runtimes/android-x64/native/</PackagePath>
-    </Content>
-
-    <!-- iOS ARM64 -->
-    <Content Include="../libs/ios/*.a">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>true</Pack>
-      <PackagePath>runtimes/ios-arm64/native/</PackagePath>
-    </Content>
-
-    <!-- visionOS ARM64 -->
-    <Content Include="../libs/visionos/*.a">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>true</Pack>
-      <PackagePath>runtimes/visionos-arm64/native/</PackagePath>
-    </Content>
+    <None Include="LlamaLib.targets" Pack="true" PackagePath="build\" />
+    <None Include="LlamaLib.targets" Pack="true" PackagePath="buildTransitive\" />
   </ItemGroup>
 
   <!-- Include README for NuGet -->
