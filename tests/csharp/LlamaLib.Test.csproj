@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\csharp\LlamaLib.csproj" />
+    <PackageReference Include="LlamaLib" Version="2.0.0-a3" />
   </ItemGroup>
 
   <ItemGroup>
