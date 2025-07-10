@@ -1,14 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net6.0;net8.0;netstandard2.0</TargetFrameworks>
-
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Platforms>AnyCPU;x64;ARM64</Platforms>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
     <!-- NuGet Package Metadata -->
     <PackageId>LlamaLib</PackageId>
-    <PackageVersion>2.0.0-a3</PackageVersion>
+    <PackageVersion>2.0.0-a1</PackageVersion>
     <Authors>Antonis Maropoulos</Authors>
     <Company>UndreamAI</Company>
     <Description>LlamaLib - Cross-platform local LLM library</Description>
@@ -17,10 +18,6 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/undreamai/LlamaLib</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-
-    <!-- Include symbols for debugging -->
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <!-- Auto-detect platform and set constants -->

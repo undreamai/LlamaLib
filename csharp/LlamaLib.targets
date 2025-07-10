@@ -1,9 +1,9 @@
 <Project>
   <PropertyGroup>
-    <LlamaLibNativesVersion>2.0.0a</LlamaLibNativesVersion>
-    <LlamaLibCacheDir>$(NuGetPackageRoot)LlamaLib\runtimes\$(LlamaLibNativesVersion)</LlamaLibCacheDir>
+    <LlamaLibVersion>2.0.0-a1</LlamaLibVersion>
+    <LlamaLibCacheDir>$(NuGetPackageRoot)LlamaLib\runtimes\$(LlamaLibVersion)</LlamaLibCacheDir>
     <LlamaLibRuntimeDir>$(OutputPath)runtimes\$(RuntimeIdentifier)\native</LlamaLibRuntimeDir>
-    <LlamaLibReleaseUrl>https://github.com/undreamai/LlamaLib/releases/download/v$(LlamaLibNativesVersion)/release.zip</LlamaLibReleaseUrl>
+    <LlamaLibReleaseUrl>https://github.com/undreamai/LlamaLib/releases/download/v$(LlamaLibVersion)/release.zip</LlamaLibReleaseUrl>
     <LlamaLibZipFile>$(LlamaLibCacheDir)\release.zip</LlamaLibZipFile>
     <LlamaLibExtractDir>$(LlamaLibCacheDir)\extracted</LlamaLibExtractDir>
   </PropertyGroup>
