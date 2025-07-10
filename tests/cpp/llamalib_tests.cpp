@@ -1,7 +1,9 @@
-#include "LLM_service.h"
+
 #include "LLM_client.h"
 #ifdef RUNTIME_TESTS
 #include "LLM_runtime.h"
+#else
+#include "LLM_service.h"
 #endif
 
 #ifndef _WIN32
@@ -10,6 +12,7 @@
 #endif
 
 #include <iostream>
+#include <fstream>
 
 std::string PROMPT = "you are an artificial intelligence assistant\n\n### user: Hello, how are you?\n### assistant";
 int ID_SLOT = 0;
@@ -271,15 +274,6 @@ void test_slot(LLMLocal* llm) {
     std::remove(filename.c_str());
 }
 
-LLMService* start_llm_service(const std::string& command)
-{
-    LLMService* llm_service = LLMService::from_command(command);
-    std::cout<<"LLMService_From_Command"<<std::endl;
-    LLM_Start(llm_service);
-    std::cout<<"LLM_Start"<<std::endl;
-    return llm_service;
-}
-
 #ifdef RUNTIME_TESTS
 LLMRuntime* start_llm_lib(std::string command)
 {
@@ -291,6 +285,16 @@ LLMRuntime* start_llm_lib(std::string command)
     LLM_Start(llmlib);
     LLM_Start_Server(llmlib);
     return llmlib;
+}
+#else
+
+LLMService* start_llm_service(const std::string& command)
+{
+    LLMService* llm_service = LLMService::from_command(command);
+    std::cout<<"LLMService_From_Command"<<std::endl;
+    LLM_Start(llm_service);
+    std::cout<<"LLM_Start"<<std::endl;
+    return llm_service;
 }
 #endif
 
@@ -598,11 +602,15 @@ int main(int argc, char** argv) {
 
     std::string command = args_to_command(argc, argv);
 
+#ifdef RUNTIME_TESTS
+    std::cout << "-------- LLM runtime --------" << std::endl;
+    LLMRuntime* llm_service = start_llm_lib(command);
+#else
+    std::cout << "-------- LLM service --------" << std::endl;
     LLMService* llm_service = start_llm_service(command);
+#endif
     llm_service->n_predict = 10;
     EMBEDDING_SIZE = LLM_Embedding_Size(llm_service);
-
-    std::cout << "-------- LLM service --------" << std::endl;
     run_LLMProvider_tests(llm_service);
 
     std::cout << "-------- LLM client --------" << std::endl;
@@ -619,14 +627,6 @@ int main(int argc, char** argv) {
 
     stop_llm_service(llm_service);
 
-#ifdef RUNTIME_TESTS
-    std::cout << "-------- LLM runtime --------" << std::endl;
-    LLMRuntime* llmlib = start_llm_lib(command);
-    llmlib->n_predict = 10;
-    EMBEDDING_SIZE = LLM_Embedding_Size(llmlib);
-    run_LLMProvider_tests(llmlib);
-    stop_llm_service(llmlib);
-#endif
 
     return 0;
 }
