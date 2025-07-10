@@ -48,27 +48,7 @@ class LLMService;
 #define LLM_FUNCTIONS_LIST(M) \
     M(LLMService_Registry, void, LLMProviderRegistry*) \
     M(LLMService_Construct,     LLMService*, const char*, int, int, int, bool, int, int, bool, int, const char**) \
-    M(LLMService_From_Command,  LLMService*, const char*) \
-    M(LLM_Tokenize,        const char*, LLM*, const char*) \
-    M(LLM_Detokenize,      const char*, LLM*, const char*) \
-    M(LLM_Embeddings,      const char*, LLM*, const char*) \
-    M(LLM_Completion,      const char*, LLM*, const char*, CharArrayFn, bool) \
-    M(LLM_Slot,            const char*, LLMLocal*, const char*) \
-    M(LLM_Cancel,          void,        LLMLocal*, int) \
-    M(LLM_Lora_Weight,     const char*, LLMProvider*, const char*) \
-    M(LLM_Lora_List,       const char*, LLMProvider*) \
-    M(LLM_Delete,          void,        LLMProvider*) \
-    M(LLM_Start,           void,        LLMProvider*) \
-    M(LLM_Started,         bool,        LLMProvider*) \
-    M(LLM_Stop,            void,        LLMProvider*) \
-    M(LLM_Start_Server,    void,        LLMProvider*, const char*, int, const char*) \
-    M(LLM_Stop_Server,     void,        LLMProvider*) \
-    M(LLM_Join_Service,    void,        LLMProvider*) \
-    M(LLM_Join_Server,     void,        LLMProvider*) \
-    M(LLM_Set_SSL,         void,        LLMProvider*, const char*, const char*) \
-    M(LLM_Status_Code,     int,         LLMProvider*) \
-    M(LLM_Status_Message,  const char*, LLMProvider*) \
-    M(LLM_Embedding_Size,  int,         LLMProvider*)
+    M(LLMService_From_Command,  LLMService*, const char*)
 
 class UNDREAMAI_API LLMRuntime : public LLMProvider {
 public:
