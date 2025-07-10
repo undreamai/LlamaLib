@@ -283,7 +283,6 @@ LLMRuntime* start_llm_lib(std::string command)
         return nullptr;
     }
     LLM_Start(llmlib);
-    LLM_Start_Server(llmlib);
     return llmlib;
 }
 #else
@@ -598,6 +597,7 @@ void set_SSL(LLMProvider* llm, LLMRemoteClient* llm_remote_client)
 }
 
 int main(int argc, char** argv) {
+    LLM_Debug(1);
     run_mock_tests();
 
     std::string command = args_to_command(argc, argv);
@@ -626,7 +626,5 @@ int main(int argc, char** argv) {
     run_LLM_tests(&llm_remote_client);
 
     stop_llm_service(llm_service);
-
-
     return 0;
 }
