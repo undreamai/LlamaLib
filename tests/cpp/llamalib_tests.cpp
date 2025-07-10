@@ -609,18 +609,18 @@ int main(int argc, char** argv) {
     std::cout << "-------- LLM service --------" << std::endl;
     LLMService* llm_service = start_llm_service(command);
 #endif
-    llm_service->n_predict = 10;
+    llm_service->n_predict = 30;
     EMBEDDING_SIZE = LLM_Embedding_Size(llm_service);
     run_LLMProvider_tests(llm_service);
 
     std::cout << "-------- LLM client --------" << std::endl;
     LLMClient llm_client(llm_service);
-    llm_client.n_predict = 10;
+    llm_client.n_predict = 30;
     run_LLMLocal_tests(&llm_client);
 
     std::cout << "-------- LLM remote client --------" << std::endl;
     LLMRemoteClient llm_remote_client("https://localhost", 8080);
-    llm_remote_client.n_predict = 10;
+    llm_remote_client.n_predict = 30;
     set_SSL(llm_service, &llm_remote_client);
     LLM_Start_Server(llm_service, "", 8080);
     run_LLM_tests(&llm_remote_client);
