@@ -96,13 +96,14 @@ jobs:
             cd build/libs
             curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
             ./llamalib_tests -m model.gguf -np 1 --log-disable
+            ./llamalib_tests_runtime -m model.gguf -np 1 --log-disable
             rm model.gguf
 
 
         - id: pack_artifacts_unix
           name: Pack artifacts
           run: |
-            rm -f build/libs/llamalib_tests
+            rm -f build/libs/llamalib_tests*
             zip -j ${{ matrix.arch }}.zip build/licenses/* build/libs/*
 
         - id: upload_llamalib
@@ -169,7 +170,7 @@ jobs:
         - id: pack_artifacts_unix
           name: Pack artifacts
           run: |
-            rm -f build/libs/llamalib_tests
+            rm -f build/libs/llamalib_tests*
             zip -j ${{ matrix.arch }}.zip build/licenses/* build/libs/*
 
         - id: upload_llamalib
@@ -237,13 +238,14 @@ jobs:
             ln -s libllamalib_${{ matrix.arch }}.dylib $templib
             curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
             ./llamalib_tests -m model.gguf -np 1 --log-disable
+            ./llamalib_tests_runtime -m model.gguf -np 1 --log-disable
             rm model.gguf $templib
 
 
         - id: pack_artifacts_unix
           name: Pack artifacts
           run: |
-            rm -f build/libs/llamalib_tests
+            rm -f build/libs/llamalib_tests*
             zip -j ${{ matrix.arch }}.zip build/licenses/* build/libs/*
 
         - id: upload_llamalib
@@ -309,13 +311,14 @@ jobs:
             ln -s libllamalib_${{ matrix.arch }}.dylib $templib
             curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
             ./llamalib_tests -m model.gguf -np 1 --log-disable
+            ./llamalib_tests_runtime -m model.gguf -np 1 --log-disable
             rm model.gguf $templib
 
 
         - id: pack_artifacts_unix
           name: Pack artifacts
           run: |
-            rm -f build/libs/llamalib_tests
+            rm -f build/libs/llamalib_tests*
             zip -j ${{ matrix.arch }}.zip build/licenses/* build/libs/*
 
         - id: upload_llamalib
@@ -415,6 +418,7 @@ jobs:
             cd build/libs/Release
             curl.exe -o model.gguf -L "https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf"
             .\llamalib_tests.exe -m model.gguf -np 1 --log-disable
+            .\llamalib_tests_runtime.exe -m model.gguf -np 1 --log-disable
             rm model.gguf
 
 
@@ -434,7 +438,7 @@ jobs:
             mkdir artifacts
             move .\build\licenses\* .\artifacts\
             move .\build\libs\Release\*dll .\artifacts\
-            del artifacts/llamalib_tests.*
+            del artifacts/llamalib_tests*
             $serverPath = '.\build\libs\Release\llamalib_windows_server.exe'
             if (Test-Path $serverPath) {
                 move $serverPath -Destination '.\artifacts\'
@@ -524,7 +528,7 @@ jobs:
             mkdir artifacts
             move .\build\licenses\* .\artifacts\
             move .\build\libs\Release\*dll .\artifacts\
-            del artifacts/llamalib_tests.*
+            del artifacts/llamalib_tests*
             $serverPath = '.\build\libs\Release\llamalib_windows_server.exe'
             if (Test-Path $serverPath) {
                 move $serverPath -Destination '.\artifacts\'
@@ -600,7 +604,7 @@ jobs:
         - id: pack_artifacts_unix
           name: Pack artifacts
           run: |
-            rm -f build/libs/llamalib_tests
+            rm -f build/libs/llamalib_tests*
             zip -j ${{ matrix.arch }}.zip build/licenses/* build/libs/*
 
         - id: upload_llamalib
@@ -681,7 +685,7 @@ jobs:
         - id: pack_artifacts_unix
           name: Pack artifacts
           run: |
-            rm -f build/libs/llamalib_tests
+            rm -f build/libs/llamalib_tests*
             zip -j ${{ matrix.arch }}.zip build/licenses/* build/libs/*
 
         - id: upload_llamalib
