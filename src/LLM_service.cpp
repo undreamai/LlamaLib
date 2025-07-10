@@ -537,12 +537,18 @@ void LLMService::stop_server(){
     LLAMALIB_INF("stopping server\n");
     if (svr.get() != nullptr) {
         svr->stop();
-        join_server();
+        if (server_thread.joinable()) {
+            server_thread.join();
+        }
     }
+    server_stopped = true;
+    server_stopped_cv.notify_all();
+    LLAMALIB_INF("stopped server\n");
 }
 
 void LLMService::join_server(){
-    server_thread.join();
+    std::unique_lock<std::mutex> lock(start_stop_mutex);
+    server_stopped_cv.wait(lock, [this] { return server_stopped; });
 }
 
 void LLMService::start(){
@@ -579,9 +585,13 @@ void LLMService::stop(){
 
         ctx_server->queue_tasks.terminate();
         if(llama_backend_has_init) llama_backend_free();
-        LLAMALIB_INF("service stopped\n");
 
-        join_service();
+        if (service_thread.joinable()) {
+            service_thread.join();
+        }
+        service_stopped = true;
+        service_stopped_cv.notify_all();
+        LLAMALIB_INF("service stopped\n");
 
         LLMProviderRegistry::instance().unregister_instance(this);
     } catch(...) {
@@ -590,7 +600,8 @@ void LLMService::stop(){
 }
 
 void LLMService::join_service() {
-    service_thread.join();
+    std::unique_lock<std::mutex> lock(start_stop_mutex);
+    service_stopped_cv.wait(lock, [this] { return service_stopped; });
 }
 
 bool LLMService::started(){

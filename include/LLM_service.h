@@ -63,12 +63,17 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         common_params params;
         bool llama_backend_has_init;
         server_context* ctx_server = nullptr;
-        std::thread service_thread;
-        std::thread server_thread;
         std::unique_ptr<httplib::Server> svr;
         std::string SSL_cert = "";
         std::string SSL_key = "";
+
         std::mutex start_stop_mutex;
+        std::thread service_thread;
+        std::condition_variable service_stopped_cv;
+        bool service_stopped = false;
+        std::thread server_thread;
+        std::condition_variable server_stopped_cv;
+        bool server_stopped = false;
 
         std::vector<std::string> splitArguments(const std::string& inputString);
         std::string completion_streaming(
