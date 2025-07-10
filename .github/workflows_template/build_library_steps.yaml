@@ -277,9 +277,9 @@ jobs:
             rm -r $d
           done
 
-          for acc in acc no_acc runtime;do
-              lipo -create -output libs/macos/libllamalib_macos_${acc}.dylib libs/macos/libllamalib_macos_x64_${acc}.dylib libs/macos/libllamalib_macos_arm64_${acc}.dylib
-              rm libs/macos/libllamalib_macos_x64_${acc}.dylib libs/macos/libllamalib_macos_arm64_${acc}.dylib
+          for lib in acc.dylib no_acc.dylib runtime.a;do
+              lipo -create -output libs/macos/libllamalib_macos_${lib} libs/macos/libllamalib_macos_x64_${lib} libs/macos/libllamalib_macos_arm64_${lib}
+              rm libs/macos/libllamalib_macos_x64_${lib} libs/macos/libllamalib_macos_arm64_${lib}
           done
 
       - name: Create release
