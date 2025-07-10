@@ -80,6 +80,8 @@ protected:
 
 class UNDREAMAI_API LLMProvider : public LLMLocal {
 public:
+    virtual ~LLMProvider() = default;
+
     virtual void debug(int debug_level) = 0;
     virtual void logging_callback(CharArrayFn callback) = 0;
 

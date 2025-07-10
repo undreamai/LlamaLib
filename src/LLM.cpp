@@ -371,7 +371,6 @@ void LLM_Delete(LLMProvider* llm) {
     if (llm != nullptr)
     {
         delete llm;
-        llm = nullptr;
     }
 }
 
