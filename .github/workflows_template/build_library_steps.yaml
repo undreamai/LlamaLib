@@ -256,13 +256,13 @@ jobs:
           cd release
           ls -R
 
-          mkdir ../servers
+          mkdir servers
           for d in windows_noavx.zip linux_noavx.zip macos_*_no_acc.zip;do
             unzip -o $d/$d -d $d llamalib*server*
           done
-          lipo -create -output ../servers/llamalib_macos_server macos_*_no_acc.zip/llamalib_macos_server
+          lipo -create -output servers/llamalib_macos_server macos_*_no_acc.zip/llamalib_macos_server
           rm macos_*_no_acc.zip/llamalib_macos_server
-          mv */llamalib*server* ../servers
+          mv */llamalib*server* servers
           
           for d in *.zip;do
             platform=`echo $d|cut -d'.' -f1|cut -d'_' -f1`
@@ -281,7 +281,6 @@ jobs:
         run: |
           ./.github/scripts/release.sh release release
           zip -r release.zip release
-          zip -r servers.zip servers
 
       - name: Release
         id: release
@@ -290,4 +289,3 @@ jobs:
           name: "Release ${{ github.ref_name }}"
           files: | 
             release.zip
-            servers.zip
