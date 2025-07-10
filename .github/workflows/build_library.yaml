@@ -716,7 +716,7 @@ jobs:
         - id: set_release_prefix
           name: Set prefix
           run: |
-            echo "PREFIX=llamalib-${{ github.ref_name }}" >> $GITHUB_ENV
+            echo "RELEASE_NAME=LlamaLib-${{ github.ref_name }}" >> $GITHUB_ENV
           shell: bash
 
         - id: download_artifacts
@@ -731,13 +731,13 @@ jobs:
             cd release
             ls -R
         
-            mkdir ../servers
+            mkdir servers
             for d in windows_noavx.zip linux_noavx.zip macos_*_no_acc.zip;do
               unzip -o $d/$d -d $d llamalib*server*
             done
-            lipo -create -output ../servers/llamalib_macos_server macos_*_no_acc.zip/llamalib_macos_server
+            lipo -create -output servers/llamalib_macos_server macos_*_no_acc.zip/llamalib_macos_server
             rm macos_*_no_acc.zip/llamalib_macos_server
-            mv */llamalib*server* ../servers
+            mv */llamalib*server* servers
         
             for d in *.zip;do
               platform=`echo $d|cut -d'.' -f1|cut -d'_' -f1`
@@ -755,15 +755,14 @@ jobs:
           name: Create release
           run: |
             ./.github/scripts/release.sh release release
-            zip -r release.zip release
-            zip -r servers.zip servers
+            mv release ${{ env.RELEASE_NAME }}
+            zip -r ${{ env.RELEASE_NAME }}.zip ${{ env.RELEASE_NAME }}
 
         - id: release
           name: Release
           uses: softprops/action-gh-release@v2
           with:
             files: |
-              release.zip
-              servers.zip
+              ${{ env.RELEASE_NAME }}.zip
             name: Release ${{ github.ref_name }}
 

@@ -9,7 +9,7 @@
 
     <!-- NuGet Package Metadata -->
     <PackageId>LlamaLib</PackageId>
-    <PackageVersion>2.0.0-a1</PackageVersion>
+    <PackageVersion>2.0.0</PackageVersion>
     <Authors>Antonis Maropoulos</Authors>
     <Company>UndreamAI</Company>
     <Description>LlamaLib - Cross-platform local LLM library</Description>

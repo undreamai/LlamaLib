@@ -241,7 +241,7 @@ jobs:
       - id: set_release_prefix
         name: Set prefix
         run: |
-          echo "PREFIX=llamalib-${{ github.ref_name }}" >> $GITHUB_ENV
+          echo "RELEASE_NAME=LlamaLib-${{ github.ref_name }}" >> $GITHUB_ENV
         shell: bash
 
       - name: Download Artifacts
@@ -280,7 +280,8 @@ jobs:
         id: create_release
         run: |
           ./.github/scripts/release.sh release release
-          zip -r release.zip release
+          mv release ${{ env.RELEASE_NAME }}
+          zip -r ${{ env.RELEASE_NAME }}.zip ${{ env.RELEASE_NAME }}
 
       - name: Release
         id: release
@@ -288,4 +289,4 @@ jobs:
         with:
           name: "Release ${{ github.ref_name }}"
           files: | 
-            release.zip
+            ${{ env.RELEASE_NAME }}.zip
