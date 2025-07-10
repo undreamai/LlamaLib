@@ -241,8 +241,10 @@ jobs:
       - ios-build
     steps:
         @@checkout@@
-        @@set_release_prefix@@
+        @@set_release_version@@
         @@download_artifacts@@
         @@structure_artifacts@@
         @@create_release@@
+        @@pack_nuget@@
+        @@test_nuget@@
         @@release@@

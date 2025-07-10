@@ -713,10 +713,16 @@ jobs:
           with:
             submodules: recursive
 
-        - id: set_release_prefix
-          name: Set prefix
+        - id: set_release_version
+          name: Set version
           run: |
-            echo "RELEASE_NAME=LlamaLib-${{ github.ref_name }}" >> $GITHUB_ENV
+            VERSION=${GITHUB_REF_NAME#v}
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+            echo "RELEASE_NAME=LlamaLib-v$VERSION" >> $GITHUB_ENV
+            echo "$VERSION" > VERSION
+            sed -i '' "s|<PackageVersion>.*</PackageVersion>|<PackageVersion>${VERSION}</PackageVersion>|g" csharp/LlamaLib.csproj
+            sed -i '' "s|<LlamaLibVersion>.*</LlamaLibVersion>|<LlamaLibVersion>${VERSION}</LlamaLibVersion>|g" csharp/LlamaLib.targets
+            sed -i '' "s|\(Include=\"LlamaLib\" Version=\)\"[^\"]*\"|\1\"${VERSION}\"|g" tests/csharp/LlamaLib.Test.csproj
           shell: bash
 
         - id: download_artifacts
@@ -758,11 +764,31 @@ jobs:
             mv release ${{ env.RELEASE_NAME }}
             zip -r ${{ env.RELEASE_NAME }}.zip ${{ env.RELEASE_NAME }}
 
+        - id: pack_nuget
+          name: Pack nuget
+          run: |
+            cd csharp
+            dotnet pack -c Release
+
+        - id: test_nuget
+          name: Test nuget
+          run: |
+            mkdir -p ~/.nuget/packages/LlamaLib
+            ln -s ${{ env.RELEASE_NAME }}.zip ~/.nuget/packages/LlamaLib/${{ env.RELEASE_NAME }}.zip
+        
+            cd tests
+            curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
+        
+            cd csharp
+            dotnet build -c Release
+            dotnet test -c Release
+
         - id: release
           name: Release
           uses: softprops/action-gh-release@v2
           with:
             files: |
               ${{ env.RELEASE_NAME }}.zip
-            name: Release ${{ github.ref_name }}
+              csharp/bin/Release/LlamaLib*nupkg
+            name: Release ${{ env.VERSION }}
 
