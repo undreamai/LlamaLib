@@ -59,7 +59,7 @@ endif()
 set(LLAMALIB_STATIC_LIBRARY "llamalib_${ARCHITECTURE}")
 string(TOLOWER "${CMAKE_SYSTEM_NAME}" OS)
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    SET(OS "macos")
+    string(REGEX REPLACE "_(acc|no_acc)$" "" OS "${ARCHITECTURE}")
 endif()
 set(LLAMALIB_RUNTIME_LIBRARY "llamalib_${OS}_runtime")
 
