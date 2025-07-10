@@ -6,9 +6,9 @@ project(LlamaLib VERSION ${LLAMALIB_VERSION} LANGUAGES C CXX)
 ################################################ OPTIONS ################################################
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    OPTION(LLAMALIB_BUILD_RUNTIME_LIB "Build LlamaLib runtime library" ON)
     OPTION(LLAMALIB_BUILD_SERVER "Build LlamaLib server" ON)
     OPTION(LLAMALIB_BUILD_TESTS "Build LlamaLib tests" ON)
+    SET(LLAMALIB_BUILD_RUNTIME_LIB ON)
 else()
     SET(LLAMALIB_BUILD_RUNTIME_LIB OFF)
     SET(LLAMALIB_BUILD_SERVER OFF)

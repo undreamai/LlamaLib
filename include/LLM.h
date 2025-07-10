@@ -38,9 +38,6 @@ public:
     std::string json_schema = "";
     std::string grammar = "";
 
-    static int debug_level_global;
-    static CharArrayFn log_callback_global;
-
     virtual std::string tokenize_json(const json& data) = 0;
     virtual std::string detokenize_json(const json& data) = 0;
     virtual std::string embeddings_json(const json& data) = 0;
@@ -110,8 +107,18 @@ public:
 
 class LLMProviderRegistry {
 public:
+    static bool initialised;
+
+    static void inject_registry(LLMProviderRegistry* instance) {
+        custom_instance_ = instance;
+        initialised = true;
+    }
+
     static LLMProviderRegistry& instance() {
+        if (custom_instance_) return *custom_instance_;
+
         static LLMProviderRegistry registry;
+        initialised = true;
         return registry;
     }
 
@@ -130,9 +137,33 @@ public:
         return instances_;
     }
 
+    void set_debug_level(int level)
+    {
+        debug_level_ = level;
+    }
+
+    const int get_debug_level()
+    {
+        return debug_level_;
+    }
+
+    void set_log_callback(CharArrayFn callback)
+    {
+        log_callback_ = callback;
+    }
+
+    const CharArrayFn get_log_callback()
+    {
+        return log_callback_;
+    }
+
 private:
+    static LLMProviderRegistry* custom_instance_;
+
     std::mutex mutex_;
     std::vector<LLMProvider*> instances_;
+    int debug_level_ = 0;
+    CharArrayFn log_callback_ = nullptr;
 
     LLMProviderRegistry() = default;
     ~LLMProviderRegistry() = default;

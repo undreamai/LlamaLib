@@ -253,8 +253,10 @@ void LLMService::init(int argc, char ** argv){
     ensure_error_handlers_initialized();
     if (setjmp(get_jump_point()) != 0) return;
     try{
-        debug(debug_level_global);
-        logging_callback(log_callback_global);
+        LLMProviderRegistry& registry = LLMProviderRegistry::instance();
+        registry.register_instance(this);
+        debug(registry.get_debug_level());
+        logging_callback(registry.get_log_callback());
 
         ctx_server = new server_context();
         ctx_server->batch = { 0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
@@ -289,8 +291,6 @@ void LLMService::init(int argc, char ** argv){
         ctx_server->queue_tasks.on_update_slots([this]() {
             this->ctx_server->update_slots();
         });
-
-        LLMProviderRegistry::instance().register_instance(this);
     } catch(...) {
         handle_exception(1);
     }
@@ -1138,6 +1138,11 @@ int LLMService::embedding_size()
 }
 
 //=========================== API ===========================//
+
+void LLMService_Registry(LLMProviderRegistry* existing_instance)
+{
+    LLMProviderRegistry::inject_registry(existing_instance);
+}
 
 LLMService* LLMService_Construct(const char* model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char** lora_paths)
 {

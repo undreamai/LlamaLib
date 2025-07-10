@@ -83,6 +83,7 @@ class UNDREAMAI_API LLMService : public LLMProvider {
 };
 
 extern "C" {
+    UNDREAMAI_API void LLMService_Registry(LLMProviderRegistry* existing_instance);
     UNDREAMAI_API LLMService* LLMService_Construct(const char* model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, int lora_count=0, const char** lora_paths=nullptr);
     UNDREAMAI_API LLMService* LLMService_From_Command(const char* params_string);
 };

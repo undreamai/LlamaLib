@@ -2,7 +2,6 @@
 
 int main(int argc, char ** argv) {
     std::string command = args_to_command(argc, argv);
-    std::cout << command << std::endl;
 
     LLMRuntime* llm = LLMRuntime::from_command(command.c_str());
     if (!llm) {

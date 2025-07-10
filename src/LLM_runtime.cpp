@@ -226,6 +226,7 @@ bool LLMRuntime::create_LLM_library_backend(const std::string& command, const st
             LLM_FUNCTIONS_LIST(DECLARE_AND_LOAD)
             #undef DECLARE_AND_LOAD
 
+            LLMService_Registry(&LLMProviderRegistry::instance());
             llm = (LLMProvider*) LLMService_From_Command(command.c_str());
             return true;
         }

@@ -3,10 +3,12 @@ if(CMAKE_SYSTEM_NAME STREQUAL "iOS" OR CMAKE_SYSTEM_NAME STREQUAL "visionOS")
 else()
     set(LIBRARY_TYPE SHARED)
 endif()
-set(LIBRARY_FILES LLM.cpp LLM_client.cpp error_handling.cpp)
+
+add_library(llamalib_common OBJECT LLM.cpp LLM_client.cpp error_handling.cpp)
+LLAMALIB_COMPILE_DEFS(llamalib_common)
 
 # build static library
-add_library(${LLAMALIB_STATIC_LIBRARY} ${LIBRARY_TYPE} LLM_service.cpp ${LIBRARY_FILES})
+add_library(${LLAMALIB_STATIC_LIBRARY} ${LIBRARY_TYPE} LLM_service.cpp $<TARGET_OBJECTS:llamalib_common>)
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_link_options(${LLAMALIB_STATIC_LIBRARY} PRIVATE -Wl,--no-undefined)
 endif()
@@ -17,10 +19,10 @@ install(TARGETS ${LLAMALIB_STATIC_LIBRARY} LIBRARY)
 # build runtime library
 if (LLAMALIB_BUILD_RUNTIME_LIB)
     if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
-        set(ARCHCHECKER_FILES ${RUNTIME_LIBRARY_FILES} archchecker.cpp)
+        set(ARCHCHECKER_FILES archchecker.cpp)
     endif()
 
-    add_library(${LLAMALIB_RUNTIME_LIBRARY} ${LIBRARY_TYPE} LLM_runtime.cpp ${LIBRARY_FILES} ${ARCHCHECKER_FILES})
+    add_library(${LLAMALIB_RUNTIME_LIBRARY} STATIC LLM_runtime.cpp ${ARCHCHECKER_FILES} $<TARGET_OBJECTS:llamalib_common>)
     LLAMALIB_COMPILE_DEFS(${LLAMALIB_RUNTIME_LIBRARY})
     if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
         target_link_libraries(${LLAMALIB_RUNTIME_LIBRARY} PRIVATE FeatureDetector)

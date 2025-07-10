@@ -18,15 +18,18 @@ void llm_sigint_signal_handler(int sig) {
 
 // Use a function to ensure the setup only happens once across all libraries
 void ensure_error_handlers_initialized() {
-    static std::once_flag initialized;
-    std::call_once(initialized, []() {
-        set_error_handlers();
-        register_sigint_hook(llm_sigint_signal_handler);
-    });
+    if (!LLMProviderRegistry::initialised)
+    {
+        static std::once_flag initialized;
+        std::call_once(initialized, []() {
+            set_error_handlers();
+            register_sigint_hook(llm_sigint_signal_handler);
+        });
+    }
 }
 
-int LLM::debug_level_global = 0;
-CharArrayFn LLM::log_callback_global = nullptr;
+LLMProviderRegistry* LLMProviderRegistry::custom_instance_ = nullptr;
+bool LLMProviderRegistry::initialised = false;
 
 //=========================== Helpers ===========================//
 
@@ -290,16 +293,18 @@ bool Has_GPU_Layers(const char* command)
 
 void LLM_Debug(int debug_level)
 {
-    LLM::debug_level_global = debug_level;
-    for (auto* inst : LLMProviderRegistry::instance().get_instances()) {
+    LLMProviderRegistry& registry = LLMProviderRegistry::instance();
+    registry.set_debug_level(debug_level);
+    for (auto* inst : registry.get_instances()) {
         inst->debug(debug_level);
     }
 }
 
 void LLM_Logging_Callback(CharArrayFn callback)
 {
-    LLM::log_callback_global = callback;
-    for (auto* inst : LLMProviderRegistry::instance().get_instances()) {
+    LLMProviderRegistry& registry = LLMProviderRegistry::instance();
+    registry.set_log_callback(callback);
+    for (auto* inst : registry.get_instances()) {
         inst->logging_callback(callback);
     }
 }

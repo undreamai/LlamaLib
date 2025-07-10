@@ -1,4 +1,4 @@
-if (LLAMALIB_BUILD_SERVER AND LLAMALIB_BUILD_RUNTIME_LIB)
+if (LLAMALIB_BUILD_SERVER)
     set(NAME llamalib_${OS}_server)
     add_executable(${NAME} llamalib_server.cpp)
     LLAMALIB_COMPILE_DEFS(${NAME})
