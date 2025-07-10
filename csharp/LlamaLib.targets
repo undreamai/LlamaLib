@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <LlamaLibVersion>2.0.0</LlamaLibVersion>
-    <LlamaLibCacheDir>$(NuGetPackageRoot)LlamaLib\runtimes\$(LlamaLibVersion)</LlamaLibCacheDir>
+    <LlamaLibCacheDir>$(NuGetPackageRoot)LlamaLib</LlamaLibCacheDir>
     <LlamaLibRuntimeDir>$(OutputPath)runtimes\$(RuntimeIdentifier)\native</LlamaLibRuntimeDir>
     <LlamaLibZipName>LlamaLib-v$(LlamaLibVersion)</LlamaLibZipName>
     <LlamaLibReleaseUrl>https://github.com/undreamai/LlamaLib/releases/download/v$(LlamaLibVersion)/$(LlamaLibZipName).zip</LlamaLibReleaseUrl>
@@ -120,5 +120,9 @@
     </ItemGroup>
 
     <Message Text="Copied all LlamaLib runtimes to $(OutputPath)runtimes" Importance="high" />
+  </Target>
+
+  <Target Name="CleanLlamaLibNatives" AfterTargets="Clean">
+    <RemoveDir Directories="$(LlamaLibExtractDir)" Condition="Exists('$(LlamaLibExtractDir)')" />
   </Target>
 </Project>
