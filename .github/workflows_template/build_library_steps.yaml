@@ -267,11 +267,10 @@ jobs:
 
           mkdir servers
           for d in windows_noavx.zip linux_noavx.zip macos_*_no_acc.zip;do
-            unzip -o $d/$d -d $d llamalib*server*
+            unzip -o $d/$d -d servers llamalib*server*
           done
-          lipo -create -output servers/llamalib_macos_server macos_x64_no_acc.zip/llamalib_macos_x64_server macos_arm64_no_acc.zip/llamalib_macos_arm64_server
-          rm macos_*_no_acc.zip/llamalib*server
-          mv */llamalib*server* servers
+          lipo -create -output servers/llamalib_macos_server servers/llamalib_macos_x64_server servers/llamalib_macos_arm64_server
+          rm servers/llamalib_macos_x64_server servers/llamalib_macos_arm64_server
           
           for d in *.zip;do
             platform=`echo $d|cut -d'.' -f1|cut -d'_' -f1`
