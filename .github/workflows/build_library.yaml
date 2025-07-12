@@ -106,7 +106,7 @@ jobs:
         - id: pack_artifacts
           name: Pack artifacts
           run: |
-            zip -j ${{ matrix.arch }}.zip build/licenses/* build/libs/* build/libs/Release/* -x '*llamalib_tests*'
+            zip -j ${{ matrix.arch }}.zip build/libs/*llamalib* build/libs/Release/*llamalib* -x '*llamalib_tests*'
           shell: bash
 
         - id: upload_llamalib
@@ -155,7 +155,7 @@ jobs:
           name: Dependencies
           run: |
             sudo apt-get install -y rocblas-dev hipblas-dev
-            echo "CMAKE_VARS=$CMAKE_VARS -DCMAKE_HIP_COMPILER=$(hipconfig -l)/clang" >> $GITHUB_ENV
+            echo "CMAKE_VARS=$(echo $CMAKE_VARS | sed "s|${{ github.workspace }}/|$(pwd)/|g") -DCMAKE_HIP_COMPILER=$(hipconfig -l)/clang" >> $GITHUB_ENV
 
 
         - id: cpu-cores
@@ -173,7 +173,7 @@ jobs:
         - id: pack_artifacts
           name: Pack artifacts
           run: |
-            zip -j ${{ matrix.arch }}.zip build/licenses/* build/libs/* build/libs/Release/* -x '*llamalib_tests*'
+            zip -j ${{ matrix.arch }}.zip build/libs/*llamalib* build/libs/Release/*llamalib* -x '*llamalib_tests*'
           shell: bash
 
         - id: upload_llamalib
@@ -252,7 +252,7 @@ jobs:
         - id: pack_artifacts
           name: Pack artifacts
           run: |
-            zip -j ${{ matrix.arch }}.zip build/licenses/* build/libs/* build/libs/Release/* -x '*llamalib_tests*'
+            zip -j ${{ matrix.arch }}.zip build/libs/*llamalib* build/libs/Release/*llamalib* -x '*llamalib_tests*'
           shell: bash
 
         - id: upload_llamalib
@@ -329,7 +329,7 @@ jobs:
         - id: pack_artifacts
           name: Pack artifacts
           run: |
-            zip -j ${{ matrix.arch }}.zip build/licenses/* build/libs/* build/libs/Release/* -x '*llamalib_tests*'
+            zip -j ${{ matrix.arch }}.zip build/libs/*llamalib* build/libs/Release/*llamalib* -x '*llamalib_tests*'
           shell: bash
 
         - id: upload_llamalib
@@ -450,7 +450,7 @@ jobs:
         - id: pack_artifacts
           name: Pack artifacts
           run: |
-            zip -j ${{ matrix.arch }}.zip build/licenses/* build/libs/* build/libs/Release/* -x '*llamalib_tests*'
+            zip -j ${{ matrix.arch }}.zip build/libs/*llamalib* build/libs/Release/*llamalib* -x '*llamalib_tests*'
           shell: bash
 
         - id: upload_llamalib
@@ -527,7 +527,7 @@ jobs:
         - id: pack_artifacts
           name: Pack artifacts
           run: |
-            zip -j ${{ matrix.arch }}.zip build/licenses/* build/libs/* build/libs/Release/* -x '*llamalib_tests*'
+            zip -j ${{ matrix.arch }}.zip build/libs/*llamalib* build/libs/Release/*llamalib* -x '*llamalib_tests*'
           shell: bash
 
         - id: upload_llamalib
@@ -594,7 +594,7 @@ jobs:
         - id: pack_artifacts
           name: Pack artifacts
           run: |
-            zip -j ${{ matrix.arch }}.zip build/licenses/* build/libs/* build/libs/Release/* -x '*llamalib_tests*'
+            zip -j ${{ matrix.arch }}.zip build/libs/*llamalib* build/libs/Release/*llamalib* -x '*llamalib_tests*'
           shell: bash
 
         - id: upload_llamalib
@@ -671,7 +671,7 @@ jobs:
         - id: pack_artifacts
           name: Pack artifacts
           run: |
-            zip -j ${{ matrix.arch }}.zip build/licenses/* build/libs/* build/libs/Release/* -x '*llamalib_tests*'
+            zip -j ${{ matrix.arch }}.zip build/libs/*llamalib* build/libs/Release/*llamalib* -x '*llamalib_tests*'
           shell: bash
 
         - id: upload_llamalib
