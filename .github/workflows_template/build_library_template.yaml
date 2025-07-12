@@ -50,7 +50,7 @@ jobs:
         include:
           - arch: linux-x64_hip
 
-    default:
+    defaults:
       run:
         working-directory: ${{ github.workspace }}
 
