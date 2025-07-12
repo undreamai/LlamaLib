@@ -233,9 +233,9 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "RELEASE_NAME=LlamaLib-v$VERSION" >> $GITHUB_ENV
           echo "$VERSION" > VERSION
-          sed -i '' "s|<PackageVersion>.*</PackageVersion>|<PackageVersion>${VERSION}</PackageVersion>|g" csharp/LlamaLib.csproj
-          sed -i '' "s|<LlamaLibVersion>.*</LlamaLibVersion>|<LlamaLibVersion>${VERSION}</LlamaLibVersion>|g" csharp/LlamaLib.targets
-          sed -i '' "s|\(Include=\"LlamaLib\" Version=\)\"[^\"]*\"|\1\"${VERSION}\"|g" tests/csharp/LlamaLib.Test.csproj
+          sed -i "s|<PackageVersion>.*</PackageVersion>|<PackageVersion>${VERSION}</PackageVersion>|g" csharp/LlamaLib.csproj
+          sed -i "s|<LlamaLibVersion>.*</LlamaLibVersion>|<LlamaLibVersion>${VERSION}</LlamaLibVersion>|g" csharp/LlamaLib.targets
+          sed -i "s|\(Include=\"LlamaLib\" Version=\)\"[^\"]*\"|\1\"${VERSION}\"|g" tests/csharp/LlamaLib.Test.csproj
         shell: bash
 
       - name: Download Artifacts
