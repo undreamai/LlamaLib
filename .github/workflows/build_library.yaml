@@ -62,6 +62,7 @@ jobs:
           if: contains(matrix.arch, 'blas')
           name: Link Cuda
           run: |
+            mkdir -p build
             ln -s ${{ env.CUDA_PATH }} ${{ github.workspace }}/build/cuda
             echo "CUDAToolkit_ROOT=$GITHUB_WORKSPACE/build/cuda" >> $GITHUB_ENV
             echo "LD_LIBRARY_PATH=''" >> $GITHUB_ENV
@@ -74,6 +75,7 @@ jobs:
         - id: cmake_build
           name: Build
           run: |
+            mkdir -p build
             cd build
             cmake .. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
@@ -154,6 +156,7 @@ jobs:
         - id: cmake_build
           name: Build
           run: |
+            mkdir -p build
             cd build
             cmake .. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
@@ -212,6 +215,7 @@ jobs:
         - id: cmake_build
           name: Build
           run: |
+            mkdir -p build
             cd build
             cmake .. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
@@ -287,6 +291,7 @@ jobs:
         - id: cmake_build
           name: Build
           run: |
+            mkdir -p build
             cd build
             cmake .. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
@@ -397,6 +402,7 @@ jobs:
         - id: cmake_build
           name: Build
           run: |
+            mkdir -p build
             cd build
             cmake .. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
@@ -425,6 +431,7 @@ jobs:
           if: contains(matrix.arch, 'cublas')
           name: Copy Cuda DLLs
           run: |
+            mkdir -p build
             mv "${{ env.CUDA_PATH }}"/bin/cudart64_*.dll build/libs/Release
             mv "${{ env.CUDA_PATH }}"/bin/cublas64_*.dll build/libs/Release
             mv "${{ env.CUDA_PATH }}"/bin/cublasLt64_*.dll build/libs/Release
@@ -565,6 +572,7 @@ jobs:
           run: |
             export LD_LIBRARY_PATH=""
             export NDK=`ls -d /usr/local/lib/android/sdk/ndk/26.*`
+            mkdir -p build
             cd build
             cmake .. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_PLATFORM=android-23 -DANDROID_ABI=${{ matrix.ABI }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
@@ -630,6 +638,7 @@ jobs:
         - id: cmake_build
           name: Build
           run: |
+            mkdir -p build
             cd build
             cmake .. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
