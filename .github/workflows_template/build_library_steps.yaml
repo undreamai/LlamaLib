@@ -202,7 +202,7 @@ jobs:
       - id: link_libraries_ios
         name: Link libraries
         run: |            
-          mkdir build/combo build/libs
+          mkdir -p build/combo build/libs
           cd build/combo
           for f in `find .. -name "*.a"`;do ar -x $f;done
           lib=../libs/libllamalib_${{ matrix.arch }}.a
