@@ -1,7 +1,7 @@
 set(NAME llamalib_tests)
 add_executable(${NAME} llamalib_tests.cpp)
 LLAMALIB_COMPILE_DEFS(${NAME})
-target_link_libraries(${NAME} PRIVATE ${LLAMALIB_STATIC_LIBRARY})
+target_link_libraries(${NAME} PRIVATE ${LLAMALIB_ARCHITECTURE_LIBRARY})
 install(TARGETS ${NAME} RUNTIME)
 
 set(NAME llamalib_tests_runtime)

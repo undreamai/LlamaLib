@@ -2,20 +2,44 @@
 script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 root_dir=$script_dir/../..
 
-build_dir=$1
-release_dir=$2
+# folder where the artifacts where downloaded
+release_dir=$1
 
-mkdir -p $release_dir
-
-includes=$(awk '/set\s*\(\s*include_paths/,/\)/' $root_dir/cmake/LlamaLibCommon.cmake | grep -o '".*"' | sed 's/"//g')
-for d in ${includes};do
-    mkdir -p $release_dir/$d
-    cp $root_dir/$d/*.h $root_dir/$d/*.hpp $release_dir/$d
+cd $release_dir
+ls -R
+# extract servers
+mkdir servers
+for arch in win-x64_noavx linux-x64_noavx osx-arm64_no-acc osx-x64_no-acc;do
+    unzip -o $arch.zip/$arch.zip -d servers llamalib*server*
+    platform=`echo $arch|cut -d'_' -f1`
+    source=`ls servers/llamalib_${platform}_server*`
+    target=`echo $source|sed -e "s:$arch:$platform:g"`
+    mv $source $target
 done
 
-cp $root_dir/LICENSE $release_dir/
-cp $root_dir/VERSION $release_dir/
-cp $root_dir/cmake/*.cmake $release_dir/
-if [ "$build_dir" != "$release_dir" ];then
-    cp -R $build_dir/libs $release_dir/
-fi
+# extract runtimes
+for d in *.zip;do
+    platform=`echo $d|cut -d'.' -f1|cut -d'_' -f1`
+    mkdir -p runtimes/$platform/native
+    unzip -o $d/$d -d runtimes/$platform/native -x llamalib*server*
+done
+
+rm -r *.zip
+
+
+# copy includes
+includes=$(awk '/set\s*\(\s*include_paths/,/\)/' $root_dir/cmake/LlamaLibCommon.cmake | grep -o '".*"' | sed 's/"//g')
+for d in ${includes};do
+    mkdir -p $d
+    cp $root_dir/$d/*.h $root_dir/$d/*.hpp $d
+done
+
+# licenses
+mkdir -p third_party_licenses
+cp $root_dir/third_party/llama.cpp/LICENSE third_party_licenses/llama.cpp.LICENSE.txt
+curl -o third_party_licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
+
+# copy files from repo
+cp $root_dir/LICENSE 
+cp $root_dir/VERSION 
+cp $root_dir/cmake/*.cmake

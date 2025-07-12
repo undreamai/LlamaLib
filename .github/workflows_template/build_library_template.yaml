@@ -17,29 +17,27 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: linux_noavx
-          - arch: linux_avx2
-          - arch: linux_avx
-          - arch: linux_avx512
-          - arch: linux_vulkan
-          - arch: linux_tinyblas
-          - arch: linux_cublas
+          - arch: linux-x64_noavx
+          - arch: linux-x64_avx2
+          - arch: linux-x64_avx
+          - arch: linux-x64_avx512
+          - arch: linux-x64_vulkan
+          - arch: linux-x64_tinyblas
+          - arch: linux-x64_cublas
             
     steps:
         @@setup_libs_linux@@
 
         @@checkout@@
-        @@add_licenses@@
-
         @@setup_vulkan_linux@@
         @@setup_cuda_linux@@
         @@link_cuda_linux@@
 
         @@cpu-cores@@
         @@cmake_build@@
-        @@test_build_linux@@
+        @@test_build@@
 
-        @@pack_artifacts_unix@@
+        @@pack_artifacts@@
         @@upload_llamalib@@
 
 
@@ -50,65 +48,59 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: linux_hip
+          - arch: linux-x64_hip
 
     steps:
         @@setup_libs_linux@@
         @@setup_hip_linux@@
 
         @@checkout@@
-        @@add_licenses@@
-
         @@cpu-cores@@
         @@cmake_build@@
 
-        @@pack_artifacts_unix@@
+        @@pack_artifacts@@
         @@upload_llamalib@@
 
 ################################ macOS ################################
 
-  macOS-arm64-build:
+  osx-arm64-build:
     runs-on: macos-14
 
     strategy:
       matrix:
         include:
-          - arch: macos_arm64_acc
-          - arch: macos_arm64_no_acc
+          - arch: osx-arm64_acc
+          - arch: osx-arm64_no-acc
 
     steps:
         @@setup_libs_macos@@
 
         @@checkout@@
-        @@add_licenses@@
-
         @@cpu-cores@@
         @@cmake_build@@
-        @@test_build_macos@@
+        @@test_build@@
 
-        @@pack_artifacts_unix@@
+        @@pack_artifacts@@
         @@upload_llamalib@@
 
-  macOS-x64-build:
+  osx-x64-build:
     runs-on: macos-13
 
     strategy:
       matrix:
         include:
-          - arch: macos_x64_acc
-          - arch: macos_x64_no_acc
+          - arch: osx-x64_acc
+          - arch: osx-x64_no-acc
 
     steps:
         @@setup_libs_macos@@
 
         @@checkout@@
-        @@add_licenses@@
-
         @@cpu-cores@@
         @@cmake_build@@
-        @@test_build_macos@@
+        @@test_build@@
 
-        @@pack_artifacts_unix@@
+        @@pack_artifacts@@
         @@upload_llamalib@@
 
 
@@ -124,28 +116,26 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: windows_noavx
-          - arch: windows_avx2
-          - arch: windows_avx
-          - arch: windows_avx512
-          - arch: windows_vulkan
-          - arch: windows_tinyblas
-          - arch: windows_cublas
+          - arch: win-x64_noavx
+          - arch: win-x64_avx2
+          - arch: win-x64_avx
+          - arch: win-x64_avx512
+          - arch: win-x64_vulkan
+          - arch: win-x64_tinyblas
+          - arch: win-x64_cublas
 
     steps:
         @@checkout@@
-        @@add_licenses@@
-
         @@setup_vulcan_windows@@
         @@setup_openssl_windows@@
         @@setup_cuda_windows@@
 
         @@cpu-cores@@
         @@cmake_build@@
-        @@test_build_windows@@
+        @@test_build@@
 
         @@copy_cuda_dlls@@
-        @@pack_artifacts_windows@@
+        @@pack_artifacts@@
         @@upload_llamalib@@
 
   windows-hip-build:
@@ -157,19 +147,17 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: windows_hip
+          - arch: win-x64_hip
 
     steps:
         @@checkout@@
-        @@add_licenses@@
-
         @@setup_openssl_windows@@
         @@setup_hip_windows@@
 
         @@cpu-cores@@
         @@cmake_build_hip_windows@@
 
-        @@pack_artifacts_windows@@
+        @@pack_artifacts@@
         @@upload_llamalib@@
 
 ################################ Android ################################
@@ -180,22 +168,20 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: android_arm64
+          - arch: android-arm64
             ABI: arm64-v8a
-          - arch: android_x64
+          - arch: android-x64
             ABI: x86_64
 
     steps:
         @@setup_libs_linux@@
 
         @@checkout@@
-        @@add_licenses@@
-
         @@cpu-cores@@
         @@build_openssl@@
         @@cmake_build_android@@
 
-        @@pack_artifacts_unix@@
+        @@pack_artifacts@@
         @@upload_llamalib@@
 
 ################################ iOS ################################
@@ -206,35 +192,33 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: ios
+          - arch: ios-arm64
             cmake_vars: '-DCMAKE_SYSTEM_NAME=iOS'
-          - arch: visionos
+          - arch: visionos-arm64
             cmake_vars: '-DCMAKE_SYSTEM_NAME=visionOS'
 
     steps:
         @@setup_libs_macos@@
 
         @@checkout@@
-        @@add_licenses@@
-
         @@cpu-cores@@
         @@build_openssl@@
         @@cmake_build@@
         @@link_libraries_ios@@
 
-        @@pack_artifacts_unix@@
+        @@pack_artifacts@@
         @@upload_llamalib@@
 
 ################################ Release ################################
 
   create_release:
     name: Create Release
-    runs-on: macos-14
+    runs-on: ubuntu-22.04
     needs:
       - linux-build
       - linux-hip-build
-      - macOS-arm64-build
-      - macOS-x64-build
+      - osx-arm64-build
+      - osx-x64-build
       - windows-build
       - windows-hip-build
       - android-build

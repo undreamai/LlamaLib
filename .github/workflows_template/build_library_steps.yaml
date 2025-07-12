@@ -7,7 +7,7 @@ jobs:
   lala:
     runs-on: lala
 
-################################ START ################################
+################################ Common ################################
 
     steps:
       - name: Clone
@@ -23,16 +23,6 @@ jobs:
           name: ${{ matrix.arch }}.zip
           path: ${{ matrix.arch }}.zip
 
-      - name: Add licenses
-        id: add_licenses
-        shell: bash
-        run: |
-          mkdir -p build/licenses
-          cp third_party/llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
-          if [[ "${{ matrix.arch }}" == "linux_tinyblas" || "${{ matrix.arch }}" == "windows_tinyblas" ]]; then
-            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
-          fi
-
       - name: Get number of CPU cores
         id: cpu-cores
         uses: SimenB/github-actions-cpu-cores@v2
@@ -41,7 +31,7 @@ jobs:
         id: cmake_build
         run: |
           cd build
-          cmake .. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
+          cmake .. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
       - name: Build OpenSSL
@@ -49,13 +39,51 @@ jobs:
         run: |
           .github/scripts/build_openssl.sh ${{ matrix.arch }}
 
-################################ Linux ################################
+      - name: Test
+        id: test_build
+        if: contains(matrix.arch, 'noavx') || contains(matrix.arch, 'avx2') || contains(matrix.arch, 'osx')
+        shell: bash
+        run: |
+          cd build/libs
+          curl -L -o model.gguf "https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true"
+
+          EXE=""
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            cd Release
+            EXE=".exe"
+          fi
+
+          ./llamalib_tests$EXE -m model.gguf -np 1 --log-disable
+          ./llamalib_tests_runtime$EXE -m model.gguf -np 1 --log-disable
+
+          rm model.gguf
+
+      - name: Pack artifacts
+        id: pack_artifacts
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            LIBS_DIR="build/libs/Release"
+          else
+            LIBS_DIR="build/libs"
+          fi
+          zip -j ${{ matrix.arch }}.zip build/licenses/* $LIBS_DIR/* -x '*llamalib_tests*'
+
+################################ Linux / macOS ################################
 
       - name: Dependencies
         id: setup_libs_linux
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
+
+      - name: Dependencies
+        id: setup_libs_macos
+        continue-on-error: true
+        run: |
+          echo "Architecture: $(uname -m)"
+          echo "Operating System: $(uname -s)"
+          brew update
 
       - name: Dependencies
         id: setup_hip_linux
@@ -65,7 +93,7 @@ jobs:
 
       - name: Dependencies Vulcan
         id: setup_vulkan_linux
-        if: matrix.arch == 'linux_vulkan'
+        if: contains(matrix.arch, 'vulkan')
         run: |
           wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
           sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list https://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
@@ -76,7 +104,7 @@ jobs:
 
       - uses: Jimver/cuda-toolkit@v0.2.15
         id: setup_cuda_linux
-        if: matrix.arch == 'linux_cublas' || matrix.arch == 'linux_tinyblas'
+        if: contains(matrix.arch, 'blas')
         with:
           cuda: ${{ env.CUDA }}
           method: 'network'
@@ -84,54 +112,17 @@ jobs:
 
       - name: Link Cuda
         id: link_cuda_linux
-        if: matrix.arch == 'linux_cublas' || matrix.arch == 'linux_tinyblas'
+        if: contains(matrix.arch, 'blas')
         run: |
           ln -s ${{ env.CUDA_PATH }} ${{ github.workspace }}/build/cuda
           echo "CUDAToolkit_ROOT=$GITHUB_WORKSPACE/build/cuda" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=''" >> $GITHUB_ENV
 
-      - name: Test
-        id: test_build_linux
-        if: matrix.arch == 'linux_noavx' || matrix.arch == 'linux_avx2'
-        run: |
-          cd build/libs
-          curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
-          ./llamalib_tests -m model.gguf -np 1 --log-disable
-          ./llamalib_tests_runtime -m model.gguf -np 1 --log-disable
-          rm model.gguf
-
-      - name: Pack artifacts
-        id: pack_artifacts_unix
-        run: |
-          rm -f build/libs/llamalib_tests*
-          zip -j ${{ matrix.arch }}.zip build/licenses/* build/libs/*
-
-################################ macOS ################################
-
-      - name: Dependencies
-        id: setup_libs_macos
-        continue-on-error: true
-        run: |
-          echo "Architecture: $(uname -m)"
-          echo "Operating System: $(uname -s)"
-          brew update
-
-      - name: Test
-        id: test_build_macos
-        run: |
-          cd build/libs
-          templib=libllamalib_`echo ${{ matrix.arch }} | sed 's/arm64_//g; s/x64_//g'`.dylib
-          ln -s libllamalib_${{ matrix.arch }}.dylib $templib
-          curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
-          ./llamalib_tests -m model.gguf -np 1 --log-disable
-          ./llamalib_tests_runtime -m model.gguf -np 1 --log-disable
-          rm model.gguf $templib
-
 ################################ Windows ################################
 
       - name: Install Vulkan SDK
         id: setup_vulcan_windows
-        if: matrix.arch == 'windows_vulkan'
+        if: contains(matrix.arch, 'vulkan')
         run: |
           curl.exe -o $env:RUNNER_TEMP/VulkanSDK-Installer.exe -L "https://sdk.lunarg.com/sdk/download/${env:VULKAN_VERSION}/windows/VulkanSDK-${env:VULKAN_VERSION}-Installer.exe"
           & "$env:RUNNER_TEMP\VulkanSDK-Installer.exe" --accept-licenses --default-answer --confirm-command install
@@ -158,51 +149,17 @@ jobs:
           $env:HIP_PATH=$(Resolve-Path 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' | split-path | split-path)
           $env:CMAKE_PREFIX_PATH="${env:HIP_PATH}"
           cd build
-          cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DCMAKE_CXX_FLAGS="-I$($PWD.Path.Replace('\', '/'))/rocwmma/library/include/" -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs/Release -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs/Release ${{ matrix.cmake_vars }} -DARCHITECTURE=${{ matrix.arch }}
+          cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DCMAKE_CXX_FLAGS="-I$($PWD.Path.Replace('\', '/'))/rocwmma/library/include/" -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs/Release -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs/Release -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs/Release ${{ matrix.cmake_vars }} -DARCHITECTURE=${{ matrix.arch }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
           mkdir Release
 
       - uses: Jimver/cuda-toolkit@v0.2.15
         id: setup_cuda_windows
-        if: matrix.arch == 'windows_cublas' || matrix.arch == 'windows_tinyblas'
+        if: contains(matrix.arch, 'blas')
         with:
           cuda: ${{ env.CUDA }}
           method: 'network'
           sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust", "visual_studio_integration"]'
-
-      - name: Copy Cuda DLLs
-        id: copy_cuda_dlls
-        if: matrix.arch == 'windows_cublas'
-        shell: bash
-        run: |
-          mv "${{ env.CUDA_PATH }}"/bin/cudart64_*.dll build/libs/Release
-          mv "${{ env.CUDA_PATH }}"/bin/cublas64_*.dll build/libs/Release
-          mv "${{ env.CUDA_PATH }}"/bin/cublasLt64_*.dll build/libs/Release
-
-      - id: test_build_windows
-        if: matrix.arch == 'windows_noavx' || matrix.arch == 'windows_avx2'
-        name: Test
-        run: |
-          cd build/libs/Release
-          curl.exe -o model.gguf -L "https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf"
-          .\llamalib_tests.exe -m model.gguf -np 1 --log-disable
-          .\llamalib_tests_runtime.exe -m model.gguf -np 1 --log-disable
-          rm model.gguf
-
-      - name: Pack artifacts
-        id: pack_artifacts_windows
-        run: |
-          ls -R build
-          mkdir artifacts
-          move .\build\licenses\* .\artifacts\
-          move .\build\libs\Release\*dll .\artifacts\
-          del artifacts/llamalib_tests*
-          $serverPath = '.\build\libs\Release\llamalib_windows_server.exe'
-          if (Test-Path $serverPath) {
-              move $serverPath -Destination '.\artifacts\'
-          }
-          cd artifacts
-          7z a ../${{ matrix.arch }}.zip *
 
       - name: Install
         id: setup_hip_windows
@@ -216,6 +173,15 @@ jobs:
           write-host "Completed AMD HIP SDK installation"
           & 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' --version
 
+      - name: Copy Cuda DLLs
+        id: copy_cuda_dlls
+        if: contains(matrix.arch, 'cublas')
+        shell: bash
+        run: |
+          mv "${{ env.CUDA_PATH }}"/bin/cudart64_*.dll build/libs/Release
+          mv "${{ env.CUDA_PATH }}"/bin/cublas64_*.dll build/libs/Release
+          mv "${{ env.CUDA_PATH }}"/bin/cublasLt64_*.dll build/libs/Release
+
 ################################ Android ################################
 
       - name: Build
@@ -224,7 +190,7 @@ jobs:
           export LD_LIBRARY_PATH=""
           export NDK=`ls -d /usr/local/lib/android/sdk/ndk/26.*`
           cd build
-          cmake .. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_PLATFORM=android-23 -DANDROID_ABI=${{ matrix.ABI }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
+          cmake .. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_PLATFORM=android-23 -DANDROID_ABI=${{ matrix.ABI }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
 ################################ iOS ################################
@@ -266,28 +232,25 @@ jobs:
           ls -R
 
           mkdir servers
-          for d in windows_noavx.zip linux_noavx.zip macos_*_no_acc.zip;do
-            unzip -o $d/$d -d servers llamalib*server*
+          for arch in win-x64_noavx linux-x64_noavx osx-arm64_no-acc osx-x64_no-acc;do
+            unzip -o $arch.zip/$arch.zip -d servers llamalib*server*
+            platform=`echo $arch|cut -d'_' -f1`
+            source=`ls servers/llamalib_${platform}_server*`
+            target=`echo $source|sed -e "s:$arch:$platform:g"`
+            mv $source $target
           done
-          lipo -create -output servers/llamalib_macos_server servers/llamalib_macos_x64_server servers/llamalib_macos_arm64_server
-          rm servers/llamalib_macos_x64_server servers/llamalib_macos_arm64_server
           
           for d in *.zip;do
             platform=`echo $d|cut -d'.' -f1|cut -d'_' -f1`
-            mkdir -p libs/$platform
-            unzip -o $d/$d -d libs/$platform -x llamalib*server*
+            mkdir -p runtimes/$platform/native
+            unzip -o $d/$d -d runtimes/$platform/native -x llamalib*server*
             rm -r $d
-          done
-
-          for lib in acc.dylib no_acc.dylib runtime.a;do
-              lipo -create -output libs/macos/libllamalib_macos_${lib} libs/macos/libllamalib_macos_x64_${lib} libs/macos/libllamalib_macos_arm64_${lib}
-              rm libs/macos/libllamalib_macos_x64_${lib} libs/macos/libllamalib_macos_arm64_${lib}
           done
 
       - name: Create release
         id: create_release
         run: |
-          ./.github/scripts/release.sh release release
+          ./.github/scripts/release.sh release
           mv release ${{ env.RELEASE_NAME }}
           zip -r ${{ env.RELEASE_NAME }}.zip ${{ env.RELEASE_NAME }}
 

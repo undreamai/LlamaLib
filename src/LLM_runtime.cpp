@@ -2,71 +2,65 @@
 
 //============================= LIBRARY LOADING =============================//
 
-const std::string os_library_dir() {
+const std::string platform_name() {
 #if defined(_WIN32)
-    return "windows";
+    return "win-x64";
 #elif defined(__linux__)
-    return "linux";
+    return "linux-x64";
 #elif defined(__APPLE__)
-#if TARGET_OS_VISION
-    return "visionos";
-#elif TARGET_OS_IOS
-    return "ios";
+    #if defined(__x86_64__)
+        return "osx-x64";
+    #else
+        return "osx-arm64";
+    #endif
 #else
-    return "macos";
-#endif
-#elif defined(__ANDROID__)
-    return "android";
-#endif
+    std::cerr << "Unknown platform!" << std::endl;
     return "";
+#endif
 }
 
 const std::vector<std::string> available_architectures(bool gpu) {
     std::vector<std::string> architectures;
+#if defined(_WIN32)
+    std::string prefix = "";
+#else
+    std::string prefix = "lib";
+#endif
 
-    const auto add_library = [&](std::string os, std::string arch, std::string prefix, std::string suffix)
+#if defined(_WIN32)
+    std::string suffix = "dll";
+#elif defined(__linux__)
+    std::string suffix = "so";
+#elif defined(__APPLE__)
+    std::string suffix = "dylib";
+#else
+    std::cerr << "Unknown platform!" << std::endl;
+    return architectures;
+#endif
+
+    const auto add_library = [&](std::string arch)
     {
+        std::string platform = platform_name();
         std::string dash_arch = arch;
         if (arch != "") dash_arch = "_" + dash_arch;
-        std::string path = prefix + "llamalib_" + os + dash_arch + "." + suffix;
+        std::string path = prefix + "llamalib_" + platform + dash_arch + "." + suffix;
         architectures.push_back(path);
     };
 
-    std::string prefix = "";
-    std::string suffix = "";
-    std::string os = "";
-
 #if defined(_WIN32) || defined(__linux__)
-#if defined(_WIN32)
-    prefix = "";
-    suffix = "dll";
-    os = "windows";
-#elif defined(__linux__)
-    prefix = "lib";
-    suffix = "so";
-    os = "linux";
-#endif
     if (gpu) {
-        add_library(os, "cublas", prefix, suffix);
-        add_library(os, "tinyblas", prefix, suffix);
-        add_library(os, "hip", prefix, suffix);
-        add_library(os, "vulkan", prefix, suffix);
+        add_library("cublas");
+        add_library("tinyblas");
+        add_library("hip");
+        add_library("vulkan");
     }
-    if (has_avx512()) add_library(os, "avx512", prefix, suffix);
-    else if (has_avx2()) add_library(os, "avx2", prefix, suffix);
-    else if (has_avx()) add_library(os, "avx", prefix, suffix);
-    add_library(os, "noavx", prefix, suffix);
+    if (has_avx512()) add_library("avx512");
+    else if (has_avx2()) add_library("avx2");
+    else if (has_avx()) add_library("avx");
+    add_library("noavx");
 #elif defined(__APPLE__)
-#if TARGET_OS_VISION
-    add_library("visionos", "", "lib", "a");
-#elif TARGET_OS_IOS
-    add_library("ios", "", "lib", "a");
-#else
-    add_library("macos", "acc", "lib", "dylib");
-    add_library("macos", "no_acc", "lib", "dylib");
-#endif
-#elif defined(__ANDROID__)
-    add_library("android", "", "lib", "so");
+    add_library("acc");
+    add_library("no-acc");
 #endif
     return architectures;
 }
@@ -145,20 +139,17 @@ std::vector<std::filesystem::path> get_search_directories() {
     // Current directory
     search_paths.push_back(get_current_directory());
     // Executable directory
-    search_paths.push_back(get_executable_directory());
-    // Common relative paths from executable
     auto exe_dir = get_executable_directory();
+    search_paths.push_back(exe_dir);
+
+    std::string lib_folder_path = std::filesystem::path("runtimes") / platform_name() / "native";
+    search_paths.push_back(exe_dir / lib_folder_path);
+    search_paths.push_back(exe_dir / ".." / lib_folder_path);
+
     for (const std::string& lib_folder_name : { "lib", "libs", "runtimes" } )
     {
-
-        search_paths.push_back(exe_dir / lib_folder_name);
-        search_paths.push_back(exe_dir / ".." / lib_folder_name);
-        std::string os_dir = os_library_dir();
-        if (os_dir != "")
-        {
-            search_paths.push_back(exe_dir / lib_folder_name / os_dir);
-            search_paths.push_back(exe_dir / ".." / lib_folder_name / os_dir);
-        }    
+        search_paths.push_back(exe_dir / lib_folder_path);
+        search_paths.push_back(exe_dir /  ".." / lib_folder_path);
     }
     // Environment variable paths
     auto default_env_vars = get_default_library_env_vars();

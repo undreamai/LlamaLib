@@ -3,8 +3,6 @@ import yaml
 import re
 
 yaml.SafeDumper.org_represent_str = yaml.SafeDumper.represent_str
-yaml.width = 2 ** 32
-
 
 def repr_str(dumper, data):
     if '\n' in data:
@@ -26,7 +24,7 @@ def extract_steps(yaml_content):
         for step in steps:
             step_id = step.get('id')
             if step_id:
-                steps_dict[step_id] = yaml.safe_dump([step]).strip()
+                steps_dict[step_id] = yaml.safe_dump([step], width=float('inf')).strip()
 
     return steps_dict
 

@@ -51,12 +51,12 @@ get_android_toolchain() {
     local api_level=$2
     
     case $arch in
-        android_arm64)
+        android-arm64)
             export ANDROID_ARCH="aarch64"
             export ANDROID_EABI="aarch64-linux-android"
             export OPENSSL_ARCH="android-arm64"
             ;;
-        android_x64)
+        android-x64)
             export ANDROID_ARCH="x86_64"
             export ANDROID_EABI="x86_64-linux-android"
             export OPENSSL_ARCH="android-x86_64"
@@ -133,10 +133,10 @@ download_openssl_ios() {
     
     log_info "Source files extracted"
     case $arch in
-        ios)
+        ios-arm64)
             copyarch=iphoneos
             ;;
-        visionos)
+        visionos-arm64)
             copyarch=visionos
             ;;
         *)
@@ -157,16 +157,16 @@ main() {
     mkdir -p $WORK_DIR $INSTALL_DIR/$arch
 
     case $arch in
-        android_arm64)
+        android-arm64)
             build_openssl_android $arch
             ;;
-        android_x64)
+        android-x64)
             build_openssl_android $arch
             ;;
-        ios)
+        ios-arm64)
             download_openssl_ios $arch
             ;;
-        visionos)
+        visionos-arm64)
             download_openssl_ios $arch
             ;;
         *)
