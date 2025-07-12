@@ -142,7 +142,7 @@ std::vector<std::filesystem::path> get_search_directories() {
     auto exe_dir = get_executable_directory();
     search_paths.push_back(exe_dir);
 
-    std::string lib_folder_path = std::filesystem::path("runtimes") / platform_name() / "native";
+    std::string lib_folder_path = (std::filesystem::path("runtimes") / platform_name() / "native").string();
     search_paths.push_back(exe_dir / lib_folder_path);
     search_paths.push_back(exe_dir / ".." / lib_folder_path);
 
