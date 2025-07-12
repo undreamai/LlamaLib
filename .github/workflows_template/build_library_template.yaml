@@ -27,8 +27,8 @@ jobs:
             
     steps:
         @@setup_libs_linux@@
-
         @@checkout@@
+        @@preparation@@
         @@setup_vulkan_linux@@
         @@setup_cuda_linux@@
         @@link_cuda_linux@@
@@ -53,8 +53,9 @@ jobs:
     steps:
         @@setup_libs_linux@@
         @@setup_hip_linux@@
-
         @@checkout@@
+        @@preparation@@
+
         @@cpu-cores@@
         @@cmake_build@@
 
@@ -74,8 +75,9 @@ jobs:
 
     steps:
         @@setup_libs_macos@@
-
         @@checkout@@
+        @@preparation@@
+
         @@cpu-cores@@
         @@cmake_build@@
         @@test_build@@
@@ -94,8 +96,9 @@ jobs:
 
     steps:
         @@setup_libs_macos@@
-
         @@checkout@@
+        @@preparation@@
+
         @@cpu-cores@@
         @@cmake_build@@
         @@test_build@@
@@ -126,6 +129,7 @@ jobs:
 
     steps:
         @@checkout@@
+        @@preparation@@
         @@setup_vulcan_windows@@
         @@setup_openssl_windows@@
         @@setup_cuda_windows@@
@@ -151,6 +155,7 @@ jobs:
 
     steps:
         @@checkout@@
+        @@preparation@@
         @@setup_openssl_windows@@
         @@setup_hip_windows@@
 
@@ -175,8 +180,9 @@ jobs:
 
     steps:
         @@setup_libs_linux@@
-
         @@checkout@@
+        @@preparation@@
+
         @@cpu-cores@@
         @@build_openssl@@
         @@cmake_build_android@@
@@ -199,8 +205,9 @@ jobs:
 
     steps:
         @@setup_libs_macos@@
-
         @@checkout@@
+        @@preparation@@
+
         @@cpu-cores@@
         @@build_openssl@@
         @@cmake_build@@

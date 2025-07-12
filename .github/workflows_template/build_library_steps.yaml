@@ -27,10 +27,14 @@ jobs:
         id: cpu-cores
         uses: SimenB/github-actions-cpu-cores@v2
 
+      - name: Preparation
+        id: preparation
+        run: |
+          mkdir -p build/libs
+
       - name: Build
         id: cmake_build
         run: |
-          mkdir -p build
           cd build
           cmake .. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
@@ -100,7 +104,6 @@ jobs:
           sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list https://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
           sudo apt-get update -y
           sudo apt-get install -y build-essential vulkan-sdk
-          mkdir -p build/libs
           cp /lib/x86_64-linux-gnu/libvulkan.so.1 build/libs/
 
       - uses: Jimver/cuda-toolkit@v0.2.15
@@ -115,7 +118,6 @@ jobs:
         id: link_cuda_linux
         if: contains(matrix.arch, 'blas')
         run: |
-          mkdir -p build
           ln -s ${{ env.CUDA_PATH }} ${{ github.workspace }}/build/cuda
           echo "CUDAToolkit_ROOT=$GITHUB_WORKSPACE/build/cuda" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=''" >> $GITHUB_ENV
@@ -126,13 +128,13 @@ jobs:
         id: setup_vulcan_windows
         if: contains(matrix.arch, 'vulkan')
         run: |
+          mkdir -p .\build\libs\Release
           curl.exe -o $env:RUNNER_TEMP/VulkanSDK-Installer.exe -L "https://sdk.lunarg.com/sdk/download/${env:VULKAN_VERSION}/windows/VulkanSDK-${env:VULKAN_VERSION}-Installer.exe"
           & "$env:RUNNER_TEMP\VulkanSDK-Installer.exe" --accept-licenses --default-answer --confirm-command install
           Add-Content $env:GITHUB_ENV "VULKAN_SDK=C:\VulkanSDK\${env:VULKAN_VERSION}"
           Add-Content $env:GITHUB_PATH "C:\VulkanSDK\${env:VULKAN_VERSION}\bin"
           curl.exe -o $env:RUNNER_TEMP/VulkanRT-Components.zip -L "https://sdk.lunarg.com/sdk/download/1.3.283.0/windows/VulkanRT-1.3.283.0-Components.zip"
           7z x "-o${env:RUNNER_TEMP}" $env:RUNNER_TEMP/VulkanRT-Components.zip
-          mkdir .\build\libs\Release
           cp ${env:RUNNER_TEMP}/VulkanRT*\x64\vulkan-1.dll .\build\libs\Release
 
       - name: Install OpenSSL
@@ -180,7 +182,6 @@ jobs:
         if: contains(matrix.arch, 'cublas')
         shell: bash
         run: |
-          mkdir -p build
           mv "${{ env.CUDA_PATH }}"/bin/cudart64_*.dll build/libs/Release
           mv "${{ env.CUDA_PATH }}"/bin/cublas64_*.dll build/libs/Release
           mv "${{ env.CUDA_PATH }}"/bin/cublasLt64_*.dll build/libs/Release
@@ -192,7 +193,6 @@ jobs:
         run: |
           export LD_LIBRARY_PATH=""
           export NDK=`ls -d /usr/local/lib/android/sdk/ndk/26.*`
-          mkdir -p build
           cd build
           cmake .. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_PLATFORM=android-23 -DANDROID_ABI=${{ matrix.ABI }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
@@ -202,7 +202,7 @@ jobs:
       - id: link_libraries_ios
         name: Link libraries
         run: |            
-          mkdir -p build/combo build/libs
+          mkdir -p build/combo
           cd build/combo
           for f in `find .. -name "*.a"`;do ar -x $f;done
           lib=../libs/libllamalib_${{ matrix.arch }}.a
