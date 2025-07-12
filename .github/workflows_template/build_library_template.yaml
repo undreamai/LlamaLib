@@ -50,11 +50,15 @@ jobs:
         include:
           - arch: linux-x64_hip
 
+    default:
+      run:
+        working-directory: ${{ github.workspace }}
+
     steps:
         @@setup_libs_linux@@
-        @@setup_hip_linux@@
         @@checkout@@
         @@preparation@@
+        @@setup_hip_linux@@
 
         @@cpu-cores@@
         @@cmake_build@@

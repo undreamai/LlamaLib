@@ -29,14 +29,16 @@ jobs:
 
       - name: Preparation
         id: preparation
+        shell: bash
         run: |
           mkdir -p build/libs
+          echo "CMAKE_VARS=-DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}" >> $GITHUB_ENV
 
       - name: Build
         id: cmake_build
         run: |
           cd build
-          cmake .. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
+          cmake .. ${{ env.CMAKE_VARS }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
       - name: Build OpenSSL
@@ -67,12 +69,7 @@ jobs:
         id: pack_artifacts
         shell: bash
         run: |
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            LIBS_DIR="build/libs/Release"
-          else
-            LIBS_DIR="build/libs"
-          fi
-          zip -j ${{ matrix.arch }}.zip build/licenses/* $LIBS_DIR/* -x '*llamalib_tests*'
+          zip -j ${{ matrix.arch }}.zip build/licenses/* build/libs/* build/libs/Release/* -x '*llamalib_tests*'
 
 ################################ Linux / macOS ################################
 
@@ -94,7 +91,7 @@ jobs:
         id: setup_hip_linux
         run: |
           sudo apt-get install -y rocblas-dev hipblas-dev
-          echo "CMAKE_HIP_COMPILER=$(hipconfig -l)/clang" >> $GITHUB_ENV
+          echo "CMAKE_VARS=$CMAKE_VARS -DCMAKE_HIP_COMPILER=$(hipconfig -l)/clang" >> $GITHUB_ENV
 
       - name: Dependencies Vulcan
         id: setup_vulkan_linux
@@ -153,7 +150,7 @@ jobs:
           $env:HIP_PATH=$(Resolve-Path 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' | split-path | split-path)
           $env:CMAKE_PREFIX_PATH="${env:HIP_PATH}"
           cd build
-          cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DCMAKE_CXX_FLAGS="-I$($PWD.Path.Replace('\', '/'))/rocwmma/library/include/" -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs/Release -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs/Release -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs/Release ${{ matrix.cmake_vars }} -DARCHITECTURE=${{ matrix.arch }}
+          cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DCMAKE_CXX_FLAGS="-I$($PWD.Path.Replace('\', '/'))/rocwmma/library/include/" ${{ env.CMAKE_VARS }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
           mkdir Release
 
@@ -194,7 +191,7 @@ jobs:
           export LD_LIBRARY_PATH=""
           export NDK=`ls -d /usr/local/lib/android/sdk/ndk/26.*`
           cd build
-          cmake .. -DARCHITECTURE=${{ matrix.arch }} -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_PLATFORM=android-23 -DANDROID_ABI=${{ matrix.ABI }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_PLATFORM=android-23 -DANDROID_ABI=${{ matrix.ABI }} ${{ env.CMAKE_VARS }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
 ################################ iOS ################################
@@ -202,7 +199,7 @@ jobs:
       - id: link_libraries_ios
         name: Link libraries
         run: |            
-          mkdir -p build/combo
+          mkdir -p build/combo build/libs
           cd build/combo
           for f in `find .. -name "*.a"`;do ar -x $f;done
           lib=../libs/libllamalib_${{ matrix.arch }}.a
