@@ -621,7 +621,7 @@ int main(int argc, char** argv) {
     std::cout << "-------- LLM remote client --------" << std::endl;
     LLMRemoteClient llm_remote_client("https://localhost", 8080);
     llm_remote_client.n_predict = 30;
-    set_SSL(llm_service, &llm_remote_client);
+    // set_SSL(llm_service, &llm_remote_client);
     LLM_Start_Server(llm_service, "", 8080);
     run_LLM_tests(&llm_remote_client);
 
