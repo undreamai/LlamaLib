@@ -52,13 +52,13 @@ jobs:
         shell: bash
         run: |
           cd build/libs
-          curl -L -o model.gguf "https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true"
-
           EXE=""
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             cd Release
             EXE=".exe"
           fi
+
+          curl -L -o model.gguf "https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true"
 
           ./llamalib_tests$EXE -m model.gguf -np 1 --log-disable
           ./llamalib_tests_runtime$EXE -m model.gguf -np 1 --log-disable
@@ -66,10 +66,28 @@ jobs:
           rm model.gguf
 
       - name: Pack artifacts
+        shell: bash
+        run: |
+          zip -j ${{ matrix.arch }}.zip build/libs/*llamalib* -x '*llamalib_tests*'
+
+      - name: Pack artifacts
         id: pack_artifacts
         shell: bash
         run: |
-          zip -j ${{ matrix.arch }}.zip build/libs/*llamalib* build/libs/Release/*llamalib* -x '*llamalib_tests*'
+          ls -R build
+          
+          mkdir -p artifacts
+          mv build/Release/*llamalib* artifacts/ 2>/dev/null || true
+          mv build/libs/*llamalib* artifacts/ 2>/dev/null || true
+          mv build/libs/Release/*llamalib* artifacts/ 2>/dev/null || true
+          rm -f artifacts/*llamalib_tests* artifacts/*exp artifacts/*server*lib 2>/dev/null || true
+          
+          cd artifacts
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            7z a ../${{ matrix.arch }}.zip *
+          else
+            zip ../${{ matrix.arch }}.zip *
+          fi
 
 ################################ Linux / macOS ################################
 
