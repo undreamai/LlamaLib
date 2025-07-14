@@ -11,10 +11,6 @@ ls -R
 mkdir servers
 for arch in win-x64_noavx linux-x64_noavx osx-arm64_no-acc osx-x64_no-acc;do
     unzip -o $arch.zip/$arch.zip -d servers llamalib*server*
-    platform=`echo $arch|cut -d'_' -f1`
-    source=`ls servers/llamalib_${platform}_server*`
-    target=`echo $source|sed -e "s:$arch:$platform:g"`
-    mv $source $target
 done
 
 # extract runtimes
@@ -26,12 +22,11 @@ done
 
 rm -r *.zip
 
-
 # copy includes
 includes=$(awk '/set\s*\(\s*include_paths/,/\)/' $root_dir/cmake/LlamaLibCommon.cmake | grep -o '".*"' | sed 's/"//g')
 for d in ${includes};do
     mkdir -p $d
-    cp $root_dir/$d/*.h $root_dir/$d/*.hpp $d
+    cp $root_dir/$d/*.h* $d
 done
 
 # licenses
@@ -40,6 +35,6 @@ cp $root_dir/third_party/llama.cpp/LICENSE third_party_licenses/llama.cpp.LICENS
 curl -o third_party_licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
 # copy files from repo
-cp $root_dir/LICENSE 
-cp $root_dir/VERSION 
-cp $root_dir/cmake/*.cmake
+cp $root_dir/LICENSE ./
+cp $root_dir/VERSION ./
+cp $root_dir/cmake/*.cmake ./
