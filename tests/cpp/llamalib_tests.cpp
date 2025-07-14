@@ -488,6 +488,8 @@ void run_mock_tests() {
 
 void run_LLM_tests(LLM* llm)
 {
+    llm->n_predict = 30;
+
     test_LLM_Tokenize(llm);
     test_LLM_Completion(llm, false);
     test_LLM_Completion(llm, true);
@@ -609,22 +611,26 @@ int main(int argc, char** argv) {
     std::cout << "-------- LLM service --------" << std::endl;
     LLMService* llm_service = start_llm_service(command);
 #endif
-    llm_service->n_predict = 30;
     EMBEDDING_SIZE = LLM_Embedding_Size(llm_service);
     run_LLMProvider_tests(llm_service);
 
     std::cout << "-------- LLM client --------" << std::endl;
     LLMClient llm_client(llm_service);
-    llm_client.n_predict = 30;
     run_LLMLocal_tests(&llm_client);
 
     std::cout << "-------- LLM remote client --------" << std::endl;
-    LLMRemoteClient llm_remote_client("https://localhost", 8080);
-    llm_remote_client.n_predict = 30;
-    // set_SSL(llm_service, &llm_remote_client);
+    LLMRemoteClient llm_remote_client("http://localhost", 8080);
     LLM_Start_Server(llm_service, "", 8080);
     run_LLM_tests(&llm_remote_client);
+    LLM_Stop_Server(llm_service);
 
+    std::cout << "-------- LLM remote client SSL --------" << std::endl;
+    LLMRemoteClient llm_remote_client_SSL("https://localhost", 8080);
+    set_SSL(llm_service, &llm_remote_client_SSL);
+    LLM_Start_Server(llm_service, "", 8080);
+    run_LLM_tests(&llm_remote_client_SSL);
+
+    std::cout << "-------- Stop service --------" << std::endl;
     stop_llm_service(llm_service);
     return 0;
 }
