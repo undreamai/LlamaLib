@@ -263,7 +263,7 @@ jobs:
         id: test_nuget
         run: |
           mkdir -p ~/.nuget/packages/LlamaLib
-          ln -s ${{ env.RELEASE_NAME }}.zip ~/.nuget/packages/LlamaLib/${{ env.RELEASE_NAME }}.zip
+          cp ${{ env.RELEASE_NAME }}.zip ~/.nuget/packages/LlamaLib/${{ env.RELEASE_NAME }}.zip
 
           cd tests
           curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
