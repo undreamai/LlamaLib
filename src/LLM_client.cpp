@@ -141,16 +141,26 @@ std::string LLMRemoteClient::post_request(
         return true;
     };
 
-    bool ok = false;
-
+    bool https = false;
+    std::string host;
     if (url.rfind("https://", 0) == 0) {
-        std::string host = url.substr(8);
+        host = url.substr(8);
+        https = true;
+    }
+    else
+    {
+        host = url.rfind("http://", 0) == 0 ? url.substr(7) : url;
+    }
+
+    bool ok = false;
+    if(https && SSL_cert != "")
+    {
         httplib::SSLClient cli(host.c_str(), port);
-        if(SSL_cert != "") cli.set_ca_cert_store(load_cert(SSL_cert));
-        else cli.enable_server_certificate_verification(false);
+        cli.set_ca_cert_store(load_cert(SSL_cert));
         ok = cli.send(req);
-    } else {
-        std::string host = url.rfind("http://", 0) == 0 ? url.substr(7) : url;
+    }
+    else
+    {
         httplib::Client cli(host.c_str(), port);
         ok = cli.send(req);
     }

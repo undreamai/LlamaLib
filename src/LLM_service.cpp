@@ -1047,10 +1047,10 @@ std::string LLMService::completion_json(
                 result_data = completion_streaming(task_ids, callback, callbackWithJSON, return_tokens, nullptr);
                 on_complete(true);
             } else {
-                const auto chunked_content_provider = [task_ids, this, oaicompat, callbackWithJSON, return_tokens, &result_data](size_t, httplib::DataSink & sink) {
+                const auto chunked_content_provider = [task_ids, this, oaicompat, callbackWithJSON, return_tokens](size_t, httplib::DataSink & sink) {
                     bool ok = true;
                     try {
-                        result_data = completion_streaming(task_ids, nullptr, callbackWithJSON, return_tokens, &sink, [&sink]() {return !sink.is_writable();});
+                        completion_streaming(task_ids, nullptr, callbackWithJSON, return_tokens, &sink, [&sink]() {return !sink.is_writable();});
                         if (oaicompat != OAICOMPAT_TYPE_NONE) {
                             static const std::string ev_done = "data: [DONE]\n\n";
                             sink.write(ev_done.data(), ev_done.size());
