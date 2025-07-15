@@ -1,7 +1,7 @@
 ################################################ FeatureDetector ################################################
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    add_subdirectory("FeatureDetector/src/x86")
+    add_library(feature_detector OBJECT FeatureDetector/src/x86/cpu_x86.cpp FeatureDetector/src/x86/cpu_x86.h FeatureDetector/src/x86/cpu_x86_Linux.ipp FeatureDetector/src/x86/cpu_x86_Windows.ipp)
 endif()
 
 ################################################ LLAMA.CPP FLAGS ################################################

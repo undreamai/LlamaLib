@@ -19,7 +19,7 @@ install(TARGETS ${LLAMALIB_ARCHITECTURE_LIBRARY} LIBRARY)
 # build runtime library
 if (LLAMALIB_BUILD_RUNTIME_LIB)
     if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
-        set(ARCHCHECKER_FILES archchecker.cpp)
+        set(ARCHCHECKER_FILES archchecker.cpp $<TARGET_OBJECTS:feature_detector>)
     endif()
 
     foreach(pair IN ITEMS "SHARED:${LLAMALIB_RUNTIME_LIBRARY}" "STATIC:${LLAMALIB_STATIC_RUNTIME_LIBRARY}")
@@ -29,9 +29,6 @@ if (LLAMALIB_BUILD_RUNTIME_LIB)
 
         add_library(${lib_name} ${lib_type} LLM_runtime.cpp ${ARCHCHECKER_FILES} $<TARGET_OBJECTS:llamalib_common>)
         LLAMALIB_COMPILE_DEFS(${lib_name})
-        if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
-            target_link_libraries(${lib_name} PRIVATE FeatureDetector)
-        endif()
         install(TARGETS ${lib_name} LIBRARY)
     endforeach()
 endif()
