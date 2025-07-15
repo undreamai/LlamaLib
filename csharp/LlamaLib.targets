@@ -13,8 +13,7 @@
     <MakeDir Directories="$(LlamaLibCacheDir)" />
     <Message Text="Downloading LlamaLib $(LlamaLibVersion) from $(LlamaLibReleaseUrl)" Importance="high" Condition="!Exists('$(LlamaLibZipFile)')" />
     <DownloadFile SourceUrl="$(LlamaLibReleaseUrl)" DestinationFolder="$(LlamaLibCacheDir)" DestinationFileName="$(LlamaLibZipName).zip" Condition="!Exists('$(LlamaLibZipFile)')" />
-    <Message Text="Download complete" Importance="high" Condition="!Exists('$(LlamaLibZipFile)')" />
-    <Message Text="Extracting LlamaLib to $(LlamaLibCacheDir)" Importance="high" Condition="!Exists('$(LlamaLibExtractDir)')" />
+    <Message Text="Extracting LlamaLib to $(LlamaLibCacheDir) from $(LlamaLibExtractDir)" Importance="high" Condition="!Exists('$(LlamaLibExtractDir)')" />
     <Unzip SourceFiles="$(LlamaLibZipFile)" DestinationFolder="$(LlamaLibCacheDir)" Condition="!Exists('$(LlamaLibExtractDir)')" />
   </Target>
 
