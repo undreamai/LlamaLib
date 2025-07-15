@@ -182,20 +182,44 @@ namespace UndreamAI.LlamaLib
 #else
         // Desktop platform implementation with dynamic loading
         private static List<LlamaLib> instances = new List<LlamaLib>();
+        private static readonly object runtimeLock = new object();
+        private static IntPtr runtimeLibraryHandle = IntPtr.Zero;
         private IntPtr libraryHandle = IntPtr.Zero;
         private static int debugLevelGlobal = 0;
         private static CharArrayCallback loggingCallbackGlobal = null;
 
+        static LlamaLib()
+        {
+            LoadRuntimeLibrary();
+        }
+
+        private static void LoadRuntimeLibrary()
+        {
+            lock (runtimeLock)
+            {
+                if (runtimeLibraryHandle == IntPtr.Zero)
+                {
+                    runtimeLibraryHandle = LibraryLoader.LoadLibrary(GetRuntimeLibraryPath());
+                    Has_GPU_Layers = LibraryLoader.GetSymbolDelegate<Has_GPU_Layers_Delegate>(runtimeLibraryHandle, "Has_GPU_Layers");
+                    Available_Architectures = LibraryLoader.GetSymbolDelegate<Available_Architectures_Delegate>(runtimeLibraryHandle, "Available_Architectures");
+                }
+            }
+        }
+
         public LlamaLib(bool gpu = false)
         {
             LoadLibraries(gpu);
-            instances.Add(this);
-            LLM_Debug(debugLevelGlobal);
-            if(loggingCallbackGlobal != null) LLM_Logging_Callback(loggingCallbackGlobal);
+            lock (runtimeLock)
+            {
+                instances.Add(this);
+                LLM_Debug(debugLevelGlobal);
+                if(loggingCallbackGlobal != null) LLM_Logging_Callback(loggingCallbackGlobal);
+            }
         }
 
         public static string GetPlatform()
         {
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 return "linux-x64";
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
@@ -225,6 +249,21 @@ namespace UndreamAI.LlamaLib
             }
 
             throw new InvalidOperationException($"Library {libraryName} not found!");
+        }
+
+        static string GetRuntimeLibraryPath()
+        {
+            string platform = GetPlatform();
+            string libName;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                libName = "libllamalib_" + platform + "_runtime.so";
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                libName = "libllamalib_" + platform + "_runtime.dylib";
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                libName = "llamalib_" + platform + "_runtime.dll";
+            else
+                throw new ArgumentException("Unknown platform " + RuntimeInformation.OSDescription);
+            return FindLibrary(libName);
         }
 
         private void LoadLibraries(bool gpu)
@@ -293,26 +332,14 @@ namespace UndreamAI.LlamaLib
             LLMRemoteClient_Construct = LibraryLoader.GetSymbolDelegate<LLMRemoteClient_Construct_Delegate>(libraryHandle, "LLMRemoteClient_Construct");
         }
 
-#if LINUX
-        public const string RuntimeDllName = "libllamalib_linux-x64_runtime";
-#elif OSX_ARM64
-        public const string RuntimeDllName = "libllamalib_osx-arm64_runtime";
-#elif OSX_X64
-        public const string RuntimeDllName = "libllamalib_osx-x64_runtime";
-#else
-        public const string RuntimeDllName = "llamalib_win-x64_runtime";
-#endif
-
-        // Runtime LLM functions
-        [DllImport(RuntimeDllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "Available_Architectures")]
-        public static extern IntPtr Available_Architectures_Static([MarshalAs(UnmanagedType.I1)] bool gpu);
-        public static IntPtr Available_Architectures(bool gpu) => Available_Architectures_Static(gpu);
-
-        [DllImport(RuntimeDllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "Has_GPU_Layers")]
-        public static extern bool Has_GPU_Layers_Static([MarshalAs(UnmanagedType.LPStr)] string command);
-        public static bool Has_GPU_Layers(string command) => Has_GPU_Layers_Static(command);
-
         // Delegate definitions for desktop platforms
+        // Runtime lib
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate IntPtr Available_Architectures_Delegate([MarshalAs(UnmanagedType.I1)] bool gpu);
+        
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate bool Has_GPU_Layers_Delegate([MarshalAs(UnmanagedType.LPStr)] string command);
+
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void LLM_Debug_Delegate(int debugLevel);
 
@@ -322,6 +349,7 @@ namespace UndreamAI.LlamaLib
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void LLM_Logging_Stop_Delegate();
 
+        // Main lib
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr LLM_Tokenize_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
         
@@ -405,6 +433,11 @@ namespace UndreamAI.LlamaLib
         public delegate IntPtr LLMRemoteClient_Construct_Delegate([MarshalAs(UnmanagedType.LPStr)] string url, int port);
 
         // Function pointers for desktop platforms
+        // Runtime lib
+        public static Available_Architectures_Delegate Available_Architectures;
+        public static Has_GPU_Layers_Delegate Has_GPU_Layers;
+
+        // Main lib
         public LLM_Debug_Delegate LLM_Debug;
         public LLM_Logging_Callback_Delegate LLM_Logging_Callback;
         public LLM_Logging_Stop_Delegate LLM_Logging_Stop;
@@ -460,6 +493,16 @@ namespace UndreamAI.LlamaLib
         {
             LibraryLoader.FreeLibrary(libraryHandle);
             libraryHandle = IntPtr.Zero;
+
+            lock (runtimeLock)
+            {
+                instances.Remove(this);
+                if (instances.Count == 0)
+                {
+                    LibraryLoader.FreeLibrary(runtimeLibraryHandle);
+                    runtimeLibraryHandle = IntPtr.Zero;
+                }
+            }
         }
 
         ~LlamaLib()
