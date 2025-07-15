@@ -25,9 +25,16 @@
     <PlatformTarget Condition="'$(PlatformTarget)' == ''">AnyCPU</PlatformTarget>
 
     <!-- Detect from target framework -->
-    <DefineConstants Condition="$(TargetFramework.Contains('android'))">$(DefineConstants);ANDROID</DefineConstants>
     <DefineConstants Condition="$(TargetFramework.Contains('ios'))">$(DefineConstants);IOS</DefineConstants>
     <DefineConstants Condition="$(TargetFramework.Contains('visionos'))">$(DefineConstants);VISIONOS</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'android-arm64'">
+    <DefineConstants>$(DefineConstants);ANDROID;ANDROID_ARM64</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'android-x64'">
+    <DefineConstants>$(DefineConstants);ANDROID;ANDROID_X64</DefineConstants>
   </PropertyGroup>
 
   <!-- Include build targets for consuming projects -->

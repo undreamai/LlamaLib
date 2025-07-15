@@ -16,19 +16,23 @@ namespace UndreamAI.LlamaLib
 
 #if ANDROID || IOS || VISIONOS
         // Static P/Invoke declarations for mobile platforms
-#if ANDROID
-        public const string DllName = "libllamalib_android";
+#if ANDROID_ARM64
+        public const string DllName = "libllamalib_android-arm64";
+#elif ANDROID_X64
+        public const string DllName = "libllamalib_android-x64";
 #else
         public const string DllName = "__Internal";
 #endif
 
         public LlamaLib(bool gpu=false) {
-#if ANDROID
-            architecture = "android";
+#if ANDROID_ARM64
+            architecture = "android-arm64";
+#elif ANDROID_X64
+            architecture = "android-x64";
 #elif IOS
-            architecture = "ios";
+            architecture = "ios-arm64";
 #elif VISIONOS
-            architecture = "visionos";
+            architecture = "visionos-arm64";
 #endif
         }
 
@@ -213,22 +217,29 @@ namespace UndreamAI.LlamaLib
             }
         }
 
+        public static string GetPlatform()
+        {
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return "linux-x64";
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                if (RuntimeInformation.ProcessArchitecture == Architecture.X64)
+                    return "osx-x64";
+                else
+                    return "osx-arm64";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                return "win-x64";
+            else throw new ArgumentException("Unknown platform " + RuntimeInformation.OSDescription);
+        }
+
         public static string FindLibrary(string libraryName)
         {
             string baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            List<string> OSes = new List<string>();
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) OSes.Add("linux-x64");
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                OSes.Add("osx-x64");
-                OSes.Add("osx-arm64");
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) OSes.Add("win-x64");
-            else throw new ArgumentException("Unknown platform " + RuntimeInformation.OSDescription);
-
             List<string> lookupDirs = new List<string>();
-            foreach (string OS in OSes) lookupDirs.Add(Path.Combine(baseDir, "runtimes", OS, "native"));
+            lookupDirs.Add(Path.Combine(baseDir, "runtimes", GetPlatform(), "native"));
             lookupDirs.Add(baseDir);
 
             foreach (string lookupDir in lookupDirs)
@@ -242,13 +253,14 @@ namespace UndreamAI.LlamaLib
 
         static string GetRuntimeLibraryPath()
         {
+            string platform = GetPlatform();
             string libName;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                libName = "libllamalib_linux_runtime.so";
+                libName = "libllamalib_" + platform + "_runtime.so";
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                libName = "libllamalib_macos_runtime.dylib";
+                libName = "libllamalib_" + platform + "_runtime.dylib";
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                libName = "llamalib_windows_runtime.dll";
+                libName = "llamalib_" + platform + "_runtime.dll";
             else
                 throw new ArgumentException("Unknown platform " + RuntimeInformation.OSDescription);
             return FindLibrary(libName);
