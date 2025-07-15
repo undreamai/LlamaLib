@@ -37,6 +37,19 @@
     <DefineConstants>$(DefineConstants);ANDROID;ANDROID_X64</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'osx-arm64'">
+    <DefineConstants>$(DefineConstants);OSX;OSX_ARM64</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'osx-x64'">
+    <DefineConstants>$(DefineConstants);OSX;OSX_X64</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DefineConstants Condition="$([MSBuild]::IsOSPlatform('Linux'))">LINUX</DefineConstants>
+    <DefineConstants Condition="$([MSBuild]::IsOSPlatform('Windows'))">WINDOWS</DefineConstants>
+  </PropertyGroup>
+
   <!-- Include build targets for consuming projects -->
   <ItemGroup>
     <None Include="LlamaLib.targets" Pack="true" PackagePath="build\" />
