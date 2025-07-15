@@ -19,7 +19,25 @@ namespace UndreamAI.LlamaLib.Tests
         private static int counter = 0;
         private static string concatData = "";
         // place model.gguf inside the tests folder
-        string testModelPath = "../../../../model.gguf";
+        string testModelPath => FindModel();
+
+        public static string FindModel()
+        {
+            DirectoryInfo dir = new DirectoryInfo(Directory.GetCurrentDirectory());
+            while (dir != null)
+            {
+                var candidate = Path.Combine(dir.FullName, "model.gguf");
+                if (File.Exists(candidate))
+                {
+                    Console.WriteLine($"Found model: {candidate}");
+                    return candidate;
+                }
+
+                dir = dir.Parent;
+            }
+
+            return null;
+        }
 
         private static void CountCalls(string input)
         {
