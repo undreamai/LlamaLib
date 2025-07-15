@@ -608,29 +608,29 @@ int main(int argc, char** argv) {
     std::cout << "-------- LLM runtime --------" << std::endl;
     LLMRuntime* llm_service = start_llm_lib(command);
 #else
-    std::cout << "-------- LLM service --------" << std::endl;
+    std::cout << std::endl << "-------- LLM service --------" << std::endl;
     LLMService* llm_service = start_llm_service(command);
 #endif
     EMBEDDING_SIZE = LLM_Embedding_Size(llm_service);
     run_LLMProvider_tests(llm_service);
 
-    std::cout << "-------- LLM client --------" << std::endl;
+    std::cout << std::endl << "-------- LLM client --------" << std::endl;
     LLMClient llm_client(llm_service);
     run_LLMLocal_tests(&llm_client);
 
-    std::cout << "-------- LLM remote client --------" << std::endl;
+    std::cout << std::endl << "-------- LLM remote client --------" << std::endl;
     LLMRemoteClient llm_remote_client("http://localhost", 8080);
     LLM_Start_Server(llm_service, "", 8080);
     run_LLM_tests(&llm_remote_client);
     LLM_Stop_Server(llm_service);
 
-    std::cout << "-------- LLM remote client SSL --------" << std::endl;
+    std::cout << std::endl << "-------- LLM remote client SSL --------" << std::endl;
     LLMRemoteClient llm_remote_client_SSL("https://localhost", 8080);
     set_SSL(llm_service, &llm_remote_client_SSL);
     LLM_Start_Server(llm_service, "", 8080);
     run_LLM_tests(&llm_remote_client_SSL);
 
-    std::cout << "-------- Stop service --------" << std::endl;
+    std::cout << std::endl << "-------- Stop service --------" << std::endl;
     stop_llm_service(llm_service);
     return 0;
 }
