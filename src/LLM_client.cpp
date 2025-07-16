@@ -36,7 +36,7 @@ void LLMClient::cancel(int id_slot)
 
 LLMRemoteClient::LLMRemoteClient(const std::string& url_, const int port_) : url(url_), port(port_) { }
 
-X509_STORE* LLMRemoteClient::load_cert(const std::string& cert_str)
+X509_STORE* load_cert(const std::string& cert_str)
 {
   BIO* mem = BIO_new_mem_buf(cert_str.data(), (int) cert_str.size());
   if (!mem) { return nullptr; }

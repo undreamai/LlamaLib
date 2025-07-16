@@ -89,7 +89,7 @@ static bool AmIBeingDebugged(void)
 
 //============================= LLMService IMPLEMENTATION =============================//
 
-EVP_PKEY* LLMService::load_key(const std::string& key_str) {
+EVP_PKEY* load_key(const std::string& key_str) {
     BIO *bio = BIO_new_mem_buf(key_str.data(), (int) key_str.size());
     if (!bio) return NULL;
     EVP_PKEY *key = PEM_read_bio_PrivateKey(bio, NULL, 0, NULL);
@@ -97,7 +97,7 @@ EVP_PKEY* LLMService::load_key(const std::string& key_str) {
     return key;
 }
 
-X509* LLMService::load_cert(const std::string& cert_str) {
+X509* load_cert(const std::string& cert_str) {
     BIO *bio = BIO_new_mem_buf(cert_str.data(), (int) cert_str.size());
     if (!bio) return NULL;
     X509 *cert = (cert_str[0] == '-')

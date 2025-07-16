@@ -1,10 +1,6 @@
 #pragma once
 
 #include "LLM.h"
-
-#include <openssl/err.h>
-#include <openssl/ssl.h>
-
 #include "log.h"
 #include "common.h"
 
@@ -22,8 +18,6 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         static LLMService* from_command(const std::string& command);
         static LLMService* from_command(int argc, char ** argv);
 
-        static EVP_PKEY* load_key(const std::string& key_str);
-        static X509* load_cert(const std::string& cert_str);
         static std::vector<char*> jsonToArguments(const json& params);
 
         void init(int argc, char** argv);

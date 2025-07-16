@@ -35,7 +35,6 @@ class UNDREAMAI_API LLMRemoteClient : public LLMRemote {
 public:
     LLMRemoteClient(const std::string& url, const int port);
 
-    static X509_STORE* load_cert(const std::string& cert_str);
     //=================================== LLM METHODS START ===================================//
     void set_SSL(const char* SSL_cert) override;
     //=================================== LLM METHODS END ===================================//
