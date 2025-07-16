@@ -112,6 +112,9 @@ function(create_llamalib_target TARGET_NAME LIB_VARIANT)
         
         # Set include directories
         target_include_directories(${TARGET_NAME} INTERFACE "${LLAMALIB_INCLUDE_DIRS}" )
+        if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+            target_compile_definitions(${TARGET_NAME} INTERFACE WIN32_LEAN_AND_MEAN)
+        endif()
 
         if(LLAMALIB_COPY_DEPS AND LIB_TYPE STREQUAL "SHARED")
             # automatically copy shared libraries on build

@@ -33,9 +33,7 @@ if (LLAMALIB_BUILD_RUNTIME_LIB)
     endforeach()
 
     # merge OpenSSL into the static library
-    if (WIN32)
-        add_compile_definitions(${LLAMALIB_STATIC_RUNTIME_LIBRARY} PRIVATE UNDREAMAI_STATIC)
-    else()
+    if (NOT WIN32)
         add_custom_command(TARGET ${LLAMALIB_STATIC_RUNTIME_LIBRARY} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/temp_extract
             COMMAND cd ${CMAKE_CURRENT_BINARY_DIR}/temp_extract && ${CMAKE_AR} x $<TARGET_FILE:OpenSSL::SSL>

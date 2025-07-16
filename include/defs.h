@@ -7,7 +7,7 @@
 #include <windows.h>
 #endif
 
-#if defined(_WIN32) && !defined(UNDREAMAI_STATIC)
+#ifdef _WIN32
 #ifdef UNDREAMAI_EXPORTS
 #define UNDREAMAI_API __declspec(dllexport)
 #else

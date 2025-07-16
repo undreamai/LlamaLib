@@ -84,7 +84,7 @@ public:
 #undef DECLARE_FN
 
 protected:
-    std::vector<std::filesystem::path> search_paths;
+    std::vector<std::string> search_paths;
 
     //=================================== LLM METHODS START ===================================//
     std::string tokenize_json(const json& data) override {
@@ -124,10 +124,10 @@ protected:
 
 const std::string os_library_dir();
 const std::vector<std::string> available_architectures(bool gpu);
-static std::filesystem::path get_executable_directory();
-static std::filesystem::path get_current_directory();
-static std::vector<std::filesystem::path> get_env_library_paths(const std::vector<std::string>& env_vars);
-static std::vector<std::filesystem::path> get_search_directories();
+static std::string get_executable_directory();
+static std::string get_current_directory();
+static std::vector<std::string> get_env_library_paths(const std::vector<std::string>& env_vars);
+static std::vector<std::string> get_search_directories();
 std::vector<std::string> get_default_library_env_vars();
 
 //=================================== EXTERNAL API ===================================//

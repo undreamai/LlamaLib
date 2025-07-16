@@ -65,35 +65,34 @@ const std::vector<std::string> available_architectures(bool gpu) {
     return architectures;
 }
 
-std::filesystem::path get_executable_directory() {
+std::string get_current_directory() {
+    return std::filesystem::current_path().string();
+}
+
+std::string get_executable_directory() {
 #ifdef _WIN32
     char path[MAX_PATH];
     DWORD result = GetModuleFileNameA(nullptr, path, MAX_PATH);
     if (result == 0 || result == MAX_PATH) {
-        return std::filesystem::current_path();
+        return get_current_directory();
     }
-    return std::filesystem::path(path).parent_path();
 #elif defined(__APPLE__)
     char path[PATH_MAX];
     uint32_t size = sizeof(path);
     if (_NSGetExecutablePath(path, &size) != 0) {
-        return std::filesystem::current_path();
+        return get_current_directory();
     }
-    return std::filesystem::path(path).parent_path();
 #else
     char path[PATH_MAX];
     ssize_t count = readlink("/proc/self/exe", path, PATH_MAX);
     if (count == -1) {
-        return std::filesystem::current_path();
+        return get_current_directory();
     }
     path[count] = '\0';
-    return std::filesystem::path(path).parent_path();
 #endif
+    return std::filesystem::path(path).parent_path().string();
 }
 
-std::filesystem::path get_current_directory() {
-    return std::filesystem::current_path();
-}
 
 std::vector<std::string> get_default_library_env_vars() {
 #ifdef _WIN32
@@ -105,8 +104,8 @@ std::vector<std::string> get_default_library_env_vars() {
 #endif
 }
 
-std::vector<std::filesystem::path> get_env_library_paths(const std::vector<std::string>& env_vars) {
-    std::vector<std::filesystem::path> paths;
+std::vector<std::string> get_env_library_paths(const std::vector<std::string>& env_vars) {
+    std::vector<std::string> paths;
     
     for (const auto& env_var : env_vars) {
         const char* env_value = std::getenv(env_var.c_str());
@@ -134,8 +133,8 @@ std::vector<std::filesystem::path> get_env_library_paths(const std::vector<std::
     return paths;
 }
 
-std::vector<std::filesystem::path> get_search_directories() {
-    std::vector<std::filesystem::path> search_paths;
+std::vector<std::string> get_search_directories() {
+    std::vector<std::string> search_paths;
     // Current directory
     search_paths.push_back(get_current_directory());
     // Executable directory
@@ -143,21 +142,22 @@ std::vector<std::filesystem::path> get_search_directories() {
     search_paths.push_back(exe_dir);
 
     std::string lib_folder_path = (std::filesystem::path("runtimes") / platform_name() / "native").string();
-    search_paths.push_back(exe_dir / lib_folder_path);
-    search_paths.push_back(exe_dir / ".." / lib_folder_path);
+
+    search_paths.push_back((std::filesystem::path(exe_dir) / lib_folder_path).string());
+    search_paths.push_back((std::filesystem::path(exe_dir) / ".." / lib_folder_path).string());
 
     for (const std::string& lib_folder_name : { "lib", "libs", "runtimes" } )
     {
-        search_paths.push_back(exe_dir / lib_folder_path);
-        search_paths.push_back(exe_dir /  ".." / lib_folder_path);
+        search_paths.push_back((std::filesystem::path(exe_dir) / lib_folder_path).string());
+        search_paths.push_back((std::filesystem::path(exe_dir) /  ".." / lib_folder_path).string());
     }
     // Environment variable paths
     auto default_env_vars = get_default_library_env_vars();
     auto env_paths = get_env_library_paths(default_env_vars);
     search_paths.insert(search_paths.end(), env_paths.begin(), env_paths.end());
 
-    std::vector<std::filesystem::path> return_paths;
-    for (const std::filesystem::path& search_path : search_paths) {
+    std::vector<std::string> return_paths;
+    for (const std::string& search_path : search_paths) {
         if (std::filesystem::exists(search_path)) return_paths.push_back(search_path);
     }
     return return_paths;
