@@ -36,7 +36,7 @@ void LLMClient::cancel(int id_slot)
 
 LLMRemoteClient::LLMRemoteClient(const std::string& url_, const int port_) : url(url_), port(port_) { }
 
-X509_STORE* load_cert(const std::string& cert_str)
+X509_STORE* load_client_cert(const std::string& cert_str)
 {
   BIO* mem = BIO_new_mem_buf(cert_str.data(), (int) cert_str.size());
   if (!mem) { return nullptr; }
@@ -156,7 +156,7 @@ std::string LLMRemoteClient::post_request(
     if(https && SSL_cert != "")
     {
         httplib::SSLClient cli(host.c_str(), port);
-        cli.set_ca_cert_store(load_cert(SSL_cert));
+        cli.set_ca_cert_store(load_client_cert(SSL_cert));
         ok = cli.send(req);
     }
     else
