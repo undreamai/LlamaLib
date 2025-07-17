@@ -110,6 +110,21 @@ jobs:
         @@pack_artifacts@@
         @@upload_llamalib@@
 
+  osx-universal-build:
+    runs-on: macos-14
+    needs:
+      - osx-arm64-build
+      - osx-x64-build
+
+    strategy:
+      matrix:
+        include:
+          - arch: osx-universal
+
+    steps:
+        @@download_macos_artifacts@@
+        @@combine_macos_libraries@@
+        @@upload_llamalib@@
 
 ################################ Windows ################################
 
@@ -230,6 +245,7 @@ jobs:
       - linux-hip-build
       - osx-arm64-build
       - osx-x64-build
+      - osx-universal-build
       - windows-build
       - windows-hip-build
       - android-build

@@ -91,21 +91,13 @@ jobs:
             zip ../${{ matrix.arch }}.zip *
           fi
 
-################################ Linux / macOS ################################
+################################ Linux ################################
 
       - name: Dependencies
         id: setup_libs_linux
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
-
-      - name: Dependencies
-        id: setup_libs_macos
-        continue-on-error: true
-        run: |
-          echo "Architecture: $(uname -m)"
-          echo "Operating System: $(uname -s)"
-          brew update
 
       - name: Dependencies
         id: setup_hip_linux
@@ -138,6 +130,41 @@ jobs:
           ln -s ${{ env.CUDA_PATH }} ${{ github.workspace }}/build/cuda
           echo "CUDAToolkit_ROOT=$GITHUB_WORKSPACE/build/cuda" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=''" >> $GITHUB_ENV
+
+################################ macOS ################################
+
+      - name: Dependencies
+        id: setup_libs_macos
+        continue-on-error: true
+        run: |
+          echo "Architecture: $(uname -m)"
+          echo "Operating System: $(uname -s)"
+          brew update
+
+      - id: download_macos_artifacts
+        name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: osx-*
+          path: artifacts
+
+      - id: combine_macos_libraries
+        name: Merge macOS libraries
+        run: |
+          cd artifacts
+          for d in *.zip;do
+            unzip -o $d/$d -d `echo $d|cut -d'.' -f1`
+          done
+
+          mkdir ${{ matrix.arch }}
+          for acc in no-acc acc;do
+            for f in `ls osx-x64_$acc`;do
+              output=${{ matrix.arch }}/`echo $f|sed -e "s:x64:universal:g"`
+              if [ -f $output ];then continue;fi
+              lipo -create -output $output osx-x64_$acc/$f osx-arm64_$acc/`echo $f|sed -e "s:x64:arm64:g"`
+            done
+          done
+          zip -r ../${{ matrix.arch }}.zip ${{ matrix.arch }}
 
 ################################ Windows ################################
 

@@ -400,6 +400,50 @@ jobs:
             path: ${{ matrix.arch }}.zip
 
 
+  osx-universal-build:
+    runs-on: macos-14
+    needs:
+      - osx-arm64-build
+      - osx-x64-build
+
+    strategy:
+      matrix:
+        include:
+          - arch: osx-universal
+
+    steps:
+        - id: download_macos_artifacts
+          name: Download Artifacts
+          uses: actions/download-artifact@v4
+          with:
+            path: artifacts
+            pattern: osx-*
+
+        - id: combine_macos_libraries
+          name: Merge macOS libraries
+          run: |
+            cd artifacts
+            for d in *.zip;do
+              unzip -o $d/$d -d `echo $d|cut -d'.' -f1`
+            done
+        
+            mkdir ${{ matrix.arch }}
+            for acc in no-acc acc;do
+              for f in `ls osx-x64_$acc`;do
+                output=${{ matrix.arch }}/`echo $f|sed -e "s:x64:universal:g"`
+                if [ -f $output ];then continue;fi
+                lipo -create -output $output osx-x64_$acc/$f osx-arm64_$acc/`echo $f|sed -e "s:x64:arm64:g"`
+              done
+            done
+            zip -r ../${{ matrix.arch }}.zip ${{ matrix.arch }}
+
+        - id: upload_llamalib
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ matrix.arch }}.zip
+            path: ${{ matrix.arch }}.zip
+
 
 ################################ Windows ################################
 
@@ -812,6 +856,7 @@ jobs:
       - linux-hip-build
       - osx-arm64-build
       - osx-x64-build
+      - osx-universal-build
       - windows-build
       - windows-hip-build
       - android-build
