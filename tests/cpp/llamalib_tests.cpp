@@ -274,29 +274,6 @@ void test_slot(LLMLocal* llm) {
     std::remove(filename.c_str());
 }
 
-#ifdef RUNTIME_TESTS
-LLMRuntime* start_llm_lib(std::string command)
-{
-    LLMRuntime* llmlib = LLMRuntime::from_command(command);
-    if (!llmlib) {
-        std::cerr << "Failed to load any backend." << std::endl;
-        return nullptr;
-    }
-    LLM_Start(llmlib);
-    return llmlib;
-}
-#else
-
-LLMService* start_llm_service(const std::string& command)
-{
-    LLMService* llm_service = LLMService::from_command(command);
-    std::cout<<"LLMService_From_Command"<<std::endl;
-    LLM_Start(llm_service);
-    std::cout<<"LLM_Start"<<std::endl;
-    return llm_service;
-}
-#endif
-
 void stop_llm_service(LLMProvider* llm)
 {
     std::cout << "LLM_Stop_Server" << std::endl;
@@ -602,15 +579,18 @@ int main(int argc, char** argv) {
     LLM_Debug(1);
     run_mock_tests();
 
-    std::string command = args_to_command(argc, argv);
+    std::string model = "../tests/model.gguf";
+    std::string command = "-m " + model;
 
 #ifdef RUNTIME_TESTS
     std::cout << "-------- LLM runtime --------" << std::endl;
-    LLMRuntime* llm_service = start_llm_lib(command);
+    LLMRuntime* llm_service = LLMRuntime::from_command(command);
 #else
     std::cout << std::endl << "-------- LLM service --------" << std::endl;
-    LLMService* llm_service = start_llm_service(command);
+    LLMService* llm_service = new LLMService(model);
 #endif
+    LLM_Start(llm_service);
+
     EMBEDDING_SIZE = LLM_Embedding_Size(llm_service);
     run_LLMProvider_tests(llm_service);
 
