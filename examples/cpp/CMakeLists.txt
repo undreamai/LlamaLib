@@ -8,12 +8,4 @@ find_package(LlamaLib REQUIRED)
 add_executable(main main.cpp)
 
 # Link against LlamaLib
-# Option 1: Link all available targets
-# target_link_libraries(main PRIVATE ${LlamaLib_LIBRARIES})
-
-# Option 2: Link target architecture directly
-# target_link_libraries(main PRIVATE LlamaLib::AVX2)
-
-# Option 3: Link specific runtime architectures
-# target_link_libraries(main PRIVATE LlamaLib::Runtime LlamaLib::CUBLAS LlamaLib::AVX2 LlamaLib::NOAVX)
-target_link_libraries(main PRIVATE LlamaLib::Runtime)
+target_link_libraries(main PRIVATE ${LlamaLib_LIBRARIES})

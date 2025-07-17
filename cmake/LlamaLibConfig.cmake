@@ -1,4 +1,3 @@
-
 ####### Expanded from @PACKAGE_INIT@ by configure_package_config_file() #######
 ####### Any changes to this file will be overwritten by the next CMake run ####
 ####### The input file was LlamaLibConfig.cmake.in                            ########
@@ -24,70 +23,147 @@ endmacro()
 
 ####################################################################################
 
+set(DEPENDENT_OPTIONS
+    LLAMALIB_USE_CUBLAS
+    LLAMALIB_USE_TINYBLAS
+    LLAMALIB_USE_HIP
+    LLAMALIB_USE_VULKAN
+    LLAMALIB_USE_AVX512
+    LLAMALIB_USE_AVX2
+    LLAMALIB_USE_AVX
+    LLAMALIB_USE_NOAVX
+    LLAMALIB_USE_ACCELERATE
+    LLAMALIB_USE_NO_ACCELERATE
+)
+
+# Enhanced llamalib_option function that creates dependent options
+function(llamalib_option name description)
+    if(NOT DEFINED ${name})
+        set(${name} ${LLAMALIB_RUNTIME_DETECTION} CACHE BOOL "${description}")
+    endif()
+    
+    # Create a variable to track if this option was manually overridden
+    if(NOT DEFINED ${name}_MANUAL_OVERRIDE)
+        set(${name}_MANUAL_OVERRIDE FALSE CACHE INTERNAL "Track if ${name} was manually set by user")
+    endif()
+endfunction()
+
+# Function to handle automatic dependency management
+function(handle_dependent_options)
+    # Store the previous state of LLAMALIB_RUNTIME_DETECTION
+    if(NOT DEFINED LLAMALIB_RUNTIME_DETECTION_PREV)
+        set(LLAMALIB_RUNTIME_DETECTION_PREV ${LLAMALIB_RUNTIME_DETECTION} CACHE INTERNAL "Previous state of LLAMALIB_RUNTIME_DETECTION")
+    endif()
+    
+    # Check if LLAMALIB_RUNTIME_DETECTION changed
+    set(RUNTIME_DETECTION_CHANGED FALSE)
+    if(NOT "${LLAMALIB_RUNTIME_DETECTION}" STREQUAL "${LLAMALIB_RUNTIME_DETECTION_PREV}")
+        set(RUNTIME_DETECTION_CHANGED TRUE)
+    endif()
+    
+    # List of all dependent options
+    set(VALUE_AUTO_CHANGED OFF)
+    foreach(OPTION_NAME ${DEPENDENT_OPTIONS})
+        if(DEFINED ${OPTION_NAME})
+            # Check if this option was manually changed by comparing with expected value
+            set(EXPECTED_VALUE ${LLAMALIB_RUNTIME_DETECTION_PREV})
+            if(LLAMALIB_RUNTIME_DETECTION_PREV STREQUAL "")
+                set(EXPECTED_VALUE ON)  # Default value
+            endif()
+            
+            # If option differs from expected value, user manually changed it
+            if(NOT "${${OPTION_NAME}}" STREQUAL "${EXPECTED_VALUE}" AND NOT ${OPTION_NAME}_MANUAL_OVERRIDE)
+                set(${OPTION_NAME}_MANUAL_OVERRIDE TRUE CACHE INTERNAL "Track if ${OPTION_NAME} was manually set by user" FORCE)
+            endif()
+            
+            # Update dependent options based on LLAMALIB_RUNTIME_DETECTION
+            if(RUNTIME_DETECTION_CHANGED OR NOT DEFINED ${OPTION_NAME}_LAST_AUTO_VALUE)
+                if(NOT ${OPTION_NAME}_MANUAL_OVERRIDE)
+                    set(NEW_VALUE ${LLAMALIB_RUNTIME_DETECTION})
+                    if(NOT "${${OPTION_NAME}}" STREQUAL "${NEW_VALUE}")
+                        set(${OPTION_NAME} ${NEW_VALUE} CACHE BOOL "${description}" FORCE)
+                        set(VALUE_AUTO_CHANGED ON)
+                    endif()
+                endif()
+                set(${OPTION_NAME}_LAST_AUTO_VALUE ${${OPTION_NAME}} CACHE INTERNAL "Last automatically set value")
+            endif()
+        endif()
+    endforeach()
+    
+    # Check for multiple enabled options when runtime detection is OFF
+    if(NOT RUNTIME_DETECTION_CHANGED OR NOT VALUE_AUTO_CHANGED)
+    # if(NOT VALUE_AUTO_CHANGED)
+        set(ENABLED_OPTIONS "")
+        set(ENABLED_COUNT 0)
+        
+        foreach(OPTION_NAME ${DEPENDENT_OPTIONS})
+            if(DEFINED ${OPTION_NAME} AND ${OPTION_NAME})
+                list(APPEND ENABLED_OPTIONS ${OPTION_NAME})
+                math(EXPR ENABLED_COUNT "${ENABLED_COUNT} + 1")
+            endif()
+        endforeach()
+        
+        if(ENABLED_COUNT EQUAL 0)
+            set(MESSAGE_AT_LEAST "one")
+            if(LLAMALIB_RUNTIME_DETECTION)
+              set(MESSAGE_AT_LEAST "at least one")
+            endif()
+            message(WARNING "No architecture specified. Select ${MESSAGE_AT_LEAST} of the architectures (LLAMALIB_USE_*).")
+        elseif(ENABLED_COUNT GREATER 1 AND NOT LLAMALIB_RUNTIME_DETECTION)
+            message(WARNING "Select only one of the architectures (LLAMALIB_USE_*). You can select multiple only if LLAMALIB_RUNTIME_DETECTION is set.")
+        endif()
+    endif()
+
+    # Update the previous state
+    set(LLAMALIB_RUNTIME_DETECTION_PREV ${LLAMALIB_RUNTIME_DETECTION} CACHE INTERNAL "Previous state of LLAMALIB_RUNTIME_DETECTION" FORCE)
+endfunction()
+
 include("${CMAKE_CURRENT_LIST_DIR}/LlamaLibCommon.cmake")
 
 # Set default options
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  if(NOT DEFINED LLAMALIB_ENABLE_RUNTIME)
-      OPTION(LLAMALIB_ENABLE_RUNTIME "Enable runtime detection" ON)
+  if(NOT DEFINED LLAMALIB_RUNTIME_DETECTION)
+      OPTION(LLAMALIB_RUNTIME_DETECTION "Enable runtime detection" ON)
   endif()
 endif()
 
-
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  option(LLAMALIB_ALLOW_CPU "Enable CPU support" ON)
   option(LLAMALIB_ALLOW_GPU "Enable GPU support" ON)
-  # GPU-specific options (only if GPU is enabled)
+
   if(LLAMALIB_ALLOW_GPU)
-    if(NOT DEFINED LLAMALIB_ENABLE_CUBLAS)
-        OPTION(LLAMALIB_ENABLE_CUBLAS "Enable CUBLAS architecture (GPU)" ON)
-    endif()
-    if(NOT DEFINED LLAMALIB_ENABLE_TINYBLAS)
-        OPTION(LLAMALIB_ENABLE_TINYBLAS "Enable tinyBLAS architecture (GPU)" ON)
-    endif()
-    if(NOT DEFINED LLAMALIB_ENABLE_VULKAN)
-        OPTION(LLAMALIB_ENABLE_VULKAN "Enable Vulkan architecture (GPU)" ON)
-    endif()
-    if(NOT DEFINED LLAMALIB_ENABLE_HIP)
-        OPTION(LLAMALIB_ENABLE_HIP "Enable HIP architecture (GPU)" ON)
-    endif()
+    llamalib_option(LLAMALIB_USE_CUBLAS "Enable CUBLAS architecture (GPU)")
+    llamalib_option(LLAMALIB_USE_TINYBLAS "Enable tinyBLAS architecture (GPU)")
+    llamalib_option(LLAMALIB_USE_VULKAN "Enable Vulkan architecture (GPU)")
+    llamalib_option(LLAMALIB_USE_HIP "Enable HIP architecture (GPU)")
   else()
-      # Force GPU options to OFF when GPU is disabled
-      set(LLAMALIB_ENABLE_CUBLAS OFF CACHE BOOL "Enable CUBLAS architecture (GPU)" FORCE)
-      set(LLAMALIB_ENABLE_TINYBLAS OFF CACHE BOOL "Enable tinyBLAS architecture (GPU)" FORCE)
-      set(LLAMALIB_ENABLE_VULKAN OFF CACHE BOOL "Enable Vulkan architecture (GPU)" FORCE)
-      set(LLAMALIB_ENABLE_HIP OFF CACHE BOOL "Enable HIP architecture (GPU)" FORCE)
+    foreach(opt LLAMALIB_USE_CUBLAS LLAMALIB_USE_TINYBLAS LLAMALIB_USE_VULKAN LLAMALIB_USE_HIP)
+      set(${opt} OFF CACHE BOOL "Forced OFF because LLAMALIB_ALLOW_GPU is OFF" FORCE)
+    endforeach()
   endif()
 
-  if(NOT DEFINED LLAMALIB_ENABLE_AVX512)
-      OPTION(LLAMALIB_ENABLE_AVX512 "Enable AVX512 architecture" ON)
-  endif()
-  if(NOT DEFINED LLAMALIB_ENABLE_AVX2)
-      OPTION(LLAMALIB_ENABLE_AVX2 "Enable AVX2 architecture" ON)
-  endif()
-  if(NOT DEFINED LLAMALIB_ENABLE_AVX)
-      OPTION(LLAMALIB_ENABLE_AVX "Enable AVX architecture" ON)
-  endif()
-  if(NOT DEFINED LLAMALIB_ENABLE_NOAVX)
-      OPTION(LLAMALIB_ENABLE_NOAVX "Enable no-AVX architecture" ON)
+  if(LLAMALIB_ALLOW_CPU)
+    llamalib_option(LLAMALIB_USE_AVX512 "Enable AVX512 architecture")
+    llamalib_option(LLAMALIB_USE_AVX2 "Enable AVX2 architecture")
+    llamalib_option(LLAMALIB_USE_AVX "Enable AVX architecture")
+    llamalib_option(LLAMALIB_USE_NOAVX "Enable no-AVX architecture")
+  else()
+    foreach(opt LLAMALIB_USE_AVX512 LLAMALIB_USE_AVX2 LLAMALIB_USE_AVX LLAMALIB_USE_NOAVX)
+      set(${opt} OFF CACHE BOOL "Forced OFF because LLAMALIB_ALLOW_CPU is OFF" FORCE)
+    endforeach()
   endif()
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  if(NOT DEFINED LLAMALIB_ENABLE_ACCELERATE)
-      OPTION(LLAMALIB_ENABLE_ACCELERATE "Enable architecture with Accelerate framework" ON)
-  endif()
-  if(NOT DEFINED LLAMALIB_ENABLE_NO_ACCELERATE)
-      OPTION(LLAMALIB_ENABLE_NO_ACCELERATE "Enable architecture without Accelerate framework" ON)
-  endif()
-
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
-  if(NOT DEFINED LLAMALIB_ANDROID_X64)
-      OPTION(LLAMALIB_ANDROID_X64 "Use Android X64 instead of ARM64 architecture" ON)
-  endif()
+  llamalib_option(LLAMALIB_USE_ACCELERATE "Enable Accelerate framework")
+  llamalib_option(LLAMALIB_USE_NO_ACCELERATE "Disable Accelerate framework")
 endif()
 
 if(NOT DEFINED LLAMALIB_COPY_DEPS)
     OPTION(LLAMALIB_COPY_DEPS "Automatically copy LlamaLib libraries" ON)
 endif()
+
+# Handle dependent options after all options are defined
+handle_dependent_options()
 
 # Include the main logic from a separate module
 include("${CMAKE_CURRENT_LIST_DIR}/LlamaLibTargets.cmake")

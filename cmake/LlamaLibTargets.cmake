@@ -13,7 +13,6 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(LLAMALIB_ARCH "x64")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(LLAMALIB_PLATFORM "osx")
-    # Determine macOS architecture
     if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64" OR CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
         set(LLAMALIB_ARCH "arm64")
     else()
@@ -21,8 +20,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     endif()
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
     set(LLAMALIB_PLATFORM "android")
-    # Determine Android architecture
-    if(LLAMALIB_ANDROID_X64)
+    if(CMAKE_ANDROID_ARCH_ABI STREQUAL "x86_64")
         set(LLAMALIB_ARCH "x64")
     else()
         set(LLAMALIB_ARCH "arm64")
@@ -41,12 +39,11 @@ endif()
 set(LLAMALIB_RID "${LLAMALIB_PLATFORM}-${LLAMALIB_ARCH}")
 set(LLAMALIB_LIB_REL_DIR "runtimes/${LLAMALIB_RID}/native")
 set(LLAMALIB_LIB_DIR "${CMAKE_CURRENT_LIST_DIR}/${LLAMALIB_LIB_REL_DIR}")
+set(LLAMALIB_LIB_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${LLAMALIB_LIB_REL_DIR}")
 
 message(STATUS "Runtime Identifier: ${LLAMALIB_RID}")
 message(STATUS "LlamaLib include dir: ${LLAMALIB_INCLUDE_DIRS}")
 message(STATUS "LlamaLib library dir: ${LLAMALIB_LIB_DIR}")
-
-set(LlamaLib_LIBRARIES)
 
 # Function to find and create imported target
 function(create_llamalib_target TARGET_NAME LIB_VARIANT)
@@ -113,46 +110,40 @@ function(create_llamalib_target TARGET_NAME LIB_VARIANT)
         # Set include directories
         target_include_directories(${TARGET_NAME} INTERFACE "${LLAMALIB_INCLUDE_DIRS}" )
         if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-            target_compile_definitions(${TARGET_NAME} INTERFACE WIN32_LEAN_AND_MEAN)
+            target_compile_definitions(${TARGET_NAME} INTERFACE WIN32_LEAN_AND_MEAN NOMINMAX)
         endif()
 
         if(LLAMALIB_COPY_DEPS AND LIB_TYPE STREQUAL "SHARED")
             # automatically copy shared libraries on build
-            add_custom_target("COPY_EXTERNAL_${LIB_VARIANT}")
-            add_custom_command(TARGET "COPY_EXTERNAL_${LIB_VARIANT}" POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/${LLAMALIB_LIB_REL_DIR}"
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIB_PATH} "${CMAKE_CURRENT_BINARY_DIR}/${LLAMALIB_LIB_REL_DIR}"
-                COMMENT "Copying LlamaLib library: ${TARGET_NAME}"
-            )
-            add_dependencies(${TARGET_NAME} "COPY_EXTERNAL_${LIB_VARIANT}")
+            set(LIB_COPY_FILES)
+            list(APPEND LIB_COPY_FILES ${LIB_PATH})
 
             # automatically copy dependencies of shared libraries on build
-            set(LIB_DEPENDENCIES)
-            if(CMAKE_SYSTEM_NAME STREQUAL "Windows" AND TARGET LlamaLib::CUBLAS)
+            if(CMAKE_SYSTEM_NAME STREQUAL "Windows" AND ${TARGET_NAME} STREQUAL LlamaLib::CUBLAS)
                 list(APPEND LIB_DEPENDENCIES "cublas")
                 list(APPEND LIB_DEPENDENCIES "cudart")
             endif()
-            if(TARGET LlamaLib::VULKAN)
+            if(${TARGET_NAME} STREQUAL LlamaLib::VULKAN)
                 list(APPEND LIB_DEPENDENCIES "vulkan")
             endif()
 
             foreach(DEPENDENCY ${LIB_DEPENDENCIES})
+            message(STATUS "LIB_DEPENDENCIES ${LIB_DEPENDENCIES} ${TARGET_NAME}")
                 file(GLOB DEP_FILES "${LLAMALIB_LIB_DIR}/*${DEPENDENCY}*")
                 list(FILTER DEP_FILES EXCLUDE REGEX ".*llamalib.*")
-                foreach(DEP_FILE ${DEP_FILES})
-                    get_filename_component(DEP_NAME ${DEP_FILE} NAME)
-                    add_custom_command(TARGET "COPY_EXTERNAL_${LIB_VARIANT}" POST_BUILD
-                        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DEP_FILE} "${CMAKE_CURRENT_BINARY_DIR}/${LLAMALIB_LIB_REL_DIR}"
-                        COMMENT "Copying ${DEPENDENCY} dependency: ${DEP_NAME}"
-                    )
-                endforeach()
+                list(APPEND LIB_COPY_FILES ${DEP_FILES})
             endforeach()
+
+            set(LLAMALIB_TO_SAVE ${LLAMALIB_TO_SAVE} ${LIB_COPY_FILES} PARENT_SCOPE)
         endif()
 
         message(STATUS "Found ${TARGET_NAME}: ${LIB_PATH}")
         set(${TARGET_NAME}_FOUND TRUE PARENT_SCOPE)
         set(LlamaLib_${LIB_VARIANT}_FOUND TRUE PARENT_SCOPE)
-        set(LlamaLib_LIBRARIES ${LlamaLib_LIBRARIES} ${TARGET_NAME} PARENT_SCOPE)
+
+        if(NOT LLAMALIB_RUNTIME_DETECTION OR ${TARGET_NAME} STREQUAL LlamaLib::Runtime)
+            set(LlamaLib_LIBRARIES ${LlamaLib_LIBRARIES} ${TARGET_NAME} PARENT_SCOPE)
+        endif()
     else()
         message(STATUS "Library not found: ${LIB_PATH}")
         set(${TARGET_NAME}_FOUND FALSE PARENT_SCOPE)
@@ -160,45 +151,49 @@ function(create_llamalib_target TARGET_NAME LIB_VARIANT)
     endif()
 endfunction()
 
-# Create targets based on enabled options
 set(LlamaLib_LIBRARIES)
+set(LLAMALIB_TO_SAVE)
+# make runtime dir and delete previous runtimes
+execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/${LLAMALIB_LIB_REL_DIR}")
+if(DEFINED LLAMALIB_SAVED_PREV AND NOT LLAMALIB_SAVED_PREV STREQUAL "")
+    file(REMOVE ${LLAMALIB_SAVED_PREV})
+endif()
 
-# Create runtime target (always available on all platforms)
-if(LLAMALIB_ENABLE_RUNTIME)
+# Create targets based on enabled options
+if(LLAMALIB_RUNTIME_DETECTION)
     create_llamalib_target(LlamaLib::Runtime "runtime")
 endif()
 
-# Create platform-specific targets
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    if(LLAMALIB_ENABLE_CUBLAS)
+    if(LLAMALIB_USE_CUBLAS)
         create_llamalib_target(LlamaLib::CUBLAS "cublas")
     endif()
-    if(LLAMALIB_ENABLE_TINYBLAS)
+    if(LLAMALIB_USE_TINYBLAS)
         create_llamalib_target(LlamaLib::TINYBLAS "tinyblas")
     endif()
-    if(LLAMALIB_ENABLE_HIP)
-        create_llamalib_target(LlamaLib::TINYBLAS "tinyblas")
+    if(LLAMALIB_USE_HIP)
+        create_llamalib_target(LlamaLib::HIP "hip")
     endif()
-    if(LLAMALIB_ENABLE_VULKAN)
+    if(LLAMALIB_USE_VULKAN)
         create_llamalib_target(LlamaLib::VULKAN "vulkan")
     endif()
-    if(LLAMALIB_ENABLE_AVX512)
+    if(LLAMALIB_USE_AVX512)
         create_llamalib_target(LlamaLib::AVX512 "avx512")
     endif()
-    if(LLAMALIB_ENABLE_AVX2)
+    if(LLAMALIB_USE_AVX2)
         create_llamalib_target(LlamaLib::AVX2 "avx2")
     endif()
-    if(LLAMALIB_ENABLE_AVX)
+    if(LLAMALIB_USE_AVX)
         create_llamalib_target(LlamaLib::AVX "avx")
     endif()
-    if(LLAMALIB_ENABLE_NOAVX)
+    if(LLAMALIB_USE_NOAVX)
         create_llamalib_target(LlamaLib::NOAVX "noavx")
     endif()
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    if(LLAMALIB_ENABLE_ACCELERATE)
+    if(LLAMALIB_USE_ACCELERATE)
         create_llamalib_target(LlamaLib::ACCELERATE "acc")
     endif()
-    if(LLAMALIB_ENABLE_NO_ACCELERATE)
+    if(LLAMALIB_USE_NO_ACCELERATE)
         create_llamalib_target(LlamaLib::NOACCELERATE "no-acc")
     endif()
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
@@ -209,11 +204,20 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "visionOS")
     create_llamalib_target(LlamaLib::VisionOS "visionos")
 endif()
 
+# save runtimes to external project
+set(LLAMALIB_SAVED)
+if(NOT LLAMALIB_TO_SAVE STREQUAL "")
+    file(COPY ${LLAMALIB_TO_SAVE} DESTINATION ${LLAMALIB_LIB_OUTPUT_DIR})
+    foreach(SAVED_LIB ${LLAMALIB_TO_SAVE})
+        get_filename_component(SAVED_LIB_NAME ${SAVED_LIB} NAME)
+        list(APPEND LLAMALIB_SAVED "${LLAMALIB_LIB_OUTPUT_DIR}/${SAVED_LIB_NAME}")
+    endforeach()
+endif()
+set(LLAMALIB_SAVED_PREV ${LLAMALIB_SAVED} CACHE INTERNAL "Previous state of LLAMALIB_SAVED_PREV")
 message(STATUS "LlamaLib libraries: ${LlamaLib_LIBRARIES}")
 
 # Set variables for find_package
 set(LlamaLib_FOUND TRUE)
-set(LlamaLib_LIBRARIES ${LlamaLib_LIBRARIES})
 
 # Check required components
 if(LlamaLib_FIND_COMPONENTS)
