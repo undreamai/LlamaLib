@@ -43,6 +43,8 @@ jobs:
           run: |
             mkdir -p build/libs
             echo "CMAKE_VARS=-DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}" >> $GITHUB_ENV
+            cd tests
+            curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
           shell: bash
 
         - id: setup_vulkan_linux
@@ -87,19 +89,14 @@ jobs:
           if: contains(matrix.arch, 'noavx') || contains(matrix.arch, 'avx2') || contains(matrix.arch, 'osx')
           name: Test
           run: |
-            cd build/libs
-            EXE=""
+            cd build
             if [[ "$RUNNER_OS" == "Windows" ]]; then
-              cd Release
-              EXE=".exe"
+              ./libs/Release/llamalib_tests.exe
+              ./libs/Release/llamalib_tests_runtime.exe
+            else
+              ./libs/llamalib_tests
+              ./libs/llamalib_tests_runtime
             fi
-        
-            curl -L -o model.gguf "https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true"
-        
-            ./llamalib_tests$EXE -m model.gguf -np 1 --log-disable
-            ./llamalib_tests_runtime$EXE -m model.gguf -np 1 --log-disable
-        
-            rm model.gguf
           shell: bash
 
 
@@ -164,6 +161,8 @@ jobs:
           run: |
             mkdir -p build/libs
             echo "CMAKE_VARS=-DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}" >> $GITHUB_ENV
+            cd tests
+            curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
           shell: bash
 
         - id: setup_hip_linux
@@ -245,6 +244,8 @@ jobs:
           run: |
             mkdir -p build/libs
             echo "CMAKE_VARS=-DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}" >> $GITHUB_ENV
+            cd tests
+            curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
           shell: bash
 
 
@@ -263,19 +264,14 @@ jobs:
           if: contains(matrix.arch, 'noavx') || contains(matrix.arch, 'avx2') || contains(matrix.arch, 'osx')
           name: Test
           run: |
-            cd build/libs
-            EXE=""
+            cd build
             if [[ "$RUNNER_OS" == "Windows" ]]; then
-              cd Release
-              EXE=".exe"
+              ./libs/Release/llamalib_tests.exe
+              ./libs/Release/llamalib_tests_runtime.exe
+            else
+              ./libs/llamalib_tests
+              ./libs/llamalib_tests_runtime
             fi
-        
-            curl -L -o model.gguf "https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true"
-        
-            ./llamalib_tests$EXE -m model.gguf -np 1 --log-disable
-            ./llamalib_tests_runtime$EXE -m model.gguf -np 1 --log-disable
-        
-            rm model.gguf
           shell: bash
 
 
@@ -337,6 +333,8 @@ jobs:
           run: |
             mkdir -p build/libs
             echo "CMAKE_VARS=-DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}" >> $GITHUB_ENV
+            cd tests
+            curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
           shell: bash
 
 
@@ -355,19 +353,14 @@ jobs:
           if: contains(matrix.arch, 'noavx') || contains(matrix.arch, 'avx2') || contains(matrix.arch, 'osx')
           name: Test
           run: |
-            cd build/libs
-            EXE=""
+            cd build
             if [[ "$RUNNER_OS" == "Windows" ]]; then
-              cd Release
-              EXE=".exe"
+              ./libs/Release/llamalib_tests.exe
+              ./libs/Release/llamalib_tests_runtime.exe
+            else
+              ./libs/llamalib_tests
+              ./libs/llamalib_tests_runtime
             fi
-        
-            curl -L -o model.gguf "https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true"
-        
-            ./llamalib_tests$EXE -m model.gguf -np 1 --log-disable
-            ./llamalib_tests_runtime$EXE -m model.gguf -np 1 --log-disable
-        
-            rm model.gguf
           shell: bash
 
 
@@ -477,6 +470,8 @@ jobs:
           run: |
             mkdir -p build/libs
             echo "CMAKE_VARS=-DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}" >> $GITHUB_ENV
+            cd tests
+            curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
           shell: bash
 
         - id: setup_vulcan_windows
@@ -526,19 +521,14 @@ jobs:
           if: contains(matrix.arch, 'noavx') || contains(matrix.arch, 'avx2') || contains(matrix.arch, 'osx')
           name: Test
           run: |
-            cd build/libs
-            EXE=""
+            cd build
             if [[ "$RUNNER_OS" == "Windows" ]]; then
-              cd Release
-              EXE=".exe"
+              ./libs/Release/llamalib_tests.exe
+              ./libs/Release/llamalib_tests_runtime.exe
+            else
+              ./libs/llamalib_tests
+              ./libs/llamalib_tests_runtime
             fi
-        
-            curl -L -o model.gguf "https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true"
-        
-            ./llamalib_tests$EXE -m model.gguf -np 1 --log-disable
-            ./llamalib_tests_runtime$EXE -m model.gguf -np 1 --log-disable
-        
-            rm model.gguf
           shell: bash
 
 
@@ -603,6 +593,8 @@ jobs:
           run: |
             mkdir -p build/libs
             echo "CMAKE_VARS=-DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}" >> $GITHUB_ENV
+            cd tests
+            curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
           shell: bash
 
         - id: setup_openssl_windows
@@ -703,6 +695,8 @@ jobs:
           run: |
             mkdir -p build/libs
             echo "CMAKE_VARS=-DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}" >> $GITHUB_ENV
+            cd tests
+            curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
           shell: bash
 
 
@@ -787,6 +781,8 @@ jobs:
           run: |
             mkdir -p build/libs
             echo "CMAKE_VARS=-DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}" >> $GITHUB_ENV
+            cd tests
+            curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
           shell: bash
 
 
@@ -868,6 +864,15 @@ jobs:
           with:
             submodules: recursive
 
+        - id: preparation
+          name: Preparation
+          run: |
+            mkdir -p build/libs
+            echo "CMAKE_VARS=-DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}" >> $GITHUB_ENV
+            cd tests
+            curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
+          shell: bash
+
         - id: set_release_version
           name: Set version
           run: |
@@ -893,6 +898,17 @@ jobs:
             mv release ${{ env.RELEASE_NAME }}
             zip -r ${{ env.RELEASE_NAME }}.zip ${{ env.RELEASE_NAME }}
 
+        - id: test_cmake
+          name: Test cmake
+          run: |
+            cd tests/cpp-cmake
+            cmake . -DLlamaLib_DIR=../../${{ env.RELEASE_NAME }} -DLLAMALIB_RUNTIME_DETECTION=OFF -DLLAMALIB_USE_AVX2=ON
+            cmake --build . --config Release
+            ./test
+            cmake . -DLlamaLib_DIR=../../${{ env.RELEASE_NAME }} -DLLAMALIB_RUNTIME_DETECTION=ON -DRUNTIME_TESTS=ON
+            cmake --build . --config Release
+            ./test_runtime
+
         - id: pack_nuget
           name: Pack nuget
           run: |
@@ -904,11 +920,7 @@ jobs:
           run: |
             mkdir -p ~/.nuget/packages/LlamaLib
             cp ${{ env.RELEASE_NAME }}.zip ~/.nuget/packages/LlamaLib/${{ env.RELEASE_NAME }}.zip
-        
-            cd tests
-            curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
-        
-            cd csharp
+            cd tests/csharp
             dotnet build -c Release
             dotnet test -c Release
 
