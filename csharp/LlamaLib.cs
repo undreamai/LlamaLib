@@ -173,12 +173,11 @@ namespace UndreamAI.LlamaLib
         public static extern IntPtr LLMClient_Construct_Static(IntPtr llm);
         public IntPtr LLMClient_Construct(IntPtr llm) => LlamaLib.LLMClient_Construct_Static(llm);
 
-        // LLMRemoteClient functions
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLMRemoteClient_Construct")]
-        public static extern IntPtr LLMRemoteClient_Construct_Static(
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLMClient_Construct_Remote")]
+        public static extern IntPtr LLMClient_Construct_Remote_Static(
             [MarshalAs(UnmanagedType.LPStr)] string url,
             int port);
-        public IntPtr LLMRemoteClient_Construct(string url, int port) => LlamaLib.LLMRemoteClient_Construct_Static(url, port);
+        public IntPtr LLMClient_Construct_Remote(string url, int port) => LlamaLib.LLMClient_Construct_Remote_Static(url, port);
 #else
         // Desktop platform implementation with dynamic loading
         private static List<LlamaLib> instances = new List<LlamaLib>();
@@ -329,7 +328,7 @@ namespace UndreamAI.LlamaLib
             LLMService_Construct = LibraryLoader.GetSymbolDelegate<LLMService_Construct_Delegate>(libraryHandle, "LLMService_Construct");
             LLMService_From_Command = LibraryLoader.GetSymbolDelegate<LLMService_From_Command_Delegate>(libraryHandle, "LLMService_From_Command");
             LLMClient_Construct = LibraryLoader.GetSymbolDelegate<LLMClient_Construct_Delegate>(libraryHandle, "LLMClient_Construct");
-            LLMRemoteClient_Construct = LibraryLoader.GetSymbolDelegate<LLMRemoteClient_Construct_Delegate>(libraryHandle, "LLMRemoteClient_Construct");
+            LLMClient_Construct_Remote = LibraryLoader.GetSymbolDelegate<LLMClient_Construct_Remote_Delegate>(libraryHandle, "LLMClient_Construct_Remote");
         }
 
         // Delegate definitions for desktop platforms
@@ -430,7 +429,7 @@ namespace UndreamAI.LlamaLib
         public delegate IntPtr LLMClient_Construct_Delegate(IntPtr llm);
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr LLMRemoteClient_Construct_Delegate([MarshalAs(UnmanagedType.LPStr)] string url, int port);
+        public delegate IntPtr LLMClient_Construct_Remote_Delegate([MarshalAs(UnmanagedType.LPStr)] string url, int port);
 
         // Function pointers for desktop platforms
         // Runtime lib
@@ -464,7 +463,7 @@ namespace UndreamAI.LlamaLib
         public LLMService_Construct_Delegate LLMService_Construct;
         public LLMService_From_Command_Delegate LLMService_From_Command;
         public LLMClient_Construct_Delegate LLMClient_Construct;
-        public LLMRemoteClient_Construct_Delegate LLMRemoteClient_Construct;
+        public LLMClient_Construct_Remote_Delegate LLMClient_Construct_Remote;
 
         public static void Debug(int debugLevel)
         {

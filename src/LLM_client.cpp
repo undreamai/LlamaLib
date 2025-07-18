@@ -1,40 +1,75 @@
 #include "LLM_client.h"
 
-LLMClient::LLMClient(LLMProvider* llm_): llm(llm_){ }
+// Constructor for local LLM
+LLMClient::LLMClient(LLMProvider* llm_) : llm(llm_) { }
+
+// Constructor for remote LLM
+LLMClient::LLMClient(const std::string& url_, const int port_) : url(url_), port(port_) { }
+
+
+void LLMClient::set_SSL(const char* SSL_cert_) {
+    if (is_remote()) {
+        this->SSL_cert = SSL_cert_;
+    }
+}
 
 std::string LLMClient::tokenize_json(const json& data)
 {
-    return llm->tokenize_json(data);
+    if (is_remote()) {
+        return post_request("tokenize", data);
+    } else {
+        return llm->tokenize_json(data);
+    }
 }
 
 std::string LLMClient::detokenize_json(const json& data)
 {
-    return llm->detokenize_json(data);
+    if (is_remote()) {
+        return post_request("detokenize", data);
+    } else {
+        return llm->detokenize_json(data);
+    }
 }
 
 std::string LLMClient::embeddings_json(const json& data)
 {
-    return llm->embeddings_json(data);
+    if (is_remote()) {
+        return post_request("embeddings", data);
+    } else {
+        return llm->embeddings_json(data);
+    }
 }
 
 std::string LLMClient::completion_json(const json& data, CharArrayFn callback, bool callbackWithJSON)
 {
-    return llm->completion_json(data, callback, callbackWithJSON);
+    if (is_remote()) {
+        return post_request("completion", data, callback, callbackWithJSON);
+    } else {
+        return llm->completion_json(data, callback, callbackWithJSON);
+    }
 }
 
 std::string LLMClient::slot_json(const json& data)
 {
-    return llm->slot_json(data);
+    if (is_remote()) {
+        // Remote clients don't support slot operations directly
+        return "{}";
+    } else {
+        return llm->slot_json(data);
+    }
 }
 
 void LLMClient::cancel(int id_slot)
 {
-    llm->cancel(id_slot);
+    if (is_remote()) {
+        // Remote clients don't support cancel operations directly
+        return;
+    } else {
+        llm->cancel(id_slot);
+    }
 }
 
 //================ Remote requests ================//
-
-LLMRemoteClient::LLMRemoteClient(const std::string& url_, const int port_) : url(url_), port(port_) { }
 
 X509_STORE* load_client_cert(const std::string& cert_str)
 {
@@ -60,11 +95,8 @@ X509_STORE* load_client_cert(const std::string& cert_str)
   return cts;
 }
 
-void LLMRemoteClient::set_SSL(const char* SSL_cert){
-    this->SSL_cert = SSL_cert;
-}
 
-std::string LLMRemoteClient::post_request(
+std::string LLMClient::post_request(
     const std::string& path,
     const json& payload,
     CharArrayFn callback,
@@ -174,27 +206,6 @@ std::string LLMRemoteClient::post_request(
     return context.buffer;
 }
 
-std::string LLMRemoteClient::tokenize_json(const json& data)
-{
-    return post_request("tokenize", data);
-}
-
-std::string LLMRemoteClient::detokenize_json(const json& data)
-{
-    return post_request("detokenize", data);
-}
-
-std::string LLMRemoteClient::embeddings_json(const json& data)
-{
-    return post_request("embeddings", data);
-}
-
-std::string LLMRemoteClient::completion_json(const json& data, CharArrayFn callback, bool callbackWithJSON)
-{
-    return post_request("completion", data, callback, callbackWithJSON);
-}
-
-
 //================ API ================//
 
 LLMClient* LLMClient_Construct(LLMProvider* llm)
@@ -202,7 +213,7 @@ LLMClient* LLMClient_Construct(LLMProvider* llm)
     return new LLMClient(llm);
 }
 
-LLMRemoteClient* LLMRemoteClient_Construct(const char* url, const int port)
+LLMClient* LLMClient_Construct_Remote(const char* url, const int port)
 {
-    return new LLMRemoteClient(url, port);
+    return new LLMClient(url, port);
 }

@@ -498,7 +498,7 @@ void run_LLMProvider_tests(LLMProvider* llm)
     test_lora_list(llm);
 }
 
-void set_SSL(LLMProvider* llm, LLMRemoteClient* llm_remote_client)
+void set_SSL(LLMProvider* llm, LLMClient* llm_remote_client)
 {
     std::string server_crt = "-----BEGIN CERTIFICATE-----\n"
 "MIIDJDCCAgwCFCurq2NTlmOrL3EBdiAnx2+x9YkqMA0GCSqGSIb3DQEBCwUAMEwx\n"
@@ -599,13 +599,13 @@ int main(int argc, char** argv) {
     run_LLMLocal_tests(&llm_client);
 
     std::cout << std::endl << "-------- LLM remote client --------" << std::endl;
-    LLMRemoteClient llm_remote_client("http://localhost", 8080);
+    LLMClient llm_remote_client("http://localhost", 8080);
     LLM_Start_Server(llm_service, "", 8080);
     run_LLM_tests(&llm_remote_client);
     LLM_Stop_Server(llm_service);
 
     std::cout << std::endl << "-------- LLM remote client SSL --------" << std::endl;
-    LLMRemoteClient llm_remote_client_SSL("https://localhost", 8080);
+    LLMClient llm_remote_client_SSL("https://localhost", 8080);
     set_SSL(llm_service, &llm_remote_client_SSL);
     LLM_Start_Server(llm_service, "", 8080);
     run_LLM_tests(&llm_remote_client_SSL);

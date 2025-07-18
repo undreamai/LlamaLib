@@ -685,19 +685,7 @@ namespace UndreamAI.LlamaLib
             llm = CreateClient(provider);
         }
 
-        private IntPtr CreateClient(LLMProvider provider)
-        {
-            var llm = llamaLib.LLMClient_Construct(provider.llm);
-            if (llm == IntPtr.Zero)
-                throw new InvalidOperationException("Failed to create LLMClient");
-            return llm;
-        }
-    }
-
-    // LLMRemoteClient class
-    public class LLMRemoteClient : LLM
-    {
-        public LLMRemoteClient(string url, int port)
+        public LLMClient(string url, int port)
         {
             if (string.IsNullOrEmpty(url))
                 throw new ArgumentNullException(nameof(url));
@@ -714,11 +702,19 @@ namespace UndreamAI.LlamaLib
             }
         }
 
+        private IntPtr CreateClient(LLMProvider provider)
+        {
+            var llm = llamaLib.LLMClient_Construct(provider.llm);
+            if (llm == IntPtr.Zero)
+                throw new InvalidOperationException("Failed to create LLMClient");
+            return llm;
+        }
+
         private IntPtr CreateRemoteClient(string url, int port)
         {
-            var llm = llamaLib.LLMRemoteClient_Construct(url, port);
+            var llm = llamaLib.LLMClient_Construct_Remote(url, port);
             if (llm == IntPtr.Zero)
-                throw new InvalidOperationException($"Failed to create LLMRemoteClient for {url}:{port}");
+                throw new InvalidOperationException($"Failed to create remote LLMClient for {url}:{port}");
             return llm;
         }
     }

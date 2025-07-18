@@ -12,9 +12,17 @@ struct StreamingContext {
     CharArrayFn callback = nullptr;
 };
 
+
 class UNDREAMAI_API LLMClient : public LLMLocal {
 public:
+    // Constructor for local LLM
     LLMClient(LLMProvider* llm);
+    
+    // Constructor for remote LLM
+    LLMClient(const std::string& url, const int port);
+
+    // SSL support (only for remote clients)
+    void set_SSL(const char* SSL_cert);
 
 protected:
     //=================================== LLM METHODS START ===================================//
@@ -27,37 +35,23 @@ protected:
     //=================================== LLM METHODS END ===================================//
 
 private:
+    // Local LLM members
     LLMProvider* llm = nullptr;
-};
-
-
-class UNDREAMAI_API LLMRemoteClient : public LLMRemote {
-public:
-    LLMRemoteClient(const std::string& url, const int port);
-
-    //=================================== LLM METHODS START ===================================//
-    void set_SSL(const char* SSL_cert) override;
-    //=================================== LLM METHODS END ===================================//
-
-protected:
-    //=================================== LLM METHODS START ===================================//
-    std::string tokenize_json(const json& data) override;
-    std::string detokenize_json(const json& data) override;
-    std::string embeddings_json(const json& data) override;
-    std::string completion_json(const json& data, CharArrayFn callback = nullptr, bool callbackWithJSON=true) override;
-    //=================================== LLM METHODS END ===================================//
-
-private:
-    const std::string url;
-    const int port;
+    
+    // Remote LLM members
+    std::string url = "";
+    int port = -1;
     std::string SSL_cert = "";
-
+    
+    // Helper to determine if this is a remote client
+    bool is_remote() const { return !url.empty() && port > -1; }
+    
+    // Remote request helper
     std::string post_request(const std::string& path, const json& payload, CharArrayFn callback = nullptr, bool callbackWithJSON=true);
 };
-
 
 extern "C" {
     UNDREAMAI_API LLMClient* LLMClient_Construct(LLMProvider* llm);
 
-    UNDREAMAI_API LLMRemoteClient* LLMRemoteClient_Construct(const char* url, const int port);
+    UNDREAMAI_API LLMClient* LLMClient_Construct_Remote(const char* url, const int port);
 };
