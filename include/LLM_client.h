@@ -26,12 +26,15 @@ public:
 
 protected:
     //=================================== LLM METHODS START ===================================//
+    std::string get_template_json() override;
+    void set_template_json(const json& data) override;
+    std::string apply_template_json(const json& data) override;
     std::string tokenize_json(const json& data) override;
     std::string detokenize_json(const json& data) override;
     std::string embeddings_json(const json& data) override;
     std::string completion_json(const json& data, CharArrayFn callback = nullptr, bool callbackWithJSON=true) override;
     std::string slot_json(const json& data) override;
-    void cancel(int id_slot) override;
+    void cancel_json(const json& data) override;
     //=================================== LLM METHODS END ===================================//
 
 private:
@@ -51,6 +54,8 @@ private:
 };
 
 extern "C" {
+    UNDREAMAI_API void LLMClient_Set_SSL(LLMClient* llm, const char* SSL_cert);
+
     UNDREAMAI_API LLMClient* LLMClient_Construct(LLMProvider* llm);
 
     UNDREAMAI_API LLMClient* LLMClient_Construct_Remote(const char* url, const int port);

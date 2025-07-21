@@ -93,6 +93,41 @@ bool LLM::has_gpu_layers(const std::string& command) {
     return false;
 }
 
+//=========================== Get Template ===========================//
+
+std::string LLM::parse_get_template_json(const json& result) {
+    try {
+        return result["chat_template"].get<std::string>();
+    }
+    catch (const std::exception&) {}
+    return "";
+}
+
+std::string LLM::get_template() {
+    return parse_get_template_json(json::parse(get_template_json()));
+}
+
+//=========================== Apply Template ===========================//
+
+json LLM::build_apply_template_json(const json& data)
+{
+    json j;
+    j["messages"] = data;
+    return j;
+}
+
+std::string LLM::parse_apply_template_json(const json& result) {
+    try {
+        return result["prompt"].get<std::string>();
+    }
+    catch (const std::exception&) {}
+    return "";
+}
+
+std::string LLM::apply_template(const json& data) {
+    return parse_apply_template_json(json::parse(apply_template_json(build_apply_template_json(data))));
+}
+
 //=========================== Tokenize ===========================//
 
 json LLM::build_tokenize_json(const std::string& query)
@@ -195,6 +230,33 @@ std::string LLM::completion(const std::string& prompt, int id_slot, CharArrayFn 
         callback,
         false
     )));
+}
+
+//=========================== Set Template ===========================//
+
+json LLMLocal::build_set_template_json(std::string chat_template)
+{
+    json j;
+    j["chat_template"] = chat_template;
+    return j;
+}
+
+void LLMLocal::set_template(std::string chat_template) {
+    set_template_json(build_set_template_json(chat_template));
+}
+
+
+//=========================== Cancel ===========================//
+
+json LLMLocal::build_cancel_json(int id_slot)
+{
+    json j;
+    j["id_slot"] = id_slot;
+    return j;
+}
+
+void LLMLocal::cancel(int id_slot) {
+    cancel_json(build_cancel_json(id_slot));
 }
 
 //=========================== Slot Action ===========================//
@@ -346,6 +408,19 @@ const char* LLM_Embeddings(LLM* llm, const char* json_data) {
 const char* LLM_Completion(LLM* llm, const char* json_data, CharArrayFn callback, bool callbackWithJSON) {
     std::string result = llm->completion_json(json::parse(json_data), callback, callbackWithJSON);
     return stringToCharArray(result);
+}
+
+const char* LLM_Get_Template(LLM* llm) {
+    return stringToCharArray(llm->get_template());
+}
+
+const char* LLM_Apply_Template(LLM* llm, const char* json_data) {
+    return stringToCharArray(llm->apply_template(json::parse(json_data)));
+}
+
+void LLM_Set_Template(LLMLocal* llm, const char* chat_template)
+{
+    llm->set_template(chat_template);
 }
 
 const char* LLM_Slot(LLMLocal* llm, const char* json_data) {

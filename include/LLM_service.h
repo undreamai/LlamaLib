@@ -33,6 +33,9 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         void debug(int debug_level) override;
         void logging_callback(CharArrayFn callback) override;
 
+        std::string get_template_json() override;
+        void set_template_json(const json& data) override;
+        std::string apply_template_json(const json& data) override;
         std::string tokenize_json(const json& data) override;
         std::string detokenize_json(const json& data) override;
         std::string embeddings_json(const json& data) override;
@@ -40,7 +43,7 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         std::string lora_list_json() override;
         std::string completion_json(const json& data, CharArrayFn callback=nullptr, bool callbackWithJSON=true) override;
         std::string slot_json(const json& data) override;
-        void cancel(int id_slot) override;
+        void cancel_json(const json& data) override;
         
         void start_server(const std::string& host="0.0.0.0", int port=0, const std::string& API_key="") override;
         void stop_server() override;

@@ -106,8 +106,20 @@ protected:
         return LLM_Slot((LLMLocal*)llm, data.dump().c_str());
     }
 
-    void cancel(int id_slot) override {
-        LLM_Cancel((LLMLocal*)llm, id_slot);
+    std::string get_template_json() override {
+        return ((LLMProvider*)llm)->get_template_json();
+    }
+
+    void set_template_json(const json& data) override {
+        ((LLMProvider*)llm)->set_template_json(data);
+    }
+
+    std::string apply_template_json(const json& data) override {
+        return ((LLMProvider*)llm)->apply_template_json(data);
+    }
+
+    void cancel_json(const json& data) override {
+        ((LLMProvider*)llm)->cancel_json(data);
     }
 
     std::string lora_weight_json(const json& data) override {

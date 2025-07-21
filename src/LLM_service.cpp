@@ -460,10 +460,12 @@ void LLMService::start_server(const std::string& host, int port, const std::stri
         completion_json(data, nullptr, true, &res, req.is_connection_closed, OAICOMPAT_TYPE_CHAT);
     };
 
+    const auto get_template_post = [this](const httplib::Request& req, httplib::Response& res) {
+        return res_ok(res, get_template_json());
+    };
+
     const auto apply_template_post = [this](const httplib::Request& req, httplib::Response& res) {
-        json body = handle_post(req, res);
-        json data = oaicompat_completion_params_parse(body, params.use_jinja, params.reasoning_format, ctx_server->chat_templates.get());
-        return res_ok(res, safe_json_to_str({ { "prompt", std::move(data.at("prompt")) } }));
+        return res_ok(res, apply_template_json(handle_post(req, res)));
     };
 
     const auto tokenize_post = [this](const httplib::Request & req, httplib::Response & res) {
@@ -504,6 +506,7 @@ void LLMService::start_server(const std::string& host, int port, const std::stri
     svr->Post("/apply-template",      apply_template_post);
     svr->Post("/embedding",           embeddings_post); // legacy
     svr->Post("/embeddings",          embeddings_post);
+    svr->Post("/get-template",        get_template_post);
     // svr->Get ("/lora-adapters",       lora_list_post);
     // svr->Post("/lora-adapters-list",  lora_list_post);
     // svr->Post("/lora-adapters",       lora_weight_post);
@@ -648,6 +651,26 @@ bool LLMService::middleware_validate_api_key(const httplib::Request & req, httpl
     LOG_WRN("Unauthorized: Invalid API Key\n");
 
     return false;
+}
+
+std::string LLMService::get_template_json() {
+    json result;
+    result["chat_template"] = params.chat_template;
+    return result.dump();
+}
+
+void LLMService::set_template_json(const json& body) {
+    if (body.count("chat_template") == 0) return;
+    std::string chat_template = body.at("chat_template");
+    if (chat_template == "") return;
+    
+    params.chat_template = chat_template;
+    ctx_server->chat_templates = common_chat_templates_init(ctx_server->model, chat_template);
+}
+
+std::string LLMService::apply_template_json(const json& body) {
+    json data = oaicompat_completion_params_parse(body, params.use_jinja, params.reasoning_format, ctx_server->chat_templates.get());
+    return safe_json_to_str({ { "prompt", std::move(data.at("prompt")) } });
 }
 
 std::string LLMService::tokenize_json(const json& body) {
@@ -1129,9 +1152,10 @@ std::string LLMService::slot_json(
     return result_data;
 }
 
-void LLMService::cancel(int id_slot) {
+void LLMService::cancel_json(const json& data) {
     if (setjmp(get_jump_point(true)) != 0) return;
     try {
+        int id_slot = json_value(data, "id_slot", -1);
         for (auto & slot : ctx_server->slots) {
             if (slot.id == id_slot) {
                 release_slot(slot);

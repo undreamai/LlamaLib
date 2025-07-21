@@ -88,6 +88,43 @@ void count_calls(const char* c)
     counter++;
 }
 
+void test_LLM_Template(LLMLocal* llm) {
+    std::string chat_template = "phi3";
+    std::cout << "LLM_Set_Template" << std::endl;
+    LLM_Set_Template(llm, chat_template.c_str());
+    std::cout << "LLM_Get_Template" << std::endl;
+    ASSERT(LLM_Get_Template(llm) == chat_template);
+}
+
+void test_template(LLMLocal* llm) {
+    std::string chat_template = "phi3";
+    std::cout << "set_template" << std::endl;
+    llm->set_template(chat_template);
+
+    std::cout << "get_template" << std::endl;
+    ASSERT(llm->get_template() == chat_template);
+
+    llm->set_template("chatml");
+}
+
+void test_LLM_Apply_Template(LLM* llm) {
+    std::cout << "LLM_Apply_Template" << std::endl;
+    json data = json::array();
+    data.push_back({{"role", "user"}, {"content", "how are you?"}});
+    data.push_back({{"role", "assistant"}, {"content", "fine, thanks, and you?"}});
+    std::string data_formatted = "<|im_start|>user\nhow are you?<|im_end|>\n<|im_start|>assistant\nfine, thanks, and you?";
+    ASSERT(LLM_Apply_Template(llm, data.dump().c_str()) == data_formatted);
+}
+
+void test_apply_template(LLM* llm) {
+    std::cout << "apply_template" << std::endl;
+    json data = json::array();
+    data.push_back({{"role", "user"}, {"content", "how are you?"}});
+    data.push_back({{"role", "assistant"}, {"content", "fine, thanks, and you?"}});
+    std::string data_formatted = "<|im_start|>user\nhow are you?<|im_end|>\n<|im_start|>assistant\nfine, thanks, and you?";
+    ASSERT(llm->apply_template(data) == data_formatted);
+}
+
 void test_LLM_Tokenize(LLM* llm) {
     std::cout << "LLM_Tokenize" << std::endl;
     json data, reply_data;
@@ -294,9 +331,8 @@ public:
         {2, 0.5f, "model2.lora"}
     };
     std::string SAVE_PATH = "test.save";
-
-    bool cancel_called = false;
     int cancelled_slot = -1;
+    std::string chat_template = "";
 
     void start_server(const std::string& host="0.0.0.0", int port=0, const std::string& API_key="") override { }
     void stop_server() override { }
@@ -341,9 +377,8 @@ public:
         return result.dump();
     }
 
-    void cancel(int id_slot) override {
-        cancel_called = true;
-        cancelled_slot = id_slot;
+    void cancel_json(const json& data) override {
+        cancelled_slot = data.at("id_slot");
     }
 
     std::string lora_weight_json(const json& data) override {
@@ -357,6 +392,23 @@ public:
         for (auto& l : LORAS)
             j.push_back({{"id", l.id}, {"scale", l.scale}, {"path", l.path}});
         return j.dump();
+    }
+
+    std::string get_template_json()
+    {
+        return chat_template;
+    }
+
+    void set_template_json(const json& data)
+    {
+        chat_template = data.at("chat_template");
+    }
+
+    std::string apply_template_json(const json& data)
+    {
+        json result;
+        result["prompt"] = data.at("messages")[0].at("message");
+        return result.dump();
     }
 };
 
@@ -461,6 +513,43 @@ void run_mock_tests() {
         ASSERT(llm.parse_lora_list_json(input_json) == llm.LORAS);
         ASSERT(llm.lora_list() == llm.LORAS);
     }
+
+    // --- Cancel ---
+    {
+        int id_slot = 10;
+        json input_json = {{"id_slot", id_slot}};
+
+        ASSERT(llm.build_cancel_json(id_slot) == input_json);
+        llm.cancel(id_slot);
+        ASSERT(llm.cancelled_slot == id_slot);
+    }
+
+    // --- Get / Set Template ---
+    {
+        std::string chat_template = "strange";
+        json input_json = {{"chat_template", chat_template}};
+
+        ASSERT(llm.build_set_template_json(chat_template) == input_json);
+        llm.set_template_json(input_json);
+
+        ASSERT(llm.parse_get_template_json(input_json) == chat_template);
+        ASSERT(llm.get_template_json() == chat_template);
+    }
+
+    // --- Apply Template ---
+    {
+        std::string message = "hi";
+        json messages_json = json::array();
+        messages_json.push_back({{"message", message}});
+        json input_json;
+        input_json["messages"] = messages_json;
+        json output_json;
+        output_json["prompt"] = message;
+
+        ASSERT(llm.build_apply_template_json(messages_json) == input_json);
+        ASSERT(llm.parse_apply_template_json(output_json) == message);
+        ASSERT(llm.apply_template_json(input_json) == output_json.dump());
+    }
 }
 
 void run_LLM_tests(LLM* llm)
@@ -471,11 +560,13 @@ void run_LLM_tests(LLM* llm)
     test_LLM_Completion(llm, false);
     test_LLM_Completion(llm, true);
     test_LLM_Embeddings(llm);
+    test_LLM_Apply_Template(llm);
 
     test_tokenize(llm);
     test_completion(llm, false);
     test_completion(llm, true);
     test_embeddings(llm);
+    test_apply_template(llm);
 }
 
 void run_LLMLocal_tests(LLMLocal* llm)
@@ -484,9 +575,11 @@ void run_LLMLocal_tests(LLMLocal* llm)
 
     test_LLM_Cancel(llm);
     test_LLM_Slot(llm);
+    test_LLM_Template(llm);
 
     test_cancel(llm);
     test_slot(llm);
+    test_template(llm);
 }
 
 void run_LLMProvider_tests(LLMProvider* llm)

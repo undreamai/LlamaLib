@@ -38,6 +38,8 @@ public:
     std::string json_schema = "";
     std::string grammar = "";
 
+    virtual std::string get_template_json() = 0;
+    virtual std::string apply_template_json(const json& data) = 0;
     virtual std::string tokenize_json(const json& data) = 0;
     virtual std::string detokenize_json(const json& data) = 0;
     virtual std::string embeddings_json(const json& data) = 0;
@@ -45,6 +47,13 @@ public:
 
     static bool has_gpu_layers(const std::string& command);
     static std::string LLM_args_to_command(const std::string& model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, const std::vector<std::string>& lora_paths = {});
+
+    virtual std::string parse_get_template_json(const json& result);
+    virtual std::string get_template();
+
+    virtual json build_apply_template_json(const json& data);
+    virtual std::string parse_apply_template_json(const json& result);
+    virtual std::string apply_template(const json& data);
 
     virtual json build_tokenize_json(const std::string& query);
     virtual std::vector<int> parse_tokenize_json(const json& result);
@@ -65,17 +74,19 @@ public:
 
 class UNDREAMAI_API LLMLocal : public LLM {
 public:
+    virtual void set_template_json(const json& data) = 0;
     virtual std::string slot_json(const json& data) = 0;
-    virtual void cancel(int id_slot) = 0;
+    virtual void cancel_json(const json& data) = 0;
+
+    virtual json build_set_template_json(std::string chat_template);
+    virtual void set_template(std::string chat_template);
 
     virtual json build_slot_json(int id_slot, const std::string& action, const std::string& filepath);
     virtual std::string parse_slot_json(const json& result);
     virtual std::string slot(int id_slot, const std::string& action, const std::string& filepath);
-};
 
-class UNDREAMAI_API LLMRemote: public LLM {
-protected:
-    virtual void set_SSL(const char* SSL_cert) = 0;
+    virtual json build_cancel_json(int id_slot);
+    virtual void cancel(int id_slot);
 };
 
 class UNDREAMAI_API LLMProvider : public LLMLocal {
@@ -182,12 +193,15 @@ extern "C" {
 #ifdef _DEBUG
     UNDREAMAI_API const bool IsDebuggerAttached(void);
 #endif
+    UNDREAMAI_API const char* LLM_Get_Template(LLM* llm);
+    UNDREAMAI_API const char* LLM_Apply_Template(LLM* llm, const char* json_data);
 
     UNDREAMAI_API const char* LLM_Tokenize(LLM* llm, const char* json_data);
     UNDREAMAI_API const char* LLM_Detokenize(LLM* llm, const char* json_data);
     UNDREAMAI_API const char* LLM_Embeddings(LLM* llm, const char* json_data);
     UNDREAMAI_API const char* LLM_Completion(LLM* llm, const char* json_data, CharArrayFn callback=nullptr, bool callbackWithJSON=true);
 
+    UNDREAMAI_API void LLM_Set_Template(LLMLocal* llm, const char* chat_template);
     UNDREAMAI_API const char* LLM_Slot(LLMLocal* llm, const char* json_data);
     UNDREAMAI_API void LLM_Cancel(LLMLocal* llm, int id_slot);
 

@@ -49,23 +49,51 @@ std::string LLMClient::completion_json(const json& data, CharArrayFn callback, b
     }
 }
 
+std::string LLMClient::apply_template_json(const json& data)
+{
+    if (is_remote()) {
+        return post_request("apply-template", data);
+    } else {
+        return llm->apply_template_json(data);
+    }
+}
+
+std::string LLMClient::get_template_json()
+{   
+    if (is_remote()) {
+        return post_request("get-template", {});
+    } else {
+        return llm->get_template_json();
+    }
+}
+
+void LLMClient::set_template_json(const json& data)
+{   
+    if (is_remote()) {
+        std::cerr << "Set template is not supported in remote clients" << std::endl;
+        return;
+    } else {
+        return llm->set_template_json(data);
+    }
+}
+
 std::string LLMClient::slot_json(const json& data)
 {
     if (is_remote()) {
-        // Remote clients don't support slot operations directly
+        std::cerr << "Slot operations are not supported in remote clients" << std::endl;
         return "{}";
     } else {
         return llm->slot_json(data);
     }
 }
 
-void LLMClient::cancel(int id_slot)
+void LLMClient::cancel_json(const json& data)
 {
     if (is_remote()) {
-        // Remote clients don't support cancel operations directly
+        std::cerr << "Cancel is not supported in remote clients" << std::endl;
         return;
     } else {
-        llm->cancel(id_slot);
+        llm->cancel_json(data);
     }
 }
 
@@ -207,6 +235,11 @@ std::string LLMClient::post_request(
 }
 
 //================ API ================//
+
+void LLMClient_Set_SSL(LLMClient* llm, const char* SSL_cert)
+{
+    llm->set_SSL(SSL_cert);
+}
 
 LLMClient* LLMClient_Construct(LLMProvider* llm)
 {
