@@ -77,14 +77,15 @@ int counter = 0;
 std::string concat_result = "";
 void count_calls(const char* c)
 {
+    concat_result += c;
+    counter++;
+}
+
+void count_calls_json(const char* c)
+{
     std::string result(c);
-    try {
-        json j = json::parse(result);
-        concat_result += j["content"];
-    }
-    catch (const json::parse_error&) {
-        concat_result += result;
-    }
+    json j = json::parse(result);
+    concat_result += j["content"];
     counter++;
 }
 
@@ -127,19 +128,17 @@ void test_apply_template(LLM* llm) {
 
 void test_LLM_Tokenize(LLM* llm) {
     std::cout << "LLM_Tokenize" << std::endl;
-    json data, reply_data;
+    json reply_data;
     std::string reply;
 
-    data["content"] = PROMPT;
-    reply = std::string(LLM_Tokenize(llm, data.dump().c_str()));
+    reply = std::string(LLM_Tokenize(llm, PROMPT.c_str()));
     reply_data = json::parse(reply);
-    ASSERT(reply_data.count("tokens") > 0);
-    ASSERT(reply_data["tokens"].size() > 0);
+    std::vector<int> tokens = reply_data.get<std::vector<int>>();
+    ASSERT(tokens.size() > 0);
 
     std::cout << "LLM_Detokenize" << std::endl;
     reply = std::string(LLM_Detokenize(llm, reply.c_str()));
-    reply_data = json::parse(reply);
-    ASSERT(trim(reply_data["content"]) == data["content"]);
+    ASSERT(trim(reply) == PROMPT);
 }
 
 void test_tokenize(LLM* llm) {
@@ -157,24 +156,37 @@ void test_LLM_Completion(LLM* llm, bool stream) {
     if (!stream) std::cout << "no ";
     std::cout << "streaming )" << std::endl;
 
-    json data;
-    data["id_slot"] = ID_SLOT;
-    data["prompt"] = PROMPT;
-    data["n_predict"] = llm->n_predict;
-
     counter = 0;
     concat_result = "";
     std::string reply;
     if (stream)
     {
-        reply = std::string(LLM_Completion(llm, data.dump().c_str(), static_cast<CharArrayFn>(count_calls)));
+        reply = std::string(LLM_Completion(llm, PROMPT.c_str(), static_cast<CharArrayFn>(count_calls)));
         ASSERT(counter > 5);
     }
     else
     {
-        reply = std::string(LLM_Completion(llm, data.dump().c_str()));
+        reply = std::string(LLM_Completion(llm, PROMPT.c_str()));
     }
-    reply = json::parse(reply)["content"];
+    ASSERT(reply != "");
+    if (stream) ASSERT(reply == concat_result);
+
+    std::cout << "LLM_Completion JSON ( ";
+    if (!stream) std::cout << "no ";
+    std::cout << "streaming )" << std::endl;
+
+    counter = 0;
+    concat_result = "";
+    if (stream)
+    {
+        reply = std::string(LLM_Completion_JSON(llm, PROMPT.c_str(), static_cast<CharArrayFn>(count_calls_json)));
+        ASSERT(counter > 5);
+    }
+    else
+    {
+        reply = std::string(LLM_Completion_JSON(llm, PROMPT.c_str()));
+    }
+    reply = json::parse(reply)["content"].get<std::string>();
     ASSERT(reply != "");
     if (stream) ASSERT(reply == concat_result);
 }
@@ -189,12 +201,12 @@ void test_completion(LLM* llm, bool stream) {
     std::string reply;
     if (stream)
     {
-        reply = llm->completion(PROMPT, ID_SLOT, static_cast<CharArrayFn>(count_calls));
+        reply = llm->completion(PROMPT, static_cast<CharArrayFn>(count_calls));
         ASSERT(counter > 5);
     }
     else
     {
-        reply = llm->completion(PROMPT, ID_SLOT);
+        reply = llm->completion(PROMPT);
     }
     ASSERT(reply != "");
     if (stream) ASSERT(reply == concat_result);
@@ -202,14 +214,9 @@ void test_completion(LLM* llm, bool stream) {
 
 void test_LLM_Embeddings(LLM* llm) {
     std::cout << "LLM_Embeddings" << std::endl;
-    json data, reply_data;
-    std::string reply;
-
-    data["content"] = PROMPT;
-    reply = std::string(LLM_Embeddings(llm, data.dump().c_str()));
-    reply_data = json::parse(reply);
-
-    ASSERT(reply_data["embedding"].size() == EMBEDDING_SIZE);
+    std::string reply = std::string(LLM_Embeddings(llm, PROMPT.c_str()));
+    std::vector<float> embeddings = json::parse(reply).get<std::vector<float>>();
+    ASSERT(embeddings.size() == EMBEDDING_SIZE);
 }
 
 void test_embeddings(LLM* llm) {
@@ -219,9 +226,7 @@ void test_embeddings(LLM* llm) {
 
 void test_LLM_Lora_List(LLMProvider* llm) {
     std::cout << "LLM_Lora_List" << std::endl;
-    std::string reply;
-    reply = std::string(LLM_Lora_List(llm));
-    json reply_data = json::parse(reply);
+    json reply_data = json::parse(LLM_Lora_List(llm));
     ASSERT(reply_data.size() == 0);
 }
 
@@ -244,41 +249,31 @@ void test_cancel(LLMLocal* llm) {
 void test_LLM_Slot(LLMLocal* llm) {
     std::cout << "LLM_Slot Save" << std::endl;
     std::string filename = "test_undreamai.save";
-    json data;
     json reply_data;
     std::string reply;
 
-    data["id_slot"] = ID_SLOT;
-    data["action"] = "save";
+    std::string filepath = filename;
 
 #ifdef _WIN32
     char buffer[MAX_PATH];
     GetCurrentDirectoryA(MAX_PATH, buffer);
-    data["filepath"] = std::string(buffer) + "\\" + filename;
+    filepath = std::string(buffer) + "\\" + filename;
 #else
     char buffer[PATH_MAX];
     if (getcwd(buffer, sizeof(buffer)) != nullptr)
-        data["filepath"] = std::string(buffer) + "/" + filename;
-    else
-        data["filepath"] = filename;
+        filepath = std::string(buffer) + "/" + filename;
 #endif
 
-    reply = std::string(LLM_Slot(llm, data.dump().c_str()));
-    reply_data = json::parse(reply);
-    ASSERT(reply_data["filename"] == filename);
-    int n_saved = reply_data["n_saved"];
-    ASSERT(n_saved > 0);
+    reply = std::string(LLM_Slot(llm, ID_SLOT, "save", filepath.c_str()));
+    ASSERT(reply == filename);
 
     std::ifstream f(filename);
     ASSERT(f.good());
     f.close();
 
     std::cout << "LLM_Slot Restore" << std::endl;
-    data["action"] = "restore";
-    reply = std::string(LLM_Slot(llm, data.dump().c_str()));
-    reply_data = json::parse(reply);
-    ASSERT(reply_data["filename"] == filename);
-    ASSERT(reply_data["n_restored"] == n_saved);
+    reply = std::string(LLM_Slot(llm, ID_SLOT, "restore", filepath.c_str()));
+    ASSERT(reply == filename);
 
     std::remove(filename.c_str());
 }
@@ -466,7 +461,7 @@ void run_mock_tests() {
 
         ASSERT(llm.build_completion_json(llm.CONTENT, id_slot, params) == input_json);
         ASSERT(llm.parse_completion_json(output_json) == llm.CONTENT);
-        ASSERT(llm.completion(llm.CONTENT, id_slot, nullptr, params) == llm.CONTENT);
+        ASSERT(llm.completion(llm.CONTENT, nullptr, id_slot, params) == llm.CONTENT);
         ASSERT(llm.completion_json(input_json) == output_json.dump());
     }
 

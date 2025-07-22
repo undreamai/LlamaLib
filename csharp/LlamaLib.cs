@@ -50,25 +50,29 @@ namespace UndreamAI.LlamaLib
         public static void LoggingStop() => LLM_Logging_Stop_Static();
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Tokenize")]
-        public static extern IntPtr LLM_Tokenize_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
-        public IntPtr LLM_Tokenize(IntPtr llm, string jsonData) => LlamaLib.LLM_Tokenize_Static(llm, jsonData);
+        public static extern IntPtr LLM_Tokenize_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string query);
+        public IntPtr LLM_Tokenize(IntPtr llm, string query) => LlamaLib.LLM_Tokenize_Static(llm, query);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Detokenize")]
-        public static extern IntPtr LLM_Detokenize_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
-        public IntPtr LLM_Detokenize(IntPtr llm, string jsonData) => LlamaLib.LLM_Detokenize_Static(llm, jsonData);
+        public static extern IntPtr LLM_Detokenize_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string tokens_as_json);
+        public IntPtr LLM_Detokenize(IntPtr llm, string tokens_as_json) => LlamaLib.LLM_Detokenize_Static(llm, tokens_as_json);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Embeddings")]
-        public static extern IntPtr LLM_Embeddings_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
-        public IntPtr LLM_Embeddings(IntPtr llm, string jsonData) => LlamaLib.LLM_Embeddings_Static(llm, jsonData);
+        public static extern IntPtr LLM_Embeddings_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string query);
+        public IntPtr LLM_Embeddings(IntPtr llm, string query) => LlamaLib.LLM_Embeddings_Static(llm, query);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Completion")]
-        public static extern IntPtr LLM_Completion_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData, CharArrayCallback callback, bool callbackWithJSON=true);
-        public IntPtr LLM_Completion(IntPtr llm, string jsonData, CharArrayCallback callback, bool callbackWithJSON) => LlamaLib.LLM_Completion_Static(llm, jsonData, callback, callbackWithJSON);
+        public static extern IntPtr LLM_Completion_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string query, CharArrayCallback callback, int id_slot=-1, [MarshalAs(UnmanagedType.LPStr)] string params_json="{}");
+        public IntPtr LLM_Completion(IntPtr llm, string query, CharArrayCallback callback, int id_json, string params_json) => LlamaLib.LLM_Completion_Static(llm, query, callback, id_slot, params_json);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Completion_JSON")]
+        public static extern IntPtr LLM_Completion_JSON_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string query, CharArrayCallback callback, int id_slot=-1, [MarshalAs(UnmanagedType.LPStr)] string params_json="{}");
+        public IntPtr LLM_Completion_JSON(IntPtr llm, string query, CharArrayCallback callback, int id_json, string params_json) => LlamaLib.LLM_Completion_JSON_Static(llm, query, callback, id_slot, params_json);
 
         // LLMLocal functions
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Slot")]
-        public static extern IntPtr LLM_Slot_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
-        public IntPtr LLM_Slot(IntPtr llm, string jsonData) => LlamaLib.LLM_Slot_Static(llm, jsonData);
+        public static extern IntPtr LLM_Slot_Static(IntPtr llm, int id_slot, [MarshalAs(UnmanagedType.LPStr)] string action, [MarshalAs(UnmanagedType.LPStr)] string filepath);
+        public IntPtr LLM_Slot(IntPtr llm, int id_slot, string action, string filepath) => LlamaLib.LLM_Slot_Static(llm, id_slot, action, filepath);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Cancel")]
         public static extern void LLM_Cancel_Static(IntPtr llm, int idSlot);
@@ -76,8 +80,8 @@ namespace UndreamAI.LlamaLib
 
         // LLMProvider functions
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Lora_Weight")]
-        public static extern IntPtr LLM_Lora_Weight_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
-        public IntPtr LLM_Lora_Weight(IntPtr llm, string jsonData) => LlamaLib.LLM_Lora_Weight_Static(llm, jsonData);
+        public static extern bool LLM_Lora_Weight_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string loras_as_json);
+        public bool LLM_Lora_Weight(IntPtr llm, string loras_as_json) => LlamaLib.LLM_Lora_Weight_Static(llm, loras_as_json);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Lora_List")]
         public static extern IntPtr LLM_Lora_List_Static(IntPtr llm);
@@ -309,6 +313,7 @@ namespace UndreamAI.LlamaLib
             LLM_Detokenize = LibraryLoader.GetSymbolDelegate<LLM_Detokenize_Delegate>(libraryHandle, "LLM_Detokenize");
             LLM_Embeddings = LibraryLoader.GetSymbolDelegate<LLM_Embeddings_Delegate>(libraryHandle, "LLM_Embeddings");
             LLM_Completion = LibraryLoader.GetSymbolDelegate<LLM_Completion_Delegate>(libraryHandle, "LLM_Completion");
+            LLM_Completion_JSON = LibraryLoader.GetSymbolDelegate<LLM_Completion_Delegate>(libraryHandle, "LLM_Completion_JSON");
             LLM_Slot = LibraryLoader.GetSymbolDelegate<LLM_Slot_Delegate>(libraryHandle, "LLM_Slot");
             LLM_Cancel = LibraryLoader.GetSymbolDelegate<LLM_Cancel_Delegate>(libraryHandle, "LLM_Cancel");
             LLM_Lora_Weight = LibraryLoader.GetSymbolDelegate<LLM_Lora_Weight_Delegate>(libraryHandle, "LLM_Lora_Weight");
@@ -350,25 +355,25 @@ namespace UndreamAI.LlamaLib
 
         // Main lib
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr LLM_Tokenize_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
+        public delegate IntPtr LLM_Tokenize_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string query);
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr LLM_Detokenize_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
+        public delegate IntPtr LLM_Detokenize_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string tokens_as_json);
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr LLM_Embeddings_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
+        public delegate IntPtr LLM_Embeddings_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string query);
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr LLM_Completion_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData, CharArrayCallback callback, bool callbackWithJSON=true);
+        public delegate IntPtr LLM_Completion_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string query, CharArrayCallback callback, int id_slot=-1, [MarshalAs(UnmanagedType.LPStr)] string params_json="{}");
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr LLM_Slot_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
+        public delegate IntPtr LLM_Slot_Delegate(IntPtr llm, int id_slot, [MarshalAs(UnmanagedType.LPStr)] string action, [MarshalAs(UnmanagedType.LPStr)] string filepath);
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void LLM_Cancel_Delegate(IntPtr llm, int idSlot);
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr LLM_Lora_Weight_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string jsonData);
+        public delegate bool LLM_Lora_Weight_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string loras_as_json);
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr LLM_Lora_List_Delegate(IntPtr llm);
@@ -444,6 +449,7 @@ namespace UndreamAI.LlamaLib
         public LLM_Detokenize_Delegate LLM_Detokenize;
         public LLM_Embeddings_Delegate LLM_Embeddings;
         public LLM_Completion_Delegate LLM_Completion;
+        public LLM_Completion_Delegate LLM_Completion_JSON;
         public LLM_Slot_Delegate LLM_Slot;
         public LLM_Cancel_Delegate LLM_Cancel;
         public LLM_Lora_Weight_Delegate LLM_Lora_Weight;

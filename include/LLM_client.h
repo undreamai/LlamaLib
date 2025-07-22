@@ -55,8 +55,6 @@ private:
 
 extern "C" {
     UNDREAMAI_API void LLMClient_Set_SSL(LLMClient* llm, const char* SSL_cert);
-
     UNDREAMAI_API LLMClient* LLMClient_Construct(LLMProvider* llm);
-
     UNDREAMAI_API LLMClient* LLMClient_Construct_Remote(const char* url, const int port);
 };

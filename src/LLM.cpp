@@ -109,10 +109,10 @@ std::string LLM::get_template() {
 
 //=========================== Apply Template ===========================//
 
-json LLM::build_apply_template_json(const json& data)
+json LLM::build_apply_template_json(const json& messages)
 {
     json j;
-    j["messages"] = data;
+    j["messages"] = messages;
     return j;
 }
 
@@ -124,8 +124,8 @@ std::string LLM::parse_apply_template_json(const json& result) {
     return "";
 }
 
-std::string LLM::apply_template(const json& data) {
-    return parse_apply_template_json(json::parse(apply_template_json(build_apply_template_json(data))));
+std::string LLM::apply_template(const json& messages) {
+    return parse_apply_template_json(json::parse(apply_template_json(build_apply_template_json(messages))));
 }
 
 //=========================== Tokenize ===========================//
@@ -223,7 +223,7 @@ std::string LLM::parse_completion_json(const json& result)
     return "";
 }
 
-std::string LLM::completion(const std::string& prompt, int id_slot, CharArrayFn callback, const json& params)
+std::string LLM::completion(const std::string& prompt, CharArrayFn callback, int id_slot, const json& params)
 {
     return parse_completion_json(json::parse(completion_json(
         build_completion_json(prompt, id_slot, params),
@@ -390,51 +390,55 @@ const bool IsDebuggerAttached(void) {
 }
 #endif
 
-const char* LLM_Tokenize(LLM* llm, const char* json_data) {
-    std::string result = llm->tokenize_json(json::parse(json_data));
-    return stringToCharArray(result);
+const char* LLM_Tokenize(LLM* llm, const char* query) {
+    json result = llm->tokenize(query);
+    return stringToCharArray(result.dump());
 }
 
-const char* LLM_Detokenize(LLM* llm, const char* json_data) {
-    std::string result = llm->detokenize_json(json::parse(json_data));
-    return stringToCharArray(result);
+const char* LLM_Detokenize(LLM* llm, const char* tokens_as_json) {
+    return stringToCharArray(llm->detokenize(json::parse(tokens_as_json)));
 }
 
-const char* LLM_Embeddings(LLM* llm, const char* json_data) {
-    std::string result = llm->embeddings_json(json::parse(json_data));
-    return stringToCharArray(result);
+const char* LLM_Embeddings(LLM* llm, const char* query) {
+    json result = llm->embeddings(query);
+    return stringToCharArray(result.dump());
 }
 
-const char* LLM_Completion(LLM* llm, const char* json_data, CharArrayFn callback, bool callbackWithJSON) {
-    std::string result = llm->completion_json(json::parse(json_data), callback, callbackWithJSON);
-    return stringToCharArray(result);
+const char* LLM_Completion(LLM* llm, const char* prompt, CharArrayFn callback, int id_slot, const char* params_as_json) {
+    return stringToCharArray(llm->completion(prompt, callback, id_slot, json::parse(params_as_json)));
+}
+
+const char* LLM_Completion_JSON(LLM* llm, const char* prompt, CharArrayFn callback, int id_slot, const char* params_as_json) {
+    std::string completion_json_str = llm->completion_json(
+        llm->build_completion_json(std::string(prompt), id_slot, json::parse(params_as_json)),
+        callback,
+        true
+    );
+    return stringToCharArray(completion_json_str);
 }
 
 const char* LLM_Get_Template(LLM* llm) {
     return stringToCharArray(llm->get_template());
 }
 
-const char* LLM_Apply_Template(LLM* llm, const char* json_data) {
-    return stringToCharArray(llm->apply_template(json::parse(json_data)));
+const char* LLM_Apply_Template(LLM* llm, const char* messages_as_json) {
+    return stringToCharArray(llm->apply_template(json::parse(messages_as_json)));
 }
 
-void LLM_Set_Template(LLMLocal* llm, const char* chat_template)
-{
+void LLM_Set_Template(LLMLocal* llm, const char* chat_template) {
     llm->set_template(chat_template);
 }
 
-const char* LLM_Slot(LLMLocal* llm, const char* json_data) {
-    std::string result = llm->slot_json(json::parse(json_data));
-    return stringToCharArray(result);
+const char* LLM_Slot(LLMLocal* llm, int id_slot, const char* action, const char* filepath) {
+    return stringToCharArray(llm->slot(id_slot, action, filepath));
 }
 
 void LLM_Cancel(LLMLocal* llm, int id_slot) {
     llm->cancel(id_slot);
 }
 
-const char* LLM_Lora_Weight(LLMProvider* llm, const char* json_data) {
-    std::string result = llm->lora_weight_json(json::parse(json_data));
-    return stringToCharArray(result);
+bool LLM_Lora_Weight(LLMProvider* llm, const char* loras_as_json) {
+    return llm->parse_lora_weight_json(json::parse(llm->lora_weight_json(loras_as_json)));
 }
 
 const char* LLM_Lora_List(LLMProvider* llm) {

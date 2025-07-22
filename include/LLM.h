@@ -51,9 +51,9 @@ public:
     virtual std::string parse_get_template_json(const json& result);
     virtual std::string get_template();
 
-    virtual json build_apply_template_json(const json& data);
+    virtual json build_apply_template_json(const json& messages);
     virtual std::string parse_apply_template_json(const json& result);
-    virtual std::string apply_template(const json& data);
+    virtual std::string apply_template(const json& messages);
 
     virtual json build_tokenize_json(const std::string& query);
     virtual std::vector<int> parse_tokenize_json(const json& result);
@@ -67,9 +67,9 @@ public:
     virtual std::vector<float> parse_embeddings_json(const json& result);
     virtual std::vector<float> embeddings(const std::string& query);
 
-    virtual json build_completion_json(const std::string& prompt, int id_slot, const json& params=json({}));
+    virtual json build_completion_json(const std::string& prompt, int id_slot=-1, const json& params=json({}));
     virtual std::string parse_completion_json(const json& result);
-    virtual std::string completion(const std::string& prompt, int id_slot, CharArrayFn callback = nullptr, const json& params=json({}));
+    virtual std::string completion(const std::string& prompt, CharArrayFn callback=nullptr, int id_slot=-1, const json& params_as_json=json({}));
 };
 
 class UNDREAMAI_API LLMLocal : public LLM {
@@ -194,18 +194,19 @@ extern "C" {
     UNDREAMAI_API const bool IsDebuggerAttached(void);
 #endif
     UNDREAMAI_API const char* LLM_Get_Template(LLM* llm);
-    UNDREAMAI_API const char* LLM_Apply_Template(LLM* llm, const char* json_data);
+    UNDREAMAI_API const char* LLM_Apply_Template(LLM* llm, const char* messages_as_json);
 
-    UNDREAMAI_API const char* LLM_Tokenize(LLM* llm, const char* json_data);
-    UNDREAMAI_API const char* LLM_Detokenize(LLM* llm, const char* json_data);
-    UNDREAMAI_API const char* LLM_Embeddings(LLM* llm, const char* json_data);
-    UNDREAMAI_API const char* LLM_Completion(LLM* llm, const char* json_data, CharArrayFn callback=nullptr, bool callbackWithJSON=true);
+    UNDREAMAI_API const char* LLM_Tokenize(LLM* llm, const char* query);
+    UNDREAMAI_API const char* LLM_Detokenize(LLM* llm, const char* tokens_as_json);
+    UNDREAMAI_API const char* LLM_Embeddings(LLM* llm, const char* query);
+    UNDREAMAI_API const char* LLM_Completion(LLM* llm, const char* prompt, CharArrayFn callback=nullptr, int id_slot=-1, const char* params_json="{}");
+    UNDREAMAI_API const char* LLM_Completion_JSON(LLM* llm, const char* prompt, CharArrayFn callback=nullptr, int id_slot=-1, const char* params_json="{}");
 
     UNDREAMAI_API void LLM_Set_Template(LLMLocal* llm, const char* chat_template);
-    UNDREAMAI_API const char* LLM_Slot(LLMLocal* llm, const char* json_data);
+    UNDREAMAI_API const char* LLM_Slot(LLMLocal* llm, int id_slot, const char* action, const char* filepath);
     UNDREAMAI_API void LLM_Cancel(LLMLocal* llm, int id_slot);
 
-    UNDREAMAI_API const char* LLM_Lora_Weight(LLMProvider* llm, const char* json_data);
+    UNDREAMAI_API bool LLM_Lora_Weight(LLMProvider* llm, const char* loras_as_json);
     UNDREAMAI_API const char* LLM_Lora_List(LLMProvider* llm);
     UNDREAMAI_API void LLM_Delete(LLMProvider* llm);
     UNDREAMAI_API void LLM_Start(LLMProvider* llm);

@@ -76,6 +76,18 @@ public:
     void set_SSL(const std::string& cert, const std::string& key) override { ((LLMProvider*)llm)->set_SSL(cert, key); }
     bool started() override { return ((LLMProvider*)llm)->started(); }
     int embedding_size() override { return ((LLMProvider*)llm)->embedding_size();}
+
+    std::string tokenize_json(const json& data) override { return ((LLMProvider*)llm)->tokenize_json(data); }
+    std::string detokenize_json(const json& data) override { return ((LLMProvider*)llm)->detokenize_json(data); }
+    std::string embeddings_json(const json& data) override { return ((LLMProvider*)llm)->embeddings_json(data); }
+    std::string completion_json(const json& data, CharArrayFn callback = nullptr, bool callbackWithJSON = true) override { return ((LLMProvider*)llm)->completion_json(data, callback, callbackWithJSON); }
+    std::string slot_json(const json& data) override { return ((LLMProvider*)llm)->slot_json(data); }
+    std::string get_template_json() override { return ((LLMProvider*)llm)->get_template_json(); }
+    void set_template_json(const json& data) override { ((LLMProvider*)llm)->set_template_json(data);}
+    std::string apply_template_json(const json& data) override { return ((LLMProvider*)llm)->apply_template_json(data); }
+    void cancel_json(const json& data) override { ((LLMProvider*)llm)->cancel_json(data); }
+    std::string lora_weight_json(const json& data) override { return ((LLMProvider*)llm)->lora_weight_json(data); }
+    std::string lora_list_json() override { return ((LLMProvider*)llm)->lora_list_json(); }
     //=================================== LLM METHODS END ===================================//
 
 #define DECLARE_FN(name, ret, ...) \
@@ -85,51 +97,6 @@ public:
 
 protected:
     std::vector<std::string> search_paths;
-
-    //=================================== LLM METHODS START ===================================//
-    std::string tokenize_json(const json& data) override {
-        return LLM_Tokenize((LLM*)llm, data.dump().c_str());
-    }
-
-    std::string detokenize_json(const json& data) override {
-        return LLM_Detokenize((LLM*)llm, data.dump().c_str());
-    }
-
-    std::string embeddings_json(const json& data) override {
-        return LLM_Embeddings((LLM*)llm, data.dump().c_str());
-    }
-    std::string completion_json(const json& data, CharArrayFn callback = nullptr, bool callbackWithJSON = true) override {
-        return LLM_Completion((LLM*)llm, data.dump().c_str(), callback, callbackWithJSON);
-    }
-
-    std::string slot_json(const json& data) override {
-        return LLM_Slot((LLMLocal*)llm, data.dump().c_str());
-    }
-
-    std::string get_template_json() override {
-        return ((LLMProvider*)llm)->get_template_json();
-    }
-
-    void set_template_json(const json& data) override {
-        ((LLMProvider*)llm)->set_template_json(data);
-    }
-
-    std::string apply_template_json(const json& data) override {
-        return ((LLMProvider*)llm)->apply_template_json(data);
-    }
-
-    void cancel_json(const json& data) override {
-        ((LLMProvider*)llm)->cancel_json(data);
-    }
-
-    std::string lora_weight_json(const json& data) override {
-        return LLM_Lora_Weight((LLMProvider*)llm, data.dump().c_str());
-    }
-
-    std::string lora_list_json() override {
-        return LLM_Lora_List((LLMProvider*)llm);
-    }
-    //=================================== LLM METHODS END ===================================//
 
     bool create_LLM_library_backend(const std::string& command, const std::string& llm_lib_filename);
 };
