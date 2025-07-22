@@ -85,6 +85,22 @@ namespace UndreamAI.LlamaLib
             Dispose();
         }
 
+        public string GetTemplate()
+        {
+            CheckLlamaLib();
+            IntPtr result = llamaLib.LLM_Get_Template(llm);
+            return Marshal.PtrToStringAnsi(result) ?? string.Empty;
+        }
+
+        public string ApplyTemplate(JArray messages = null)
+        {
+            if (messages == null)
+                throw new ArgumentNullException(nameof(messages));
+            CheckLlamaLib();
+            IntPtr result = llamaLib.LLM_Apply_Template(llm, messages.ToString());
+            return Marshal.PtrToStringAnsi(result) ?? string.Empty;
+        }
+
         public List<int> Tokenize(string content)
         {
             if (string.IsNullOrEmpty(content))
@@ -96,7 +112,7 @@ namespace UndreamAI.LlamaLib
             List<int> ret = new List<int>();
             try
             {
-                JObject json = JObject.Parse(resultStr);
+                JArray json = JArray.Parse(resultStr);
                 ret = json?.ToObject<List<int>>();
             }
             catch { }
@@ -134,7 +150,7 @@ namespace UndreamAI.LlamaLib
             List<float> ret = new List<float>();
             try
             {
-                JObject json = JObject.Parse(resultStr);
+                JArray json = JArray.Parse(resultStr);
                 ret = json?.ToObject<List<float>>();
             }
             catch { }
@@ -166,15 +182,14 @@ namespace UndreamAI.LlamaLib
         {
             if (string.IsNullOrEmpty(prompt))
                 throw new ArgumentNullException(nameof(prompt));
-
             CheckLlamaLib();
         }
 
         public string CompletionInternal(string prompt, LlamaLib.CharArrayCallback callback, int idSlot, JObject parameters, bool callbackWithJSON)
         {
             IntPtr result;
-            if (callbackWithJSON) result = llamaLib.LLM_Completion(llm, prompt, callback, idSlot, BuildParametersJSON(parameters));
-            else result = llamaLib.LLM_Completion_JSON(llm, prompt, callback, idSlot, BuildParametersJSON(parameters));
+            if (callbackWithJSON) result = llamaLib.LLM_Completion_JSON(llm, prompt, callback, idSlot, BuildParametersJSON(parameters));
+            else result = llamaLib.LLM_Completion(llm, prompt, callback, idSlot, BuildParametersJSON(parameters));
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
@@ -210,13 +225,21 @@ namespace UndreamAI.LlamaLib
 
         protected LLMLocal(LlamaLib llamaLibInstance) : base(llamaLibInstance) { }
 
+        public void SetTemplate(string template)
+        {
+            if (string.IsNullOrEmpty(template))
+                throw new ArgumentNullException(nameof(template));
+            CheckLlamaLib();
+            llamaLib.LLM_Set_Template(llm, template);
+        }
+
         public string Slot(int idSlot, string action, string filepath)
         {
             if (string.IsNullOrEmpty(action))
                 throw new ArgumentNullException(nameof(action));
             if (string.IsNullOrEmpty(filepath))
                 throw new ArgumentNullException(nameof(filepath));
-            
+
             IntPtr result = llamaLib.LLM_Slot(llm, idSlot, action, filepath);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }

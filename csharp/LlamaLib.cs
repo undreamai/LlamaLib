@@ -49,6 +49,14 @@ namespace UndreamAI.LlamaLib
         public static extern void LLM_Logging_Stop_Static();
         public static void LoggingStop() => LLM_Logging_Stop_Static();
 
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Get_Template")]
+        public static extern IntPtr LLM_Get_Template_Static(IntPtr llm);
+        public IntPtr LLM_Get_Template(IntPtr llm) => LLM_Get_Template_Static(llm);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Apply_Template")]
+        public static extern IntPtr LLM_Apply_Template_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string messages_as_json);
+        public IntPtr LLM_Apply_Template(IntPtr llm, string messages_as_json) => LLM_Apply_Template_Static(llm, messages_as_json);
+
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Tokenize")]
         public static extern IntPtr LLM_Tokenize_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string query);
         public IntPtr LLM_Tokenize(IntPtr llm, string query) => LlamaLib.LLM_Tokenize_Static(llm, query);
@@ -70,6 +78,10 @@ namespace UndreamAI.LlamaLib
         public IntPtr LLM_Completion_JSON(IntPtr llm, string query, CharArrayCallback callback, int id_json, string params_json) => LlamaLib.LLM_Completion_JSON_Static(llm, query, callback, id_slot, params_json);
 
         // LLMLocal functions
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Set_Template")]
+        public static extern IntPtr LLM_Set_Template_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string template);
+        public IntPtr LLM_Set_Template(IntPtr llm, string template) => LLM_Set_Template_Static(llm, template);
+
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Slot")]
         public static extern IntPtr LLM_Slot_Static(IntPtr llm, int id_slot, [MarshalAs(UnmanagedType.LPStr)] string action, [MarshalAs(UnmanagedType.LPStr)] string filepath);
         public IntPtr LLM_Slot(IntPtr llm, int id_slot, string action, string filepath) => LlamaLib.LLM_Slot_Static(llm, id_slot, action, filepath);
@@ -309,6 +321,9 @@ namespace UndreamAI.LlamaLib
             LLM_Debug = LibraryLoader.GetSymbolDelegate<LLM_Debug_Delegate>(libraryHandle, "LLM_Debug");
             LLM_Logging_Callback = LibraryLoader.GetSymbolDelegate<LLM_Logging_Callback_Delegate>(libraryHandle, "LLM_Logging_Callback");
             LLM_Logging_Stop = LibraryLoader.GetSymbolDelegate<LLM_Logging_Stop_Delegate>(libraryHandle, "LLM_Logging_Stop");
+            LLM_Get_Template = LibraryLoader.GetSymbolDelegate<LLM_Get_Template_Delegate>(libraryHandle, "LLM_Get_Template");
+            LLM_Set_Template = LibraryLoader.GetSymbolDelegate<LLM_Set_Template_Delegate>(libraryHandle, "LLM_Set_Template");
+            LLM_Apply_Template = LibraryLoader.GetSymbolDelegate<LLM_Apply_Template_Delegate>(libraryHandle, "LLM_Apply_Template");
             LLM_Tokenize = LibraryLoader.GetSymbolDelegate<LLM_Tokenize_Delegate>(libraryHandle, "LLM_Tokenize");
             LLM_Detokenize = LibraryLoader.GetSymbolDelegate<LLM_Detokenize_Delegate>(libraryHandle, "LLM_Detokenize");
             LLM_Embeddings = LibraryLoader.GetSymbolDelegate<LLM_Embeddings_Delegate>(libraryHandle, "LLM_Embeddings");
@@ -354,6 +369,15 @@ namespace UndreamAI.LlamaLib
         public delegate void LLM_Logging_Stop_Delegate();
 
         // Main lib
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate IntPtr LLM_Get_Template_Delegate(IntPtr llm);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate IntPtr LLM_Set_Template_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string template);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate IntPtr LLM_Apply_Template_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string messages_as_json);
+
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr LLM_Tokenize_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string query);
         
@@ -445,6 +469,9 @@ namespace UndreamAI.LlamaLib
         public LLM_Debug_Delegate LLM_Debug;
         public LLM_Logging_Callback_Delegate LLM_Logging_Callback;
         public LLM_Logging_Stop_Delegate LLM_Logging_Stop;
+        public LLM_Get_Template_Delegate LLM_Get_Template;
+        public LLM_Set_Template_Delegate LLM_Set_Template;
+        public LLM_Apply_Template_Delegate LLM_Apply_Template;
         public LLM_Tokenize_Delegate LLM_Tokenize;
         public LLM_Detokenize_Delegate LLM_Detokenize;
         public LLM_Embeddings_Delegate LLM_Embeddings;
