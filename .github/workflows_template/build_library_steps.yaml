@@ -301,7 +301,7 @@ jobs:
           cp ${{ env.RELEASE_NAME }}.zip ~/.nuget/packages/LlamaLib/${{ env.RELEASE_NAME }}.zip
           cd tests/csharp
           dotnet build -c Release
-          dotnet test -c Release
+          dotnet test -c Release --logger "console;verbosity=detailed"
 
       - name: Release
         id: release
