@@ -277,6 +277,7 @@ void LLMService::init(int argc, char ** argv){
         ctx_server->slot_prompt_similarity = params.slot_prompt_similarity;
 
         // load the model
+        if (params.chat_template.empty()) params.chat_template = "chatml";
         if (!ctx_server->load_model(params)) {
             throw std::runtime_error("Error loading the model!");
         } else {
