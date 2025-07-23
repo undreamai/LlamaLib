@@ -142,12 +142,12 @@ namespace UndreamAI.LlamaLib
         public void LLM_Set_SSL(IntPtr llm, string sslCert, string sslKey) => LlamaLib.LLM_Set_SSL_Static(llm, sslCert, sslKey);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Status_Code")]
-        public static extern int LLM_Status_Code_Static(IntPtr llm);
-        public int LLM_Status_Code(IntPtr llm) => LlamaLib.LLM_Status_Code_Static(llm);
+        public static extern int LLM_Status_Code_Static();
+        public int LLM_Status_Code() => LlamaLib.LLM_Status_Code_Static();
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Status_Message")]
-        public static extern IntPtr LLM_Status_Message_Static(IntPtr llm);
-        public IntPtr LLM_Status_Message(IntPtr llm) => LlamaLib.LLM_Status_Message_Static(llm);
+        public static extern IntPtr LLM_Status_Message_Static();
+        public IntPtr LLM_Status_Message() => LlamaLib.LLM_Status_Message_Static();
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Embedding_Size")]
         public static extern int LLM_Embedding_Size_Static(IntPtr llm);
@@ -430,10 +430,10 @@ namespace UndreamAI.LlamaLib
         public delegate void LLM_Set_SSL_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string sslCert, [MarshalAs(UnmanagedType.LPStr)] string sslKey);
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate int LLM_Status_Code_Delegate(IntPtr llm);
+        public delegate int LLM_Status_Code_Delegate();
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr LLM_Status_Message_Delegate(IntPtr llm);
+        public delegate IntPtr LLM_Status_Message_Delegate();
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int LLM_Embedding_Size_Delegate(IntPtr llm);

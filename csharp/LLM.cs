@@ -76,6 +76,11 @@ namespace UndreamAI.LlamaLib
             if (disposed) throw new ObjectDisposedException(GetType().Name);
             if (llamaLib == null) throw new InvalidOperationException("LlamaLib instance is not initialized");
             if (llm == IntPtr.Zero) throw new InvalidOperationException("LLM instance is not initialized");
+            if (llamaLib.LLM_Status_Code() != 0)
+            {
+                string status_msg = Marshal.PtrToStringAnsi(llamaLib.LLM_Status_Message()) ?? string.Empty;
+                throw new AccessViolationException(status_msg);
+            }
         }
 
         public virtual void Dispose() { }
@@ -384,19 +389,6 @@ namespace UndreamAI.LlamaLib
             
             CheckLlamaLib();
             llamaLib.LLM_Set_SSL(llm, sslCert, sslKey);
-        }
-
-        public int StatusCode()
-        {
-            CheckLlamaLib();
-            return llamaLib.LLM_Status_Code(llm);
-        }
-
-        public string StatusMessage()
-        {
-            CheckLlamaLib();
-            var result = llamaLib.LLM_Status_Message(llm);
-            return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
         public int EmbeddingSize()
