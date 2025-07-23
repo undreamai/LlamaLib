@@ -24,6 +24,9 @@ public:
     // SSL support (only for remote clients)
     void set_SSL(const char* SSL_cert);
 
+    // Helper to determine if this is a remote client
+    bool is_remote() const { return !url.empty() && port > -1; }
+
 protected:
     //=================================== LLM METHODS START ===================================//
     std::string get_template_json() override;
@@ -44,9 +47,6 @@ private:
     std::string url = "";
     int port = -1;
     std::string SSL_cert = "";
-    
-    // Helper to determine if this is a remote client
-    bool is_remote() const { return !url.empty() && port > -1; }
     
     // Remote request helper
     std::string post_request(const std::string& path, const json& payload, CharArrayFn callback = nullptr, bool callbackWithJSON=true);

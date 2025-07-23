@@ -43,7 +43,13 @@ std::string LLMClient::embeddings_json(const json& data)
 std::string LLMClient::completion_json(const json& data, CharArrayFn callback, bool callbackWithJSON)
 {
     if (is_remote()) {
-        return post_request("completion", data, callback, callbackWithJSON);
+        json data_remote = data;
+        if (data.contains("id_slot") && data["id_slot"] != -1)
+        {
+            std::cerr << "Remote clients can only use id_slot -1" << std::endl;
+            data_remote["id_slot"] = -1;
+        }
+        return post_request("completion", data_remote, callback, callbackWithJSON);
     } else {
         return llm->completion_json(data, callback, callbackWithJSON);
     }
