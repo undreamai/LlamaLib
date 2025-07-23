@@ -1,4 +1,5 @@
 #include "LLM_service.h"
+#include "llama-chat.h"
 #ifndef SERVER_H
 #define SERVER_H
 #include "server.cpp"
@@ -277,14 +278,20 @@ void LLMService::init(int argc, char ** argv){
         ctx_server->slot_prompt_similarity = params.slot_prompt_similarity;
 
         // load the model
-        if (params.chat_template.empty()) params.chat_template = "chatml";
         if (!ctx_server->load_model(params)) {
             throw std::runtime_error("Error loading the model!");
         } else {
             ctx_server->init();
         }
-
         LLAMALIB_INF("model loaded\n");
+
+        const char* chat_template = detect_chat_template();
+        if (chat_template == "")
+        {
+            set_template("chatml");
+            chat_template = detect_chat_template();
+        }
+        LLAMALIB_INF("chat_template: %s\n", chat_template);
 
         ctx_server->queue_tasks.on_new_task([this](const server_task & task) {
             this->ctx_server->process_single_task(task);
@@ -295,6 +302,27 @@ void LLMService::init(int argc, char ** argv){
     } catch(...) {
         handle_exception(1);
     }
+}
+
+const char* LLMService::detect_chat_template()
+{
+    const char* chat_template_jinja = common_chat_templates_source(ctx_server->chat_templates.get());
+    int chat_template_value = llm_chat_detect_template(chat_template_jinja);
+    std::vector<const char *> supported_tmpl;
+    int res = llama_chat_builtin_templates(nullptr, 0);
+    if (res > 0)
+    {
+        supported_tmpl.resize(res);
+        llama_chat_builtin_templates(supported_tmpl.data(), supported_tmpl.size());
+        for (const auto& key : supported_tmpl) {
+            llm_chat_template val = llm_chat_template_from_str(key);
+            if ((int) val == chat_template_value) {
+                return key;
+                break;
+            }
+        }
+    }
+    return "";
 }
 
 void LLMService::debug(int debug_level)
@@ -664,7 +692,6 @@ void LLMService::set_template_json(const json& body) {
     if (body.count("chat_template") == 0) return;
     std::string chat_template = body.at("chat_template");
     if (chat_template == "") return;
-    
     params.chat_template = chat_template;
     ctx_server->chat_templates = common_chat_templates_init(ctx_server->model, chat_template);
 }

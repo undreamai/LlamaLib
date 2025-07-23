@@ -73,6 +73,7 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         bool server_stopped = false;
 
         std::vector<std::string> splitArguments(const std::string& inputString);
+        const char* detect_chat_template();
         std::string completion_streaming(
             std::unordered_set<int> id_tasks,
             CharArrayFn callback=nullptr,
