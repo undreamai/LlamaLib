@@ -67,16 +67,6 @@ std::string LLMClient::get_template_json()
     }
 }
 
-void LLMClient::set_template_json(const json& data)
-{   
-    if (is_remote()) {
-        std::cerr << "Set template is not supported in remote clients" << std::endl;
-        return;
-    } else {
-        return llm->set_template_json(data);
-    }
-}
-
 std::string LLMClient::slot_json(const json& data)
 {
     if (is_remote()) {

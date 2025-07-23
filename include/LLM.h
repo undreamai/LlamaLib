@@ -74,12 +74,8 @@ public:
 
 class UNDREAMAI_API LLMLocal : public LLM {
 public:
-    virtual void set_template_json(const json& data) = 0;
     virtual std::string slot_json(const json& data) = 0;
     virtual void cancel_json(const json& data) = 0;
-
-    virtual json build_set_template_json(std::string chat_template);
-    virtual void set_template(std::string chat_template);
 
     virtual json build_slot_json(int id_slot, const std::string& action, const std::string& filepath);
     virtual std::string parse_slot_json(const json& result);
@@ -96,6 +92,7 @@ public:
     virtual void debug(int debug_level) = 0;
     virtual void logging_callback(CharArrayFn callback) = 0;
 
+    virtual void set_template_json(const json& data) = 0;
     virtual std::string lora_weight_json(const json& data) = 0;
     virtual std::string lora_list_json() = 0;
 
@@ -111,6 +108,8 @@ public:
 
     virtual void logging_stop();
 
+    virtual json build_set_template_json(std::string chat_template);
+    virtual void set_template(std::string chat_template);
     virtual json build_lora_weight_json(const std::vector<LoraIdScale>& loras);
     virtual bool parse_lora_weight_json(const json& result);
     virtual bool lora_weight(const std::vector<LoraIdScale>& loras);
@@ -202,10 +201,10 @@ extern "C" {
     UNDREAMAI_API const char* LLM_Completion(LLM* llm, const char* prompt, CharArrayFn callback=nullptr, int id_slot=-1, const char* params_json="{}");
     UNDREAMAI_API const char* LLM_Completion_JSON(LLM* llm, const char* prompt, CharArrayFn callback=nullptr, int id_slot=-1, const char* params_json="{}");
 
-    UNDREAMAI_API void LLM_Set_Template(LLMLocal* llm, const char* chat_template);
     UNDREAMAI_API const char* LLM_Slot(LLMLocal* llm, int id_slot, const char* action, const char* filepath);
     UNDREAMAI_API void LLM_Cancel(LLMLocal* llm, int id_slot);
 
+    UNDREAMAI_API void LLM_Set_Template(LLMProvider* llm, const char* chat_template);
     UNDREAMAI_API bool LLM_Lora_Weight(LLMProvider* llm, const char* loras_as_json);
     UNDREAMAI_API const char* LLM_Lora_List(LLMProvider* llm);
     UNDREAMAI_API void LLM_Delete(LLMProvider* llm);

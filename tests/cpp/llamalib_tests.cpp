@@ -89,7 +89,7 @@ void count_calls_json(const char* c)
     counter++;
 }
 
-void test_LLM_Template(LLMLocal* llm) {
+void test_LLM_Template(LLMProvider* llm) {
     std::string chat_template = "phi3";
     std::cout << "LLM_Set_Template" << std::endl;
     LLM_Set_Template(llm, chat_template.c_str());
@@ -97,7 +97,7 @@ void test_LLM_Template(LLMLocal* llm) {
     ASSERT(LLM_Get_Template(llm) == chat_template);
 }
 
-void test_template(LLMLocal* llm) {
+void test_template(LLMProvider* llm) {
     std::string chat_template = "phi3";
     std::cout << "set_template" << std::endl;
     llm->set_template(chat_template);
@@ -570,11 +570,9 @@ void run_LLMLocal_tests(LLMLocal* llm)
 
     test_LLM_Cancel(llm);
     test_LLM_Slot(llm);
-    test_LLM_Template(llm);
 
     test_cancel(llm);
     test_slot(llm);
-    test_template(llm);
 }
 
 void run_LLMProvider_tests(LLMProvider* llm)
@@ -582,8 +580,10 @@ void run_LLMProvider_tests(LLMProvider* llm)
     run_LLMLocal_tests(llm);
 
     test_LLM_Lora_List(llm);
+    test_LLM_Template(llm);
 
     test_lora_list(llm);
+    test_template(llm);
 }
 
 void set_SSL(LLMProvider* llm, LLMClient* llm_remote_client)

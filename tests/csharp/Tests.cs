@@ -68,15 +68,6 @@ namespace UndreamAI.LlamaLib.Tests
             Assert.AreEqual(messagesFormatted, messagesFormattedGT);
         }
 
-        public void TestSetTemplate(LLMLocal llm)
-        {
-            Console.WriteLine("LLM_Set_Template");
-            llm.SetTemplate("phi3");
-            Console.WriteLine("LLM_Get_Template");
-            Assert.AreEqual("phi3", llm.GetTemplate());
-            llm.SetTemplate("chatml");
-        }
-
         public void TestTokenization(LLM llm)
         {
             Console.WriteLine("LLM_Tokenize");
@@ -118,6 +109,15 @@ namespace UndreamAI.LlamaLib.Tests
 
             List<float> embedding = llm.Embeddings(PROMPT);
             Assert.AreEqual(embeddingSize, embedding.Count);
+        }
+
+        public void TestSetTemplate(LLMProvider llm)
+        {
+            Console.WriteLine("LLM_Set_Template");
+            llm.SetTemplate("phi3");
+            Console.WriteLine("LLM_Get_Template");
+            Assert.AreEqual("phi3", llm.GetTemplate());
+            llm.SetTemplate("chatml");
         }
 
         public void TestLoraList(LLMProvider llm)
@@ -182,7 +182,6 @@ namespace UndreamAI.LlamaLib.Tests
             llmClient.numPredict = 10;
 
             TestTemplate(llmClient);
-            TestSetTemplate(llmClient);
             TestTokenization(llmClient);
             TestCompletion(llmClient);
             TestEmbedding(llmClient, llmService.EmbeddingSize());

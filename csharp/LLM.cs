@@ -230,14 +230,6 @@ namespace UndreamAI.LlamaLib
 
         protected LLMLocal(LlamaLib llamaLibInstance) : base(llamaLibInstance) { }
 
-        public void SetTemplate(string template)
-        {
-            if (string.IsNullOrEmpty(template))
-                throw new ArgumentNullException(nameof(template));
-            CheckLlamaLib();
-            llamaLib.LLM_Set_Template(llm, template);
-        }
-
         public string Slot(int idSlot, string action, string filepath)
         {
             if (string.IsNullOrEmpty(action))
@@ -264,13 +256,22 @@ namespace UndreamAI.LlamaLib
 
         protected LLMProvider(LlamaLib llamaLibInstance) : base(llamaLibInstance) { }
 
+
+        public void SetTemplate(string template)
+        {
+            if (string.IsNullOrEmpty(template))
+                throw new ArgumentNullException(nameof(template));
+            CheckLlamaLib();
+            llamaLib.LLM_Set_Template(llm, template);
+        }
+
         // LoRA Weight methods
         public string BuildLoraWeightJSON(List<LoraIdScale> loras)
         {
             var jsonArray = new JArray();
             foreach (var lora in loras)
             {
-                jsonArray.Add(new JObject{["id"] = lora.Id, ["scale"] = lora.Scale});
+                jsonArray.Add(new JObject { ["id"] = lora.Id, ["scale"] = lora.Scale });
             }
             return jsonArray.ToString();
         }

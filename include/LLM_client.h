@@ -27,7 +27,6 @@ public:
 protected:
     //=================================== LLM METHODS START ===================================//
     std::string get_template_json() override;
-    void set_template_json(const json& data) override;
     std::string apply_template_json(const json& data) override;
     std::string tokenize_json(const json& data) override;
     std::string detokenize_json(const json& data) override;

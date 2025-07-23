@@ -232,20 +232,6 @@ std::string LLM::completion(const std::string& prompt, CharArrayFn callback, int
     )));
 }
 
-//=========================== Set Template ===========================//
-
-json LLMLocal::build_set_template_json(std::string chat_template)
-{
-    json j;
-    j["chat_template"] = chat_template;
-    return j;
-}
-
-void LLMLocal::set_template(std::string chat_template) {
-    set_template_json(build_set_template_json(chat_template));
-}
-
-
 //=========================== Cancel ===========================//
 
 json LLMLocal::build_cancel_json(int id_slot)
@@ -290,6 +276,20 @@ void LLMProvider::logging_stop()
 {
     logging_callback(nullptr);
 }
+
+//=========================== Set Template ===========================//
+
+json LLMProvider::build_set_template_json(std::string chat_template)
+{
+    json j;
+    j["chat_template"] = chat_template;
+    return j;
+}
+
+void LLMProvider::set_template(std::string chat_template) {
+    set_template_json(build_set_template_json(chat_template));
+}
+
 
 //=========================== Lora Adapters Apply ===========================//
 
@@ -425,7 +425,7 @@ const char* LLM_Apply_Template(LLM* llm, const char* messages_as_json) {
     return stringToCharArray(llm->apply_template(json::parse(messages_as_json)));
 }
 
-void LLM_Set_Template(LLMLocal* llm, const char* chat_template) {
+void LLM_Set_Template(LLMProvider* llm, const char* chat_template) {
     llm->set_template(chat_template);
 }
 
