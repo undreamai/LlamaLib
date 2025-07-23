@@ -1,4 +1,4 @@
-add_library(llamalib_common OBJECT LLM.cpp LLM_client.cpp error_handling.cpp)
+add_library(llamalib_common OBJECT LLM.cpp LLM_client.cpp LLM_agent.cpp error_handling.cpp)
 LLAMALIB_COMPILE_DEFS(llamalib_common)
 
 # build architecture library
