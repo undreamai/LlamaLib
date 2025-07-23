@@ -5,3 +5,5 @@ build*/*
 csharp/*/*
 tests/csharp/*/*
 *gguf
+include/httplib.h
+include/json.hpp

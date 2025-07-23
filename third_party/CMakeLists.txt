@@ -73,6 +73,7 @@ endif()
 
 ################################################ SETUP LLAMA.CPP ################################################
 
+# apply patches
 function(APPLY_PATCH PATCH ROOT)
     get_filename_component(PATCHNAME ${PATCH} NAME)
     set(PATCH_MARKER "${ROOT}/${PATCHNAME}")
@@ -97,16 +98,18 @@ if(ARCHITECTURE MATCHES "tinyblas")
     APPLY_PATCH(${CMAKE_SOURCE_DIR}/patches/tinyBLAS.patch ${LLAMA_CPP_ROOT})
 endif()
 
-set(TARGET_SRCS
-    server.cpp
-    utils.hpp
-    httplib.h
-)
+# copy include files needed into LlamaLib
+message(STATUS "${LLAMA_CPP_ROOT}/common/json.hpp ${CMAKE_SOURCE_DIR}/include")
+message(STATUS "${LLAMA_CPP_ROOT}/examples/server/httplib.h ${CMAKE_SOURCE_DIR}/include")
+file(COPY ${LLAMA_CPP_ROOT}/common/json.hpp DESTINATION ${CMAKE_SOURCE_DIR}/include)
+file(COPY ${LLAMA_CPP_ROOT}/examples/server/httplib.h DESTINATION ${CMAKE_SOURCE_DIR}/include)
+
 set(PUBLIC_ASSETS
     index.html.gz
     loading.html
 )
 
+# generate files needed by llama.cpp
 foreach(asset ${PUBLIC_ASSETS})
     set(input "${LLAMA_CPP_ROOT}/examples/server/public/${asset}")
     set(output "${LLAMA_CPP_ROOT}/examples/server/${asset}.hpp")
