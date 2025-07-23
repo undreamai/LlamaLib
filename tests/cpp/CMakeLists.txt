@@ -1,4 +1,3 @@
-
 foreach(pair IN ITEMS "llamalib_tests:${LLAMALIB_ARCHITECTURE_LIBRARY}" "llamalib_tests_runtime:${LLAMALIB_STATIC_RUNTIME_LIBRARY}")
     string(REPLACE ":" ";" split_pair ${pair})
     list(GET split_pair 0 NAME)
