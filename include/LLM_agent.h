@@ -1,12 +1,14 @@
 #pragma once
 
 #include "LLM.h"
+#include "LLM_client.h"
 
 class UNDREAMAI_API LLMAgent : public LLMLocal {
 public:
     LLMAgent(LLMLocal* llm);
 
-    int id_slot = 0;
+    inline int get_slot() { return id_slot; }
+    void set_slot(int id_slot);
 
     //=================================== Reimplement methods with id_slot ===================================//
     virtual json build_completion_json(const std::string& prompt, const json& params) { return llm->build_completion_json(prompt, this->id_slot, params); }
@@ -34,6 +36,7 @@ protected:
 
 private:
     LLMLocal* llm = nullptr;
+    int id_slot = -1;
 
     //=================================== Hide methods with id_slot ===================================//
     json build_completion_json(const std::string& prompt, int id_slot, const json& params) override { return build_completion_json(prompt, params); }
