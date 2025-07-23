@@ -902,7 +902,7 @@ jobs:
           name: Test cmake
           run: |
             cd tests/cpp-cmake
-            cmake . -DLlamaLib_DIR=../../${{ env.RELEASE_NAME }} -DLLAMALIB_RUNTIME_DETECTION=OFF -DLLAMALIB_USE_AVX2=ON
+            cmake . -DLlamaLib_DIR=../../${{ env.RELEASE_NAME }} -DLLAMALIB_RUNTIME_DETECTION=OFF -DLLAMALIB_USE_AVX2=ON -DRUNTIME_TESTS=OFF
             cmake --build . --config Release
             ./test
             cmake . -DLlamaLib_DIR=../../${{ env.RELEASE_NAME }} -DLLAMALIB_RUNTIME_DETECTION=ON -DRUNTIME_TESTS=ON

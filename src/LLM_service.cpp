@@ -1,5 +1,8 @@
 #include "LLM_service.h"
+
+#include "common.h"
 #include "llama-chat.h"
+#include "log.h"
 #ifndef SERVER_H
 #define SERVER_H
 #include "server.cpp"
@@ -115,9 +118,9 @@ LLMService::LLMService(const std::string& model_path, int num_threads, int num_G
     init(LLM::LLM_args_to_command(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_paths));
 }
 
-LLMService* LLMService::from_params(const json& params)
+LLMService* LLMService::from_params(const json& params_json)
 {
-    std::vector<char*> argv = LLMService::jsonToArguments(params);
+    std::vector<char*> argv = LLMService::jsonToArguments(params_json);
     LLMService* llmService = new LLMService();
     llmService->init(argv.size(), argv.data());
     return llmService;
@@ -145,7 +148,7 @@ LLMService::~LLMService() {
     }
 }
 
-std::vector<char*> LLMService::jsonToArguments(const json& params) {
+std::vector<char*> LLMService::jsonToArguments(const json& params_json) {
     common_params default_params;
     common_params_context ctx = common_params_parser_init(default_params, LLAMA_EXAMPLE_SERVER);
 
@@ -161,11 +164,11 @@ std::vector<char*> LLMService::jsonToArguments(const json& params) {
             std::string json_key = key;
             std::replace(json_key.begin(), json_key.end(), '-', '_');
 
-            if (!params.contains(json_key))
+            if (params_json.contains(json_key))
                 continue;
 
             used_keys.insert(json_key);
-            const auto& value = params[json_key];
+            const auto& value = params_json[json_key];
             args_str.push_back(name);
 
             if (opt.handler_void != nullptr) {
@@ -189,7 +192,7 @@ std::vector<char*> LLMService::jsonToArguments(const json& params) {
     }
 
     // Report unused keys
-    for (const auto& [key, _] : params.items()) {
+    for (const auto& [key, _] : params_json.items()) {
         if (used_keys.find(key) == used_keys.end())
         {
             std::string err = "Unused parameter in JSON: " + key;
@@ -246,8 +249,8 @@ void LLMService::init(const std::string& params_string) {
     init(argc, argv);
 }
 
-void LLMService::init(const char* params) {
-    init(std::string(params));
+void LLMService::init(const char* params_string) {
+    init(std::string(params_string));
 }
 
 void LLMService::init(int argc, char ** argv){
@@ -262,7 +265,8 @@ void LLMService::init(int argc, char ** argv){
         ctx_server = new server_context();
         ctx_server->batch = { 0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
-        if (!common_params_parse(argc, argv, params, LLAMA_EXAMPLE_SERVER)) {
+        params = new common_params();
+        if (!common_params_parse(argc, argv, *params, LLAMA_EXAMPLE_SERVER)) {
             throw std::runtime_error("Invalid parameters!");
         }
 
@@ -270,28 +274,22 @@ void LLMService::init(int argc, char ** argv){
 
         llama_backend_init();
         llama_backend_has_init = true;
-        llama_numa_init(params.numa);
+        llama_numa_init(params->numa);
 
-        LLAMALIB_INF("system info: n_threads = %d, n_threads_batch = %d, total_threads = %d\n", params.cpuparams.n_threads, params.cpuparams_batch.n_threads, std::thread::hardware_concurrency());
+        LLAMALIB_INF("system info: n_threads = %d, n_threads_batch = %d, total_threads = %d\n", params->cpuparams.n_threads, params->cpuparams_batch.n_threads, std::thread::hardware_concurrency());
 
         // Necessary similarity of prompt for slot selection
-        ctx_server->slot_prompt_similarity = params.slot_prompt_similarity;
+        ctx_server->slot_prompt_similarity = params->slot_prompt_similarity;
 
         // load the model
-        if (!ctx_server->load_model(params)) {
+        if (!ctx_server->load_model(*params)) {
             throw std::runtime_error("Error loading the model!");
         } else {
             ctx_server->init();
         }
         LLAMALIB_INF("model loaded\n");
 
-        const char* chat_template = detect_chat_template();
-        if (chat_template == "")
-        {
-            set_template("chatml");
-            chat_template = detect_chat_template();
-        }
-        LLAMALIB_INF("chat_template: %s\n", chat_template);
+        init_template();
 
         ctx_server->queue_tasks.on_new_task([this](const server_task & task) {
             this->ctx_server->process_single_task(task);
@@ -302,6 +300,19 @@ void LLMService::init(int argc, char ** argv){
     } catch(...) {
         handle_exception(1);
     }
+}
+
+void LLMService::init_template()
+{
+    const char* chat_template = detect_chat_template();
+    if (chat_template == "")
+    {
+        set_template("chatml");
+        chat_template = detect_chat_template();
+    } else {
+        params->chat_template = chat_template;
+    }
+    LLAMALIB_INF("chat_template: %s\n", chat_template);
 }
 
 const char* LLMService::detect_chat_template()
@@ -365,16 +376,16 @@ void release_slot(server_slot& slot)
 }
 
 void LLMService::start_server(const std::string& host, int port, const std::string& API_key){
-    if (host.empty()) params.hostname = "0.0.0.0";
-    else params.hostname = host;
-    params.port = port;
-    if (!API_key.empty()) params.api_keys.push_back(API_key);
+    if (host.empty()) params->hostname = "0.0.0.0";
+    else params->hostname = host;
+    params->port = port;
+    if (!API_key.empty()) params->api_keys.push_back(API_key);
 
     std::lock_guard<std::mutex> lock(start_stop_mutex);
-    if (params.ssl_file_key != "" && params.ssl_file_cert != "") {
-        LLAMALIB_INF("Running with SSL: key = %s, cert = %s\n", params.ssl_file_key.c_str(), params.ssl_file_cert.c_str());
+    if (params->ssl_file_key != "" && params->ssl_file_cert != "") {
+        LLAMALIB_INF("Running with SSL: key = %s, cert = %s\n", params->ssl_file_key.c_str(), params->ssl_file_cert.c_str());
         svr.reset(
-            new httplib::SSLServer(params.ssl_file_cert.c_str(), params.ssl_file_key.c_str())
+            new httplib::SSLServer(params->ssl_file_cert.c_str(), params->ssl_file_key.c_str())
         );
     } else if (SSL_cert != "" && SSL_key != "") {
         LLAMALIB_INF("Running with SSL\n");
@@ -421,43 +432,43 @@ void LLMService::start_server(const std::string& host, int port, const std::stri
     });
 
     // set timeouts and change hostname and port
-    svr->set_read_timeout(params.timeout_read);
-    svr->set_write_timeout(params.timeout_write);
+    svr->set_read_timeout(params->timeout_read);
+    svr->set_write_timeout(params->timeout_write);
 
     bool was_bound = false;
-    if (string_ends_with(std::string(params.hostname), ".sock")) {
+    if (string_ends_with(std::string(params->hostname), ".sock")) {
         LOG_INF("%s: setting address family to AF_UNIX\n", __func__);
         svr->set_address_family(AF_UNIX);
         // bind_to_port requires a second arg, any value other than 0 should
         // simply get ignored
-        was_bound = svr->bind_to_port(params.hostname, 8080);
+        was_bound = svr->bind_to_port(params->hostname, 8080);
     } else {
         LOG_INF("%s: binding port with default address family\n", __func__);
         // bind HTTP listen port
-        if (params.port == 0) {
-            int bound_port = svr->bind_to_any_port(params.hostname);
+        if (params->port == 0) {
+            int bound_port = svr->bind_to_any_port(params->hostname);
             if ((was_bound = (bound_port >= 0))) {
-                params.port = bound_port;
+                params->port = bound_port;
             }
         } else {
-            was_bound = svr->bind_to_port(params.hostname, params.port);
+            was_bound = svr->bind_to_port(params->hostname, params->port);
         }
     }
 
     if (!was_bound) {
-        throw std::runtime_error("couldn't bind to server socket: hostname=" + params.hostname + " port=" + std::to_string(params.port));
+        throw std::runtime_error("couldn't bind to server socket: hostname=" + params->hostname + " port=" + std::to_string(params->port));
     }
 
     std::unordered_map<std::string, std::string> log_data;
 
-    log_data["hostname"] = params.hostname;
-    log_data["port"]     = std::to_string(params.port);
+    log_data["hostname"] = params->hostname;
+    log_data["port"]     = std::to_string(params->port);
 
-    if (params.api_keys.size() == 1) {
-        auto key = params.api_keys[0];
+    if (params->api_keys.size() == 1) {
+        auto key = params->api_keys[0];
         log_data["api_key"] = "api_key: ****" + key.substr(std::max((int)(key.length() - 4), 0));
-    } else if (params.api_keys.size() > 1) {
-        log_data["api_key"] = "api_key: " + std::to_string(params.api_keys.size()) + " keys loaded";
+    } else if (params->api_keys.size() > 1) {
+        log_data["api_key"] = "api_key: " + std::to_string(params->api_keys.size()) + " keys loaded";
     }
 
     // register server middlewares
@@ -484,7 +495,7 @@ void LLMService::start_server(const std::string& host, int port, const std::stri
     
     const auto chat_completion_post = [this, &res_error](const httplib::Request & req, httplib::Response & res) {
         json body = handle_post(req, res);
-        json data = oaicompat_completion_params_parse(body, params.use_jinja, params.reasoning_format, ctx_server->chat_templates.get());
+        json data = oaicompat_completion_params_parse(body, params->use_jinja, params->reasoning_format, ctx_server->chat_templates.get());
         LOG_DBG("formatted prompt: %s\n", data.dump().c_str());
         completion_json(data, nullptr, true, &res, req.is_connection_closed, OAICOMPAT_TYPE_CHAT);
     };
@@ -544,12 +555,12 @@ void LLMService::start_server(const std::string& host, int port, const std::stri
     //
     // Start the server
     //
-    if (params.n_threads_http < 1) {
+    if (params->n_threads_http < 1) {
         // +2 threads for monitoring endpoints
-        params.n_threads_http = std::max(params.n_parallel + 2, (int32_t) std::thread::hardware_concurrency() - 1);
+        params->n_threads_http = std::max(params->n_parallel + 2, (int32_t) std::thread::hardware_concurrency() - 1);
     }
-    log_data["n_threads_http"] =  std::to_string(params.n_threads_http);
-    svr->new_task_queue = [this] { return new httplib::ThreadPool(params.n_threads_http); };
+    log_data["n_threads_http"] =  std::to_string(params->n_threads_http);
+    svr->new_task_queue = [this] { return new httplib::ThreadPool(params->n_threads_http); };
 
     // run the HTTP server in a thread - see comment below
     server_thread = std::thread([&]() {
@@ -561,7 +572,7 @@ void LLMService::start_server(const std::string& host, int port, const std::stri
     });
     svr->wait_until_ready();
     
-    LLAMALIB_INF("%s: HTTP server is listening, hostname: %s, port: %d, http threads: %d\n", __func__, params.hostname.c_str(), params.port, params.n_threads_http);
+    LLAMALIB_INF("%s: HTTP server is listening, hostname: %s, port: %d, http threads: %d\n", __func__, params->hostname.c_str(), params->port, params->n_threads_http);
 }
 
 void LLMService::stop_server(){
@@ -654,7 +665,7 @@ bool LLMService::middleware_validate_api_key(const httplib::Request & req, httpl
     };
 
     // If API key is not set, skip validation
-    if (params.api_keys.empty()) {
+    if (params->api_keys.empty()) {
         return true;
     }
 
@@ -669,7 +680,7 @@ bool LLMService::middleware_validate_api_key(const httplib::Request & req, httpl
     std::string prefix = "Bearer ";
     if (auth_header.substr(0, prefix.size()) == prefix) {
         std::string received_api_key = auth_header.substr(prefix.size());
-        if (std::find(params.api_keys.begin(), params.api_keys.end(), received_api_key) != params.api_keys.end()) {
+        if (std::find(params->api_keys.begin(), params->api_keys.end(), received_api_key) != params->api_keys.end()) {
             return true; // API key is valid
         }
     }
@@ -684,7 +695,7 @@ bool LLMService::middleware_validate_api_key(const httplib::Request & req, httpl
 
 std::string LLMService::get_template_json() {
     json result;
-    result["chat_template"] = params.chat_template;
+    result["chat_template"] = params->chat_template;
     return result.dump();
 }
 
@@ -692,12 +703,12 @@ void LLMService::set_template_json(const json& body) {
     if (body.count("chat_template") == 0) return;
     std::string chat_template = body.at("chat_template");
     if (chat_template == "") return;
-    params.chat_template = chat_template;
+    params->chat_template = chat_template;
     ctx_server->chat_templates = common_chat_templates_init(ctx_server->model, chat_template);
 }
 
 std::string LLMService::apply_template_json(const json& body) {
-    json data = oaicompat_completion_params_parse(body, params.use_jinja, params.reasoning_format, ctx_server->chat_templates.get());
+    json data = oaicompat_completion_params_parse(body, params->use_jinja, params->reasoning_format, ctx_server->chat_templates.get());
     return safe_json_to_str({ { "prompt", std::move(data.at("prompt")) } });
 }
 
@@ -1219,8 +1230,8 @@ LLMService* LLMService_Construct(const char* model_path, int num_threads, int nu
     return new LLMService(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_paths_vector);
 }
 
-LLMService* LLMService_From_Command(const char* params) {
-    std::string params_string(params);
+LLMService* LLMService_From_Command(const char* params_string_arr) {
+    std::string params_string(params_string_arr);
     try {
         json j = json::parse(params_string);
         return LLMService::from_params(j);

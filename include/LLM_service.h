@@ -1,11 +1,10 @@
 #pragma once
 
 #include "LLM.h"
-#include "log.h"
-#include "common.h"
 
 #define LLAMALIB_INF(...) LOG_TMPL(GGML_LOG_LEVEL_INFO, -1, __VA_ARGS__)
 
+struct common_params;
 struct server_context;
 
 class UNDREAMAI_API LLMService : public LLMProvider {
@@ -14,15 +13,15 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         LLMService(const std::string& model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, const std::vector<std::string>& lora_paths = {});
         ~LLMService();
 
-        static LLMService* from_params(const json& params);
+        static LLMService* from_params(const json& params_json);
         static LLMService* from_command(const std::string& command);
         static LLMService* from_command(int argc, char ** argv);
 
-        static std::vector<char*> jsonToArguments(const json& params);
+        static std::vector<char*> jsonToArguments(const json& params_json);
 
         void init(int argc, char** argv);
-        void init(const std::string& params);
-        void init(const char* params);
+        void init(const std::string& params_string);
+        void init(const char* params_string);
 
         std::string embeddings_json(const json& data, httplib::Response* res, std::function<bool()> is_connection_closed = always_false);
         std::string lora_weight_json(const json& data, httplib::Response* res);
@@ -57,7 +56,7 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         //=================================== LLM METHODS END ===================================//
 
     private:
-        common_params params;
+        common_params* params;
         bool llama_backend_has_init;
         server_context* ctx_server = nullptr;
         std::unique_ptr<httplib::Server> svr;
@@ -73,6 +72,7 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         bool server_stopped = false;
 
         std::vector<std::string> splitArguments(const std::string& inputString);
+        void init_template();
         const char* detect_chat_template();
         std::string completion_streaming(
             std::unordered_set<int> id_tasks,

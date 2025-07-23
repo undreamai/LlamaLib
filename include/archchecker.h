@@ -1,6 +1,5 @@
 #pragma once
 #include <iostream>
-#include "cpu_x86.h"
 
 #ifdef _WIN32
     #ifdef UNDREAMAI_EXPORTS

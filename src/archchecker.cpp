@@ -1,5 +1,6 @@
 #include "archchecker.h"
-#include <iostream>
+
+#include "cpu_x86.h"
 
 using namespace FeatureDetector;
 

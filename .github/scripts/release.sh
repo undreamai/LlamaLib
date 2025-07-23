@@ -23,11 +23,8 @@ done
 rm -r *.zip
 
 # copy includes
-includes=$(awk '/set\s*\(\s*include_paths/,/\)/' $root_dir/cmake/LlamaLibCommon.cmake | grep -o '".*"' | sed 's/"//g')
-for d in ${includes};do
-    mkdir -p $d
-    cp $root_dir/$d/*.h* $d
-done
+mkdir include
+cp $root_dir/include/*.h* include/
 
 # licenses
 mkdir -p third_party_licenses

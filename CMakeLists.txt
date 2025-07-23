@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 
-include("${CMAKE_SOURCE_DIR}/cmake/LlamaLibCommon.cmake")
+file(READ "${CMAKE_SOURCE_DIR}/VERSION" LLAMALIB_VERSION)
+string(STRIP "${LLAMALIB_VERSION}" LLAMALIB_VERSION)
 project(LlamaLib VERSION ${LLAMALIB_VERSION} LANGUAGES C CXX)
 
 ################################################ OPTIONS ################################################
@@ -44,7 +45,7 @@ set(LLAMA_CPP_ROOT ${CMAKE_SOURCE_DIR}/third_party/llama.cpp)
 
 function(LLAMALIB_COMPILE_DEFS NAME)
     add_compile_definitions(${NAME} PRIVATE UNDREAMAI_EXPORTS)
-    target_include_directories(${NAME} PRIVATE ${LLAMALIB_INCLUDE_DIRS})
+    target_include_directories(${NAME} PRIVATE "${CMAKE_SOURCE_DIR}/include")
     target_compile_definitions(${NAME} PRIVATE CPPHTTPLIB_OPENSSL_SUPPORT)
     target_link_libraries(${NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 endfunction()

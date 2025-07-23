@@ -1,6 +1,9 @@
 # LlamaLib Targets Configuration
 # This file creates the imported targets for LlamaLib
 
+file(READ "${CMAKE_CURRENT_LIST_DIR}/VERSION" LLAMALIB_VERSION)
+string(STRIP "${LLAMALIB_VERSION}" LLAMALIB_VERSION)
+
 message(STATUS "===== LlamaLib =====")
 message(STATUS "LlamaLib version: ${LLAMALIB_VERSION}")
 
@@ -42,9 +45,9 @@ set(LLAMALIB_RID "${LLAMALIB_PLATFORM}-${LLAMALIB_ARCH}")
 set(LLAMALIB_LIB_REL_DIR "runtimes/${LLAMALIB_RID}/native")
 set(LLAMALIB_LIB_DIR "${CMAKE_CURRENT_LIST_DIR}/${LLAMALIB_LIB_REL_DIR}")
 set(LLAMALIB_LIB_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${LLAMALIB_LIB_REL_DIR}")
+set(LLAMALIB_INCLUDE_DIRS "${CMAKE_CURRENT_LIST_DIR}/include")
 
 message(STATUS "Runtime Identifier: ${LLAMALIB_RID}")
-message(STATUS "LlamaLib include dir: ${LLAMALIB_INCLUDE_DIRS}")
 message(STATUS "LlamaLib library dir: ${LLAMALIB_LIB_DIR}")
 
 # Function to find and create imported target
