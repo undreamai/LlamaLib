@@ -217,7 +217,7 @@ extern "C" {
     UNDREAMAI_API void LLM_Join_Service(LLMProvider* llm);
     UNDREAMAI_API void LLM_Join_Server(LLMProvider* llm);
     UNDREAMAI_API void LLM_Set_SSL(LLMProvider* llm, const char* SSL_cert, const char* SSL_key);
-    UNDREAMAI_API const int LLM_Status_Code(LLMProvider* llm);
-    UNDREAMAI_API const char* LLM_Status_Message(LLMProvider* llm);
+    UNDREAMAI_API const int LLM_Status_Code();
+    UNDREAMAI_API const char* LLM_Status_Message();
     UNDREAMAI_API const int LLM_Embedding_Size(LLMProvider* llm);
 };

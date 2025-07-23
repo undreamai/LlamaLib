@@ -487,11 +487,11 @@ void LLM_Set_SSL(LLMProvider* llm, const char* SSL_cert, const char* SSL_key){
     llm->set_SSL(SSL_cert, SSL_key);
 }
 
-const int LLM_Status_Code(LLMProvider* llm) {
+const int LLM_Status_Code() {
     return get_status_code();
 }
 
-const char* LLM_Status_Message(LLMProvider* llm) {
+const char* LLM_Status_Message() {
     std::string result = get_status_message();
     return stringToCharArray(result);
 }
