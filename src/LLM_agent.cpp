@@ -1,6 +1,8 @@
 #include "LLM_agent.h"
     
-LLMAgent::LLMAgent(LLMLocal* llm_) : llm(llm_) { }
+LLMAgent::LLMAgent(LLMLocal* llm_) : llm(llm_) {
+    id_slot = llm->get_available_slot();
+}
 
 void LLMAgent::set_slot(int id_slot_)
 {

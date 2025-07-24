@@ -375,6 +375,28 @@ void release_slot(server_slot& slot)
     }
 }
 
+int LLMService::get_available_slot()
+{
+    int slot_id = -1;
+
+    // find the slot that has been least recently used
+    int64_t t_last = ggml_time_us();
+    for (server_slot & slot : ctx_server->slots) {
+        // skip the slot if it is not available
+        if (slot.is_processing()) {
+            continue;
+        }
+
+        // select the current slot if the criteria match
+        if (slot.t_last_used < t_last) {
+            t_last = slot.t_last_used;
+            slot_id = slot.id;
+        }
+    }
+
+    return slot_id;
+}
+
 void LLMService::start_server(const std::string& host, int port, const std::string& API_key){
     if (host.empty()) params->hostname = "0.0.0.0";
     else params->hostname = host;

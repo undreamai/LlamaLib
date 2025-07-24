@@ -76,6 +76,7 @@ class UNDREAMAI_API LLMLocal : public LLM {
 public:
     virtual std::string slot_json(const json& data) = 0;
     virtual void cancel_json(const json& data) = 0;
+    virtual int get_available_slot() = 0;
 
     virtual json build_slot_json(int id_slot, const std::string& action, const std::string& filepath);
     virtual std::string parse_slot_json(const json& result);

@@ -53,6 +53,7 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         void set_SSL(const std::string& SSL_cert, const std::string& SSL_key) override;
         bool started() override;
         int embedding_size() override;
+        int get_available_slot() override;
         //=================================== LLM METHODS END ===================================//
 
     private:

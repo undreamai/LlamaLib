@@ -47,6 +47,8 @@ private:
 
     json build_cancel_json(int id_slot) override { return build_cancel_json(); }
     void cancel(int id_slot) override { cancel(); }
+
+    int get_available_slot() override { return llm->get_available_slot(); }
     //=================================== Hide methods with id_slot ===================================//
 };
 

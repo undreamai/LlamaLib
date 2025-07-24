@@ -37,6 +37,7 @@ protected:
     std::string completion_json(const json& data, CharArrayFn callback = nullptr, bool callbackWithJSON=true) override;
     std::string slot_json(const json& data) override;
     void cancel_json(const json& data) override;
+    int get_available_slot() override;
     //=================================== LLM METHODS END ===================================//
 
 private:

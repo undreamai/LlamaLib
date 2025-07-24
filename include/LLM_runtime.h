@@ -76,6 +76,7 @@ public:
     void set_SSL(const std::string& cert, const std::string& key) override { ((LLMProvider*)llm)->set_SSL(cert, key); }
     bool started() override { return ((LLMProvider*)llm)->started(); }
     int embedding_size() override { return ((LLMProvider*)llm)->embedding_size();}
+    int get_available_slot() override { return ((LLMProvider*)llm)->get_available_slot();}
 
     std::string tokenize_json(const json& data) override { return ((LLMProvider*)llm)->tokenize_json(data); }
     std::string detokenize_json(const json& data) override { return ((LLMProvider*)llm)->detokenize_json(data); }
