@@ -223,13 +223,15 @@ std::string LLM::parse_completion_json(const json& result)
     return "";
 }
 
-std::string LLM::completion(const std::string& prompt, CharArrayFn callback, int id_slot, const json& params)
+std::string LLM::completion(const std::string& prompt, CharArrayFn callback, int id_slot, const json& params, bool return_response_json)
 {
-    return parse_completion_json(json::parse(completion_json(
+    std::string response = completion_json(
         build_completion_json(prompt, id_slot, params),
         callback,
         false
-    )));
+    );
+    if (return_response_json) return response;
+    return parse_completion_json(json::parse(response));
 }
 
 //=========================== Cancel ===========================//
@@ -404,19 +406,9 @@ const char* LLM_Embeddings(LLM* llm, const char* query) {
     return stringToCharArray(result.dump());
 }
 
-const char* LLM_Completion(LLM* llm, const char* prompt, CharArrayFn callback, int id_slot, const char* params_json) {
+const char* LLM_Completion(LLM* llm, const char* prompt, CharArrayFn callback, int id_slot, const char* params_json, bool return_response_json) {
     json params = json::parse(params_json ? params_json : "{}");
-    return stringToCharArray(llm->completion(prompt, callback, id_slot, params));
-}
-
-const char* LLM_Completion_JSON(LLM* llm, const char* prompt, CharArrayFn callback, int id_slot, const char* params_json) {
-    json params = json::parse(params_json ? params_json : "{}");
-    std::string completion_json_str = llm->completion_json(
-        llm->build_completion_json(std::string(prompt), id_slot, params),
-        callback,
-        true
-    );
-    return stringToCharArray(completion_json_str);
+    return stringToCharArray(llm->completion(prompt, callback, id_slot, params, return_response_json));
 }
 
 const char* LLM_Get_Template(LLM* llm) {

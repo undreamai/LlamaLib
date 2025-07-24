@@ -69,7 +69,7 @@ public:
 
     virtual json build_completion_json(const std::string& prompt, int id_slot=-1, const json& params=json({}));
     virtual std::string parse_completion_json(const json& result);
-    virtual std::string completion(const std::string& prompt, CharArrayFn callback=nullptr, int id_slot=-1, const json& params_json=json({}));
+    virtual std::string completion(const std::string& prompt, CharArrayFn callback=nullptr, int id_slot=-1, const json& params_json=json({}), bool return_response_json=false);
 };
 
 class UNDREAMAI_API LLMLocal : public LLM {
@@ -199,8 +199,7 @@ extern "C" {
     UNDREAMAI_API const char* LLM_Tokenize(LLM* llm, const char* query);
     UNDREAMAI_API const char* LLM_Detokenize(LLM* llm, const char* tokens_as_json);
     UNDREAMAI_API const char* LLM_Embeddings(LLM* llm, const char* query);
-    UNDREAMAI_API const char* LLM_Completion(LLM* llm, const char* prompt, CharArrayFn callback=nullptr, int id_slot=-1, const char* params_json="{}");
-    UNDREAMAI_API const char* LLM_Completion_JSON(LLM* llm, const char* prompt, CharArrayFn callback=nullptr, int id_slot=-1, const char* params_json="{}");
+    UNDREAMAI_API const char* LLM_Completion(LLM* llm, const char* prompt, CharArrayFn callback=nullptr, int id_slot=-1, const char* params_json="{}", bool return_response_json=false);
 
     UNDREAMAI_API const char* LLM_Slot(LLMLocal* llm, int id_slot, const char* action, const char* filepath);
     UNDREAMAI_API void LLM_Cancel(LLMLocal* llm, int id_slot);

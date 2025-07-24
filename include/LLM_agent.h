@@ -52,11 +52,13 @@ public:
     size_t get_history_size() const { return history.size(); }
 
     // Chat functionality
-    std::string chat(const std::string& user_prompt, bool add_to_history = true, CharArrayFn callback = nullptr, const json& params_json = json({}));
+    std::string chat(const std::string& user_prompt, bool add_to_history = true, CharArrayFn callback = nullptr, const json& params_json = json({}), bool return_response_json=false);
 
     //=================================== Reimplement methods with id_slot ===================================//
     virtual json build_completion_json(const std::string& prompt, const json& params) { return llm->build_completion_json(prompt, this->id_slot, params); }
-    virtual std::string completion(const std::string& prompt, CharArrayFn callback=nullptr, const json& params_json=json({})) { return llm->completion(prompt, callback, this->id_slot, params_json); }
+    virtual std::string completion(const std::string& prompt, CharArrayFn callback=nullptr, const json& params_json=json({}), bool return_response_json=false) {
+        return llm->completion(prompt, callback, this->id_slot, params_json, return_response_json);
+    }
     
     virtual json build_slot_json(const std::string& action, const std::string& filepath) { return llm->build_slot_json(this->id_slot, action, filepath); }
     virtual std::string slot(const std::string& action, const std::string& filepath) { return llm->slot(this->id_slot, action, filepath); }
@@ -88,7 +90,9 @@ private:
 
     //=================================== Hide methods with id_slot ===================================//
     json build_completion_json(const std::string& prompt, int id_slot, const json& params) override { return build_completion_json(prompt, params); }
-    std::string completion(const std::string& prompt, CharArrayFn callback=nullptr, int id_slot=-1, const json& params_json=json({})) override { return completion(prompt, callback, params_json); }
+    std::string completion(const std::string& prompt, CharArrayFn callback=nullptr, int id_slot=-1, const json& params_json=json({}), bool return_response_json=false) override {
+        return completion(prompt, callback, params_json, return_response_json);
+    }
 
     json build_slot_json(int id_slot, const std::string& action, const std::string& filepath) override { return build_slot_json(action, filepath); }
     std::string slot(int id_slot, const std::string& action, const std::string& filepath) override { return slot(action, filepath); }
@@ -110,8 +114,8 @@ extern "C" {
     UNDREAMAI_API void LLMAgent_Set_System_Prompt(LLMAgent* llm, const char* system_prompt);
     UNDREAMAI_API const char* LLMAgent_Get_System_Prompt(LLMAgent* llm);
 
-    UNDREAMAI_API const char* LLMAgent_Chat(LLMAgent* llm, const char* user_prompt, bool add_to_history = true, CharArrayFn callback = nullptr, const char* params_json = "{}");
-    UNDREAMAI_API const char* LLMAgent_Completion(LLMAgent* llm, const char* prompt, CharArrayFn callback=nullptr, const char* params_json="{}");
+    UNDREAMAI_API const char* LLMAgent_Chat(LLMAgent* llm, const char* user_prompt, bool add_to_history = true, CharArrayFn callback = nullptr, const char* params_json = "{}", bool return_response_json=false);
+    UNDREAMAI_API const char* LLMAgent_Completion(LLMAgent* llm, const char* prompt, CharArrayFn callback=nullptr, const char* params_json="{}", bool return_response_json=false);
     UNDREAMAI_API const char* LLMAgent_Slot(LLMAgent* llm, const char* action, const char* filepath);
     UNDREAMAI_API void LLMAgent_Cancel(LLMAgent* llm);
 

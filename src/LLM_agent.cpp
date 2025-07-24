@@ -30,7 +30,7 @@ void LLMAgent::clear_history()
     history.push_back(system_msg.to_json());
 }
 
-std::string LLMAgent::chat(const std::string& user_prompt, bool add_to_history, CharArrayFn callback, const json& params_json)
+std::string LLMAgent::chat(const std::string& user_prompt, bool add_to_history, CharArrayFn callback, const json& params_json, bool return_response_json)
 {
     // Add user message to working history
     json working_history = history;
@@ -41,11 +41,13 @@ std::string LLMAgent::chat(const std::string& user_prompt, bool add_to_history, 
     std::string query_prompt = apply_template(working_history);
 
     // Call completion with the formatted prompt
-    std::string response = completion(query_prompt, callback, params_json);
+    std::string response = completion(query_prompt, callback, params_json, return_response_json);
+    std::string assistant_content = response;
+    if (return_response_json) assistant_content = parse_completion_json(response);
 
     if (add_to_history) {
         history.push_back(user_msg.to_json());
-        ChatMessage assistant_msg(assistant_role, response);
+        ChatMessage assistant_msg(assistant_role, assistant_content);
         history.push_back(assistant_msg.to_json());
     }
 
@@ -112,14 +114,14 @@ LLMAgent* LLMAgent_Construct(LLMLocal* llm, const char* system_prompt_, const ch
     return new LLMAgent(llm, system_prompt, user_role, assistant_role);
 }
 
-const char* LLMAgent_Chat(LLMAgent* llm, const char* user_prompt, bool add_to_history, CharArrayFn callback, const char* params_json)
+const char* LLMAgent_Chat(LLMAgent* llm, const char* user_prompt, bool add_to_history, CharArrayFn callback, const char* params_json, bool return_response_json)
 {
     json params = json::parse(params_json ? params_json : "{}");
-    return stringToCharArray(llm->chat(user_prompt, add_to_history, callback, params));
+    return stringToCharArray(llm->chat(user_prompt, add_to_history, callback, params, return_response_json));
 }
 
-const char* LLMAgent_Completion(LLMAgent* llm, const char* prompt, CharArrayFn callback, const char* params_json) {
-    return LLM_Completion(llm, prompt, callback, llm->get_slot(), params_json);
+const char* LLMAgent_Completion(LLMAgent* llm, const char* prompt, CharArrayFn callback, const char* params_json, bool return_response_json) {
+    return LLM_Completion(llm, prompt, callback, llm->get_slot(), params_json, return_response_json);
 }
 
 const char* LLMAgent_Slot(LLMAgent* llm, const char* action, const char* filepath) {
