@@ -7,3 +7,10 @@ tests/csharp/*/*
 *gguf
 include/httplib.h
 include/json.hpp
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+runtimes
+tests/cpp-cmake/test
+tests/cpp-cmake/test_runtime
