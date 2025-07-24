@@ -5,6 +5,7 @@
 #else
 #include "LLM_service.h"
 #endif
+#include "LLM_agent.h"
 
 #ifndef _WIN32
 #include <unistd.h>
@@ -89,109 +90,57 @@ void count_calls_json(const char* c)
     counter++;
 }
 
-void test_LLM_Template(LLMProvider* llm) {
-    std::string chat_template = "phi3";
-    std::cout << "LLM_Set_Template" << std::endl;
-    LLM_Set_Template(llm, chat_template.c_str());
-    std::cout << "LLM_Get_Template" << std::endl;
-    ASSERT(LLM_Get_Template(llm) == chat_template);
-}
-
-void test_template(LLMProvider* llm) {
+void test_template(LLMProvider* llm, bool use_api) {
     std::string chat_template = "phi3";
     std::cout << "set_template" << std::endl;
-    llm->set_template(chat_template);
+    if(use_api) LLM_Set_Template(llm, chat_template.c_str());
+    else llm->set_template(chat_template);
 
     std::cout << "get_template" << std::endl;
-    ASSERT(llm->get_template() == chat_template);
+    std::string get_template;
+    if(use_api) get_template = LLM_Get_Template(llm);
+    else get_template = llm->get_template();
+    ASSERT(get_template == chat_template);
 
     llm->set_template("chatml");
 }
 
-void test_LLM_Apply_Template(LLM* llm) {
-    std::cout << "LLM_Apply_Template" << std::endl;
-    json data = json::array();
-    data.push_back({{"role", "user"}, {"content", "how are you?"}});
-    data.push_back({{"role", "assistant"}, {"content", "fine, thanks, and you?"}});
-    std::string data_formatted = "<|im_start|>user\nhow are you?<|im_end|>\n<|im_start|>assistant\nfine, thanks, and you?";
-    ASSERT(LLM_Apply_Template(llm, data.dump().c_str()) == data_formatted);
-}
-
-void test_apply_template(LLM* llm) {
+void test_apply_template(LLM* llm, bool use_api) {
     std::cout << "apply_template" << std::endl;
     json data = json::array();
     data.push_back({{"role", "user"}, {"content", "how are you?"}});
     data.push_back({{"role", "assistant"}, {"content", "fine, thanks, and you?"}});
-    std::string data_formatted = "<|im_start|>user\nhow are you?<|im_end|>\n<|im_start|>assistant\nfine, thanks, and you?";
-    ASSERT(llm->apply_template(data) == data_formatted);
+    std::string data_formatted_gt = "<|im_start|>user\nhow are you?<|im_end|>\n<|im_start|>assistant\nfine, thanks, and you?";
+    std::string data_formatted;
+    if(use_api) data_formatted = LLM_Apply_Template(llm, data.dump().c_str());
+    else data_formatted = llm->apply_template(data);
+    ASSERT(data_formatted == data_formatted_gt);
 }
 
-void test_LLM_Tokenize(LLM* llm) {
-    std::cout << "LLM_Tokenize" << std::endl;
-    json reply_data;
-    std::string reply;
-
-    reply = std::string(LLM_Tokenize(llm, PROMPT.c_str()));
-    reply_data = json::parse(reply);
-    std::vector<int> tokens = reply_data.get<std::vector<int>>();
-    ASSERT(tokens.size() > 0);
-
-    std::cout << "LLM_Detokenize" << std::endl;
-    reply = std::string(LLM_Detokenize(llm, reply.c_str()));
-    ASSERT(trim(reply) == PROMPT);
-}
-
-void test_tokenize(LLM* llm) {
+void test_tokenize(LLM* llm, bool use_api) {
     std::cout << "tokenize" << std::endl;
-    std::vector<int> tokens = llm->tokenize(PROMPT);
+    std::vector<int> tokens;
+    if(use_api) {
+        std::string reply = std::string(LLM_Tokenize(llm, PROMPT.c_str()));
+        json reply_data = json::parse(reply);
+        tokens = reply_data.get<std::vector<int>>();
+    } else {
+        tokens = llm->tokenize(PROMPT);
+    }
     ASSERT(tokens.size() > 0);
 
     std::cout << "detokenize" << std::endl;
-    std::string reply = trim(llm->detokenize(tokens));
-    ASSERT(reply == PROMPT);
-}
-
-void test_LLM_Completion(LLM* llm, bool stream) {
-    std::cout << "LLM_Completion ( ";
-    if (!stream) std::cout << "no ";
-    std::cout << "streaming )" << std::endl;
-
-    counter = 0;
-    concat_result = "";
     std::string reply;
-    if (stream)
-    {
-        reply = std::string(LLM_Completion(llm, PROMPT.c_str(), static_cast<CharArrayFn>(count_calls)));
-        ASSERT(counter > 5);
+    if(use_api) {
+        json tokens_json = tokens;
+        reply = std::string(LLM_Detokenize(llm, tokens_json.dump().c_str()));
+    } else {
+        reply = llm->detokenize(tokens);
     }
-    else
-    {
-        reply = std::string(LLM_Completion(llm, PROMPT.c_str()));
-    }
-    ASSERT(reply != "");
-    if (stream) ASSERT(reply == concat_result);
-
-    std::cout << "LLM_Completion JSON ( ";
-    if (!stream) std::cout << "no ";
-    std::cout << "streaming )" << std::endl;
-
-    counter = 0;
-    concat_result = "";
-    if (stream)
-    {
-        reply = std::string(LLM_Completion_JSON(llm, PROMPT.c_str(), static_cast<CharArrayFn>(count_calls_json)));
-        ASSERT(counter > 5);
-    }
-    else
-    {
-        reply = std::string(LLM_Completion_JSON(llm, PROMPT.c_str()));
-    }
-    reply = json::parse(reply)["content"].get<std::string>();
-    ASSERT(reply != "");
-    if (stream) ASSERT(reply == concat_result);
+    ASSERT(trim(reply) == PROMPT);
 }
 
-void test_completion(LLM* llm, bool stream) {
+void test_completion(LLM* llm, bool stream, bool use_api) {
     std::cout << "completion ( ";
     if (!stream) std::cout << "no ";
     std::cout << "streaming )" << std::endl;
@@ -199,59 +148,68 @@ void test_completion(LLM* llm, bool stream) {
     counter = 0;
     concat_result = "";
     std::string reply;
-    if (stream)
-    {
-        reply = llm->completion(PROMPT, static_cast<CharArrayFn>(count_calls));
-        ASSERT(counter > 5);
-    }
-    else
-    {
-        reply = llm->completion(PROMPT);
+    
+    if(use_api) {
+        if (stream) {
+            reply = std::string(LLM_Completion(llm, PROMPT.c_str(), static_cast<CharArrayFn>(count_calls)));
+        } else {
+            reply = std::string(LLM_Completion(llm, PROMPT.c_str()));
+        }
+    } else {
+        if (stream) {
+            reply = llm->completion(PROMPT, static_cast<CharArrayFn>(count_calls));
+        } else {
+            reply = llm->completion(PROMPT);
+        }
     }
     ASSERT(reply != "");
-    if (stream) ASSERT(reply == concat_result);
+    if (stream)
+    {
+        ASSERT(counter > 5);
+        ASSERT(reply == concat_result);
+    }
 }
 
-void test_LLM_Embeddings(LLM* llm) {
-    std::cout << "LLM_Embeddings" << std::endl;
-    std::string reply = std::string(LLM_Embeddings(llm, PROMPT.c_str()));
-    std::vector<float> embeddings = json::parse(reply).get<std::vector<float>>();
+void test_embeddings(LLM* llm, bool use_api) {
+    std::cout << "embeddings" << std::endl;
+    std::vector<float> embeddings;
+    if(use_api) {
+        std::string reply = std::string(LLM_Embeddings(llm, PROMPT.c_str()));
+        embeddings = json::parse(reply).get<std::vector<float>>();
+    } else {
+        embeddings = llm->embeddings(PROMPT);
+    }
     ASSERT(embeddings.size() == EMBEDDING_SIZE);
 }
 
-void test_embeddings(LLM* llm) {
-    std::vector<float> embeddings = llm->embeddings(PROMPT);
-    ASSERT(embeddings.size() == EMBEDDING_SIZE);
-}
-
-void test_LLM_Lora_List(LLMProvider* llm) {
-    std::cout << "LLM_Lora_List" << std::endl;
-    json reply_data = json::parse(LLM_Lora_List(llm));
-    ASSERT(reply_data.size() == 0);
-}
-
-void test_lora_list(LLMProvider* llm) {
+void test_lora_list(LLMProvider* llm, bool use_api) {
     std::cout << "lora_list" << std::endl;
-    std::vector<LoraIdScalePath> loras = llm->lora_list();
-    ASSERT(loras.size() == 0);
+    if(use_api) {
+        json reply_data = json::parse(LLM_Lora_List(llm));
+        ASSERT(reply_data.size() == 0);
+    } else {
+        std::vector<LoraIdScalePath> loras = llm->lora_list();
+        ASSERT(loras.size() == 0);
+    }
 }
 
-void test_LLM_Cancel(LLMLocal* llm) {
-    std::cout << "LLM_Cancel" << std::endl;
-    LLM_Cancel(llm, ID_SLOT);
-}
-
-void test_cancel(LLMLocal* llm) {
+void test_cancel(LLMLocal* llm, bool use_api) {
     std::cout << "cancel" << std::endl;
-    llm->cancel(ID_SLOT);
+    if(use_api) {
+        LLM_Cancel(llm, ID_SLOT);
+    } else {
+        llm->cancel(ID_SLOT);
+    }
 }
 
-void test_LLM_Slot(LLMLocal* llm) {
-    std::cout << "LLM_Slot Save" << std::endl;
-    std::string filename = "test_undreamai.save";
-    json reply_data;
-    std::string reply;
+void test_slot(LLMLocal* llm, bool use_api) {
+    bool remote = false;
+    if (LLMClient* client = dynamic_cast<LLMClient*>(llm)) {
+        remote = client->is_remote();
+    }
 
+    std::cout << "slot Save" << std::endl;
+    std::string filename = "test_undreamai.save";
     std::string filepath = filename;
 
 #ifdef _WIN32
@@ -264,46 +222,243 @@ void test_LLM_Slot(LLMLocal* llm) {
         filepath = std::string(buffer) + "/" + filename;
 #endif
 
-    reply = std::string(LLM_Slot(llm, ID_SLOT, "save", filepath.c_str()));
-    ASSERT(reply == filename);
+    std::string reply;
+    if(use_api) {
+        reply = std::string(LLM_Slot(llm, ID_SLOT, "save", filepath.c_str()));
+    } else {
+        reply = llm->slot(ID_SLOT, "save", filepath);
+    }
+    
+    if (!remote) {
+        ASSERT(reply == filename);
+        std::ifstream f(filename);
+        ASSERT(f.good());
+        f.close();
+    } else {
+        ASSERT(reply == "");
+    }
 
-    std::ifstream f(filename);
-    ASSERT(f.good());
-    f.close();
+    std::cout << "slot Restore" << std::endl;
+    if(use_api) {
+        reply = std::string(LLM_Slot(llm, ID_SLOT, "restore", filepath.c_str()));
+    } else {
+        reply = llm->slot(ID_SLOT, "restore", filepath);
+    }
+    
+    if (!remote) {
+        ASSERT(reply == filename);
+        std::remove(filename.c_str());
+    } else {
+        ASSERT(reply == "");
+    }
+}
 
-    std::cout << "LLM_Slot Restore" << std::endl;
-    reply = std::string(LLM_Slot(llm, ID_SLOT, "restore", filepath.c_str()));
-    ASSERT(reply == filename);
+void test_agent_chat(LLMAgent* agent, bool stream, bool use_api) {
+    std::cout << "agent chat ( ";
+    if (!stream) std::cout << "no ";
+    std::cout << "streaming )" << std::endl;
+
+    std::string user_role = "random_person";
+    std::string assistant_role = "random_bot";
+    if(use_api) {
+        agent->set_user_role(user_role);
+        agent->set_assistant_role(assistant_role);
+        ASSERT(agent->get_user_role() == user_role);
+        ASSERT(agent->get_assistant_role() == assistant_role);
+    } else {
+        LLMAgent_Set_User_Role(agent, user_role.c_str());
+        LLMAgent_Set_Assistant_Role(agent, assistant_role.c_str());
+        ASSERT(LLMAgent_Get_User_Role(agent) == user_role);
+        ASSERT(LLMAgent_Get_Assistant_Role(agent) == assistant_role);
+    }
+
+    std::string user_prompt = "Hello, how are you?";
+    std::string reply;
+
+    agent->clear_history();
+    for (bool add_to_history: {true, false}) {
+        counter = 0;
+        concat_result = "";
+
+        if(use_api) {
+            if (stream) {
+                reply = LLMAgent_Chat(agent, user_prompt.c_str(), add_to_history, static_cast<CharArrayFn>(count_calls), "{}");
+            } else {
+                reply = LLMAgent_Chat(agent, user_prompt.c_str(), add_to_history, nullptr, "{}");
+            }
+        } else {
+            if (stream) {
+                reply = agent->chat(user_prompt, add_to_history, static_cast<CharArrayFn>(count_calls));
+            } else {
+                reply = agent->chat(user_prompt, add_to_history);
+            }
+        }
+
+        ASSERT(reply != "");
+        if (stream)
+        {
+            ASSERT(counter > 5);
+            ASSERT(reply == concat_result);
+        }
+
+        size_t history_size;
+        if(use_api) {
+            history_size = LLMAgent_Get_History_Size(agent);
+        } else {
+            history_size = agent->get_history_size();
+        }
+        ASSERT(history_size == 3);
+
+        json history = agent->get_history();
+        ASSERT(history[0]["role"] == "system");
+        ASSERT(history[1]["role"] == user_role);
+        ASSERT(history[2]["role"] == assistant_role);
+        ASSERT(history[0]["content"] == agent->get_system_prompt());
+        ASSERT(history[1]["content"] == user_prompt);
+    }
+
+    if(use_api) {
+        LLMAgent_Clear_History(agent);
+    } else {
+        agent->clear_history();
+    }
+}
+
+void test_history(LLMAgent* agent, bool use_api) {
+    std::cout << "History Management" << std::endl;
+
+    // Test initial state
+    std::string system_prompt ;
+    if (use_api) system_prompt = LLMAgent_Get_System_Prompt(agent);
+    else system_prompt = agent->get_system_prompt();
+    ASSERT(!system_prompt.empty());
+
+    // Test adding messages
+    if (use_api) {
+        LLMAgent_Add_Message(agent, "user", "Test user message");
+        LLMAgent_Add_Message(agent, "assistant", "Test assistant response");
+    } else {
+        agent->add_message("user", "Test user message");
+        agent->add_message("assistant", "Test assistant response");
+    }
+
+    size_t history_size;
+    
+    if (use_api) history_size = LLMAgent_Get_History_Size(agent);
+    else history_size = agent->get_history_size();
+    ASSERT(history_size == 3); // system + user + assistant
+
+    // Test getting history as JSON
+    json history;
+    if (use_api) history = json::parse(LLMAgent_Get_History(agent));
+    else history = agent->get_history();
+    ASSERT(history.is_array());
+    ASSERT(history.size() == 3);
+
+    // test history formatting
+    std::string data_formatted_gt = "<|im_start|>system\n"+system_prompt+"<|im_end|>\n<|im_start|>user\nTest user message<|im_end|>\n<|im_start|>assistant\nTest assistant response";
+    std::string data_formatted;
+    if(use_api) data_formatted = LLM_Apply_Template(agent, history.dump().c_str());
+    else data_formatted = agent->apply_template(history);
+    ASSERT(data_formatted == data_formatted_gt);
+
+    // Test removing last message
+    if (use_api) LLMAgent_Remove_Last_Message(agent);
+    else agent->remove_last_message();
+    ASSERT(agent->get_history_size() == 2);
+
+    // Test clearing history
+    if (use_api) LLMAgent_Clear_History(agent);
+    else agent->clear_history();
+    ASSERT(agent->get_history_size() == 1);
+
+    // Create test history JSON
+    json test_history = json::array();
+    test_history.push_back({{"role", "system"}, {"content", "Test system prompt"}});
+    test_history.push_back({{"role", "user"}, {"content", "Hello"}});
+    test_history.push_back({{"role", "assistant"}, {"content", "Hi there!"}});
+    test_history.push_back({{"role", "user"}, {"content", "How are you?"}});
+    test_history.push_back({{"role", "assistant"}, {"content", "I'm doing well, thanks!"}});
+
+    // Test set chat history
+    if (use_api) LLMAgent_Set_History(agent, test_history.dump().c_str());
+    else agent->set_history(test_history);
+    ASSERT(agent->get_history_size() == 5);
+
+    json retrieved_history;
+    if (use_api) retrieved_history = json::parse(LLMAgent_Get_History(agent));
+    else retrieved_history = agent->get_history();
+    ASSERT(retrieved_history == test_history);
+
+    // Test setting new system prompt
+    std::string new_system_prompt = "You are a helpful test assistant.";
+    if (use_api)
+    {
+        LLMAgent_Set_System_Prompt(agent, new_system_prompt.c_str());
+        ASSERT(LLMAgent_Get_System_Prompt(agent) == new_system_prompt);
+    } else {
+        agent->set_system_prompt(new_system_prompt);
+        ASSERT(agent->get_system_prompt() == new_system_prompt);
+    }
+    ASSERT(agent->get_history_size() == 1);
+}
+
+void test_save_history(LLMAgent* agent, bool use_api) {
+    std::cout << "LLMAgent File Operations" << std::endl;
+
+    // Add some test messages
+    agent->add_message("user", "Test message 1");
+    agent->add_message("assistant", "Test response 1");
+    agent->add_message("user", "Test message 2");
+    agent->add_message("assistant", "Test response 2");
+    size_t original_size = agent->get_history_size();
+
+    // Test saving to file
+    std::string filename = "test_agent_history.json";
+
+    if (use_api) LLMAgent_Save_History(agent, filename.c_str());
+    else agent->save_history(filename);
+
+    std::ifstream file(filename);
+    ASSERT(file.good());
+    file.close();
+
+    agent->clear_history();
+    ASSERT(agent->get_history_size() == 1);
+
+    if (use_api) LLMAgent_Load_History(agent, filename.c_str());
+    else agent->load_history(filename);
+    ASSERT(agent->get_history_size() == original_size);
 
     std::remove(filename.c_str());
 }
 
-void test_slot(LLMLocal* llm) {
-    std::cout << "slot Save" << std::endl;
-    std::string filename = "test_undreamai.save";
-    std::string filepath;
-#ifdef _WIN32
-    char buffer[MAX_PATH];
-    GetCurrentDirectoryA(MAX_PATH, buffer);
-    filepath = std::string(buffer) + "\\" + filename;
-#else
-    char buffer[PATH_MAX];
-    if (getcwd(buffer, sizeof(buffer)) != nullptr)
-        filepath = std::string(buffer) + "/" + filename;
-    else
-        filepath = filename;
-#endif
-    std::string reply = llm->slot(ID_SLOT, "save", filepath);
-    ASSERT(reply == filename);
+void test_ChatMessage() {
+    std::cout << "ChatMessage Struct Tests" << std::endl;
 
-    std::ifstream f(filename);
-    ASSERT(f.good());
-    f.close();
+    // Test constructors
+    ChatMessage msg1;
+    ASSERT(msg1.role.empty());
+    ASSERT(msg1.content.empty());
 
-    std::cout << "slot Restore" << std::endl;
-    reply = llm->slot(ID_SLOT, "restore", filepath);
-    ASSERT(reply == filename);
-    std::remove(filename.c_str());
+    ChatMessage msg2("user", "Hello world");
+    ASSERT(msg2.role == "user");
+    ASSERT(msg2.content == "Hello world");
+
+    // Test equality
+    ChatMessage msg3("user", "Hello world");
+    ASSERT(msg2 == msg3);
+
+    ChatMessage msg4("assistant", "Hello world");
+    ASSERT(!(msg2 == msg4));
+
+    // Test JSON conversion
+    json msg_json = msg2.to_json();
+    ASSERT(msg_json["role"] == "user");
+    ASSERT(msg_json["content"] == "Hello world");
+
+    ChatMessage msg_from_json = ChatMessage::from_json(msg_json);
+    ASSERT(msg_from_json == msg2);
 }
 
 void stop_llm_service(LLMProvider* llm)
@@ -552,39 +707,65 @@ void run_LLM_tests(LLM* llm)
 {
     llm->n_predict = 30;
 
-    test_LLM_Tokenize(llm);
-    test_LLM_Completion(llm, false);
-    test_LLM_Completion(llm, true);
-    test_LLM_Embeddings(llm);
-    test_LLM_Apply_Template(llm);
+    for (bool use_api: {true, false}) {
+        std::cout<<"*** USE_C_API: "<<use_api<<" ***"<<std::endl;
+        test_tokenize(llm, use_api);
+        test_completion(llm, false, use_api);
+        test_completion(llm, true, use_api);
+        test_embeddings(llm, use_api);
+        test_apply_template(llm, use_api);
+    }
+}
 
-    test_tokenize(llm);
-    test_completion(llm, false);
-    test_completion(llm, true);
-    test_embeddings(llm);
-    test_apply_template(llm);
+void run_LLMAgent_tests(LLMLocal* llm) {
+    test_ChatMessage();
+
+    std::string system_prompt = "You are a helpful AI assistant for testing purposes.";
+    LLMAgent* agent = new LLMAgent(llm, system_prompt);
+    agent->n_predict = 30;
+
+    std::cout << std::endl << "<<< LLM agent" << std::endl;
+
+    run_LLM_tests(agent);
+
+    for (bool use_api: {true, false}) {
+        std::cout<<"*** USE_C_API: "<<use_api<<" ***"<<std::endl;
+        test_agent_chat(agent, false, use_api);
+        test_agent_chat(agent, true, use_api);
+        test_history(agent, use_api);
+        test_save_history(agent, use_api);
+    }
+
+    if (LLMClient* client = dynamic_cast<LLMClient*>(llm)) {
+        if (client->is_remote()) ASSERT(agent->get_slot() == -1);
+        else ASSERT(agent->get_slot() > -1);
+    } else ASSERT(agent->get_slot() > -1);
+
+    delete agent;
+    std::cout << ">>> LLM agent" << std::endl;
 }
 
 void run_LLMLocal_tests(LLMLocal* llm)
 {
     run_LLM_tests(llm);
+    run_LLMAgent_tests(llm);
 
-    test_LLM_Cancel(llm);
-    test_LLM_Slot(llm);
-
-    test_cancel(llm);
-    test_slot(llm);
+    for (bool use_api: {true, false}) {
+        std::cout<<"*** USE_C_API: "<<use_api<<" ***"<<std::endl;
+        test_cancel(llm, use_api);
+        test_slot(llm, use_api);
+    }
 }
 
 void run_LLMProvider_tests(LLMProvider* llm)
 {
     run_LLMLocal_tests(llm);
 
-    test_LLM_Lora_List(llm);
-    test_LLM_Template(llm);
-
-    test_lora_list(llm);
-    test_template(llm);
+    for (bool use_api: {true, false}) {
+        std::cout<<"*** USE_C_API: "<<use_api<<" ***"<<std::endl;
+        test_lora_list(llm, use_api);
+        test_template(llm, use_api);
+    }
 }
 
 void set_SSL(LLMProvider* llm, LLMClient* llm_remote_client)
@@ -675,7 +856,7 @@ int main(int argc, char** argv) {
     std::cout << "-------- LLM runtime --------" << std::endl;
     LLMRuntime* llm_service = LLMRuntime::from_command(command);
 #else
-    std::cout << std::endl << "-------- LLM service --------" << std::endl;
+    std::cout << "-------- LLM service --------" << std::endl;
     LLMService* llm_service = new LLMService(model);
 #endif
     LLM_Start(llm_service);
@@ -690,14 +871,14 @@ int main(int argc, char** argv) {
     std::cout << std::endl << "-------- LLM remote client --------" << std::endl;
     LLMClient llm_remote_client("http://localhost", 8080);
     LLM_Start_Server(llm_service, "", 8080);
-    run_LLM_tests(&llm_remote_client);
+    run_LLMLocal_tests(&llm_remote_client);
     LLM_Stop_Server(llm_service);
 
     std::cout << std::endl << "-------- LLM remote client SSL --------" << std::endl;
     LLMClient llm_remote_client_SSL("https://localhost", 8080);
     set_SSL(llm_service, &llm_remote_client_SSL);
     LLM_Start_Server(llm_service, "", 8080);
-    run_LLM_tests(&llm_remote_client_SSL);
+    run_LLMLocal_tests(&llm_remote_client_SSL);
 
     std::cout << std::endl << "-------- Stop service --------" << std::endl;
     stop_llm_service(llm_service);
