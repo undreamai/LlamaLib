@@ -69,7 +69,7 @@ public:
 
     virtual json build_completion_json(const std::string& prompt, int id_slot=-1, const json& params=json({}));
     virtual std::string parse_completion_json(const json& result);
-    virtual std::string completion(const std::string& prompt, CharArrayFn callback=nullptr, int id_slot=-1, const json& params_as_json=json({}));
+    virtual std::string completion(const std::string& prompt, CharArrayFn callback=nullptr, int id_slot=-1, const json& params_json=json({}));
 };
 
 class UNDREAMAI_API LLMLocal : public LLM {

@@ -97,7 +97,7 @@ bool LLM::has_gpu_layers(const std::string& command) {
 
 std::string LLM::parse_get_template_json(const json& result) {
     try {
-        return result["chat_template"].get<std::string>();
+        return result.at("chat_template").get<std::string>();
     }
     catch (const std::exception&) {}
     return "";
@@ -118,7 +118,7 @@ json LLM::build_apply_template_json(const json& messages)
 
 std::string LLM::parse_apply_template_json(const json& result) {
     try {
-        return result["prompt"].get<std::string>();
+        return result.at("prompt").get<std::string>();
     }
     catch (const std::exception&) {}
     return "";
@@ -139,7 +139,7 @@ json LLM::build_tokenize_json(const std::string& query)
 
 std::vector<int> LLM::parse_tokenize_json(const json& result) {
     try {
-        return result["tokens"].get<std::vector<int>>();
+        return result.at("tokens").get<std::vector<int>>();
     }
     catch (const std::exception&) {}
     return {};
@@ -160,7 +160,7 @@ json LLM::build_detokenize_json(const std::vector<int32_t>& tokens)
 
 std::string LLM::parse_detokenize_json(const json& result) {
     try {
-        return result["content"].get<std::string>();
+        return result.at("content").get<std::string>();
     }
     catch (const std::exception&) {}
     return "";
@@ -181,7 +181,7 @@ json LLM::build_embeddings_json(const std::string& query)
 
 std::vector<float> LLM::parse_embeddings_json(const json& result) {
     try {
-        return result["embedding"].get<std::vector<float>>();
+        return result.at("embedding").get<std::vector<float>>();
     }
     catch (const std::exception&) {}
     return {};
@@ -217,7 +217,7 @@ json LLM::build_completion_json(const std::string& prompt, int id_slot, const js
 std::string LLM::parse_completion_json(const json& result)
 {
     try {
-        return result["content"].get<std::string>();
+        return result.at("content").get<std::string>();
     }
     catch (const std::exception&) {}
     return "";
@@ -259,7 +259,7 @@ json LLMLocal::build_slot_json(int id_slot, const std::string& action, const std
 std::string LLMLocal::parse_slot_json(const json& result)
 {
     try {
-        return result["filename"].get<std::string>();
+        return result.at("filename").get<std::string>();
     }
     catch (const std::exception&) {}
     return "";
@@ -307,7 +307,7 @@ json LLMProvider::build_lora_weight_json(const std::vector<LoraIdScale>& loras)
 
 bool LLMProvider::parse_lora_weight_json(const json& result) {
     try {
-        return result["success"].get<bool>();
+        return result.at("success").get<bool>();
     }
     catch (const std::exception&) {}
     return false;
@@ -404,13 +404,15 @@ const char* LLM_Embeddings(LLM* llm, const char* query) {
     return stringToCharArray(result.dump());
 }
 
-const char* LLM_Completion(LLM* llm, const char* prompt, CharArrayFn callback, int id_slot, const char* params_as_json) {
-    return stringToCharArray(llm->completion(prompt, callback, id_slot, json::parse(params_as_json)));
+const char* LLM_Completion(LLM* llm, const char* prompt, CharArrayFn callback, int id_slot, const char* params_json) {
+    json params = json::parse(params_json ? params_json : "{}");
+    return stringToCharArray(llm->completion(prompt, callback, id_slot, params));
 }
 
-const char* LLM_Completion_JSON(LLM* llm, const char* prompt, CharArrayFn callback, int id_slot, const char* params_as_json) {
+const char* LLM_Completion_JSON(LLM* llm, const char* prompt, CharArrayFn callback, int id_slot, const char* params_json) {
+    json params = json::parse(params_json ? params_json : "{}");
     std::string completion_json_str = llm->completion_json(
-        llm->build_completion_json(std::string(prompt), id_slot, json::parse(params_as_json)),
+        llm->build_completion_json(std::string(prompt), id_slot, params),
         callback,
         true
     );
