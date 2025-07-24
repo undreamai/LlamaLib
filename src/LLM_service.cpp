@@ -1077,7 +1077,7 @@ std::string LLMService::completion_json(
                                             ctx_server->params_base,
                                             data);
                 task.params.stream = stream;
-                task.id_selected_slot = json_value(data, "id_slot", -1);
+                task.id_selected_slot = (res == nullptr)? json_value(data, "id_slot", -1): -1;
 
                 // OAI-compat
                 task.params.oaicompat         = oaicompat;
