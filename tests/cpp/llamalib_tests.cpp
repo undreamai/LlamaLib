@@ -82,14 +82,6 @@ void count_calls(const char* c)
     counter++;
 }
 
-void count_calls_json(const char* c)
-{
-    std::string result(c);
-    json j = json::parse(result);
-    concat_result += j["content"];
-    counter++;
-}
-
 void test_template(LLMProvider* llm, bool use_api) {
     std::string chat_template = "phi3";
     std::cout << "set_template" << std::endl;
@@ -722,7 +714,7 @@ void run_LLMAgent_tests(LLMLocal* llm) {
 
     std::string system_prompt = "You are a helpful AI assistant for testing purposes.";
     LLMAgent* agent = new LLMAgent(llm, system_prompt);
-    agent->n_predict = 30;
+    agent->n_predict = 100;
 
     std::cout << std::endl << "<<< LLM agent" << std::endl;
 
