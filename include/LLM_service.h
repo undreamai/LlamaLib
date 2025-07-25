@@ -23,11 +23,6 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         void init(const std::string& params_string);
         void init(const char* params_string);
 
-        std::string embeddings_json(const json& data, httplib::Response* res, std::function<bool()> is_connection_closed = always_false);
-        std::string lora_weight_json(const json& data, httplib::Response* res);
-        std::string completion_json(const json& data, CharArrayFn callback, bool callbackWithJSON, httplib::Response* res, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
-        std::string slot_json(const json& data, httplib::Response* res);
-
         //=================================== LLM METHODS START ===================================//
         void debug(int debug_level) override;
         void logging_callback(CharArrayFn callback) override;
@@ -55,6 +50,12 @@ class UNDREAMAI_API LLMService : public LLMProvider {
         int embedding_size() override;
         int get_available_slot() override;
         //=================================== LLM METHODS END ===================================//
+
+    protected:
+        std::string embeddings_json(const json& data, httplib::Response* res, std::function<bool()> is_connection_closed = always_false);
+        std::string lora_weight_json(const json& data, httplib::Response* res);
+        std::string completion_json(const json& data, CharArrayFn callback, bool callbackWithJSON, httplib::Response* res, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
+        std::string slot_json(const json& data, httplib::Response* res);
 
     private:
         common_params* params;

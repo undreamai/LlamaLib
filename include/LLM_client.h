@@ -27,7 +27,6 @@ public:
     // Helper to determine if this is a remote client
     bool is_remote() const { return !url.empty() && port > -1; }
 
-protected:
     //=================================== LLM METHODS START ===================================//
     std::string get_template_json() override;
     std::string apply_template_json(const json& data) override;

@@ -423,8 +423,12 @@ void LLM_Set_Template(LLMProvider* llm, const char* chat_template) {
     llm->set_template(chat_template);
 }
 
-const char* LLM_Slot(LLMLocal* llm, int id_slot, const char* action, const char* filepath) {
-    return stringToCharArray(llm->slot(id_slot, action, filepath));
+const char* LLM_Save_Slot(LLMLocal* llm, int id_slot, const char* filepath) {
+    return stringToCharArray(llm->save_slot(id_slot, filepath));
+}
+
+const char* LLM_Load_Slot(LLMLocal* llm, int id_slot, const char* filepath) {
+    return stringToCharArray(llm->load_slot(id_slot, filepath));
 }
 
 void LLM_Cancel(LLMLocal* llm, int id_slot) {

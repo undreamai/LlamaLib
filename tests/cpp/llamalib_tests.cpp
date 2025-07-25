@@ -216,9 +216,9 @@ void test_slot(LLMLocal* llm, bool use_api) {
 
     std::string reply;
     if(use_api) {
-        reply = std::string(LLM_Slot(llm, ID_SLOT, "save", filepath.c_str()));
+        reply = std::string(LLM_Save_Slot(llm, ID_SLOT, filepath.c_str()));
     } else {
-        reply = llm->slot(ID_SLOT, "save", filepath);
+        reply = llm->save_slot(ID_SLOT, filepath);
     }
     
     if (!remote) {
@@ -232,9 +232,9 @@ void test_slot(LLMLocal* llm, bool use_api) {
 
     std::cout << "slot Restore" << std::endl;
     if(use_api) {
-        reply = std::string(LLM_Slot(llm, ID_SLOT, "restore", filepath.c_str()));
+        reply = std::string(LLM_Load_Slot(llm, ID_SLOT, filepath.c_str()));
     } else {
-        reply = llm->slot(ID_SLOT, "restore", filepath);
+        reply = llm->load_slot(ID_SLOT, filepath);
     }
     
     if (!remote) {
@@ -289,6 +289,7 @@ void test_agent_chat(LLMAgent* agent, bool stream, bool use_api) {
         ASSERT(reply != "");
         if (stream)
         {
+            std::cout<<"counter: "<<counter<<std::endl;
             ASSERT(counter > 5);
             ASSERT(reply == concat_result);
         }
@@ -714,10 +715,8 @@ void run_LLMAgent_tests(LLMLocal* llm) {
 
     std::string system_prompt = "You are a helpful AI assistant for testing purposes.";
     LLMAgent* agent = new LLMAgent(llm, system_prompt);
-    agent->n_predict = 100;
 
     std::cout << std::endl << "<<< LLM agent" << std::endl;
-
     run_LLM_tests(agent);
 
     for (bool use_api: {true, false}) {

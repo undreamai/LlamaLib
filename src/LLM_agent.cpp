@@ -124,8 +124,12 @@ const char* LLMAgent_Completion(LLMAgent* llm, const char* prompt, CharArrayFn c
     return LLM_Completion(llm, prompt, callback, llm->get_slot(), params_json, return_response_json);
 }
 
-const char* LLMAgent_Slot(LLMAgent* llm, const char* action, const char* filepath) {
-    return LLM_Slot(llm, llm->get_slot(), action, filepath);
+const char* LLMAgent_Save_Slot(LLMAgent* llm, const char* filepath) {
+    return LLM_Save_Slot(llm, llm->get_slot(), filepath);
+}
+
+const char* LLMAgent_Load_Slot(LLMAgent* llm, const char* filepath) {
+    return LLM_Load_Slot(llm, llm->get_slot(), filepath);
 }
 
 void LLMAgent_Cancel(LLMAgent* llm) {

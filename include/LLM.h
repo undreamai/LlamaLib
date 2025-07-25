@@ -74,13 +74,15 @@ public:
 
 class UNDREAMAI_API LLMLocal : public LLM {
 public:
-    virtual std::string slot_json(const json& data) = 0;
     virtual void cancel_json(const json& data) = 0;
     virtual int get_available_slot() = 0;
+    virtual std::string slot_json(const json& data) = 0;
 
     virtual json build_slot_json(int id_slot, const std::string& action, const std::string& filepath);
     virtual std::string parse_slot_json(const json& result);
     virtual std::string slot(int id_slot, const std::string& action, const std::string& filepath);
+    virtual std::string save_slot(int id_slot, const std::string& filepath) { return slot(id_slot, "save", filepath); }
+    virtual std::string load_slot(int id_slot, const std::string& filepath) { return slot(id_slot, "restore", filepath); }
 
     virtual json build_cancel_json(int id_slot);
     virtual void cancel(int id_slot);
@@ -201,7 +203,8 @@ extern "C" {
     UNDREAMAI_API const char* LLM_Embeddings(LLM* llm, const char* query);
     UNDREAMAI_API const char* LLM_Completion(LLM* llm, const char* prompt, CharArrayFn callback=nullptr, int id_slot=-1, const char* params_json="{}", bool return_response_json=false);
 
-    UNDREAMAI_API const char* LLM_Slot(LLMLocal* llm, int id_slot, const char* action, const char* filepath);
+    UNDREAMAI_API const char* LLM_Save_Slot(LLMLocal* llm, int id_slot, const char* filepath);
+    UNDREAMAI_API const char* LLM_Load_Slot(LLMLocal* llm, int id_slot, const char* filepath);
     UNDREAMAI_API void LLM_Cancel(LLMLocal* llm, int id_slot);
 
     UNDREAMAI_API void LLM_Set_Template(LLMProvider* llm, const char* chat_template);
