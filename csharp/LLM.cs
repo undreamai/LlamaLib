@@ -7,7 +7,6 @@ using Newtonsoft.Json.Linq;
 
 namespace UndreamAI.LlamaLib
 {
-
     // Data structures for LoRA operations
     public struct LoraIdScale
     {
@@ -180,6 +179,7 @@ namespace UndreamAI.LlamaLib
                     json[param.Key] = param.Value;
                 }
             }
+            Console.WriteLine(numPredict);
             return json.ToString();
         }
 
@@ -190,36 +190,23 @@ namespace UndreamAI.LlamaLib
             CheckLlamaLib();
         }
 
-        public string CompletionInternal(string prompt, LlamaLib.CharArrayCallback callback, int idSlot, JObject parameters, bool callbackWithJSON)
+        public string CompletionInternal(string prompt, LlamaLib.CharArrayCallback callback, int idSlot, JObject parameters)
         {
             IntPtr result;
-            if (callbackWithJSON) result = llamaLib.LLM_Completion_JSON(llm, prompt, callback, idSlot, BuildParametersJSON(parameters));
-            else result = llamaLib.LLM_Completion(llm, prompt, callback, idSlot, BuildParametersJSON(parameters));
+            result = llamaLib.LLM_Completion(llm, prompt, callback, idSlot, BuildParametersJSON(parameters));
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
         public string Completion(string prompt, LlamaLib.CharArrayCallback callback = null, int idSlot = -1, JObject parameters = null)
         {
             CheckCompletionInternal(prompt);
-            return CompletionInternal(prompt, callback, idSlot, parameters, false);
+            return CompletionInternal(prompt, callback, idSlot, parameters);
         }
 
         public async Task<string> CompletionAsync(string prompt, LlamaLib.CharArrayCallback callback = null, int idSlot = -1, JObject parameters = null)
         {
             CheckCompletionInternal(prompt);
-            return await Task.Run(() => CompletionInternal(prompt, callback, idSlot, parameters, false));
-        }
-
-        public JObject CompletionJSON(string prompt, LlamaLib.CharArrayCallback callback = null, int idSlot = -1, JObject parameters = null)
-        {
-            CheckCompletionInternal(prompt);
-            return JObject.Parse(CompletionInternal(prompt, callback, idSlot, parameters, true));
-        }
-
-        public async Task<JObject> CompletionJSONAsync(string prompt, LlamaLib.CharArrayCallback callback = null, int idSlot = -1, JObject parameters = null)
-        {
-            CheckCompletionInternal(prompt);
-            return await Task.Run(() => JObject.Parse(CompletionInternal(prompt, callback, idSlot, parameters, true)));
+            return await Task.Run(() => CompletionInternal(prompt, callback, idSlot, parameters));
         }
     }
 
@@ -230,18 +217,24 @@ namespace UndreamAI.LlamaLib
 
         protected LLMLocal(LlamaLib llamaLibInstance) : base(llamaLibInstance) { }
 
-        public string Slot(int idSlot, string action, string filepath)
+        public string SaveSlot(int idSlot, string filepath)
         {
-            if (string.IsNullOrEmpty(action))
-                throw new ArgumentNullException(nameof(action));
             if (string.IsNullOrEmpty(filepath))
                 throw new ArgumentNullException(nameof(filepath));
 
-            IntPtr result = llamaLib.LLM_Slot(llm, idSlot, action, filepath);
+            IntPtr result = llamaLib.LLM_Save_Slot(llm, idSlot, filepath);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
-        // Cancel methods
+        public string LoadSlot(int idSlot, string filepath)
+        {
+            if (string.IsNullOrEmpty(filepath) || !File.Exists(filepath))
+                throw new ArgumentNullException(nameof(filepath));
+
+            IntPtr result = llamaLib.LLM_Load_Slot(llm, idSlot, filepath);
+            return Marshal.PtrToStringAnsi(result) ?? string.Empty;
+        }
+
         public void Cancel(int idSlot)
         {
             CheckLlamaLib();
@@ -420,172 +413,6 @@ namespace UndreamAI.LlamaLib
                 }
                 disposed = true;
             }
-        }
-    }
-
-    // LLMService class
-    public class LLMService : LLMProvider
-    {
-        public LLMService(string modelPath, int numThreads = -1, int numGpuLayers = 0, 
-            int numParallel = 1, bool flashAttention = false, int contextSize = 4096, 
-            int batchSize = 2048, bool embeddingOnly = false, string[] loraPaths = null)
-        {
-            if (string.IsNullOrEmpty(modelPath))
-                throw new ArgumentNullException(nameof(modelPath));
-            if (!File.Exists(modelPath))
-                throw new FileNotFoundException($"Model file not found: {modelPath}");
-
-            try
-            {
-                llamaLib = new LlamaLib(numGpuLayers > 0);
-                llm = CreateLLM(modelPath, numThreads, numGpuLayers, numParallel, 
-                    flashAttention, contextSize, batchSize, embeddingOnly, loraPaths);
-            }
-            catch
-            {
-                llamaLib?.Dispose();
-                throw;
-            }
-        }
-
-        public LLMService(LlamaLib llamaLibInstance, IntPtr llmInstance)
-        {
-            if (llamaLibInstance == null) throw new ArgumentNullException(nameof(llamaLibInstance));
-            if (llmInstance == IntPtr.Zero) throw new ArgumentNullException(nameof(llmInstance));
-            llamaLib = llamaLibInstance;
-            llm = llmInstance;
-        }
-
-        public static LLMService FromCommand(string paramsString)
-        {
-            if (string.IsNullOrEmpty(paramsString))
-                throw new ArgumentNullException(nameof(paramsString));
-
-            LlamaLib llamaLibInstance = null;
-            IntPtr llmInstance = IntPtr.Zero;
-            try
-            {
-                llamaLibInstance = new LlamaLib(LlamaLib.Has_GPU_Layers(paramsString));
-                llmInstance = llamaLibInstance.LLMService_From_Command(paramsString);
-            }
-            catch
-            {
-                llamaLibInstance?.Dispose();
-                throw;
-            }
-            return new LLMService(llamaLibInstance, llmInstance);
-        }
-
-        private IntPtr CreateLLM(string modelPath, int numThreads, int numGpuLayers,
-            int numParallel, bool flashAttention, int contextSize, int batchSize,
-            bool embeddingOnly, string[] loraPaths)
-        {
-            IntPtr loraPathsPtr = IntPtr.Zero;
-            int loraPathCount = 0;
-
-            if (loraPaths != null && loraPaths.Length > 0)
-            {
-                loraPathCount = loraPaths.Length;
-                // Allocate array of string pointers
-                loraPathsPtr = Marshal.AllocHGlobal(IntPtr.Size * loraPathCount);
-                
-                try
-                {
-                    for (int i = 0; i < loraPathCount; i++)
-                    {
-                        if (string.IsNullOrEmpty(loraPaths[i]))
-                            throw new ArgumentException($"Lora path at index {i} is null or empty");
-                        
-                        IntPtr stringPtr = Marshal.StringToHGlobalAnsi(loraPaths[i]);
-                        Marshal.WriteIntPtr(loraPathsPtr, i * IntPtr.Size, stringPtr);
-                    }
-                }
-                catch
-                {
-                    // Clean up if allocation failed
-                    for (int i = 0; i < loraPathCount; i++)
-                    {
-                        IntPtr stringPtr = Marshal.ReadIntPtr(loraPathsPtr, i * IntPtr.Size);
-                        if (stringPtr != IntPtr.Zero)
-                            Marshal.FreeHGlobal(stringPtr);
-                    }
-                    Marshal.FreeHGlobal(loraPathsPtr);
-                    throw;
-                }
-            }
-
-            try
-            {
-                var llm = llamaLib.LLMService_Construct(
-                    modelPath, numThreads, numGpuLayers, numParallel,
-                    flashAttention, contextSize, batchSize, embeddingOnly,
-                    loraPathCount, loraPathsPtr);
-
-                if (llm == IntPtr.Zero)
-                    throw new InvalidOperationException("Failed to create LLMService");
-
-                return llm;
-            }
-            finally
-            {
-                // Clean up allocated strings
-                if (loraPathsPtr != IntPtr.Zero)
-                {
-                    for (int i = 0; i < loraPathCount; i++)
-                    {
-                        IntPtr stringPtr = Marshal.ReadIntPtr(loraPathsPtr, i * IntPtr.Size);
-                        if (stringPtr != IntPtr.Zero)
-                            Marshal.FreeHGlobal(stringPtr);
-                    }
-                    Marshal.FreeHGlobal(loraPathsPtr);
-                }
-            }
-        }
-    }
-
-    // LLMClient class
-    public class LLMClient : LLMLocal
-    {
-        public LLMClient(LLMProvider provider)
-        {
-            if (provider.disposed)
-                throw new ObjectDisposedException(nameof(provider));
-
-            llamaLib = provider.llamaLib;
-            llm = CreateClient(provider);
-        }
-
-        public LLMClient(string url, int port)
-        {
-            if (string.IsNullOrEmpty(url))
-                throw new ArgumentNullException(nameof(url));
-
-            try
-            {
-                llamaLib = new LlamaLib(false);
-                llm = CreateRemoteClient(url, port);
-            }
-            catch
-            {
-                llamaLib?.Dispose();
-                throw;
-            }
-        }
-
-        private IntPtr CreateClient(LLMProvider provider)
-        {
-            var llm = llamaLib.LLMClient_Construct(provider.llm);
-            if (llm == IntPtr.Zero)
-                throw new InvalidOperationException("Failed to create LLMClient");
-            return llm;
-        }
-
-        private IntPtr CreateRemoteClient(string url, int port)
-        {
-            var llm = llamaLib.LLMClient_Construct_Remote(url, port);
-            if (llm == IntPtr.Zero)
-                throw new InvalidOperationException($"Failed to create remote LLMClient for {url}:{port}");
-            return llm;
         }
     }
 }
