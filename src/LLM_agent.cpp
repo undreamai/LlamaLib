@@ -176,6 +176,16 @@ const char* LLMAgent_Get_History(LLMAgent* llm)
     return stringToCharArray(llm->get_history().dump());
 }
 
+void LLMAgent_Set_Slot(LLMAgent* llm, int slot_id)
+{
+    llm->set_slot(slot_id);
+}
+
+int LLMAgent_Get_Slot(LLMAgent* llm)
+{
+    return llm->get_slot();
+}
+
 void LLMAgent_Set_History(LLMAgent* llm, const char* history_json)
 {
     try {

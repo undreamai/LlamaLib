@@ -113,6 +113,8 @@ extern "C" {
     UNDREAMAI_API const char* LLMAgent_Get_Assistant_Role(LLMAgent* llm);
     UNDREAMAI_API void LLMAgent_Set_System_Prompt(LLMAgent* llm, const char* system_prompt);
     UNDREAMAI_API const char* LLMAgent_Get_System_Prompt(LLMAgent* llm);
+    UNDREAMAI_API void LLMAgent_Set_Slot(LLMAgent* llm, int slot_id);
+    UNDREAMAI_API int LLMAgent_Get_Slot(LLMAgent* llm);
 
     UNDREAMAI_API const char* LLMAgent_Chat(LLMAgent* llm, const char* user_prompt, bool add_to_history = true, CharArrayFn callback = nullptr, const char* params_json = "{}", bool return_response_json=false);
     UNDREAMAI_API const char* LLMAgent_Completion(LLMAgent* llm, const char* prompt, CharArrayFn callback=nullptr, const char* params_json="{}", bool return_response_json=false);
