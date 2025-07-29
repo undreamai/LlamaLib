@@ -86,14 +86,14 @@ namespace UndreamAI.LlamaLib.Tests
         
         private void TestCompletionWithStreaming(LLM llm, bool stream)
         {
-            llm.numPredict = 30;
+            llm.SetCompletionParameters(new JObject { ["n_predict"] = 30 });
             Console.WriteLine($"LLM_Completion ({(stream ? "" : "no ")}streaming)");
 
             lock (completionLock)
             {
                 counter = 0;
                 concatData = "";
-                string content = llm.Completion(PROMPT, stream? CountCalls: null, ID_SLOT, null);
+                string content = llm.Completion(PROMPT, stream? CountCalls: null, ID_SLOT);
                 Assert.IsFalse(string.IsNullOrEmpty(content));
                 if (stream)
                 {

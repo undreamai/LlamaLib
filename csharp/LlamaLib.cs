@@ -70,8 +70,8 @@ namespace UndreamAI.LlamaLib
         public IntPtr LLM_Embeddings(IntPtr llm, string query) => LlamaLib.LLM_Embeddings_Static(llm, query);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Completion")]
-        public static extern IntPtr LLM_Completion_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string query, CharArrayCallback callback, int id_slot=-1, [MarshalAs(UnmanagedType.LPStr)] string params_json="{}", bool return_response_json=false);
-        public IntPtr LLM_Completion(IntPtr llm, string query, CharArrayCallback callback, int id_slot=-1, string params_json="{}", bool return_response_json=false) => LlamaLib.LLM_Completion_Static(llm, query, callback, id_slot, params_json, return_response_json);
+        public static extern IntPtr LLM_Completion_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string query, CharArrayCallback callback, int id_slot=-1, bool return_response_json=false);
+        public IntPtr LLM_Completion(IntPtr llm, string query, CharArrayCallback callback, int id_slot=-1, bool return_response_json=false) => LlamaLib.LLM_Completion_Static(llm, query, callback, id_slot, return_response_json);
 
         // LLMLocal functions
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Set_Template")]
@@ -228,6 +228,22 @@ namespace UndreamAI.LlamaLib
         public static extern IntPtr LLMAgent_Get_System_Prompt_Static(IntPtr llm);
         public IntPtr LLMAgent_Get_System_Prompt(IntPtr llm) => LLMAgent_Get_System_Prompt_Static(llm);
 
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Set_Completion_Parameters")]
+        public static extern void LLM_Set_Completion_Parameters_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string parameters);
+        public void LLM_Set_Completion_Parameters(IntPtr llm, string parameters) => LLM_Set_Completion_Parameters_Static(llm, parameters);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Get_Completion_Parameters")]
+        public static extern IntPtr LLM_Get_Completion_Parameters_Static(IntPtr llm);
+        public IntPtr LLM_Get_Completion_Parameters(IntPtr llm) => LLM_Get_Completion_Parameters_Static(llm);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Set_Grammar")]
+        public static extern void LLM_Set_Grammar_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string grammar);
+        public void LLM_Set_Grammar(IntPtr llm, string grammar) => LLM_Set_Grammar_Static(llm, grammar);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Get_Grammar")]
+        public static extern IntPtr LLM_Get_Grammar_Static(IntPtr llm);
+        public IntPtr LLM_Get_Grammar(IntPtr llm) => LLM_Get_Grammar_Static(llm);
+
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLMAgent_Set_Slot")]
         public static extern void LLMAgent_Set_Slot_Static(IntPtr llm, int slotId);
         public void LLMAgent_Set_Slot(IntPtr llm, int slotId) => LLMAgent_Set_Slot_Static(llm, slotId);
@@ -241,31 +257,9 @@ namespace UndreamAI.LlamaLib
             [MarshalAs(UnmanagedType.LPStr)] string userPrompt,
             [MarshalAs(UnmanagedType.I1)] bool addToHistory = true,
             CharArrayCallback callback = null,
-            [MarshalAs(UnmanagedType.LPStr)] string paramsJson = "{}",
             [MarshalAs(UnmanagedType.I1)] bool returnResponseJson = false);
-        public IntPtr LLMAgent_Chat(IntPtr llm, string userPrompt, bool addToHistory = true, CharArrayCallback callback = null, string paramsJson = "{}", bool returnResponseJson = false)
-            => LLMAgent_Chat_Static(llm, userPrompt, addToHistory, callback, paramsJson, returnResponseJson);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLMAgent_Completion")]
-        public static extern IntPtr LLMAgent_Completion_Static(IntPtr llm,
-            [MarshalAs(UnmanagedType.LPStr)] string prompt,
-            CharArrayCallback callback = null,
-            [MarshalAs(UnmanagedType.LPStr)] string paramsJson = "{}",
-            [MarshalAs(UnmanagedType.I1)] bool returnResponseJson = false);
-        public IntPtr LLMAgent_Completion(IntPtr llm, string prompt, CharArrayCallback callback = null, string paramsJson = "{}", bool returnResponseJson = false)
-            => LLMAgent_Completion_Static(llm, prompt, callback, paramsJson, returnResponseJson);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLMAgent_Save_Slot")]
-        public static extern IntPtr LLMAgent_Save_Slot_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string filepath);
-        public IntPtr LLMAgent_Save_Slot(IntPtr llm, string filepath) => LLMAgent_Save_Slot_Static(llm, filepath);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLMAgent_Load_Slot")]
-        public static extern IntPtr LLMAgent_Load_Slot_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string filepath);
-        public IntPtr LLMAgent_Load_Slot(IntPtr llm, string filepath) => LLMAgent_Load_Slot_Static(llm, filepath);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLMAgent_Cancel")]
-        public static extern void LLMAgent_Cancel_Static(IntPtr llm);
-        public void LLMAgent_Cancel(IntPtr llm) => LLMAgent_Cancel_Static(llm);
+        public IntPtr LLMAgent_Chat(IntPtr llm, string userPrompt, bool addToHistory = true, CharArrayCallback callback = null, bool returnResponseJson = false)
+            => LLMAgent_Chat_Static(llm, userPrompt, addToHistory, callback, returnResponseJson);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLMAgent_Clear_History")]
         public static extern void LLMAgent_Clear_History_Static(IntPtr llm);
@@ -413,7 +407,8 @@ namespace UndreamAI.LlamaLib
                 }
                 catch (Exception ex)
                 {
-                    if (debugLevelGlobal > 0) Console.WriteLine($"Failed to load library {library}: {ex.Message}.");
+                    // if (debugLevelGlobal > 0) Console.WriteLine($"Failed to load library {library}: {ex.Message}.");
+            throw new InvalidOperationException($"Failed to load library {library}: {ex.Message}.", ex);
                     lastException = ex;
                     continue;
                 }
@@ -465,11 +460,11 @@ namespace UndreamAI.LlamaLib
             LLMAgent_Get_System_Prompt = LibraryLoader.GetSymbolDelegate<LLMAgent_Get_System_Prompt_Delegate>(libraryHandle, "LLMAgent_Get_System_Prompt");
             LLMAgent_Set_Slot = LibraryLoader.GetSymbolDelegate<LLMAgent_Set_Slot_Delegate>(libraryHandle, "LLMAgent_Set_Slot");
             LLMAgent_Get_Slot = LibraryLoader.GetSymbolDelegate<LLMAgent_Get_Slot_Delegate>(libraryHandle, "LLMAgent_Get_Slot");
+            LLM_Set_Completion_Parameters = LibraryLoader.GetSymbolDelegate<LLM_Set_Completion_Parameters_Delegate>(libraryHandle, "LLM_Set_Completion_Parameters");
+            LLM_Get_Completion_Parameters = LibraryLoader.GetSymbolDelegate<LLM_Get_Completion_Parameters_Delegate>(libraryHandle, "LLM_Get_Completion_Parameters");
+            LLM_Set_Grammar = LibraryLoader.GetSymbolDelegate<LLM_Set_Grammar_Delegate>(libraryHandle, "LLM_Set_Grammar");
+            LLM_Get_Grammar = LibraryLoader.GetSymbolDelegate<LLM_Get_Grammar_Delegate>(libraryHandle, "LLM_Get_Grammar");
             LLMAgent_Chat = LibraryLoader.GetSymbolDelegate<LLMAgent_Chat_Delegate>(libraryHandle, "LLMAgent_Chat");
-            LLMAgent_Completion = LibraryLoader.GetSymbolDelegate<LLMAgent_Completion_Delegate>(libraryHandle, "LLMAgent_Completion");
-            LLMAgent_Save_Slot = LibraryLoader.GetSymbolDelegate<LLMAgent_Save_Slot_Delegate>(libraryHandle, "LLMAgent_Save_Slot");
-            LLMAgent_Load_Slot = LibraryLoader.GetSymbolDelegate<LLMAgent_Load_Slot_Delegate>(libraryHandle, "LLMAgent_Load_Slot");
-            LLMAgent_Cancel = LibraryLoader.GetSymbolDelegate<LLMAgent_Cancel_Delegate>(libraryHandle, "LLMAgent_Cancel");
             LLMAgent_Clear_History = LibraryLoader.GetSymbolDelegate<LLMAgent_Clear_History_Delegate>(libraryHandle, "LLMAgent_Clear_History");
             LLMAgent_Get_History = LibraryLoader.GetSymbolDelegate<LLMAgent_Get_History_Delegate>(libraryHandle, "LLMAgent_Get_History");
             LLMAgent_Set_History = LibraryLoader.GetSymbolDelegate<LLMAgent_Set_History_Delegate>(libraryHandle, "LLMAgent_Set_History");
@@ -517,7 +512,7 @@ namespace UndreamAI.LlamaLib
         public delegate IntPtr LLM_Embeddings_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string query);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr LLM_Completion_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string query, CharArrayCallback callback, int id_slot=-1, [MarshalAs(UnmanagedType.LPStr)] string params_json="{}", bool return_response_json=false);
+        public delegate IntPtr LLM_Completion_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string query, CharArrayCallback callback, int id_slot=-1, bool return_response_json=false);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr LLM_Save_Slot_Delegate(IntPtr llm, int id_slot, [MarshalAs(UnmanagedType.LPStr)] string filepath);
@@ -618,6 +613,18 @@ namespace UndreamAI.LlamaLib
         public delegate IntPtr LLMAgent_Get_System_Prompt_Delegate(IntPtr llm);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void LLM_Set_Grammar_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string grammar);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate IntPtr LLM_Get_Grammar_Delegate(IntPtr llm);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void LLM_Set_Completion_Parameters_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string parameters);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate IntPtr LLM_Get_Completion_Parameters_Delegate(IntPtr llm);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void LLMAgent_Set_Slot_Delegate(IntPtr llm, int slotId);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -628,24 +635,7 @@ namespace UndreamAI.LlamaLib
             [MarshalAs(UnmanagedType.LPStr)] string userPrompt,
             [MarshalAs(UnmanagedType.I1)] bool addToHistory = true,
             CharArrayCallback callback = null,
-            [MarshalAs(UnmanagedType.LPStr)] string paramsJson = "{}",
             [MarshalAs(UnmanagedType.I1)] bool returnResponseJson = false);
-
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr LLMAgent_Completion_Delegate(IntPtr llm,
-            [MarshalAs(UnmanagedType.LPStr)] string prompt,
-            CharArrayCallback callback = null,
-            [MarshalAs(UnmanagedType.LPStr)] string paramsJson = "{}",
-            [MarshalAs(UnmanagedType.I1)] bool returnResponseJson = false);
-
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr LLMAgent_Save_Slot_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string filepath);
-
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr LLMAgent_Load_Slot_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string filepath);
-
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void LLMAgent_Cancel_Delegate(IntPtr llm);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void LLMAgent_Clear_History_Delegate(IntPtr llm);
@@ -720,11 +710,11 @@ namespace UndreamAI.LlamaLib
         public LLMAgent_Get_System_Prompt_Delegate LLMAgent_Get_System_Prompt;
         public LLMAgent_Set_Slot_Delegate LLMAgent_Set_Slot;
         public LLMAgent_Get_Slot_Delegate LLMAgent_Get_Slot;
+        public LLM_Set_Completion_Parameters_Delegate LLM_Set_Completion_Parameters;
+        public LLM_Get_Completion_Parameters_Delegate LLM_Get_Completion_Parameters;
+        public LLM_Set_Grammar_Delegate LLM_Set_Grammar;
+        public LLM_Get_Grammar_Delegate LLM_Get_Grammar;
         public LLMAgent_Chat_Delegate LLMAgent_Chat;
-        public LLMAgent_Completion_Delegate LLMAgent_Completion;
-        public LLMAgent_Save_Slot_Delegate LLMAgent_Save_Slot;
-        public LLMAgent_Load_Slot_Delegate LLMAgent_Load_Slot;
-        public LLMAgent_Cancel_Delegate LLMAgent_Cancel;
         public LLMAgent_Clear_History_Delegate LLMAgent_Clear_History;
         public LLMAgent_Get_History_Delegate LLMAgent_Get_History;
         public LLMAgent_Set_History_Delegate LLMAgent_Set_History;

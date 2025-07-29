@@ -231,27 +231,27 @@ namespace UndreamAI.LlamaLib
         }
 
         // Chat functionality
-        public string Chat(string userPrompt, bool addToHistory = true, LlamaLib.CharArrayCallback callback = null, JObject parameters = null, bool returnResponseJson = false)
+        public string Chat(string userPrompt, bool addToHistory = true, LlamaLib.CharArrayCallback callback = null, bool returnResponseJson = false)
         {
             CheckLlamaLib();
-            IntPtr result = llamaLib.LLMAgent_Chat(llm, userPrompt, addToHistory, callback, BuildParametersJSON(parameters), returnResponseJson);
+            IntPtr result = llamaLib.LLMAgent_Chat(llm, userPrompt, addToHistory, callback, returnResponseJson);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
-        public async Task<string> ChatAsync(string userPrompt, bool addToHistory = true, LlamaLib.CharArrayCallback callback = null, JObject parameters = null, bool returnResponseJson = false)
+        public async Task<string> ChatAsync(string userPrompt, bool addToHistory = true, LlamaLib.CharArrayCallback callback = null, bool returnResponseJson = false)
         {
-            return await Task.Run(() => Chat(userPrompt, addToHistory, callback, parameters, returnResponseJson));
+            return await Task.Run(() => Chat(userPrompt, addToHistory, callback, returnResponseJson));
         }
 
         // Override completion methods to use agent-specific implementations
-        public string Completion(string prompt, LlamaLib.CharArrayCallback callback = null, JObject parameters = null)
+        public string Completion(string prompt, LlamaLib.CharArrayCallback callback = null)
         {
-            return Completion(prompt, callback, SlotId, parameters);
+            return Completion(prompt, callback, SlotId);
         }
 
-        public async Task<string> CompletionAsync(string prompt, LlamaLib.CharArrayCallback callback = null, JObject parameters = null)
+        public async Task<string> CompletionAsync(string prompt, LlamaLib.CharArrayCallback callback = null)
         {
-            return await Task.Run(() => Completion(prompt, callback, parameters));
+            return await Task.Run(() => Completion(prompt, callback));
         }
 
         public string SaveSlot(string filepath)
@@ -260,7 +260,7 @@ namespace UndreamAI.LlamaLib
                 throw new ArgumentNullException(nameof(filepath));
 
             CheckLlamaLib();
-            IntPtr result = llamaLib.LLMAgent_Save_Slot(llm, filepath);
+            IntPtr result = llamaLib.LLM_Save_Slot(llm, SlotId, filepath);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
@@ -270,14 +270,14 @@ namespace UndreamAI.LlamaLib
                 throw new ArgumentNullException(nameof(filepath));
 
             CheckLlamaLib();
-            IntPtr result = llamaLib.LLMAgent_Load_Slot(llm, filepath);
+            IntPtr result = llamaLib.LLM_Load_Slot(llm, SlotId, filepath);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
         public void Cancel()
         {
             CheckLlamaLib();
-            llamaLib.LLMAgent_Cancel(llm);
+            llamaLib.LLM_Cancel(llm, SlotId);
         }
 
 

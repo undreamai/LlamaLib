@@ -274,9 +274,9 @@ void test_agent_chat(LLMAgent* agent, bool stream, bool use_api) {
 
         if(use_api) {
             if (stream) {
-                reply = LLMAgent_Chat(agent, user_prompt.c_str(), add_to_history, static_cast<CharArrayFn>(count_calls), "{}");
+                reply = LLMAgent_Chat(agent, user_prompt.c_str(), add_to_history, static_cast<CharArrayFn>(count_calls));
             } else {
-                reply = LLMAgent_Chat(agent, user_prompt.c_str(), add_to_history, nullptr, "{}");
+                reply = LLMAgent_Chat(agent, user_prompt.c_str(), add_to_history);
             }
         } else {
             if (stream) {
@@ -601,16 +601,15 @@ void run_mock_tests() {
         json input_json = {
             {"prompt", llm.CONTENT},
             {"id_slot", id_slot},
-            {"seed", 0},
-            {"n_predict", -1},
             {"n_keep", 0},
             {"temperature", 0.7}
         };
         json output_json = {{"content", llm.CONTENT}};
 
-        ASSERT(llm.build_completion_json(llm.CONTENT, id_slot, params) == input_json);
+        llm.set_completion_params(params);
+        ASSERT(llm.build_completion_json(llm.CONTENT, id_slot) == input_json);
         ASSERT(llm.parse_completion_json(output_json) == llm.CONTENT);
-        ASSERT(llm.completion(llm.CONTENT, nullptr, id_slot, params) == llm.CONTENT);
+        ASSERT(llm.completion(llm.CONTENT, nullptr, id_slot) == llm.CONTENT);
         ASSERT(llm.completion_json(input_json) == output_json.dump());
     }
 
@@ -698,7 +697,7 @@ void run_mock_tests() {
 
 void run_LLM_tests(LLM* llm)
 {
-    llm->n_predict = 30;
+    llm->set_completion_params({{"seed", 0}, {"n_predict", 30}});
 
     for (bool use_api: {true, false}) {
         std::cout<<"*** USE_C_API: "<<use_api<<" ***"<<std::endl;

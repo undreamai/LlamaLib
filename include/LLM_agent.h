@@ -54,12 +54,12 @@ public:
     size_t get_history_size() const { return history.size(); }
 
     // Chat functionality
-    std::string chat(const std::string& user_prompt, bool add_to_history = true, CharArrayFn callback = nullptr, const json& params_json = json({}), bool return_response_json=false);
+    std::string chat(const std::string& user_prompt, bool add_to_history = true, CharArrayFn callback = nullptr, bool return_response_json=false);
 
     //=================================== Reimplement methods with id_slot ===================================//
-    virtual json build_completion_json(const std::string& prompt, const json& params) { return LLMLocal::build_completion_json(prompt, this->id_slot, params); }
-    virtual std::string completion(const std::string& prompt, CharArrayFn callback=nullptr, const json& params_json=json({}), bool return_response_json=false) {
-        return LLMLocal::completion(prompt, callback, this->id_slot, params_json, return_response_json);
+    virtual json build_completion_json(const std::string& prompt) { return LLMLocal::build_completion_json(prompt, this->id_slot); }
+    virtual std::string completion(const std::string& prompt, CharArrayFn callback=nullptr, bool return_response_json=false) {
+        return LLMLocal::completion(prompt, callback, this->id_slot, return_response_json);
     }
     
     virtual json build_slot_json(const std::string& action, const std::string& filepath) { return LLMLocal::build_slot_json(this->id_slot, action, filepath); }
@@ -105,11 +105,7 @@ extern "C" {
     UNDREAMAI_API void LLMAgent_Set_Slot(LLMAgent* llm, int slot_id);
     UNDREAMAI_API int LLMAgent_Get_Slot(LLMAgent* llm);
 
-    UNDREAMAI_API const char* LLMAgent_Chat(LLMAgent* llm, const char* user_prompt, bool add_to_history = true, CharArrayFn callback = nullptr, const char* params_json = "{}", bool return_response_json=false);
-    UNDREAMAI_API const char* LLMAgent_Completion(LLMAgent* llm, const char* prompt, CharArrayFn callback=nullptr, const char* params_json="{}", bool return_response_json=false);
-    UNDREAMAI_API const char* LLMAgent_Save_Slot(LLMAgent* llm, const char* filepath);
-    UNDREAMAI_API const char* LLMAgent_Load_Slot(LLMAgent* llm, const char* filepath);
-    UNDREAMAI_API void LLMAgent_Cancel(LLMAgent* llm);
+    UNDREAMAI_API const char* LLMAgent_Chat(LLMAgent* llm, const char* user_prompt, bool add_to_history = true, CharArrayFn callback = nullptr, bool return_response_json=false);
 
     UNDREAMAI_API void LLMAgent_Clear_History(LLMAgent* llm);
     UNDREAMAI_API const char* LLMAgent_Get_History(LLMAgent* llm);

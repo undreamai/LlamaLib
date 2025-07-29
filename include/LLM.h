@@ -31,12 +31,9 @@ void ensure_error_handlers_initialized();
 
 class UNDREAMAI_API LLM {
 public:
-    uint32_t seed = 0;
-    int32_t n_predict = -1;
     int32_t n_keep = 0;
-    float temperature = 0.80f;
-    std::string json_schema = "";
     std::string grammar = "";
+    json completion_params;
 
     virtual std::string get_template_json() = 0;
     virtual std::string apply_template_json(const json& data) = 0;
@@ -44,6 +41,11 @@ public:
     virtual std::string detokenize_json(const json& data) = 0;
     virtual std::string embeddings_json(const json& data) = 0;
     virtual std::string completion_json(const json& data, CharArrayFn callback, bool callbackWithJSON) = 0;
+
+    virtual void set_grammar(std::string grammar_) { grammar = grammar_; }
+    virtual std::string get_grammar() { return grammar; }
+    virtual void set_completion_params(json completion_params_) { completion_params = completion_params_; }
+    virtual std::string get_completion_params() { return completion_params; }
 
     static bool has_gpu_layers(const std::string& command);
     static std::string LLM_args_to_command(const std::string& model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, const std::vector<std::string>& lora_paths = {});
@@ -67,9 +69,9 @@ public:
     virtual std::vector<float> parse_embeddings_json(const json& result);
     virtual std::vector<float> embeddings(const std::string& query);
 
-    virtual json build_completion_json(const std::string& prompt, int id_slot=-1, const json& params=json({}));
+    virtual json build_completion_json(const std::string& prompt, int id_slot=-1);
     virtual std::string parse_completion_json(const json& result);
-    virtual std::string completion(const std::string& prompt, CharArrayFn callback=nullptr, int id_slot=-1, const json& params_json=json({}), bool return_response_json=false);
+    virtual std::string completion(const std::string& prompt, CharArrayFn callback=nullptr, int id_slot=-1, bool return_response_json=false);
 };
 
 class UNDREAMAI_API LLMLocal : public LLM {
@@ -195,13 +197,17 @@ extern "C" {
 #ifdef _DEBUG
     UNDREAMAI_API const bool IsDebuggerAttached(void);
 #endif
+
+    UNDREAMAI_API void LLM_Set_Completion_Parameters(LLM* llm, const char* params_json="{}");
+    UNDREAMAI_API const char* LLM_Get_Completion_Parameters(LLM* llm);
+    UNDREAMAI_API void LLM_Set_Grammar(LLM* llm, const char* grammar="");
+    UNDREAMAI_API const char* LLM_Get_Grammar(LLM* llm);
     UNDREAMAI_API const char* LLM_Get_Template(LLM* llm);
     UNDREAMAI_API const char* LLM_Apply_Template(LLM* llm, const char* messages_as_json);
-
     UNDREAMAI_API const char* LLM_Tokenize(LLM* llm, const char* query);
     UNDREAMAI_API const char* LLM_Detokenize(LLM* llm, const char* tokens_as_json);
     UNDREAMAI_API const char* LLM_Embeddings(LLM* llm, const char* query);
-    UNDREAMAI_API const char* LLM_Completion(LLM* llm, const char* prompt, CharArrayFn callback=nullptr, int id_slot=-1, const char* params_json="{}", bool return_response_json=false);
+    UNDREAMAI_API const char* LLM_Completion(LLM* llm, const char* prompt, CharArrayFn callback=nullptr, int id_slot=-1, bool return_response_json=false);
 
     UNDREAMAI_API const char* LLM_Save_Slot(LLMLocal* llm, int id_slot, const char* filepath);
     UNDREAMAI_API const char* LLM_Load_Slot(LLMLocal* llm, int id_slot, const char* filepath);

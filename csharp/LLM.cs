@@ -41,12 +41,6 @@ namespace UndreamAI.LlamaLib
         public IntPtr llm = IntPtr.Zero;
         protected readonly object _disposeLock = new object();
         public bool disposed = false;
-        public int seed = 0;
-        public int numPredict = -1;
-        public int numKeep = 0;
-        public float temperature = 0.80f;
-        public string jsonSchema = "";
-        public string grammar = "";
 
         protected LLM() { }
 
@@ -161,26 +155,37 @@ namespace UndreamAI.LlamaLib
             return ret;
         }
      
-        public string BuildParametersJSON(JObject parameters = null)
+        public void SetCompletionParameters(JObject parameters = null)
         {
-            var json = new JObject
+            CheckLlamaLib();
+            llamaLib.LLM_Set_Completion_Parameters(llm, parameters.ToString());
+        }
+     
+        public JObject GetCompletionParameters()
+        {
+            CheckLlamaLib();
+            JObject parameters = [];
+            IntPtr result = llamaLib.LLM_Get_Completion_Parameters(llm);
+            string parametersString = Marshal.PtrToStringAnsi(result) ?? "{}";
+            try
             {
-                ["seed"] = seed,
-                ["n_predict"] = numPredict,
-                ["n_keep"] = numKeep,
-                ["temperature"] = temperature,
-            };
-            if (jsonSchema != "") json["json_schema"] = jsonSchema;
-            if (grammar != "") json["grammar"] = grammar;
-            if (parameters != null)
-            {
-                foreach (var param in parameters)
-                {
-                    json[param.Key] = param.Value;
-                }
+                parameters = JObject.Parse(parametersString);
             }
-            Console.WriteLine(numPredict);
-            return json.ToString();
+            catch { }
+            return parameters;
+        }
+     
+        public void SetGrammar(string grammar)
+        {
+            CheckLlamaLib();
+            llamaLib.LLM_Set_Grammar(llm, grammar);
+        }
+     
+        public string GetGrammar()
+        {
+            CheckLlamaLib();
+            IntPtr result = llamaLib.LLM_Get_Grammar(llm);
+            return Marshal.PtrToStringAnsi(result) ?? "";
         }
 
         public void CheckCompletionInternal(string prompt)
@@ -190,23 +195,23 @@ namespace UndreamAI.LlamaLib
             CheckLlamaLib();
         }
 
-        public string CompletionInternal(string prompt, LlamaLib.CharArrayCallback callback, int idSlot, JObject parameters)
+        public string CompletionInternal(string prompt, LlamaLib.CharArrayCallback callback, int idSlot)
         {
             IntPtr result;
-            result = llamaLib.LLM_Completion(llm, prompt, callback, idSlot, BuildParametersJSON(parameters));
+            result = llamaLib.LLM_Completion(llm, prompt, callback, idSlot);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
-        public string Completion(string prompt, LlamaLib.CharArrayCallback callback = null, int idSlot = -1, JObject parameters = null)
+        public string Completion(string prompt, LlamaLib.CharArrayCallback callback = null, int idSlot = -1)
         {
             CheckCompletionInternal(prompt);
-            return CompletionInternal(prompt, callback, idSlot, parameters);
+            return CompletionInternal(prompt, callback, idSlot);
         }
 
-        public async Task<string> CompletionAsync(string prompt, LlamaLib.CharArrayCallback callback = null, int idSlot = -1, JObject parameters = null)
+        public async Task<string> CompletionAsync(string prompt, LlamaLib.CharArrayCallback callback = null, int idSlot = -1)
         {
             CheckCompletionInternal(prompt);
-            return await Task.Run(() => CompletionInternal(prompt, callback, idSlot, parameters));
+            return await Task.Run(() => CompletionInternal(prompt, callback, idSlot));
         }
     }
 
