@@ -31,6 +31,8 @@ void ensure_error_handlers_initialized() {
 LLMProviderRegistry* LLMProviderRegistry::custom_instance_ = nullptr;
 bool LLMProviderRegistry::initialised = false;
 
+LLMProvider::~LLMProvider() {}
+
 //=========================== Helpers ===========================//
 
 std::string LLM::LLM_args_to_command(const std::string& model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, const std::vector<std::string>& lora_paths)
@@ -325,11 +327,6 @@ bool LLMProvider::lora_weight(const std::vector<LoraIdScale>& loras)
 }
 
 //=========================== Lora Adapters List ===========================//
-
-std::string LLMProvider::lora_list_json()
-{
-    return lora_list_json();
-}
 
 std::vector<LoraIdScalePath> LLMProvider::parse_lora_list_json(const json& result)
 {

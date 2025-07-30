@@ -42,6 +42,8 @@ public:
     virtual std::string embeddings_json(const json& data) = 0;
     virtual std::string completion_json(const json& data, CharArrayFn callback, bool callbackWithJSON) = 0;
 
+    virtual ~LLM() = default;
+
     virtual void set_grammar(std::string grammar_) { grammar = grammar_; }
     virtual std::string get_grammar() { return grammar; }
     virtual void set_completion_params(json completion_params_) { completion_params = completion_params_; }
@@ -92,7 +94,7 @@ public:
 
 class UNDREAMAI_API LLMProvider : public LLMLocal {
 public:
-    virtual ~LLMProvider() = default;
+    virtual ~LLMProvider();
 
     virtual void debug(int debug_level) = 0;
     virtual void logging_callback(CharArrayFn callback) = 0;

@@ -140,7 +140,9 @@ LLMService* LLMService::from_command(int argc, char ** argv)
     return llmService;
 }
 
-LLMService::~LLMService() {
+LLMService::~LLMService(){
+    stop_server();
+    stop();
     if (ctx_server != nullptr)
     {
         delete ctx_server;

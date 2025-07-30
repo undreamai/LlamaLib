@@ -406,8 +406,6 @@ namespace UndreamAI.LlamaLib
                     {
                         try
                         {
-                            llamaLib.LLM_Stop_Server(llm);
-                            llamaLib.LLM_Stop(llm);
                             llamaLib.LLM_Delete(llm);
                         }
                         catch (Exception){ }

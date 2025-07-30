@@ -22,7 +22,6 @@ std::mutex& get_sigint_hook_mutex() {
 
 std::vector<Hook>& get_sigint_hooks() {
     static std::vector<Hook> sigint_hooks;
-    std::lock_guard<std::mutex> lock(get_sigint_hook_mutex());
     return sigint_hooks;
 }
 
@@ -134,6 +133,7 @@ void crash_signal_handler(int sig) {
 
 void sigint_signal_handler(int sig) {
     std::vector<Hook>& sigint_hooks = get_sigint_hooks();
+    std::lock_guard<std::mutex> lock(get_sigint_hook_mutex());
     for (auto& hook : sigint_hooks) {
         try {
             hook(sig);
@@ -144,5 +144,6 @@ void sigint_signal_handler(int sig) {
 
 void register_sigint_hook(Hook hook) {
     std::vector<Hook>& sigint_hooks = get_sigint_hooks();
+    std::lock_guard<std::mutex> lock(get_sigint_hook_mutex());
     sigint_hooks.push_back(std::move(hook));
 }

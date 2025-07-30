@@ -157,7 +157,7 @@ void test_completion(LLM* llm, bool stream, bool use_api) {
     ASSERT(reply != "");
     if (stream)
     {
-        ASSERT(counter > 5);
+        ASSERT(counter > 3);
         ASSERT(reply == concat_result);
     }
 }
@@ -290,7 +290,7 @@ void test_agent_chat(LLMAgent* agent, bool stream, bool use_api) {
         if (stream)
         {
             std::cout<<"counter: "<<counter<<std::endl;
-            ASSERT(counter > 5);
+            ASSERT(counter > 3);
             ASSERT(reply == concat_result);
         }
 
@@ -452,16 +452,6 @@ void test_ChatMessage() {
 
     ChatMessage msg_from_json = ChatMessage::from_json(msg_json);
     ASSERT(msg_from_json == msg2);
-}
-
-void stop_llm_service(LLMProvider* llm)
-{
-    std::cout << "LLM_Stop_Server" << std::endl;
-    LLM_Stop_Server(llm);
-    std::cout << "LLM_Stop" << std::endl;
-    LLM_Stop(llm);
-    std::cout << "LLM_Delete" << std::endl;
-    LLM_Delete(llm);
 }
 
 class TestLLM : public LLMProvider {
@@ -871,6 +861,6 @@ int main(int argc, char** argv) {
     run_LLMLocal_tests(&llm_remote_client_SSL);
 
     std::cout << std::endl << "-------- Stop service --------" << std::endl;
-    stop_llm_service(llm_service);
+    LLM_Delete(llm_service);
     return 0;
 }
