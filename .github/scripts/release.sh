@@ -25,6 +25,8 @@ rm -r *.zip
 # copy includes
 mkdir include
 cp $root_dir/include/*.h* include/
+cp $root_dir/third_party/llama.cpp/common/json.hpp include/
+cp $root_dir/third_party/llama.cpp/examples/server/httplib.h include/
 
 # licenses
 mkdir -p third_party_licenses
