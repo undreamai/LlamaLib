@@ -14,7 +14,6 @@ int main(int argc, char** argv) {
 #else
     LLMService* llm_service = new LLMService(model);
 #endif
-    llm_service->n_predict = 30;
 
     llm_service->start();
     std::string PROMPT = "you are an artificial intelligence assistant\n\n--- user: Hello, how are you?\n--- assistant";
@@ -31,6 +30,7 @@ int main(int argc, char** argv) {
 
     std::cout << std::endl << "----------------------- completion (streaming) -----------------------" << std::endl;
     std::cout << "response: ";
+    llm_service->set_completion_params({{"seed", 0}, {"n_predict", 30}});
     llm_service->completion(PROMPT, static_cast<CharArrayFn>(streaming_callback));
     std::cout << std::endl;
 
