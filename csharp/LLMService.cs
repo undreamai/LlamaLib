@@ -6,8 +6,8 @@ namespace UndreamAI.LlamaLib
 {
     public class LLMService : LLMProvider
     {
-        public LLMService(string modelPath, int numThreads = -1, int numGpuLayers = 0, 
-            int numParallel = 1, bool flashAttention = false, int contextSize = 4096, 
+        public LLMService(string modelPath, int numThreads = -1, int numGpuLayers = 0,
+            int numParallel = 1, bool flashAttention = false, int contextSize = 4096,
             int batchSize = 2048, bool embeddingOnly = false, string[] loraPaths = null)
         {
             if (string.IsNullOrEmpty(modelPath))
@@ -18,7 +18,7 @@ namespace UndreamAI.LlamaLib
             try
             {
                 llamaLib = new LlamaLib(numGpuLayers > 0);
-                llm = CreateLLM(modelPath, numThreads, numGpuLayers, numParallel, 
+                llm = CreateLLM(modelPath, numThreads, numGpuLayers, numParallel,
                     flashAttention, contextSize, batchSize, embeddingOnly, loraPaths);
             }
             catch
@@ -68,14 +68,14 @@ namespace UndreamAI.LlamaLib
                 loraPathCount = loraPaths.Length;
                 // Allocate array of string pointers
                 loraPathsPtr = Marshal.AllocHGlobal(IntPtr.Size * loraPathCount);
-                
+
                 try
                 {
                     for (int i = 0; i < loraPathCount; i++)
                     {
                         if (string.IsNullOrEmpty(loraPaths[i]))
                             throw new ArgumentException($"Lora path at index {i} is null or empty");
-                        
+
                         IntPtr stringPtr = Marshal.StringToHGlobalAnsi(loraPaths[i]);
                         Marshal.WriteIntPtr(loraPathsPtr, i * IntPtr.Size, stringPtr);
                     }

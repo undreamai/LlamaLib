@@ -65,8 +65,8 @@ namespace UndreamAI.LlamaLib.Tests
 
             Console.WriteLine("LLM_Apply_Template");
             var messages = new JArray();
-            messages.Add(new JObject{["role"] = "user", ["content"] = "how are you?"});
-            messages.Add(new JObject{["role"] = "assistant", ["content"] = "fine, thanks, and you?"});
+            messages.Add(new JObject { ["role"] = "user", ["content"] = "how are you?" });
+            messages.Add(new JObject { ["role"] = "assistant", ["content"] = "fine, thanks, and you?" });
 
             string messagesFormatted = llm.ApplyTemplate(messages);
             string messagesFormattedGT = "<|im_start|>user\nhow are you?<|im_end|>\n<|im_start|>assistant\nfine, thanks, and you?";
@@ -83,7 +83,7 @@ namespace UndreamAI.LlamaLib.Tests
             string detokenizedContent = llm.Detokenize(tokens);
             Assert.AreEqual(PROMPT.Trim(), detokenizedContent.Trim());
         }
-        
+
         private void TestCompletionWithStreaming(LLM llm, bool stream)
         {
             llm.SetCompletionParameters(new JObject { ["n_predict"] = 30 });
@@ -93,7 +93,7 @@ namespace UndreamAI.LlamaLib.Tests
             {
                 counter = 0;
                 concatData = "";
-                string content = llm.Completion(PROMPT, stream? CountCalls: null, ID_SLOT);
+                string content = llm.Completion(PROMPT, stream ? CountCalls : null, ID_SLOT);
                 Assert.IsFalse(string.IsNullOrEmpty(content));
                 if (stream)
                 {
@@ -102,13 +102,13 @@ namespace UndreamAI.LlamaLib.Tests
                 }
             }
         }
-        
+
         public void TestCompletion(LLM llm)
         {
             TestCompletionWithStreaming(llm, false);
             TestCompletionWithStreaming(llm, true);
         }
-        
+
         public void TestEmbedding(LLM llm)
         {
             Console.WriteLine("LLM_Embeddings");
@@ -227,8 +227,8 @@ namespace UndreamAI.LlamaLib.Tests
             // Test clearing history
             agent.ClearHistory();
             Assert.AreEqual(1, agent.GetHistorySize()); // Should keep system prompt
-            
-                // Create test history
+
+            // Create test history
             var testMessages = new List<ChatMessage>
             {
                 new ChatMessage("system", "Test system"),
@@ -370,7 +370,7 @@ namespace UndreamAI.LlamaLib.Tests
             LLMService llmService = new LLMService(testModelPath);
 
             TestStart(llmService);
-            LLMProviderTests(llmService);            
+            LLMProviderTests(llmService);
             llmService?.Dispose();
         }
 

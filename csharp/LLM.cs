@@ -12,7 +12,7 @@ namespace UndreamAI.LlamaLib
     {
         public int Id { get; set; }
         public float Scale { get; set; }
-        
+
         public LoraIdScale(int id, float scale)
         {
             Id = id;
@@ -25,7 +25,7 @@ namespace UndreamAI.LlamaLib
         public int Id { get; set; }
         public float Scale { get; set; }
         public string Path { get; set; }
-        
+
         public LoraIdScalePath(int id, float scale, string path)
         {
             Id = id;
@@ -144,7 +144,7 @@ namespace UndreamAI.LlamaLib
 
             IntPtr result = llamaLib.LLM_Embeddings(llm, content);
             string resultStr = Marshal.PtrToStringAnsi(result) ?? string.Empty;
-            
+
             List<float> ret = new List<float>();
             try
             {
@@ -154,13 +154,13 @@ namespace UndreamAI.LlamaLib
             catch { }
             return ret;
         }
-     
+
         public void SetCompletionParameters(JObject parameters = null)
         {
             CheckLlamaLib();
             llamaLib.LLM_Set_Completion_Parameters(llm, parameters.ToString());
         }
-     
+
         public JObject GetCompletionParameters()
         {
             CheckLlamaLib();
@@ -174,13 +174,13 @@ namespace UndreamAI.LlamaLib
             catch { }
             return parameters;
         }
-     
+
         public void SetGrammar(string grammar)
         {
             CheckLlamaLib();
             llamaLib.LLM_Set_Grammar(llm, grammar);
         }
-     
+
         public string GetGrammar()
         {
             CheckLlamaLib();
@@ -278,7 +278,7 @@ namespace UndreamAI.LlamaLib
         {
             if (loras == null)
                 throw new ArgumentNullException(nameof(loras));
-            
+
             var lorasJSON = BuildLoraWeightJSON(loras);
             return llamaLib.LLM_Lora_Weight(llm, lorasJSON);
         }
@@ -306,7 +306,7 @@ namespace UndreamAI.LlamaLib
                     ));
                 }
             }
-            catch{ }
+            catch { }
             return loras;
         }
 
@@ -334,7 +334,8 @@ namespace UndreamAI.LlamaLib
         public async Task<bool> StartAsync()
         {
             CheckLlamaLib();
-            return await Task.Run(() => {
+            return await Task.Run(() =>
+            {
                 llamaLib.LLM_Start(llm);
                 return llamaLib.LLM_Started(llm);
             });
@@ -357,7 +358,7 @@ namespace UndreamAI.LlamaLib
             CheckLlamaLib();
             if (string.IsNullOrEmpty(host))
                 host = "0.0.0.0";
-            
+
             llamaLib.LLM_Start_Server(llm, host, port, apiKey ?? string.Empty);
         }
 
@@ -385,7 +386,7 @@ namespace UndreamAI.LlamaLib
                 throw new ArgumentNullException(nameof(sslCert));
             if (string.IsNullOrEmpty(sslKey))
                 throw new ArgumentNullException(nameof(sslKey));
-            
+
             CheckLlamaLib();
             llamaLib.LLM_Set_SSL(llm, sslCert, sslKey);
         }
@@ -408,7 +409,7 @@ namespace UndreamAI.LlamaLib
                         {
                             llamaLib.LLM_Delete(llm);
                         }
-                        catch (Exception){ }
+                        catch (Exception) { }
                     }
                     llamaLib?.Dispose();
                     llamaLib = null;

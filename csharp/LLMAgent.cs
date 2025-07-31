@@ -12,7 +12,7 @@ namespace UndreamAI.LlamaLib
     {
         public string Role { get; set; }
         public string Content { get; set; }
-        
+
         public ChatMessage(string role, string content)
         {
             Role = role;
@@ -51,7 +51,7 @@ namespace UndreamAI.LlamaLib
 
             llmBase = _llm;
             llamaLib = llmBase.llamaLib;
-            
+
             llm = llamaLib.LLMAgent_Construct(llmBase.llm, _systemPrompt ?? "", _userRole ?? "user", _assistantRole ?? "assistant");
             if (llm == IntPtr.Zero) throw new InvalidOperationException("Failed to create LLMAgent");
         }
@@ -59,12 +59,12 @@ namespace UndreamAI.LlamaLib
         // Properties
         public int SlotId
         {
-            get 
+            get
             {
                 CheckLlamaLib();
                 return llamaLib.LLMAgent_Get_Slot(llm);
             }
-            set 
+            set
             {
                 CheckLlamaLib();
                 llamaLib.LLMAgent_Set_Slot(llm, value);
@@ -78,7 +78,7 @@ namespace UndreamAI.LlamaLib
                 CheckLlamaLib();
                 return Marshal.PtrToStringAnsi(llamaLib.LLMAgent_Get_User_Role(llm)) ?? "";
             }
-            set 
+            set
             {
                 CheckLlamaLib();
                 llamaLib.LLMAgent_Set_User_Role(llm, value);
@@ -92,7 +92,7 @@ namespace UndreamAI.LlamaLib
                 CheckLlamaLib();
                 return Marshal.PtrToStringAnsi(llamaLib.LLMAgent_Get_Assistant_Role(llm)) ?? "";
             }
-            set 
+            set
             {
                 CheckLlamaLib();
                 llamaLib.LLMAgent_Set_Assistant_Role(llm, value);
@@ -106,7 +106,7 @@ namespace UndreamAI.LlamaLib
                 CheckLlamaLib();
                 return Marshal.PtrToStringAnsi(llamaLib.LLMAgent_Get_System_Prompt(llm)) ?? "";
             }
-            set 
+            set
             {
                 CheckLlamaLib();
                 llamaLib.LLMAgent_Set_System_Prompt(llm, value);
@@ -117,7 +117,7 @@ namespace UndreamAI.LlamaLib
         public JArray History
         {
             get
-            { 
+            {
                 CheckLlamaLib();
                 IntPtr result = llamaLib.LLMAgent_Get_History(llm);
                 string historyStr = Marshal.PtrToStringAnsi(result) ?? "[]";
@@ -130,8 +130,8 @@ namespace UndreamAI.LlamaLib
                     return new JArray();
                 }
             }
-            set 
-            { 
+            set
+            {
                 CheckLlamaLib();
                 string historyJson = value?.ToString() ?? "[]";
                 llamaLib.LLMAgent_Set_History(llm, historyJson);

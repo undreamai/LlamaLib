@@ -329,7 +329,7 @@ namespace UndreamAI.LlamaLib
             {
                 instances.Add(this);
                 LLM_Debug(debugLevelGlobal);
-                if(loggingCallbackGlobal != null) LLM_Logging_Callback(loggingCallbackGlobal);
+                if (loggingCallbackGlobal != null) LLM_Logging_Callback(loggingCallbackGlobal);
             }
         }
 
@@ -407,8 +407,7 @@ namespace UndreamAI.LlamaLib
                 }
                 catch (Exception ex)
                 {
-                    // if (debugLevelGlobal > 0) Console.WriteLine($"Failed to load library {library}: {ex.Message}.");
-            throw new InvalidOperationException($"Failed to load library {library}: {ex.Message}.", ex);
+                    if (debugLevelGlobal > 0) Console.WriteLine($"Failed to load library {library}: {ex.Message}.");
                     lastException = ex;
                     continue;
                 }
@@ -512,7 +511,7 @@ namespace UndreamAI.LlamaLib
         public delegate IntPtr LLM_Embeddings_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string query);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr LLM_Completion_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string query, CharArrayCallback callback, int id_slot=-1, bool return_response_json=false);
+        public delegate IntPtr LLM_Completion_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string query, CharArrayCallback callback, int id_slot = -1, bool return_response_json = false);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr LLM_Save_Slot_Delegate(IntPtr llm, int id_slot, [MarshalAs(UnmanagedType.LPStr)] string filepath);
@@ -542,7 +541,7 @@ namespace UndreamAI.LlamaLib
         public delegate void LLM_Stop_Delegate(IntPtr llm);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void LLM_Start_Server_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string host="0.0.0.0", int port=0, [MarshalAs(UnmanagedType.LPStr)] string apiKey="");
+        public delegate void LLM_Start_Server_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string host = "0.0.0.0", int port = 0, [MarshalAs(UnmanagedType.LPStr)] string apiKey = "");
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void LLM_Stop_Server_Delegate(IntPtr llm);
