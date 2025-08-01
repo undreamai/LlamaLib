@@ -14,3 +14,4 @@ cmake_install.cmake
 runtimes
 tests/cpp-cmake/test
 tests/cpp-cmake/test_runtime
+html
