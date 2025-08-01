@@ -12,7 +12,7 @@
     <PackageVersion>2.0.0</PackageVersion>
     <Authors>Antonis Maropoulos</Authors>
     <Company>UndreamAI</Company>
-    <Description>LlamaLib - Cross-platform local LLM library</Description>
+    <Description>LlamaLib - Cross-platform library for local LLMs</Description>
     <PackageProjectUrl>https://undream.ai</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>

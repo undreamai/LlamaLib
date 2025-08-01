@@ -1,3 +1,13 @@
+/// @file
+/// @brief File with basic definitions
+/// @ingroup llm
+
+/// @defgroup llm LLM
+/// @brief Classes and definitions related to the LLM functionality.
+
+/// @defgroup c_api C API functions
+/// @brief C-compatible API functions
+
 #pragma once
 
 #include <sys/stat.h>
