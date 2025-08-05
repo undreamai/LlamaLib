@@ -333,34 +333,3 @@ const char *Available_Architectures(bool gpu)
     result = oss.str();
     return result.c_str();
 }
-
-LLMRuntime *LLMRuntime_Construct(const char *model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char **lora_paths)
-{
-    std::vector<std::string> lora_paths_vector;
-    if (lora_paths != nullptr && lora_count > 0)
-    {
-        for (int i = 0; i < lora_count; ++i)
-        {
-            lora_paths_vector.push_back(std::string(lora_paths[i]));
-        }
-    }
-    LLMRuntime *llmRuntime = new LLMRuntime(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_paths_vector);
-
-    if (llmRuntime->llm == nullptr)
-    {
-        delete llmRuntime;
-        return nullptr;
-    }
-    return llmRuntime;
-}
-
-LLMRuntime *LLMRuntime_From_Command(const char *command)
-{
-    LLMRuntime *llmRuntime = new LLMRuntime(std::string(command));
-    if (llmRuntime->llm == nullptr)
-    {
-        delete llmRuntime;
-        return nullptr;
-    }
-    return llmRuntime;
-}

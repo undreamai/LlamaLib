@@ -18,8 +18,9 @@ target_link_libraries(${LLAMALIB_ARCHITECTURE_LIBRARY} PRIVATE common)
 install(TARGETS ${LLAMALIB_ARCHITECTURE_LIBRARY} LIBRARY)
 
 # build runtime library
-if (LLAMALIB_BUILD_RUNTIME_LIB)
-    if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    if(NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+        # add CPU detection
         set(ARCHCHECKER_FILES archchecker.cpp $<TARGET_OBJECTS:feature_detector>)
         set(ARCHCHECKER_INCLUDES "${CMAKE_SOURCE_DIR}/third_party/FeatureDetector/src/x86")
     endif()

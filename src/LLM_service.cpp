@@ -90,7 +90,7 @@ static bool AmIBeingDebugged(void)
 #endif
 #endif
 
-//============================= LLMService IMPLEMENTATION =============================//
+//============================= LLMServiceImpl IMPLEMENTATION =============================//
 
 EVP_PKEY *load_key(const std::string &key_str)
 {
@@ -114,36 +114,36 @@ X509 *load_cert(const std::string &cert_str)
     return cert;
 }
 
-LLMService::LLMService() {}
+LLMServiceImpl::LLMServiceImpl() {}
 
-LLMService::LLMService(const std::string &model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, const std::vector<std::string> &lora_paths)
+LLMServiceImpl::LLMServiceImpl(const std::string &model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, const std::vector<std::string> &lora_paths)
 {
     init(LLM::LLM_args_to_command(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_paths));
 }
 
-LLMService *LLMService::from_params(const json &params_json)
+LLMServiceImpl *LLMServiceImpl::from_params(const json &params_json)
 {
-    std::vector<char *> argv = LLMService::jsonToArguments(params_json);
-    LLMService *llmService = new LLMService();
+    std::vector<char *> argv = LLMServiceImpl::jsonToArguments(params_json);
+    LLMServiceImpl *llmService = new LLMServiceImpl();
     llmService->init(argv.size(), argv.data());
     return llmService;
 }
 
-LLMService *LLMService::from_command(const std::string &command)
+LLMServiceImpl *LLMServiceImpl::from_command(const std::string &command)
 {
-    LLMService *llmService = new LLMService();
+    LLMServiceImpl *llmService = new LLMServiceImpl();
     llmService->init(command);
     return llmService;
 }
 
-LLMService *LLMService::from_command(int argc, char **argv)
+LLMServiceImpl *LLMServiceImpl::from_command(int argc, char **argv)
 {
-    LLMService *llmService = new LLMService();
+    LLMServiceImpl *llmService = new LLMServiceImpl();
     llmService->init(argc, argv);
     return llmService;
 }
 
-LLMService::~LLMService()
+LLMServiceImpl::~LLMServiceImpl()
 {
     stop_server();
     stop();
@@ -154,7 +154,7 @@ LLMService::~LLMService()
     }
 }
 
-std::vector<char *> LLMService::jsonToArguments(const json &params_json)
+std::vector<char *> LLMServiceImpl::jsonToArguments(const json &params_json)
 {
     common_params default_params;
     common_params_context ctx = common_params_parser_init(default_params, LLAMA_EXAMPLE_SERVER);
@@ -230,7 +230,7 @@ std::vector<char *> LLMService::jsonToArguments(const json &params_json)
     return argv;
 }
 
-std::vector<std::string> LLMService::splitArguments(const std::string &inputString)
+std::vector<std::string> LLMServiceImpl::splitArguments(const std::string &inputString)
 {
     std::vector<std::string> arguments;
 
@@ -256,7 +256,7 @@ std::vector<std::string> LLMService::splitArguments(const std::string &inputStri
     return arguments;
 }
 
-void LLMService::init(const std::string &params_string)
+void LLMServiceImpl::init(const std::string &params_string)
 {
     std::vector<std::string> arguments = splitArguments("llm " + params_string);
 
@@ -271,12 +271,12 @@ void LLMService::init(const std::string &params_string)
     init(argc, argv);
 }
 
-void LLMService::init(const char *params_string)
+void LLMServiceImpl::init(const char *params_string)
 {
     init(std::string(params_string));
 }
 
-void LLMService::init(int argc, char **argv)
+void LLMServiceImpl::init(int argc, char **argv)
 {
     ensure_error_handlers_initialized();
     if (setjmp(get_jump_point()) != 0)
@@ -332,7 +332,7 @@ void LLMService::init(int argc, char **argv)
     }
 }
 
-void LLMService::init_template()
+void LLMServiceImpl::init_template()
 {
     const char *chat_template = detect_chat_template();
     if (chat_template == "")
@@ -347,7 +347,7 @@ void LLMService::init_template()
     LLAMALIB_INF("chat_template: %s\n", chat_template);
 }
 
-const char *LLMService::detect_chat_template()
+const char *LLMServiceImpl::detect_chat_template()
 {
     const char *chat_template_jinja = common_chat_templates_source(ctx_server->chat_templates.get());
     int chat_template_value = llm_chat_detect_template(chat_template_jinja);
@@ -370,12 +370,12 @@ const char *LLMService::detect_chat_template()
     return "";
 }
 
-void LLMService::debug(int debug_level)
+void LLMServiceImpl::debug(int debug_level)
 {
     common_log_set_verbosity_thold(debug_level - 2);
 }
 
-void LLMService::logging_callback(CharArrayFn callback)
+void LLMServiceImpl::logging_callback(CharArrayFn callback)
 {
     log_callback = callback;
 }
@@ -413,7 +413,7 @@ void release_slot(server_slot &slot)
     }
 }
 
-int LLMService::get_available_slot()
+int LLMServiceImpl::get_available_slot()
 {
     int slot_id = -1;
 
@@ -438,7 +438,7 @@ int LLMService::get_available_slot()
     return slot_id;
 }
 
-void LLMService::start_server(const std::string &host, int port, const std::string &API_key)
+void LLMServiceImpl::start_server(const std::string &host, int port, const std::string &API_key)
 {
     if (host.empty())
         params->hostname = "0.0.0.0";
@@ -671,7 +671,7 @@ void LLMService::start_server(const std::string &host, int port, const std::stri
     LLAMALIB_INF("%s: HTTP server is listening, hostname: %s, port: %d, http threads: %d\n", __func__, params->hostname.c_str(), params->port, params->n_threads_http);
 }
 
-void LLMService::stop_server()
+void LLMServiceImpl::stop_server()
 {
     std::lock_guard<std::mutex> lock(start_stop_mutex);
     LLAMALIB_INF("stopping server\n");
@@ -688,14 +688,14 @@ void LLMService::stop_server()
     LLAMALIB_INF("stopped server\n");
 }
 
-void LLMService::join_server()
+void LLMServiceImpl::join_server()
 {
     std::unique_lock<std::mutex> lock(start_stop_mutex);
     server_stopped_cv.wait(lock, [this]
                            { return server_stopped; });
 }
 
-void LLMService::start()
+void LLMServiceImpl::start()
 {
     std::lock_guard<std::mutex> lock(start_stop_mutex);
     service_thread = std::thread([&]()
@@ -710,7 +710,7 @@ void LLMService::start()
     }
 }
 
-void LLMService::stop()
+void LLMServiceImpl::stop()
 {
     try
     {
@@ -753,25 +753,25 @@ void LLMService::stop()
     }
 }
 
-void LLMService::join_service()
+void LLMServiceImpl::join_service()
 {
     std::unique_lock<std::mutex> lock(start_stop_mutex);
     service_stopped_cv.wait(lock, [this]
                             { return service_stopped; });
 }
 
-bool LLMService::started()
+bool LLMServiceImpl::started()
 {
     return ctx_server != nullptr && ctx_server->queue_tasks.running;
 }
 
-void LLMService::set_SSL(const std::string &SSL_cert_str, const std::string &SSL_key_str)
+void LLMServiceImpl::set_SSL(const std::string &SSL_cert_str, const std::string &SSL_key_str)
 {
     SSL_cert = SSL_cert_str;
     SSL_key = SSL_key_str;
 }
 
-bool LLMService::middleware_validate_api_key(const httplib::Request &req, httplib::Response &res)
+bool LLMServiceImpl::middleware_validate_api_key(const httplib::Request &req, httplib::Response &res)
 {
     // TODO: should we apply API key to all endpoints, including "/health" and "/models"?
     static const std::set<std::string> public_endpoints = {
@@ -813,14 +813,14 @@ bool LLMService::middleware_validate_api_key(const httplib::Request &req, httpli
     return false;
 }
 
-std::string LLMService::get_template_json()
+std::string LLMServiceImpl::get_template_json()
 {
     json result;
     result["chat_template"] = params->chat_template;
     return result.dump();
 }
 
-void LLMService::set_template_json(const json &body)
+void LLMServiceImpl::set_template_json(const json &body)
 {
     if (body.count("chat_template") == 0)
         return;
@@ -831,13 +831,13 @@ void LLMService::set_template_json(const json &body)
     ctx_server->chat_templates = common_chat_templates_init(ctx_server->model, chat_template);
 }
 
-std::string LLMService::apply_template_json(const json &body)
+std::string LLMServiceImpl::apply_template_json(const json &body)
 {
     json data = oaicompat_completion_params_parse(body, params->use_jinja, params->reasoning_format, ctx_server->chat_templates.get());
     return safe_json_to_str({{"prompt", std::move(data.at("prompt"))}});
 }
 
-std::string LLMService::tokenize_json(const json &body)
+std::string LLMServiceImpl::tokenize_json(const json &body)
 {
     if (setjmp(get_jump_point(true)) != 0)
         return "";
@@ -893,7 +893,7 @@ std::string LLMService::tokenize_json(const json &body)
     return "";
 }
 
-std::string LLMService::detokenize_json(const json &body)
+std::string LLMServiceImpl::detokenize_json(const json &body)
 {
     if (setjmp(get_jump_point(true)) != 0)
         return "";
@@ -916,12 +916,12 @@ std::string LLMService::detokenize_json(const json &body)
     return "";
 }
 
-std::string LLMService::embeddings_json(const json &body)
+std::string LLMServiceImpl::embeddings_json(const json &body)
 {
     return embeddings_json(body, nullptr);
 }
 
-std::string LLMService::embeddings_json(
+std::string LLMServiceImpl::embeddings_json(
     const json &body,
     httplib::Response *res,
     std::function<bool()> is_connection_closed)
@@ -1029,12 +1029,12 @@ std::string LLMService::embeddings_json(
     return result;
 };
 
-std::string LLMService::lora_weight_json(const json &body)
+std::string LLMServiceImpl::lora_weight_json(const json &body)
 {
     return lora_weight_json(body, nullptr);
 }
 
-std::string LLMService::lora_weight_json(const json &body, httplib::Response *res)
+std::string LLMServiceImpl::lora_weight_json(const json &body, httplib::Response *res)
 {
     if (!body.is_array())
     {
@@ -1096,7 +1096,7 @@ std::string LLMService::lora_weight_json(const json &body, httplib::Response *re
     return safe_json_to_str(result_data);
 };
 
-std::string LLMService::lora_list_json()
+std::string LLMServiceImpl::lora_list_json()
 {
     json result = json::array();
     const auto &loras = ctx_server->params_base.lora_adapters;
@@ -1156,7 +1156,7 @@ static void server_sent_event_with_stringswrapper(
     }
 }
 
-std::string LLMService::completion_streaming(
+std::string LLMServiceImpl::completion_streaming(
     std::unordered_set<int> task_ids,
     CharArrayFn callback,
     bool callbackWithJSON,
@@ -1189,12 +1189,12 @@ std::string LLMService::completion_streaming(
     return safe_json_to_str(result_data);
 }
 
-std::string LLMService::completion_json(const json &data, CharArrayFn callback, bool callbackWithJSON)
+std::string LLMServiceImpl::completion_json(const json &data, CharArrayFn callback, bool callbackWithJSON)
 {
     return completion_json(data, callback, callbackWithJSON, nullptr);
 }
 
-std::string LLMService::completion_json(
+std::string LLMServiceImpl::completion_json(
     const json &data,
     CharArrayFn callback,
     bool callbackWithJSON,
@@ -1343,12 +1343,12 @@ std::string LLMService::completion_json(
     return result_data;
 }
 
-std::string LLMService::slot_json(const json &data)
+std::string LLMServiceImpl::slot_json(const json &data)
 {
     return slot_json(data, nullptr);
 }
 
-std::string LLMService::slot_json(
+std::string LLMServiceImpl::slot_json(
     const json &data,
     httplib::Response *res)
 {
@@ -1416,7 +1416,7 @@ std::string LLMService::slot_json(
     return result_data;
 }
 
-void LLMService::cancel_json(const json &data)
+void LLMServiceImpl::cancel_json(const json &data)
 {
     if (setjmp(get_jump_point(true)) != 0)
         return;
@@ -1438,7 +1438,7 @@ void LLMService::cancel_json(const json &data)
     }
 }
 
-int LLMService::embedding_size()
+int LLMServiceImpl::embedding_size()
 {
     return ctx_server->model_meta()["n_embd"];
 }
@@ -1450,7 +1450,7 @@ void LLMService_Registry(LLMProviderRegistry *existing_instance)
     LLMProviderRegistry::inject_registry(existing_instance);
 }
 
-LLMService *LLMService_Construct(const char *model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char **lora_paths)
+LLMServiceImpl *LLMService_Construct(const char *model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char **lora_paths)
 {
     std::vector<std::string> lora_paths_vector;
     if (lora_paths != nullptr && lora_count > 0)
@@ -1460,19 +1460,19 @@ LLMService *LLMService_Construct(const char *model_path, int num_threads, int nu
             lora_paths_vector.push_back(std::string(lora_paths[i]));
         }
     }
-    return new LLMService(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_paths_vector);
+    return new LLMServiceImpl(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_paths_vector);
 }
 
-LLMService *LLMService_From_Command(const char *params_string_arr)
+LLMServiceImpl *LLMService_From_Command(const char *params_string_arr)
 {
     std::string params_string(params_string_arr);
     try
     {
         json j = json::parse(params_string);
-        return LLMService::from_params(j);
+        return LLMServiceImpl::from_params(j);
     }
     catch (const json::parse_error &)
     {
-        return LLMService::from_command(params_string);
+        return LLMServiceImpl::from_command(params_string);
     }
 }

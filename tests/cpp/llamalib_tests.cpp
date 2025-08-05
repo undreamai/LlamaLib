@@ -1,11 +1,5 @@
 
-#include "LLM_client.h"
-#ifdef RUNTIME_TESTS
-#include "LLM_runtime.h"
-#else
-#include "LLM_service.h"
-#endif
-#include "LLM_agent.h"
+#include "LlamaLib.h"
 
 #ifndef _WIN32
 #include <unistd.h>
@@ -963,10 +957,10 @@ int main(int argc, char **argv)
 
 #ifdef RUNTIME_TESTS
     std::cout << "-------- LLM runtime --------" << std::endl;
-    LLMRuntime *llm_service = LLMRuntime::from_command(command);
+    LLMService *llm_service = LLMService::from_command(command);
 #else
     std::cout << "-------- LLM service --------" << std::endl;
-    LLMService *llm_service = new LLMService(model);
+    LLMServiceImpl *llm_service = new LLMServiceImpl(model);
 #endif
     LLM_Start(llm_service);
 

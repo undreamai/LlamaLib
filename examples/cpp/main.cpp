@@ -10,10 +10,7 @@ int main(int argc, char **argv)
 {
     std::string model = "../../tests/model.gguf";
 
-    // use the following for selection of architecture on runtime according to the user system
-    LLMRuntime *llm_service = new LLMRuntime(model);
-    // use the following for mobile platforms or if building for a specific architecture
-    // LLMService* llm_service = new LLMService(model);
+    LLMService *llm_service = new LLMService(model);
 
     llm_service->start();
     std::string PROMPT = "you are an artificial intelligence assistant\n\n--- user: Hello, how are you?\n--- assistant";

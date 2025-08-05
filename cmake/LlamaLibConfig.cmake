@@ -39,7 +39,7 @@ set(DEPENDENT_OPTIONS
 # Enhanced llamalib_option function that creates dependent options
 function(llamalib_option name description)
     if(NOT DEFINED ${name})
-        set(${name} ${LLAMALIB_RUNTIME_DETECTION} CACHE BOOL "${description}")
+        set(${name} ON CACHE BOOL "${description}")
     endif()
     
     # Create a variable to track if this option was manually overridden
@@ -50,49 +50,19 @@ endfunction()
 
 # Function to handle automatic dependency management
 function(handle_dependent_options)
-    # Store the previous state of LLAMALIB_RUNTIME_DETECTION
-    if(NOT DEFINED LLAMALIB_RUNTIME_DETECTION_PREV)
-        set(LLAMALIB_RUNTIME_DETECTION_PREV ${LLAMALIB_RUNTIME_DETECTION} CACHE INTERNAL "Previous state of LLAMALIB_RUNTIME_DETECTION")
-    endif()
-    
-    # Check if LLAMALIB_RUNTIME_DETECTION changed
-    set(RUNTIME_DETECTION_CHANGED FALSE)
-    if(NOT "${LLAMALIB_RUNTIME_DETECTION}" STREQUAL "${LLAMALIB_RUNTIME_DETECTION_PREV}")
-        set(RUNTIME_DETECTION_CHANGED TRUE)
-    endif()
-    
     # List of all dependent options
     set(VALUE_AUTO_CHANGED OFF)
     foreach(OPTION_NAME ${DEPENDENT_OPTIONS})
         if(DEFINED ${OPTION_NAME})
-            # Check if this option was manually changed by comparing with expected value
-            set(EXPECTED_VALUE ${LLAMALIB_RUNTIME_DETECTION_PREV})
-            if(LLAMALIB_RUNTIME_DETECTION_PREV STREQUAL "")
-                set(EXPECTED_VALUE ON)  # Default value
-            endif()
-            
             # If option differs from expected value, user manually changed it
-            if(NOT "${${OPTION_NAME}}" STREQUAL "${EXPECTED_VALUE}" AND NOT ${OPTION_NAME}_MANUAL_OVERRIDE)
+            if(NOT "${${OPTION_NAME}}" STREQUAL "ON" AND NOT ${OPTION_NAME}_MANUAL_OVERRIDE)
                 set(${OPTION_NAME}_MANUAL_OVERRIDE TRUE CACHE INTERNAL "Track if ${OPTION_NAME} was manually set by user" FORCE)
-            endif()
-            
-            # Update dependent options based on LLAMALIB_RUNTIME_DETECTION
-            if(RUNTIME_DETECTION_CHANGED OR NOT DEFINED ${OPTION_NAME}_LAST_AUTO_VALUE)
-                if(NOT ${OPTION_NAME}_MANUAL_OVERRIDE)
-                    set(NEW_VALUE ${LLAMALIB_RUNTIME_DETECTION})
-                    if(NOT "${${OPTION_NAME}}" STREQUAL "${NEW_VALUE}")
-                        set(${OPTION_NAME} ${NEW_VALUE} CACHE BOOL "${description}" FORCE)
-                        set(VALUE_AUTO_CHANGED ON)
-                    endif()
-                endif()
-                set(${OPTION_NAME}_LAST_AUTO_VALUE ${${OPTION_NAME}} CACHE INTERNAL "Last automatically set value")
             endif()
         endif()
     endforeach()
     
     # Check for multiple enabled options when runtime detection is OFF
-    if(NOT RUNTIME_DETECTION_CHANGED OR NOT VALUE_AUTO_CHANGED)
-    # if(NOT VALUE_AUTO_CHANGED)
+    if(NOT VALUE_AUTO_CHANGED)
         set(ENABLED_OPTIONS "")
         set(ENABLED_COUNT 0)
         
@@ -104,27 +74,12 @@ function(handle_dependent_options)
         endforeach()
         
         if(ENABLED_COUNT EQUAL 0)
-            set(MESSAGE_AT_LEAST "one")
-            if(LLAMALIB_RUNTIME_DETECTION)
-              set(MESSAGE_AT_LEAST "at least one")
-            endif()
-            message(WARNING "No architecture specified. Select ${MESSAGE_AT_LEAST} of the architectures (LLAMALIB_USE_*).")
-        elseif(ENABLED_COUNT GREATER 1 AND NOT LLAMALIB_RUNTIME_DETECTION)
-            message(WARNING "Select only one of the architectures (LLAMALIB_USE_*). You can select multiple only if LLAMALIB_RUNTIME_DETECTION is set.")
+            message(WARNING "No architecture specified. Select at least one of the architectures (LLAMALIB_USE_*).")
         endif()
     endif()
-
-    # Update the previous state
-    set(LLAMALIB_RUNTIME_DETECTION_PREV ${LLAMALIB_RUNTIME_DETECTION} CACHE INTERNAL "Previous state of LLAMALIB_RUNTIME_DETECTION" FORCE)
 endfunction()
 
 # Set default options
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  if(NOT DEFINED LLAMALIB_RUNTIME_DETECTION)
-      OPTION(LLAMALIB_RUNTIME_DETECTION "Enable runtime detection" ON)
-  endif()
-endif()
-
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
   option(LLAMALIB_ALLOW_CPU "Enable CPU support" ON)
   option(LLAMALIB_ALLOW_GPU "Enable GPU support" ON)

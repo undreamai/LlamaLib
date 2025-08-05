@@ -51,15 +51,15 @@ using LibHandle = void *; ///< Unix library handle type
 
 //=================================== FUNCTION LISTS ===================================//
 
-class LLMService; ///< Forward declaration
+class LLMServiceImpl; ///< Forward declaration
 
 /// @brief Macro defining the list of dynamically loaded LLM functions
 /// @param M Macro to apply to each function signature
 /// @details This macro is used to generate function pointer declarations and loading code
-#define LLM_FUNCTIONS_LIST(M)                                                                                    \
-    M(LLMService_Registry, void, LLMProviderRegistry *)                                                          \
-    M(LLMService_Construct, LLMService *, const char *, int, int, int, bool, int, int, bool, int, const char **) \
-    M(LLMService_From_Command, LLMService *, const char *)
+#define LLM_FUNCTIONS_LIST(M)                                                                                        \
+    M(LLMService_Registry, void, LLMProviderRegistry *)                                                              \
+    M(LLMService_Construct, LLMServiceImpl *, const char *, int, int, int, bool, int, int, bool, int, const char **) \
+    M(LLMService_From_Command, LLMServiceImpl *, const char *)
 
 /// @brief Runtime loader for LLM libraries
 /// @details This class provides dynamic loading of LLM backend libraries,
@@ -213,6 +213,8 @@ public:
     std::string lora_list_json() override { return ((LLMProvider *)llm)->lora_list_json(); }
     //=================================== LLM METHODS END ===================================//
 
+    static std::string debug_implementation() { return "runtime_detection"; }
+
     /// @brief Declare function pointers for dynamically loaded functions
     /// @details Uses the LLM_FUNCTIONS_LIST macro to declare all required function pointers
 #define DECLARE_FN(name, ret, ...) \
@@ -279,26 +281,6 @@ extern "C"
     /// @param gpu Whether to include GPU architectures
     /// @return JSON string containing available architectures
     UNDREAMAI_API const char *Available_Architectures(bool gpu);
-
-    /// @brief Construct LLMRuntime instance (C API)
-    /// @param model_path Path to model file
-    /// @param num_threads Number of CPU threads (-1 for auto)
-    /// @param num_GPU_layers Number of GPU layers
-    /// @param num_parallel Number of parallel slots
-    /// @param flash_attention Whether to use flash attention
-    /// @param context_size Maximum context size
-    /// @param batch_size Processing batch size
-    /// @param embedding_only Whether embedding-only mode
-    /// @param lora_count Number of LoRA paths provided
-    /// @param lora_paths Array of LoRA file paths
-    /// @return Pointer to new LLMRuntime instance
-    UNDREAMAI_API LLMRuntime *LLMRuntime_Construct(const char *model_path, int num_threads = -1, int num_GPU_layers = 0, int num_parallel = 1, bool flash_attention = false, int context_size = 4096, int batch_size = 2048, bool embedding_only = false, int lora_count = 0, const char **lora_paths = nullptr);
-
-    /// @brief Create LLMRuntime from command (C API)
-    /// @param command Command string with parameters
-    /// @return Pointer to new LLMRuntime instance
-    /// @details See https://github.com/ggml-org/llama.cpp/tree/master/tools/server#usage for arguments.
-    UNDREAMAI_API LLMRuntime *LLMRuntime_From_Command(const char *command);
 }
 
 /// @}
