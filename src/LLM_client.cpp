@@ -68,11 +68,11 @@ std::string LLMClient::completion_json(const json &data, CharArrayFn callback, b
     }
 }
 
-int LLMClient::get_available_slot()
+int LLMClient::get_next_available_slot()
 {
     if (is_remote())
         return -1;
-    return llm->get_available_slot();
+    return llm->get_next_available_slot();
 }
 
 std::string LLMClient::apply_template_json(const json &data)

@@ -268,7 +268,7 @@ public:
 
     /// @brief Get available slot (delegate to wrapped LLM)
     /// @return Available slot ID
-    int get_available_slot() override { return llm->get_available_slot(); }
+    int get_next_available_slot() override { return llm->get_next_available_slot(); }
     //=================================== LLM METHOD DELEGATES ===================================//
 
 private:

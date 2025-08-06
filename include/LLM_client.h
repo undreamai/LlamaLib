@@ -101,7 +101,7 @@ public:
     /// @brief Get available processing slot (override)
     /// @return Available slot ID or -1 if none available
     /// @details Forwards slot availability check to appropriate backend
-    int get_available_slot() override;
+    int get_next_available_slot() override;
     //=================================== LLM METHODS END ===================================//
 
 private:

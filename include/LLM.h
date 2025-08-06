@@ -241,7 +241,7 @@ public:
 
     /// @brief Get an available processing slot
     /// @return Available slot ID, or -1 if none determined
-    virtual int get_available_slot() = 0;
+    virtual int get_next_available_slot() = 0;
 
     /// @brief Manage processing slots (save/load state)
     /// @param data JSON object containing slot operation parameters

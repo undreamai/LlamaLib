@@ -5,7 +5,7 @@
 LLMAgent::LLMAgent(LLMLocal *llm_, const std::string &system_prompt_, const std::string &user_role_, const std::string &assistant_role_)
     : llm(llm_), system_prompt(system_prompt_), user_role(user_role_), assistant_role(assistant_role_)
 {
-    id_slot = llm->get_available_slot();
+    id_slot = llm->get_next_available_slot();
     clear_history();
 }
 

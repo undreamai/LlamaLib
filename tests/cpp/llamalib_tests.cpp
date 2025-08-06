@@ -580,7 +580,7 @@ public:
     void set_SSL(const std::string &SSL_cert, const std::string &SSL_key) override {}
     bool started() override { return true; }
     int embedding_size() override { return 0; }
-    int get_available_slot() override { return -1; }
+    int get_next_available_slot() override { return -1; }
 
     void debug(int debug_level) override {}
     void logging_callback(CharArrayFn callback) override {}

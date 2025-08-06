@@ -180,7 +180,7 @@ public:
 
     /// @brief Get available processing slot (override)
     /// @return Available slot ID or -1 if none available
-    int get_available_slot() override;
+    int get_next_available_slot() override;
 
     std::string debug_implementation() override { return "standalone"; }
     //=================================== LLM METHODS END ===================================//
@@ -234,6 +234,8 @@ private:
     std::thread server_thread;                  ///< HTTP server thread
     std::condition_variable server_stopped_cv;  ///< Server stop condition variable
     bool server_stopped = false;                ///< Server stop flag
+
+    int next_available_slot = 0;
 
     /// @brief Split command line string into arguments
     /// @param inputString String containing space-separated arguments

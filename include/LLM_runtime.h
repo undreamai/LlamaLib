@@ -155,7 +155,7 @@ public:
 
     /// @brief Get available slot (override - delegates to loaded library)
     /// @return Available slot ID
-    int get_available_slot() override { return ((LLMProvider *)llm)->get_available_slot(); }
+    int get_next_available_slot() override { return ((LLMProvider *)llm)->get_next_available_slot(); }
 
     /// @brief Tokenize input (override - delegates to loaded library)
     /// @param data JSON tokenization request
