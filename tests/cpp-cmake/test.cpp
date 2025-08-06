@@ -23,14 +23,8 @@ int main(int argc, char **argv)
 {
     std::string model = "../model.gguf";
 
-#ifdef RUNTIME_TESTS
     LLMService *llm_service = new LLMService(model);
     ASSERT(llm_service->debug_implementation() == "runtime_detection");
-#else
-    ASSERT(LLMServiceImpl::debug_implementation() == "standalone");
-    LLMServiceImpl *llm_service = new LLMServiceImpl(model);
-    ASSERT(llm_service->debug_implementation() == "standalone");
-#endif
 
     llm_service->start();
     std::string PROMPT =

@@ -340,6 +340,10 @@ public:
     /// @brief Wait for service thread to complete
     virtual void join_service() = 0;
 
+    /// @brief Implementation debugging
+    /// @return "standalore" or "runtime_detection" according to the implementation
+    virtual std::string debug_implementation() = 0;
+
     /// @brief Configure SSL certificates
     /// @param SSL_cert SSL certificate
     /// @param SSL_key SSL private key

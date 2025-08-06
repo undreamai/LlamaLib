@@ -51,25 +51,23 @@ using LibHandle = void *; ///< Unix library handle type
 
 //=================================== FUNCTION LISTS ===================================//
 
-class LLMServiceImpl; ///< Forward declaration
-
 /// @brief Macro defining the list of dynamically loaded LLM functions
 /// @param M Macro to apply to each function signature
 /// @details This macro is used to generate function pointer declarations and loading code
-#define LLM_FUNCTIONS_LIST(M)                                                                                        \
-    M(LLMService_Registry, void, LLMProviderRegistry *)                                                              \
-    M(LLMService_Construct, LLMServiceImpl *, const char *, int, int, int, bool, int, int, bool, int, const char **) \
-    M(LLMService_From_Command, LLMServiceImpl *, const char *)
+#define LLM_FUNCTIONS_LIST(M)                                                                                     \
+    M(LLMService_Registry, void, LLMProviderRegistry *)                                                           \
+    M(LLMService_Construct, LLMProvider *, const char *, int, int, int, bool, int, int, bool, int, const char **) \
+    M(LLMService_From_Command, LLMProvider *, const char *)
 
 /// @brief Runtime loader for LLM libraries
 /// @details This class provides dynamic loading of LLM backend libraries,
 /// allowing for flexible deployment and architecture-specific optimizations
-class UNDREAMAI_API LLMRuntime : public LLMProvider
+class UNDREAMAI_API LLMService : public LLMProvider
 {
 public:
     /// @brief Default constructor
     /// @details Creates an uninitialized runtime that must load a library before use
-    LLMRuntime();
+    LLMService();
 
     /// @brief Parameterized constructor
     /// @param model_path Path to the model file
@@ -82,24 +80,24 @@ public:
     /// @param embedding_only Whether to run in embedding-only mode
     /// @param lora_paths Vector of paths to LoRA adapter files
     /// @details Creates and initializes a runtime with the specified parameters
-    LLMRuntime(const std::string &model_path, int num_threads = -1, int num_GPU_layers = 0, int num_parallel = 1, bool flash_attention = false, int context_size = 4096, int batch_size = 2048, bool embedding_only = false, const std::vector<std::string> &lora_paths = {});
+    LLMService(const std::string &model_path, int num_threads = -1, int num_GPU_layers = 0, int num_parallel = 1, bool flash_attention = false, int context_size = 4096, int batch_size = 2048, bool embedding_only = false, const std::vector<std::string> &lora_paths = {});
 
     /// @brief Destructor
-    ~LLMRuntime();
+    ~LLMService();
 
     /// @brief Create runtime from command line string
     /// @param command Command line argument string
-    /// @return Pointer to newly created LLMRuntime instance
+    /// @return Pointer to newly created LLMService instance
     /// @details Factory method for creating runtime instances from command arguments.
     /// See https://github.com/ggml-org/llama.cpp/tree/master/tools/server#usage for arguments.
-    static LLMRuntime *from_command(const std::string &command);
+    static LLMService *from_command(const std::string &command);
 
     /// @brief Create runtime from argc/argv
     /// @param argc Argument count
     /// @param argv Argument vector
-    /// @return Pointer to newly created LLMRuntime instance
+    /// @return Pointer to newly created LLMService instance
     /// @details Factory method for creating runtime instances from main() parameters
-    static LLMRuntime *from_command(int argc, char **argv);
+    static LLMService *from_command(int argc, char **argv);
 
     LibHandle handle = nullptr; ///< Handle to loaded library
     LLMProvider *llm = nullptr; ///< Pointer to loaded LLM provider instance
@@ -211,9 +209,9 @@ public:
     /// @brief List LoRA adapters (override - delegates to loaded library)
     /// @return JSON LoRA list
     std::string lora_list_json() override { return ((LLMProvider *)llm)->lora_list_json(); }
-    //=================================== LLM METHODS END ===================================//
 
-    static std::string debug_implementation() { return "runtime_detection"; }
+    std::string debug_implementation() override { return "runtime_detection"; }
+    //=================================== LLM METHODS END ===================================//
 
     /// @brief Declare function pointers for dynamically loaded functions
     /// @details Uses the LLM_FUNCTIONS_LIST macro to declare all required function pointers

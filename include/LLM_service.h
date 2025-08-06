@@ -17,12 +17,12 @@ struct server_context; ///< Forward declaration of server context structure
 /// @brief Concrete implementation of LLMProvider with server capabilities
 /// @details This class provides a full-featured LLM service with HTTP server,
 /// parameter configuration, and backend integration with llama.cpp
-class UNDREAMAI_API LLMServiceImpl : public LLMProvider
+class UNDREAMAI_API LLMService : public LLMProvider
 {
 public:
     /// @brief Default constructor
-    /// @details Creates an uninitialized LLMServiceImpl that must be configured before use
-    LLMServiceImpl();
+    /// @details Creates an uninitialized LLMService that must be configured before use
+    LLMService();
 
     /// @brief Parameterized constructor
     /// @param model_path Path to the model file
@@ -34,31 +34,31 @@ public:
     /// @param batch_size Processing batch size
     /// @param embedding_only Whether to run in embedding-only mode
     /// @param lora_paths Vector of paths to LoRA adapter files
-    LLMServiceImpl(const std::string &model_path, int num_threads = -1, int num_GPU_layers = 0, int num_parallel = 1, bool flash_attention = false, int context_size = 4096, int batch_size = 2048, bool embedding_only = false, const std::vector<std::string> &lora_paths = {});
+    LLMService(const std::string &model_path, int num_threads = -1, int num_GPU_layers = 0, int num_parallel = 1, bool flash_attention = false, int context_size = 4096, int batch_size = 2048, bool embedding_only = false, const std::vector<std::string> &lora_paths = {});
 
     /// @brief Destructor
-    ~LLMServiceImpl();
+    ~LLMService();
 
-    /// @brief Create LLMServiceImpl from JSON parameters
+    /// @brief Create LLMService from JSON parameters
     /// @param params_json JSON object containing initialization parameters
-    /// @return Pointer to newly created LLMServiceImpl instance
+    /// @return Pointer to newly created LLMService instance
     /// @details Factory method for creating instances from structured parameter data
     /// See https://github.com/ggml-org/llama.cpp/tree/master/tools/server#usage for arguments.
-    static LLMServiceImpl *from_params(const json &params_json);
+    static LLMService *from_params(const json &params_json);
 
-    /// @brief Create LLMServiceImpl from command line string
+    /// @brief Create LLMService from command line string
     /// @param command Command line argument string
-    /// @return Pointer to newly created LLMServiceImpl instance
+    /// @return Pointer to newly created LLMService instance
     /// @details Factory method for creating instances from command line arguments
     /// See https://github.com/ggml-org/llama.cpp/tree/master/tools/server#usage for arguments.
-    static LLMServiceImpl *from_command(const std::string &command);
+    static LLMService *from_command(const std::string &command);
 
-    /// @brief Create LLMServiceImpl from argc/argv
+    /// @brief Create LLMService from argc/argv
     /// @param argc Argument count
     /// @param argv Argument vector
-    /// @return Pointer to newly created LLMServiceImpl instance
+    /// @return Pointer to newly created LLMService instance
     /// @details Factory method for creating instances from standard main() parameters
-    static LLMServiceImpl *from_command(int argc, char **argv);
+    static LLMService *from_command(int argc, char **argv);
 
     /// @brief Convert JSON parameters to command line arguments
     /// @param params_json JSON object with parameters
@@ -181,9 +181,9 @@ public:
     /// @brief Get available processing slot (override)
     /// @return Available slot ID or -1 if none available
     int get_available_slot() override;
-    //=================================== LLM METHODS END ===================================//
 
-    static std::string debug_implementation() { return "standalone"; }
+    std::string debug_implementation() override { return "standalone"; }
+    //=================================== LLM METHODS END ===================================//
 
 protected:
     /// @brief Generate embeddings with HTTP response support
@@ -280,12 +280,12 @@ private:
 
 extern "C"
 {
-    /// @brief Set registry for LLMServiceImpl (C API)
+    /// @brief Set registry for LLMService (C API)
     /// @param existing_instance Existing registry instance to use
-    /// @details Allows injection of custom registry for LLMServiceImpl instances
+    /// @details Allows injection of custom registry for LLMService instances
     UNDREAMAI_API void LLMService_Registry(LLMProviderRegistry *existing_instance);
 
-    /// @brief Construct LLMServiceImpl instance (C API)
+    /// @brief Construct LLMService instance (C API)
     /// @param model_path Path to model file
     /// @param num_threads Number of CPU threads (-1 for auto)
     /// @param num_GPU_layers Number of GPU layers
@@ -296,14 +296,14 @@ extern "C"
     /// @param embedding_only Whether embedding-only mode
     /// @param lora_count Number of LoRA paths provided
     /// @param lora_paths Array of LoRA file paths
-    /// @return Pointer to new LLMServiceImpl instance
-    UNDREAMAI_API LLMServiceImpl *LLMService_Construct(const char *model_path, int num_threads = -1, int num_GPU_layers = 0, int num_parallel = 1, bool flash_attention = false, int context_size = 4096, int batch_size = 2048, bool embedding_only = false, int lora_count = 0, const char **lora_paths = nullptr);
+    /// @return Pointer to new LLMService instance
+    UNDREAMAI_API LLMService *LLMService_Construct(const char *model_path, int num_threads = -1, int num_GPU_layers = 0, int num_parallel = 1, bool flash_attention = false, int context_size = 4096, int batch_size = 2048, bool embedding_only = false, int lora_count = 0, const char **lora_paths = nullptr);
 
-    /// @brief Create LLMServiceImpl from command string (C API)
+    /// @brief Create LLMService from command string (C API)
     /// @param params_string Command line parameter string
-    /// @return Pointer to new LLMServiceImpl instance
+    /// @return Pointer to new LLMService instance
     /// @details See https://github.com/ggml-org/llama.cpp/tree/master/tools/server#usage for arguments.
-    UNDREAMAI_API LLMServiceImpl *LLMService_From_Command(const char *params_string);
+    UNDREAMAI_API LLMService *LLMService_From_Command(const char *params_string);
 }
 
 /// @}

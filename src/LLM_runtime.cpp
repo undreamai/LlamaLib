@@ -215,7 +215,7 @@ LibHandle load_library_safe(const std::string &path)
     return handle_out;
 }
 
-bool LLMRuntime::create_LLM_library_backend(const std::string &command, const std::string &llm_lib_filename)
+bool LLMService::create_LLM_library_backend(const std::string &command, const std::string &llm_lib_filename)
 {
     if (setjmp(get_jump_point()) != 0)
     {
@@ -261,7 +261,7 @@ bool LLMRuntime::create_LLM_library_backend(const std::string &command, const st
     return false;
 }
 
-bool LLMRuntime::create_LLM_library(const std::string &command)
+bool LLMService::create_LLM_library(const std::string &command)
 {
     bool gpu = has_gpu_layers(command);
     for (const auto &llm_lib_filename : available_architectures(gpu))
@@ -276,33 +276,33 @@ bool LLMRuntime::create_LLM_library(const std::string &command)
     return false;
 }
 
-//============================= LLMRuntime =============================//
+//============================= LLMService =============================//
 
-LLMRuntime::LLMRuntime()
+LLMService::LLMService()
 {
     search_paths = get_search_directories();
 }
 
-LLMRuntime::LLMRuntime(const std::string &model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, const std::vector<std::string> &lora_paths)
-    : LLMRuntime()
+LLMService::LLMService(const std::string &model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, const std::vector<std::string> &lora_paths)
+    : LLMService()
 {
     std::string command = LLM::LLM_args_to_command(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_paths);
     create_LLM_library(command);
 }
 
-LLMRuntime *LLMRuntime::from_command(const std::string &command)
+LLMService *LLMService::from_command(const std::string &command)
 {
-    LLMRuntime *llmRuntime = new LLMRuntime();
-    llmRuntime->create_LLM_library(command);
-    return llmRuntime;
+    LLMService *llmService = new LLMService();
+    llmService->create_LLM_library(command);
+    return llmService;
 }
 
-LLMRuntime *LLMRuntime::from_command(int argc, char **argv)
+LLMService *LLMService::from_command(int argc, char **argv)
 {
     return from_command(args_to_command(argc, argv));
 }
 
-LLMRuntime::~LLMRuntime()
+LLMService::~LLMService()
 {
     if (llm)
     {

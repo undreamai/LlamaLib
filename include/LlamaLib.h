@@ -4,13 +4,11 @@
 /// @details This convenience header includes all major components of the LLM library:
 /// service implementation, runtime loading, and client functionality
 
-#include "LLM_service.h" ///< LLM service implementation
-#include "LLM_client.h"  ///< Client implementation for local/remote LLM access
-#include "LLM_agent.h"   ///< Agent implementation with memomy management
+#include "LLM_client.h" ///< Client implementation for local/remote LLM access
+#include "LLM_agent.h"  ///< Agent implementation with memomy management
 
 #ifdef USE_RUNTIME_DETECTION
 #include "LLM_runtime.h" ///< Dynamic library loading and runtime management
-using LLMService = LLMRuntime;
 #else
-using LLMService = LLMServiceImpl;
+#include "LLM_service.h" ///< LLM service implementation
 #endif

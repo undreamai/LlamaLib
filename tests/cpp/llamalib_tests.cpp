@@ -640,22 +640,24 @@ public:
         return j.dump();
     }
 
-    std::string get_template_json()
+    std::string get_template_json() override
     {
         return chat_template;
     }
 
-    void set_template_json(const json &data)
+    void set_template_json(const json &data) override
     {
         chat_template = data.at("chat_template");
     }
 
-    std::string apply_template_json(const json &data)
+    std::string apply_template_json(const json &data) override
     {
         json result;
         result["prompt"] = data.at("messages")[0].at("message");
         return result.dump();
     }
+
+    std::string debug_implementation() override { return "standalone"; }
 };
 
 void run_mock_tests()
@@ -860,6 +862,14 @@ void run_LLMLocal_tests(LLMLocal *llm)
 
 void run_LLMProvider_tests(LLMProvider *llm)
 {
+    std::string impl = llm->debug_implementation();
+    std::cout << "Implementation: " << impl << std::endl;
+#ifdef USE_RUNTIME_DETECTION
+    ASSERT(impl == "runtime_detection");
+#else
+    ASSERT(impl == "standalone");
+#endif
+
     run_LLMLocal_tests(llm);
 
     for (bool use_api : {true, false})
@@ -955,13 +965,7 @@ int main(int argc, char **argv)
     std::string model = "../tests/model.gguf";
     std::string command = "-m " + model;
 
-#ifdef RUNTIME_TESTS
-    std::cout << "-------- LLM runtime --------" << std::endl;
-    LLMService *llm_service = LLMService::from_command(command);
-#else
-    std::cout << "-------- LLM service --------" << std::endl;
-    LLMServiceImpl *llm_service = new LLMServiceImpl(model);
-#endif
+    LLMService *llm_service = new LLMService(model);
     LLM_Start(llm_service);
 
     EMBEDDING_SIZE = LLM_Embedding_Size(llm_service);

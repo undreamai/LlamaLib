@@ -8,7 +8,7 @@ foreach(pair IN ITEMS "llamalib_tests:${LLAMALIB_ARCHITECTURE_LIBRARY}" "llamali
     target_link_libraries(${NAME} PRIVATE ${LLAMALIB_NAME})
 
     if (NAME STREQUAL "llamalib_tests_runtime")
-        target_compile_definitions(${NAME} PRIVATE RUNTIME_TESTS)
+        target_compile_definitions(${NAME} PRIVATE USE_RUNTIME_DETECTION)
     endif()
     install(TARGETS ${NAME} RUNTIME)
 endforeach()
