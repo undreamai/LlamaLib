@@ -1,130 +1,5 @@
 #include "LLM_client.h"
 
-// Constructor for local LLM
-LLMClient::LLMClient(LLMProvider *llm_) : llm(llm_) {}
-
-// Constructor for remote LLM
-LLMClient::LLMClient(const std::string &url_, const int port_) : url(url_), port(port_) {}
-
-void LLMClient::set_SSL(const char *SSL_cert_)
-{
-    if (is_remote())
-    {
-        this->SSL_cert = SSL_cert_;
-    }
-}
-
-std::string LLMClient::tokenize_json(const json &data)
-{
-    if (is_remote())
-    {
-        return post_request("tokenize", data);
-    }
-    else
-    {
-        return llm->tokenize_json(data);
-    }
-}
-
-std::string LLMClient::detokenize_json(const json &data)
-{
-    if (is_remote())
-    {
-        return post_request("detokenize", data);
-    }
-    else
-    {
-        return llm->detokenize_json(data);
-    }
-}
-
-std::string LLMClient::embeddings_json(const json &data)
-{
-    if (is_remote())
-    {
-        return post_request("embeddings", data);
-    }
-    else
-    {
-        return llm->embeddings_json(data);
-    }
-}
-
-std::string LLMClient::completion_json(const json &data, CharArrayFn callback, bool callbackWithJSON)
-{
-    if (is_remote())
-    {
-        json data_remote = data;
-        if (data.contains("id_slot") && data["id_slot"] != -1)
-        {
-            std::cerr << "Remote clients can only use id_slot -1" << std::endl;
-            data_remote["id_slot"] = -1;
-        }
-        return post_request("completion", data_remote, callback, callbackWithJSON);
-    }
-    else
-    {
-        return llm->completion_json(data, callback, callbackWithJSON);
-    }
-}
-
-int LLMClient::get_next_available_slot()
-{
-    if (is_remote())
-        return -1;
-    return llm->get_next_available_slot();
-}
-
-std::string LLMClient::apply_template_json(const json &data)
-{
-    if (is_remote())
-    {
-        return post_request("apply-template", data);
-    }
-    else
-    {
-        return llm->apply_template_json(data);
-    }
-}
-
-std::string LLMClient::get_template_json()
-{
-    if (is_remote())
-    {
-        return post_request("get-template", {});
-    }
-    else
-    {
-        return llm->get_template_json();
-    }
-}
-
-std::string LLMClient::slot_json(const json &data)
-{
-    if (is_remote())
-    {
-        std::cerr << "Slot operations are not supported in remote clients" << std::endl;
-        return "{}";
-    }
-    else
-    {
-        return llm->slot_json(data);
-    }
-}
-
-void LLMClient::cancel_json(const json &data)
-{
-    if (is_remote())
-    {
-        std::cerr << "Cancel is not supported in remote clients" << std::endl;
-        return;
-    }
-    else
-    {
-        llm->cancel_json(data);
-    }
-}
-
 //================ Remote requests ================//
 
 X509_STORE *load_client_cert(const std::string &cert_str)
@@ -253,31 +128,7 @@ std::string LLMClient::post_request(
         return true;
     };
 
-    bool https = false;
-    std::string host;
-    if (url.rfind("https://", 0) == 0)
-    {
-        host = url.substr(8);
-        https = true;
-    }
-    else
-    {
-        host = url.rfind("http://", 0) == 0 ? url.substr(7) : url;
-    }
-
-    bool ok = false;
-    if (https && SSL_cert != "")
-    {
-        httplib::SSLClient cli(host.c_str(), port);
-        cli.set_ca_cert_store(load_client_cert(SSL_cert));
-        ok = cli.send(req);
-    }
-    else
-    {
-        httplib::Client cli(host.c_str(), port);
-        ok = cli.send(req);
-    }
-
+    bool ok = use_ssl ? sslClient->send(req) : client->send(req);
     if (!ok)
     {
         std::string error = "HTTP POST streaming request failed";
@@ -286,6 +137,165 @@ std::string LLMClient::post_request(
     }
 
     return context.buffer;
+}
+
+//================ LLMClient ================//
+
+// Constructor for local LLM
+LLMClient::LLMClient(LLMProvider *llm_) : llm(llm_) {}
+
+// Constructor for remote LLM
+LLMClient::LLMClient(const std::string &url_, const int port_) : url(url_), port(port_)
+{
+    std::string host;
+    if (url.rfind("https://", 0) == 0)
+    {
+        host = url.substr(8);
+        use_ssl = true;
+    }
+    else
+    {
+        host = url.rfind("http://", 0) == 0 ? url.substr(7) : url;
+        use_ssl = false;
+    }
+
+    if (use_ssl)
+    {
+        sslClient = new httplib::SSLClient(host.c_str(), port);
+    }
+    else
+    {
+        client = new httplib::Client(host.c_str(), port);
+    }
+}
+
+LLMClient::~LLMClient()
+{
+    if (client != nullptr)
+        delete client;
+    if (sslClient != nullptr)
+        delete sslClient;
+}
+
+void LLMClient::set_SSL(const char *SSL_cert_)
+{
+    if (is_remote())
+    {
+        this->SSL_cert = SSL_cert_;
+        if (sslClient != nullptr)
+            sslClient->set_ca_cert_store(load_client_cert(SSL_cert));
+    }
+}
+
+std::string LLMClient::tokenize_json(const json &data)
+{
+    if (is_remote())
+    {
+        return post_request("tokenize", data);
+    }
+    else
+    {
+        return llm->tokenize_json(data);
+    }
+}
+
+std::string LLMClient::detokenize_json(const json &data)
+{
+    if (is_remote())
+    {
+        return post_request("detokenize", data);
+    }
+    else
+    {
+        return llm->detokenize_json(data);
+    }
+}
+
+std::string LLMClient::embeddings_json(const json &data)
+{
+    if (is_remote())
+    {
+        return post_request("embeddings", data);
+    }
+    else
+    {
+        return llm->embeddings_json(data);
+    }
+}
+
+std::string LLMClient::completion_json(const json &data, CharArrayFn callback, bool callbackWithJSON)
+{
+    if (is_remote())
+    {
+        json data_remote = data;
+        if (data.contains("id_slot") && data["id_slot"] != -1)
+        {
+            std::cerr << "Remote clients can only use id_slot -1" << std::endl;
+            data_remote["id_slot"] = -1;
+        }
+        return post_request("completion", data_remote, callback, callbackWithJSON);
+    }
+    else
+    {
+        return llm->completion_json(data, callback, callbackWithJSON);
+    }
+}
+
+int LLMClient::get_next_available_slot()
+{
+    if (is_remote())
+        return -1;
+    return llm->get_next_available_slot();
+}
+
+std::string LLMClient::apply_template_json(const json &data)
+{
+    if (is_remote())
+    {
+        return post_request("apply-template", data);
+    }
+    else
+    {
+        return llm->apply_template_json(data);
+    }
+}
+
+std::string LLMClient::get_template_json()
+{
+    if (is_remote())
+    {
+        return post_request("get-template", {});
+    }
+    else
+    {
+        return llm->get_template_json();
+    }
+}
+
+std::string LLMClient::slot_json(const json &data)
+{
+    if (is_remote())
+    {
+        std::cerr << "Slot operations are not supported in remote clients" << std::endl;
+        return "{}";
+    }
+    else
+    {
+        return llm->slot_json(data);
+    }
+}
+
+void LLMClient::cancel_json(const json &data)
+{
+    if (is_remote())
+    {
+        std::cerr << "Cancel is not supported in remote clients" << std::endl;
+        return;
+    }
+    else
+    {
+        llm->cancel_json(data);
+    }
 }
 
 //================ API ================//

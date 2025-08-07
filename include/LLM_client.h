@@ -39,6 +39,9 @@ public:
     /// @details Creates a client that connects to a remote LLM server via HTTP
     LLMClient(const std::string &url, const int port);
 
+    /// @brief Destructor
+    ~LLMClient();
+
     /// @brief Configure SSL certificate for remote connections
     /// @param SSL_cert Path to SSL certificate file
     /// @details Only applicable for remote clients. Sets up SSL verification.
@@ -107,6 +110,9 @@ public:
 private:
     // Local LLM members
     LLMProvider *llm = nullptr; ///< Pointer to local LLM provider (null for remote clients)
+    httplib::Client *client = nullptr;
+    httplib::SSLClient *sslClient = nullptr;
+    bool use_ssl = false;
 
     // Remote LLM members
     std::string url = "";      ///< Server URL for remote clients
