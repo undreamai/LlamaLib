@@ -28,13 +28,13 @@ public:
     /// @param model_path Path to the model file
     /// @param num_threads Number of CPU threads (-1 for auto-detection)
     /// @param num_GPU_layers Number of layers to offload to GPU
-    /// @param num_parallel Number of parallel processing sequences
+    /// @param num_slots Number of parallel processing sequences
     /// @param flash_attention Whether to enable flash attention optimization
     /// @param context_size Maximum context length in tokens
     /// @param batch_size Processing batch size
     /// @param embedding_only Whether to run in embedding-only mode
     /// @param lora_paths Vector of paths to LoRA adapter files
-    LLMService(const std::string &model_path, int num_threads = -1, int num_GPU_layers = 0, int num_parallel = 1, bool flash_attention = false, int context_size = 4096, int batch_size = 2048, bool embedding_only = false, const std::vector<std::string> &lora_paths = {});
+    LLMService(const std::string &model_path, int num_slots = 1, int num_threads = -1, int num_GPU_layers = 0, bool flash_attention = false, int context_size = 4096, int batch_size = 2048, bool embedding_only = false, const std::vector<std::string> &lora_paths = {});
 
     /// @brief Destructor
     ~LLMService();
@@ -289,9 +289,9 @@ extern "C"
 
     /// @brief Construct LLMService instance (C API)
     /// @param model_path Path to model file
+    /// @param num_slots Number of parallel sequences
     /// @param num_threads Number of CPU threads (-1 for auto)
     /// @param num_GPU_layers Number of GPU layers
-    /// @param num_parallel Number of parallel sequences
     /// @param flash_attention Whether to use flash attention
     /// @param context_size Maximum context size
     /// @param batch_size Processing batch size
@@ -299,7 +299,7 @@ extern "C"
     /// @param lora_count Number of LoRA paths provided
     /// @param lora_paths Array of LoRA file paths
     /// @return Pointer to new LLMService instance
-    UNDREAMAI_API LLMService *LLMService_Construct(const char *model_path, int num_threads = -1, int num_GPU_layers = 0, int num_parallel = 1, bool flash_attention = false, int context_size = 4096, int batch_size = 2048, bool embedding_only = false, int lora_count = 0, const char **lora_paths = nullptr);
+    UNDREAMAI_API LLMService *LLMService_Construct(const char *model_path, int num_slots = 1, int num_threads = -1, int num_GPU_layers = 0, bool flash_attention = false, int context_size = 4096, int batch_size = 2048, bool embedding_only = false, int lora_count = 0, const char **lora_paths = nullptr);
 
     /// @brief Create LLMService from command string (C API)
     /// @param params_string Command line parameter string

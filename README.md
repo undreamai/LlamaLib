@@ -90,7 +90,7 @@ LLMService llm = new LLMService("path/to/model.gguf");
 /* You can also specify:
   threads=-1,        // number of CPU threads to use
   gpu_layers=0,      // number of layers to offload to GPU (if 0, GPU is not used),
-  num_parallel=1     // number of slots / clients supported in parallel
+  num_slots=1     // number of slots / clients supported in parallel
 */
 
 // Start service
@@ -114,7 +114,7 @@ LLMService llm = new LLMService("path/to/model.gguf");
 /* You can also specify:
   threads=-1,        // number of CPU threads to use
   gpu_layers=0,      // number of layers to offload to GPU (if 0, GPU is not used),
-  num_parallel=1     // number of slots / clients supported in parallel
+  num_slots=1     // number of slots / clients supported in parallel
 */
 llm.Start();
 
@@ -155,6 +155,6 @@ LlamaLib implements the following classes:
 
 ### Server Methods
 
-- `start_server(host, port)`: Start HTTP server
+- `start_server(host, port, API_key)`: Start HTTP server
 - `stop_server()`: Stop HTTP server
 - `set_SSL(cert, key)`: Configure SSL/TLS

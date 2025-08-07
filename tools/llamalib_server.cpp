@@ -11,10 +11,10 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    LLM_Debug(1);
-    LLM_Start(llm);
-    LLM_Start_Server(llm);
-    LLM_Join_Server(llm);
+    llm->debug(1);
+    llm->start();
+    llm->start_server();
+    llm->join_server();
 
     return 0;
 }

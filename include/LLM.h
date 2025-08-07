@@ -129,16 +129,16 @@ public:
 
     /// @brief Convert LLM parameters to command line arguments
     /// @param model_path Path to the model file
+    /// @param num_slots Number of parallel slots to use
     /// @param num_threads Number of CPU threads to use (-1 for auto)
     /// @param num_GPU_layers Number of layers to offload to GPU
-    /// @param num_parallel Number of parallel slots to use
     /// @param flash_attention Whether to use flash attention optimization
     /// @param context_size Maximum context length in tokens (default: 4096, 0 = loaded from model)
     /// @param batch_size Batch size for processing
     /// @param embedding_only Whether to run in embedding-only mode
     /// @param lora_paths Vector of paths to LoRA adapter files
     /// @return Command line string with all parameters
-    static std::string LLM_args_to_command(const std::string &model_path, int num_threads = -1, int num_GPU_layers = 0, int num_parallel = 1, bool flash_attention = false, int context_size = 4096, int batch_size = 2048, bool embedding_only = false, const std::vector<std::string> &lora_paths = {});
+    static std::string LLM_args_to_command(const std::string &model_path, int num_slots = 1, int num_threads = -1, int num_GPU_layers = 0, bool flash_attention = false, int context_size = 4096, int batch_size = 2048, bool embedding_only = false, const std::vector<std::string> &lora_paths = {});
 
     /// @brief Parse template JSON response
     /// @param result JSON response from get_template_json

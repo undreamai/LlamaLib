@@ -73,14 +73,14 @@ public:
     /// @param model_path Path to the model file
     /// @param num_threads Number of CPU threads (-1 for auto-detection)
     /// @param num_GPU_layers Number of layers to offload to GPU
-    /// @param num_parallel Number of parallel slots
+    /// @param num_slots Number of parallel slots
     /// @param flash_attention Whether to enable flash attention optimization
     /// @param context_size Maximum context length in tokens
     /// @param batch_size Processing batch size
     /// @param embedding_only Whether to run in embedding-only mode
     /// @param lora_paths Vector of paths to LoRA adapter files
     /// @details Creates and initializes a runtime with the specified parameters
-    LLMService(const std::string &model_path, int num_threads = -1, int num_GPU_layers = 0, int num_parallel = 1, bool flash_attention = false, int context_size = 4096, int batch_size = 2048, bool embedding_only = false, const std::vector<std::string> &lora_paths = {});
+    LLMService(const std::string &model_path, int num_slots = 1, int num_threads = -1, int num_GPU_layers = 0, bool flash_attention = false, int context_size = 4096, int batch_size = 2048, bool embedding_only = false, const std::vector<std::string> &lora_paths = {});
 
     /// @brief Destructor
     ~LLMService();

@@ -116,9 +116,9 @@ X509 *load_cert(const std::string &cert_str)
 
 LLMService::LLMService() {}
 
-LLMService::LLMService(const std::string &model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, const std::vector<std::string> &lora_paths)
+LLMService::LLMService(const std::string &model_path, int num_slots, int num_threads, int num_GPU_layers, bool flash_attention, int context_size, int batch_size, bool embedding_only, const std::vector<std::string> &lora_paths)
 {
-    init(LLM::LLM_args_to_command(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_paths));
+    init(LLM::LLM_args_to_command(model_path, num_slots, num_threads, num_GPU_layers, flash_attention, context_size, batch_size, embedding_only, lora_paths));
 }
 
 LLMService *LLMService::from_params(const json &params_json)
@@ -292,6 +292,7 @@ void LLMService::init(int argc, char **argv)
         ctx_server->batch = {0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
         params = new common_params();
+        params->port = 0;
         if (!common_params_parse(argc, argv, *params, LLAMA_EXAMPLE_SERVER))
         {
             throw std::runtime_error("Invalid parameters!");
@@ -426,7 +427,8 @@ void LLMService::start_server(const std::string &host, int port, const std::stri
         params->hostname = "0.0.0.0";
     else
         params->hostname = host;
-    params->port = port;
+    if (port > 0)
+        params->port = port;
     if (!API_key.empty())
         params->api_keys.push_back(API_key);
 
@@ -1432,7 +1434,7 @@ void LLMService_Registry(LLMProviderRegistry *existing_instance)
     LLMProviderRegistry::inject_registry(existing_instance);
 }
 
-LLMService *LLMService_Construct(const char *model_path, int num_threads, int num_GPU_layers, int num_parallel, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char **lora_paths)
+LLMService *LLMService_Construct(const char *model_path, int num_slots, int num_threads, int num_GPU_layers, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char **lora_paths)
 {
     std::vector<std::string> lora_paths_vector;
     if (lora_paths != nullptr && lora_count > 0)
@@ -1442,7 +1444,7 @@ LLMService *LLMService_Construct(const char *model_path, int num_threads, int nu
             lora_paths_vector.push_back(std::string(lora_paths[i]));
         }
     }
-    return new LLMService(model_path, num_threads, num_GPU_layers, num_parallel, flash_attention, context_size, batch_size, embedding_only, lora_paths_vector);
+    return new LLMService(model_path, num_slots, num_threads, num_GPU_layers, flash_attention, context_size, batch_size, embedding_only, lora_paths_vector);
 }
 
 LLMService *LLMService_From_Command(const char *params_string_arr)

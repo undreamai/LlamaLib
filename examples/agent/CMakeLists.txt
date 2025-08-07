@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(MyLlamaProject)
+project(LlamaLibExample)
 
 # Find LlamaLib package
 find_package(LlamaLib REQUIRED)
