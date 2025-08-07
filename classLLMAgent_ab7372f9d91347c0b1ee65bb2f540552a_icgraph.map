@@ -1,0 +1,6 @@
+<map id="LLMAgent::get_assistant_role" name="LLMAgent::get_assistant_role">
+<area shape="rect" id="Node000001" title="Get current assistant role identifier." alt="" coords="272,29,485,55"/>
+<area shape="rect" id="Node000002" href="$LLM__agent_8cpp.html#a00e058e9fecb98441f8d4ef81f578718" title="Get assistant role (C API)" alt="" coords="5,29,224,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="258,45,224,45,224,39,258,39"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="162,20,159,16,151,12,115,8,86,10,71,15,68,20,76,27,72,31,63,21,68,11,85,5,115,3,153,7,163,12,166,18"/>
+</map>

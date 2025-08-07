@@ -1,0 +1,8 @@
+<map id="LLM::parse_get_template_json" name="LLM::parse_get_template_json">
+<area shape="rect" id="Node000001" title="Parse template JSON response." alt="" coords="389,29,609,55"/>
+<area shape="rect" id="Node000002" href="$classLLM.html#a448645ecd9e74a4a64cc1477350fa2bd" title="Get chat template." alt="" coords="199,29,341,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="376,45,342,45,342,39,376,39"/>
+<area shape="rect" id="Node000003" href="$LLM_8cpp.html#abe829f0b11c3e8c475ba15ad4ab0a4a2" title="Get chat template (C API)" alt="" coords="5,29,151,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="185,45,151,45,151,39,185,39"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="112,19,102,11,78,8,58,10,47,15,45,20,51,28,46,31,40,21,43,11,56,5,78,3,104,6,115,15"/>
+</map>

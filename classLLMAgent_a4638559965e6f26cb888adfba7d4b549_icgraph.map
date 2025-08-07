@@ -1,0 +1,6 @@
+<map id="LLMAgent::set_user_role" name="LLMAgent::set_user_role">
+<area shape="rect" id="Node000001" title="Set user role identifier." alt="" coords="240,29,421,55"/>
+<area shape="rect" id="Node000002" href="$LLM__agent_8cpp.html#a64a1d2a63c3a974cd65fc0a00ce8ac0b" title="Set user role (C API)" alt="" coords="5,29,192,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="226,45,192,45,192,39,226,39"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="140,20,129,11,99,8,74,10,61,15,58,20,65,27,61,31,53,21,57,11,73,5,99,3,131,7,144,16"/>
+</map>

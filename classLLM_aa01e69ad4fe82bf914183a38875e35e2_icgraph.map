@@ -1,0 +1,16 @@
+<map id="LLM::has_gpu_layers" name="LLM::has_gpu_layers">
+<area shape="rect" id="Node000001" title="Check if command line arguments specify GPU layers." alt="" coords="712,97,869,123"/>
+<area shape="rect" id="Node000002" href="$classLLMService.html#ac194e3210642288e650ed9f9194a69ee" title="Loads LLM library dynamically according to underlying achitecture and creates a LLM based on the comm..." alt="" coords="519,61,664,101"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="698,99,664,94,664,89,699,94"/>
+<area shape="rect" id="Node000007" href="$group__c__api.html#ga4675ad8d2a8f5e700d4fba1077ec9c9a" title="Check if command has GPU layers (C API)" alt="" coords="525,125,657,151"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="698,126,658,131,657,126,698,120"/>
+<area shape="rect" id="Node000003" href="$classLLMService.html#afd5f58f0c3b9e3d64524ddb21cc8168a" title="Create runtime from command line string." alt="" coords="264,43,471,68"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="504,74,470,70,471,64,505,68"/>
+<area shape="rect" id="Node000006" href="$classLLMService.html#aa0908086b2dff047dd6f7fddf29eb180" title="Parameterized constructor." alt="" coords="278,92,457,117"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="505,93,457,98,457,92,504,87"/>
+<area shape="rect" id="Node000004" href="$classLLMService.html#a8c646d7f7f81358417ed52359b10d583" title="Create runtime from argc/argv." alt="" coords="7,5,214,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="266,43,198,33,199,28,266,38"/>
+<area shape="rect" id="Node000005" href="$LLM__service_8cpp.html#abaea4e04e10d2f293565fc535746b240" title="Create LLMService from command string (C API)" alt="" coords="5,79,216,104"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="264,73,202,81,201,76,263,67"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="156,69,154,65,145,61,111,57,83,59,68,64,66,70,73,77,69,80,60,70,65,60,82,54,111,52,147,56,157,61,161,66"/>
+</map>

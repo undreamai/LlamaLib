@@ -1,0 +1,6 @@
+<map id="LLM::set_grammar" name="LLM::set_grammar">
+<area shape="rect" id="Node000001" title="Set grammar for constrained generation." alt="" coords="199,29,341,55"/>
+<area shape="rect" id="Node000002" href="$LLM_8cpp.html#ae7b3e1b17276d1948424725ec000018e" title="Set grammar (C API)" alt="" coords="5,29,151,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,45,151,45,151,39,185,39"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="112,19,102,11,78,8,58,10,47,15,45,20,51,28,46,31,40,21,43,11,56,5,78,3,104,6,115,15"/>
+</map>

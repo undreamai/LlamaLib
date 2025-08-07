@@ -1,0 +1,6 @@
+<map id="LLMAgent::get_history_size" name="LLMAgent::get_history_size">
+<area shape="rect" id="Node000001" title="Get number of messages in history." alt="" coords="257,29,457,55"/>
+<area shape="rect" id="Node000002" href="$LLM__agent_8cpp.html#a277940928041a33dc91e86f22715e518" title="Get conversation history size (C API)" alt="" coords="5,29,209,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="244,45,209,45,209,39,244,39"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="152,20,149,15,141,12,107,8,81,10,67,15,64,20,71,27,67,31,58,21,63,11,80,5,107,3,142,7,152,11,156,17"/>
+</map>

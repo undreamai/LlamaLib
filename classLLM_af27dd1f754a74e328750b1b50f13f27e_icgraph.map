@@ -1,0 +1,12 @@
+<map id="LLM::get_template_json" name="LLM::get_template_json">
+<area shape="rect" id="Node000001" title="Get the chat template in JSON format." alt="" coords="461,79,639,104"/>
+<area shape="rect" id="Node000002" href="$classLLM.html#a448645ecd9e74a4a64cc1477350fa2bd" title="Get chat template." alt="" coords="235,29,377,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="473,79,369,57,370,52,474,73"/>
+<area shape="rect" id="Node000004" href="$classLLMAgent.html#afedeed3c7401d38f2255b342d9f2a502" title="Get template JSON (delegate to wrapped LLM)" alt="" coords="199,79,413,104"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="448,94,413,94,413,89,448,89"/>
+<area shape="rect" id="Node000005" href="$classLLMClient.html#a83f45973cd16a07972613e38b481c8fc" title="Get template JSON (override)" alt="" coords="199,128,413,153"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="474,109,370,131,369,125,473,104"/>
+<area shape="rect" id="Node000003" href="$LLM_8cpp.html#abe829f0b11c3e8c475ba15ad4ab0a4a2" title="Get chat template (C API)" alt="" coords="5,29,151,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="221,45,151,45,151,39,221,39"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="119,20,108,11,78,8,54,10,41,15,38,20,45,27,41,31,33,21,37,11,53,5,78,3,110,7,122,16"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="include/defs.h" name="include/defs.h">
+<area shape="rect" id="Node000001" title="File with basic definitions." alt="" coords="87,5,201,31"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,79,91,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,33,76,72,73,68,127,29"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="115,79,173,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="147,31,147,65,141,65,141,31"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="197,79,275,104"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="160,29,212,68,209,72,157,33"/>
+</map>

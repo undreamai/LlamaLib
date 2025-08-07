@@ -1,0 +1,6 @@
+<map id="LLMAgent::set_slot" name="LLMAgent::set_slot">
+<area shape="rect" id="Node000001" title="Set processing slot ID." alt="" coords="200,29,345,55"/>
+<area shape="rect" id="Node000002" href="$LLM__agent_8cpp.html#aa7511136b443e2099add50610102cfa8" title="Set processing slot (C API)" alt="" coords="5,29,152,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,45,152,45,152,39,186,39"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="113,19,103,11,79,8,58,10,48,15,45,20,51,28,47,31,40,21,44,11,57,5,79,3,105,6,116,15"/>
+</map>

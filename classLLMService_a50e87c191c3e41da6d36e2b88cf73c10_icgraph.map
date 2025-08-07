@@ -1,0 +1,8 @@
+<map id="LLMService::jsonToArguments" name="LLMService::jsonToArguments">
+<area shape="rect" id="Node000001" title="Convert JSON parameters to command line arguments." alt="" coords="503,29,719,55"/>
+<area shape="rect" id="Node000002" href="$classLLMService.html#ad557a4449167b041276f41d6189d5d38" title="Create LLMService from JSON parameters." alt="" coords="264,29,455,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="489,45,455,45,455,39,489,39"/>
+<area shape="rect" id="Node000003" href="$LLM__service_8cpp.html#abaea4e04e10d2f293565fc535746b240" title="Create LLMService from command string (C API)" alt="" coords="5,29,216,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="250,45,216,45,216,39,250,39"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="155,20,152,15,144,12,111,8,84,10,70,15,67,20,74,27,70,31,62,21,66,11,83,5,111,3,146,7,156,11,159,17"/>
+</map>

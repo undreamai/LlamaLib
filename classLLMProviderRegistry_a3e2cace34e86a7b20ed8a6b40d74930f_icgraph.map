@@ -1,0 +1,12 @@
+<map id="LLMProviderRegistry::get_instances" name="LLMProviderRegistry::get_instances">
+<area shape="rect" id="Node000001" title="Get all registered provider instances." alt="" coords="413,59,569,99"/>
+<area shape="rect" id="Node000002" href="$LLM_8cpp.html#a97f56570f528ad5c2b7c221bbb998c6a" title="Set global debug level (C API)" alt="" coords="232,29,329,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="399,66,329,53,330,48,400,61"/>
+<area shape="rect" id="Node000003" href="$LLM_8cpp.html#a24fbb1f1f5ce780d792acb26668f623e" title="Set global logging callback (C API)" alt="" coords="196,103,365,128"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="400,98,356,105,355,100,399,92"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="317,20,307,11,281,8,259,10,248,15,245,20,252,28,247,31,240,21,244,11,258,5,281,3,309,6,320,16"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="317,93,307,85,281,81,259,83,248,88,245,94,252,101,247,104,240,94,244,84,258,78,281,76,309,80,320,89"/>
+<area shape="rect" id="Node000004" href="$LLM_8cpp.html#a7c131670b604b750cbfad7010ad25860" title="Stop global logging (C API)" alt="" coords="5,103,148,128"/>
+<area shape="poly" id="edge5_Node000003_Node000004" title=" " alt="" coords="182,118,148,118,148,113,182,113"/>
+<area shape="poly" id="edge6_Node000004_Node000004" title=" " alt="" coords="113,93,103,85,77,81,55,83,44,88,41,94,48,101,43,104,36,94,40,84,54,78,77,76,105,80,116,89"/>
+</map>

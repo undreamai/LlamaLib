@@ -1,0 +1,14 @@
+<map id="LLM" name="LLM">
+<area shape="rect" id="Node000001" title="Abstract base class for Large Language Model operations." alt="" coords="135,5,183,31"/>
+<area shape="rect" id="Node000002" href="$classLLMLocal.html" title="Abstract class for local LLM operations with slot management." alt="" coords="118,79,201,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,44,162,79,157,79,157,44"/>
+<area shape="rect" id="Node000003" href="$classLLMAgent.html" title="High&#45;level conversational agent for LLM interactions." alt="" coords="5,152,92,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="131,114,68,154,65,150,129,109"/>
+<area shape="rect" id="Node000004" href="$classLLMClient.html" title="Client for accessing LLM functionality locally or remotely." alt="" coords="116,152,203,177"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="162,118,162,152,157,152,157,118"/>
+<area shape="rect" id="Node000005" href="$classLLMProvider.html" title="Abstract class for LLM service providers." alt="" coords="227,152,329,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="192,109,260,149,257,154,189,113"/>
+<area shape="rect" id="Node000006" href="$classLLMService.html" title="Runtime loader for LLM libraries." alt="" coords="230,225,326,251"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="272,191,274,225,268,225,267,191"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="289,191,288,225,282,225,284,191"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="LLMProvider::stop" name="LLMProvider::stop">
+<area shape="rect" id="Node000001" title="Stop the LLM service." alt="" coords="137,29,276,55"/>
+<area shape="rect" id="Node000002" href="$LLM_8cpp.html#a16d0dc5636d272801e207276fc6e507b" title="Stop LLM service (C API)" alt="" coords="5,29,89,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="123,45,90,45,90,39,123,39"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="75,19,67,11,47,8,31,10,22,15,21,20,25,28,21,31,15,21,18,11,29,5,47,3,69,6,78,15"/>
+</map>

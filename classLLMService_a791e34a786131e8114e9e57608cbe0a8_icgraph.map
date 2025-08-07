@@ -1,0 +1,14 @@
+<map id="LLMService::logging_callback" name="LLMService::logging_callback">
+<area shape="rect" id="Node000001" title="Set logging callback (override &#45; delegates to loaded library)" alt="" coords="676,71,828,111"/>
+<area shape="rect" id="Node000002" href="$classLLMService.html#a053905b510fcb7755f5d9a39c8a6e03d" title="Initialize from argc/argv parameters." alt="" coords="503,79,628,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="662,94,629,94,629,89,662,89"/>
+<area shape="rect" id="Node000003" href="$classLLMService.html#ad557a4449167b041276f41d6189d5d38" title="Create LLMService from JSON parameters." alt="" coords="264,29,455,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="498,78,413,57,414,52,499,73"/>
+<area shape="rect" id="Node000005" href="$classLLMService.html#a1ff5d7b3af982950017a8ce344a891bf" title="Initialize from C&#45;style parameter string." alt="" coords="297,79,422,104"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="489,94,422,94,422,89,489,89"/>
+<area shape="rect" id="Node000006" href="$classLLMService.html#a5cc0e5d9aa86162065d60e75a462a2c3" title="Initialize from parameter string." alt="" coords="297,128,422,153"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="499,110,414,131,413,125,498,105"/>
+<area shape="rect" id="Node000004" href="$LLM__service_8cpp.html#abaea4e04e10d2f293565fc535746b240" title="Create LLMService from command string (C API)" alt="" coords="5,29,216,55"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="250,45,216,45,216,39,250,39"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="155,20,152,15,144,12,111,8,84,10,70,15,67,20,74,27,70,31,62,21,66,11,83,5,111,3,146,7,156,11,159,17"/>
+</map>

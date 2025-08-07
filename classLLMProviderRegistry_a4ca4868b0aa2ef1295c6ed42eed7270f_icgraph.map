@@ -1,0 +1,6 @@
+<map id="LLMProviderRegistry::set_debug_level" name="LLMProviderRegistry::set_debug_level">
+<area shape="rect" id="Node000001" title="Set global debug level." alt="" coords="151,22,307,62"/>
+<area shape="rect" id="Node000002" href="$LLM_8cpp.html#a97f56570f528ad5c2b7c221bbb998c6a" title="Set global debug level (C API)" alt="" coords="5,29,103,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="137,45,103,45,103,39,137,39"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="84,19,76,11,54,8,36,10,26,15,24,20,30,28,25,31,19,21,22,11,34,5,54,3,78,6,88,15"/>
+</map>

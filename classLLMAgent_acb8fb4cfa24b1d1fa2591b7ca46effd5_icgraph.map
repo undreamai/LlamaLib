@@ -1,0 +1,6 @@
+<map id="LLMAgent::remove_last_message" name="LLMAgent::remove_last_message">
+<area shape="rect" id="Node000001" title="Remove the last message from history." alt="" coords="235,29,409,69"/>
+<area shape="rect" id="Node000002" href="$LLM__agent_8cpp.html#afcd7d80c2bfc85bc943aa516607a1871" title="Remove last message from history (C API)" alt="" coords="5,29,187,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="221,52,187,52,187,47,221,47"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="134,18,121,11,96,8,74,10,62,15,57,21,59,28,54,30,52,20,58,10,73,5,96,3,122,6,136,13"/>
+</map>

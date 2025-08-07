@@ -1,0 +1,12 @@
+<map id="LLM::embeddings_json" name="LLM::embeddings_json">
+<area shape="rect" id="Node000001" title="Generate embeddings for input text." alt="" coords="444,79,615,104"/>
+<area shape="rect" id="Node000002" href="$classLLM.html#a9fafb9791263bb1eb8458c731ea5c46b" title="Generate embeddings." alt="" coords="224,29,360,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="454,78,353,57,355,52,455,73"/>
+<area shape="rect" id="Node000004" href="$classLLMAgent.html#a79b429b5b4894047bcf937476a2a9123" title="Generate embeddings (delegate to wrapped LLM)" alt="" coords="188,79,396,104"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="430,94,396,94,396,89,430,89"/>
+<area shape="rect" id="Node000005" href="$classLLMClient.html#ad25a26b154b875a4e0f0fd7515e6f96f" title="Generate embeddings (override)" alt="" coords="188,128,396,153"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="455,109,355,131,353,125,454,104"/>
+<area shape="rect" id="Node000003" href="$LLM_8cpp.html#ae7301e94975fb7a9131d0a6f8feaf88b" title="Generate embeddings (C API)" alt="" coords="5,29,140,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="211,45,140,45,140,39,211,39"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="112,20,101,11,73,8,49,10,37,15,34,20,41,28,37,31,29,21,33,11,48,5,73,3,103,6,115,15"/>
+</map>

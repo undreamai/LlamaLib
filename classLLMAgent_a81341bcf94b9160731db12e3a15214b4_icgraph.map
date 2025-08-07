@@ -1,0 +1,6 @@
+<map id="LLMAgent::save_history" name="LLMAgent::save_history">
+<area shape="rect" id="Node000001" title="Save conversation history to file." alt="" coords="232,29,409,55"/>
+<area shape="rect" id="Node000002" href="$LLM__agent_8cpp.html#a0707f04e315abce3d3cb48a65bfef122" title="Save conversation history to file (C API)" alt="" coords="5,29,184,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="218,45,184,45,184,39,218,39"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="135,20,124,11,95,8,71,10,58,15,55,20,62,27,58,31,50,21,54,11,70,5,95,3,126,7,138,16"/>
+</map>

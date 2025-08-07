@@ -1,0 +1,8 @@
+<map id="LLM::build_detokenize_json" name="LLM::build_detokenize_json">
+<area shape="rect" id="Node000001" title="Build JSON for detokenization." alt="" coords="356,29,556,55"/>
+<area shape="rect" id="Node000002" href="$classLLM.html#a57754f97f686c2f5a3e90c44c32243a8" title="Convert tokens to text." alt="" coords="181,29,308,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="342,45,308,45,308,39,342,39"/>
+<area shape="rect" id="Node000003" href="$LLM_8cpp.html#af9563a4e76ca787962c550bb9bc4bb3c" title="Detokenize tokens (C API)" alt="" coords="5,29,133,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="167,45,133,45,133,39,167,39"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="100,19,91,11,69,8,51,10,42,15,40,20,45,28,40,31,34,21,38,11,50,5,69,3,93,6,103,15"/>
+</map>

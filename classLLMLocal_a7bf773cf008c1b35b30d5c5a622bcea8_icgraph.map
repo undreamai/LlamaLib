@@ -1,0 +1,8 @@
+<map id="LLMLocal::save_slot" name="LLMLocal::save_slot">
+<area shape="rect" id="Node000001" title="Save slot state to file." alt="" coords="209,55,361,80"/>
+<area shape="rect" id="Node000002" href="$LLM_8cpp.html#a2291c0f1050e09030211eb2eaa19c84e" title="Save slot state (C API)" alt="" coords="24,29,143,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,59,143,52,143,47,196,53"/>
+<area shape="rect" id="Node000003" href="$classLLMAgent.html#a0d2f296d188275e1594a0cd2420679b2" title="Save agent&#39;s slot state." alt="" coords="5,79,161,104"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="196,81,162,85,162,79,195,75"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="119,20,109,11,83,8,62,10,51,15,49,20,55,28,50,31,43,21,47,11,61,5,83,3,111,6,122,16"/>
+</map>

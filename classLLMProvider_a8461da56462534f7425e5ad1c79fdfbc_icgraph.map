@@ -1,0 +1,5 @@
+<map id="LLMProvider::build_lora_weight_json" name="LLMProvider::build_lora_weight_json">
+<area shape="rect" id="Node000001" title="Build JSON for LoRA weight configuration." alt="" coords="240,5,383,45"/>
+<area shape="rect" id="Node000002" href="$classLLMProvider.html#a8c5dbd89d29d770d73ca1bd8c6f227d8" title="Configure LoRA weights." alt="" coords="5,13,192,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="226,28,192,28,192,23,226,23"/>
+</map>

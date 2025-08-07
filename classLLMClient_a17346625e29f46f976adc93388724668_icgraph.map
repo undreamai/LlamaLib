@@ -1,0 +1,5 @@
+<map id="LLMClient::set_SSL" name="LLMClient::set_SSL">
+<area shape="rect" id="Node000001" title="Configure SSL certificate for remote connections." alt="" coords="197,5,341,31"/>
+<area shape="rect" id="Node000002" href="$group__c__api.html#ga76b46ac93bf8735a0e2bb0e2cc34f4d0" title="Set SSL certificate (C API)" alt="" coords="5,5,149,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,21,149,21,149,15,183,15"/>
+</map>

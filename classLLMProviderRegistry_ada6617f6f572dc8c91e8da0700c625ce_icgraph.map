@@ -1,0 +1,27 @@
+<map id="LLMProviderRegistry::instance" name="LLMProviderRegistry::instance">
+<area shape="rect" id="Node000001" title="Get the singleton registry instance." alt="" coords="720,201,876,241"/>
+<area shape="rect" id="Node000002" href="$classLLMService.html#a053905b510fcb7755f5d9a39c8a6e03d" title="Initialize from argc/argv parameters." alt="" coords="525,89,650,115"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="750,196,671,150,611,117,614,112,673,145,753,191"/>
+<area shape="rect" id="Node000007" href="$classLLMProviderRegistry.html#ae5f5ea52c27ed84a0ec50e31c263882e" title="Inject a custom registry instance." alt="" coords="509,159,665,199"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="706,205,665,197,666,192,707,200"/>
+<area shape="rect" id="Node000009" href="$LLM_8cpp.html#a97f56570f528ad5c2b7c221bbb998c6a" title="Set global debug level (C API)" alt="" coords="539,248,636,273"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="707,241,637,254,636,249,706,235"/>
+<area shape="rect" id="Node000010" href="$LLM_8cpp.html#a24fbb1f1f5ce780d792acb26668f623e" title="Set global logging callback (C API)" alt="" coords="503,321,672,347"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="749,250,613,324,611,319,747,245"/>
+<area shape="rect" id="Node000003" href="$classLLMService.html#ad557a4449167b041276f41d6189d5d38" title="Create LLMService from JSON parameters." alt="" coords="264,29,455,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="527,88,454,69,411,57,412,52,455,63,528,83"/>
+<area shape="rect" id="Node000005" href="$classLLMService.html#a1ff5d7b3af982950017a8ce344a891bf" title="Initialize from C&#45;style parameter string." alt="" coords="297,79,422,104"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="511,101,422,97,422,92,511,96"/>
+<area shape="rect" id="Node000006" href="$classLLMService.html#a5cc0e5d9aa86162065d60e75a462a2c3" title="Initialize from parameter string." alt="" coords="297,128,422,153"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="511,117,423,133,422,127,511,112"/>
+<area shape="rect" id="Node000004" href="$LLM__service_8cpp.html#abaea4e04e10d2f293565fc535746b240" title="Create LLMService from command string (C API)" alt="" coords="5,29,216,55"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="250,45,216,45,216,39,250,39"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="155,20,152,15,144,12,111,8,84,10,70,15,67,20,74,27,70,31,62,21,66,11,83,5,111,3,146,7,156,11,159,17"/>
+<area shape="rect" id="Node000008" href="$group__c__api.html#ga2685b20fe11a096ebd009f94d7c17164" title="Set registry for LLMService (C API)" alt="" coords="281,177,438,203"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="496,186,438,189,438,184,495,181"/>
+<area shape="poly" id="edge10_Node000009_Node000009" title=" " alt="" coords="625,238,615,230,587,227,565,229,553,233,551,239,557,246,553,250,545,240,549,230,564,224,587,221,617,225,628,234"/>
+<area shape="poly" id="edge12_Node000010_Node000010" title=" " alt="" coords="625,312,615,303,587,300,565,302,553,307,551,312,557,320,553,323,545,313,549,303,564,297,587,295,617,298,628,307"/>
+<area shape="rect" id="Node000011" href="$LLM_8cpp.html#a7c131670b604b750cbfad7010ad25860" title="Stop global logging (C API)" alt="" coords="288,321,431,347"/>
+<area shape="poly" id="edge13_Node000010_Node000011" title=" " alt="" coords="488,337,431,337,431,331,488,331"/>
+<area shape="poly" id="edge14_Node000011_Node000011" title=" " alt="" coords="400,312,389,303,359,300,335,302,322,307,320,312,326,319,322,323,314,313,319,303,334,297,359,295,391,299,403,308"/>
+</map>

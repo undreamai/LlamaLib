@@ -1,0 +1,8 @@
+<map id="LLMAgent::clear_history" name="LLMAgent::clear_history">
+<area shape="rect" id="Node000001" title="Clear all conversation history." alt="" coords="235,43,413,68"/>
+<area shape="rect" id="Node000002" href="$classLLMAgent.html#a6937b028ea9592487e2c809c5ac64e6c" title="Constructor for LLM agent." alt="" coords="17,5,175,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="232,43,173,33,174,28,233,38"/>
+<area shape="rect" id="Node000003" href="$LLM__agent_8cpp.html#a5e0a07cda62c8ac7700f6c8414798ad5" title="Clear conversation history (C API)" alt="" coords="5,79,187,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="230,73,177,81,176,76,229,68"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="137,69,126,61,96,57,72,59,59,64,56,70,63,77,59,80,51,70,55,60,71,54,96,52,128,56,140,65"/>
+</map>

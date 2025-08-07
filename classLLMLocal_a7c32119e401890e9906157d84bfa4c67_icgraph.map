@@ -1,0 +1,14 @@
+<map id="LLMLocal::cancel_json" name="LLMLocal::cancel_json">
+<area shape="rect" id="Node000001" title="Cancel a running request." alt="" coords="408,91,575,116"/>
+<area shape="rect" id="Node000002" href="$classLLMLocal.html#a1d66932f1ac678f421d83202357009ba" title="Cancel request." alt="" coords="209,41,341,67"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="421,90,331,69,332,64,422,85"/>
+<area shape="rect" id="Node000005" href="$classLLMAgent.html#a6da87907f1ea680466ef592040c6aeff" title="Cancel request (delegate to wrapped LLM)" alt="" coords="189,91,360,116"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="395,106,360,106,360,101,395,101"/>
+<area shape="rect" id="Node000006" href="$classLLMClient.html#aa448effb4e9301004d544bb85b29f196" title="Cancel running request (override)" alt="" coords="189,140,360,165"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="422,122,332,143,331,137,421,116"/>
+<area shape="rect" id="Node000003" href="$classLLMAgent.html#ae9de3ca5ecd05d98ae6dffbf2f786b03" title="Cancel agent&#39;s current request." alt="" coords="5,5,141,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="195,42,141,33,142,27,195,37"/>
+<area shape="rect" id="Node000004" href="$LLM_8cpp.html#a7416b59d7352c3a5c9198674c92dde24" title="Cancel request (C API)" alt="" coords="24,79,123,104"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="195,71,123,85,122,80,194,66"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="109,69,99,61,73,57,52,59,41,64,39,70,45,77,40,80,33,70,37,60,51,54,73,52,101,56,112,65"/>
+</map>

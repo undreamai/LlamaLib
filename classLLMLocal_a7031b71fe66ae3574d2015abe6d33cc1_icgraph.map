@@ -1,0 +1,9 @@
+<map id="LLMLocal::get_next_available_slot" name="LLMLocal::get_next_available_slot">
+<area shape="rect" id="Node000001" title="Get an available processing slot." alt="" coords="212,69,359,109"/>
+<area shape="rect" id="Node000002" href="$classLLMAgent.html#a80fea0b1a2c492521d14f3588d00337c" title="Get available slot (delegate to wrapped LLM)" alt="" coords="9,5,160,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,68,147,48,149,43,210,63"/>
+<area shape="rect" id="Node000003" href="$classLLMClient.html#a1564f7ffcde80f00ffc57b72531d9882" title="Get available processing slot (override)" alt="" coords="9,69,160,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="198,92,160,92,160,87,198,87"/>
+<area shape="rect" id="Node000004" href="$classLLMAgent.html#a6937b028ea9592487e2c809c5ac64e6c" title="Constructor for LLM agent." alt="" coords="5,134,164,159"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,116,131,136,129,131,201,111"/>
+</map>

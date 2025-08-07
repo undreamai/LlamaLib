@@ -1,0 +1,19 @@
+<map id="LLM::completion_json" name="LLM::completion_json">
+<area shape="rect" id="Node000001" title="Generate text completion." alt="" coords="811,115,973,140"/>
+<area shape="rect" id="Node000002" href="$classLLM.html#a7e9e25d61ebba558111a74dd136e8c61" title="Generate completion." alt="" coords="597,65,727,91"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="819,114,722,93,723,88,820,109"/>
+<area shape="rect" id="Node000007" href="$classLLMAgent.html#a0a13f9a38043f95640411c2a4598f14f" title="Generate completion (delegate to wrapped LLM)" alt="" coords="561,115,763,140"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="797,130,763,130,763,125,797,125"/>
+<area shape="rect" id="Node000008" href="$classLLMClient.html#a9613eb92ed2660c3e086754eaf1e3db6" title="Generate text completion (override)" alt="" coords="561,164,763,189"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="820,145,723,167,722,161,819,140"/>
+<area shape="rect" id="Node000003" href="$classLLMAgent.html#afb17d7be97ea8b561b5770b9c7f94659" title="Generate completion with agent&#39;s slot." alt="" coords="347,29,513,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="583,69,512,57,512,52,584,63"/>
+<area shape="rect" id="Node000006" href="$LLM_8cpp.html#ad6c74f41038afdaab03c769b7695538f" title="Generate completion (C API)" alt="" coords="365,103,495,128"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="584,93,496,107,495,102,583,88"/>
+<area shape="rect" id="Node000004" href="$classLLMAgent.html#afa0fcd26e7cae3e81626bd9f61fc96d0" title="Conduct a chat interaction." alt="" coords="176,29,299,55"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="333,45,299,45,299,39,333,39"/>
+<area shape="rect" id="Node000005" href="$LLM__agent_8cpp.html#ab8450c34bcec75882fbb979d8c078116" title="Conduct chat interaction (C API)" alt="" coords="5,29,128,55"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="162,45,128,45,128,39,162,39"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="97,19,88,11,67,8,49,10,39,15,37,20,43,28,38,31,32,21,35,11,47,5,67,3,90,6,100,15"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="464,92,454,84,430,81,410,83,399,88,397,94,403,101,398,104,392,94,395,84,408,78,430,76,456,80,467,88"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="LLM::detokenize" name="LLM::detokenize">
+<area shape="rect" id="Node000001" title="Convert tokens to text." alt="" coords="181,29,308,55"/>
+<area shape="rect" id="Node000002" href="$LLM_8cpp.html#af9563a4e76ca787962c550bb9bc4bb3c" title="Detokenize tokens (C API)" alt="" coords="5,29,133,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="167,45,133,45,133,39,167,39"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="100,19,91,11,69,8,51,10,42,15,40,20,45,28,40,31,34,21,38,11,50,5,69,3,93,6,103,15"/>
+</map>

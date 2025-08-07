@@ -1,0 +1,6 @@
+<map id="LLM_Delete" name="LLM_Delete">
+<area shape="rect" id="Node000001" title="Delete LLM provider (C API)" alt="" coords="243,29,341,55"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="326,19,316,11,292,8,272,10,261,15,259,20,265,28,260,31,254,21,257,11,270,5,292,3,318,6,329,15"/>
+<area shape="rect" id="Node000002" href="$classLLMService.html#a2e4a6744af72dfc8edba8c91e827c68e" title="Destructor." alt="" coords="5,29,195,55"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="229,45,195,45,195,39,229,39"/>
+</map>

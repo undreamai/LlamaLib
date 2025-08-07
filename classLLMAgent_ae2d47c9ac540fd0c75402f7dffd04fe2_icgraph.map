@@ -1,0 +1,6 @@
+<map id="LLMAgent::get_system_prompt" name="LLMAgent::get_system_prompt">
+<area shape="rect" id="Node000001" title="Get current system prompt." alt="" coords="225,29,396,69"/>
+<area shape="rect" id="Node000002" href="$LLM__agent_8cpp.html#aec26b7774963dacf613d2bafe89877f5" title="Get system prompt (C API)" alt="" coords="5,29,177,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="211,52,178,52,178,47,211,47"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="128,18,115,11,91,8,70,10,58,15,53,21,55,28,50,30,48,20,54,10,69,5,91,3,117,6,131,13"/>
+</map>

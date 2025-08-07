@@ -1,0 +1,6 @@
+<map id="LLMProvider::embedding_size" name="LLMProvider::embedding_size">
+<area shape="rect" id="Node000001" title="Get embedding vector size." alt="" coords="216,29,432,55"/>
+<area shape="rect" id="Node000002" href="$LLM_8cpp.html#a8fd7da1b0590ea0fc6de7e518740bc54" title="Get embedding vector size (C API)" alt="" coords="5,29,168,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,45,168,45,168,39,202,39"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="129,20,118,11,87,8,61,10,48,15,45,20,52,27,48,31,40,21,44,11,60,5,87,3,120,7,133,16"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="LLMLocal::load_slot" name="LLMLocal::load_slot">
+<area shape="rect" id="Node000001" title="Load slot state from file." alt="" coords="207,55,356,80"/>
+<area shape="rect" id="Node000002" href="$LLM_8cpp.html#a2aeeeae375aede4fd6f81d5df5a598b4" title="Load slot state (C API)" alt="" coords="23,29,141,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,59,141,52,142,47,193,53"/>
+<area shape="rect" id="Node000003" href="$classLLMAgent.html#a57fe02dcf2e9461eea2b65eaae71ae94" title="Load agent&#39;s slot state." alt="" coords="5,79,159,104"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="193,81,159,85,159,79,192,75"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="117,19,107,11,82,8,61,10,50,15,48,20,54,28,49,31,43,21,46,11,60,5,82,3,109,6,120,15"/>
+</map>

@@ -1,0 +1,12 @@
+<map id="include/LLM_client.h" name="include/LLM_client.h">
+<area shape="rect" id="Node000001" title="Client interface for local and remote LLM access." alt="" coords="115,5,269,31"/>
+<area shape="rect" id="Node000002" href="$LLM__agent_8h.html" title="High&#45;level conversational agent interface for LLMs." alt="" coords="115,79,269,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,44,195,79,189,79,189,44"/>
+<area shape="rect" id="Node000003" href="$LlamaLib_8h.html" title="Main include file for the LLama library." alt="" coords="5,152,149,177"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="155,39,128,57,105,80,95,98,88,118,81,152,76,151,82,116,90,96,101,77,125,53,152,35"/>
+<area shape="rect" id="Node000005" href="$LLM__client_8cpp_source.html" title=" " alt="" coords="293,79,435,104"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="233,33,337,76,335,81,231,38"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="164,113,97,154,95,150,161,109"/>
+<area shape="rect" id="Node000004" href="$LLM__agent_8cpp_source.html" title=" " alt="" coords="174,152,317,177"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="211,113,239,150,235,153,207,117"/>
+</map>

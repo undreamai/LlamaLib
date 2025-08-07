@@ -1,0 +1,9 @@
+<map id="LLMProviderRegistry::set_log_callback" name="LLMProviderRegistry::set_log_callback">
+<area shape="rect" id="Node000001" title="Set global log callback." alt="" coords="413,22,569,62"/>
+<area shape="rect" id="Node000002" href="$LLM_8cpp.html#a24fbb1f1f5ce780d792acb26668f623e" title="Set global logging callback (C API)" alt="" coords="196,29,365,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="400,45,366,45,366,39,400,39"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="317,20,307,11,281,8,259,10,248,15,245,20,252,28,247,31,240,21,244,11,258,5,281,3,309,6,320,16"/>
+<area shape="rect" id="Node000003" href="$LLM_8cpp.html#a7c131670b604b750cbfad7010ad25860" title="Stop global logging (C API)" alt="" coords="5,29,148,55"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="182,45,148,45,148,39,182,39"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="113,20,103,11,77,8,55,10,44,15,41,20,48,28,43,31,36,21,40,11,54,5,77,3,105,6,116,16"/>
+</map>

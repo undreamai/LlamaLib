@@ -1,0 +1,8 @@
+<map id="LLMProvider::build_set_template_json" name="LLMProvider::build_set_template_json">
+<area shape="rect" id="Node000001" title="Build JSON for template setting." alt="" coords="440,22,589,62"/>
+<area shape="rect" id="Node000002" href="$classLLMProvider.html#a9429b5e0d4f56d8ebaefd44d7c7da3ef" title="Set chat template." alt="" coords="196,29,392,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="426,45,392,45,392,39,426,39"/>
+<area shape="rect" id="Node000003" href="$LLM_8cpp.html#a192fcffd2a8ef13ed5ddc026b552f51f" title="Set chat template (C API)" alt="" coords="5,29,148,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="182,45,149,45,149,39,182,39"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="115,20,105,11,77,8,54,10,41,15,39,20,45,28,41,31,34,21,38,11,52,5,77,3,107,6,119,15"/>
+</map>
