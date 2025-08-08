@@ -6,8 +6,9 @@ namespace UndreamAI.LlamaLib
 {
     public class LLMService : LLMProvider
     {
-        public LLMService(string modelPath, int numThreads = -1, int numGpuLayers = 0,
-            int numParallel = 1, bool flashAttention = false, int contextSize = 4096,
+        public LLMService(string modelPath, int numSlots = 1,
+            int numThreads = -1, int numGpuLayers = 0,
+            bool flashAttention = false, int contextSize = 4096,
             int batchSize = 2048, bool embeddingOnly = false, string[] loraPaths = null)
         {
             if (string.IsNullOrEmpty(modelPath))
@@ -18,7 +19,7 @@ namespace UndreamAI.LlamaLib
             try
             {
                 llamaLib = new LlamaLib(numGpuLayers > 0);
-                llm = CreateLLM(modelPath, numThreads, numGpuLayers, numParallel,
+                llm = CreateLLM(modelPath, numSlots, numThreads, numGpuLayers,
                     flashAttention, contextSize, batchSize, embeddingOnly, loraPaths);
             }
             catch
@@ -56,8 +57,8 @@ namespace UndreamAI.LlamaLib
             return new LLMService(llamaLibInstance, llmInstance);
         }
 
-        private IntPtr CreateLLM(string modelPath, int numThreads, int numGpuLayers,
-            int numParallel, bool flashAttention, int contextSize, int batchSize,
+        private IntPtr CreateLLM(string modelPath, int numSlots, int numThreads,
+            int numGpuLayers, bool flashAttention, int contextSize, int batchSize,
             bool embeddingOnly, string[] loraPaths)
         {
             IntPtr loraPathsPtr = IntPtr.Zero;
@@ -97,7 +98,7 @@ namespace UndreamAI.LlamaLib
             try
             {
                 var llm = llamaLib.LLMService_Construct(
-                    modelPath, numThreads, numGpuLayers, numParallel,
+                    modelPath, numSlots, numThreads, numGpuLayers,
                     flashAttention, contextSize, batchSize, embeddingOnly,
                     loraPathCount, loraPathsPtr);
 

@@ -157,9 +157,9 @@ namespace UndreamAI.LlamaLib
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLMService_Construct")]
         public static extern IntPtr LLMService_Construct_Static(
             [MarshalAs(UnmanagedType.LPStr)] string modelPath,
+            int numSlots = 1,
             int numThreads = -1,
             int numGpuLayers = 0,
-            int numParallel = 1,
             [MarshalAs(UnmanagedType.I1)] bool flashAttention = false,
             int contextSize = 4096,
             int batchSize = 2048,
@@ -167,17 +167,17 @@ namespace UndreamAI.LlamaLib
             int loraCount = 0,
             IntPtr loraPaths = default);
         public IntPtr LLMService_Construct(
+            int numSlots = 1,
             string modelPath,
             int numThreads = -1,
             int numGpuLayers = 0,
-            int numParallel = 1,
             bool flashAttention = false,
             int contextSize = 4096,
             int batchSize = 2048,
             bool embeddingOnly = false,
             int loraCount = 0,
             IntPtr loraPaths = default)
-            => LlamaLib.LLMService_Construct_Static(modelPath, numThreads, numGpuLayers, numParallel, flashAttention,
+            => LlamaLib.LLMService_Construct_Static(modelPath, numSlots, numThreads, numGpuLayers, flashAttention,
                                             contextSize, batchSize, embeddingOnly, loraCount, loraPaths);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLMService_From_Command")]
@@ -567,9 +567,9 @@ namespace UndreamAI.LlamaLib
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr LLMService_Construct_Delegate(
             [MarshalAs(UnmanagedType.LPStr)] string modelPath,
+            int numSlots = 1,
             int numThreads = -1,
             int numGpuLayers = 0,
-            int numParallel = 1,
             [MarshalAs(UnmanagedType.I1)] bool flashAttention = false,
             int contextSize = 4096,
             int batchSize = 2048,
