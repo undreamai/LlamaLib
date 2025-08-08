@@ -416,6 +416,8 @@ void release_slot(server_slot &slot)
 
 int LLMService::get_next_available_slot()
 {
+    if (setjmp(get_jump_point(true)) != 0)
+        return -1;
     if (ctx_server->slots.size() == 0)
         return -1;
     return next_available_slot++ % ctx_server->slots.size();
@@ -423,6 +425,8 @@ int LLMService::get_next_available_slot()
 
 void LLMService::start_server(const std::string &host, int port, const std::string &API_key)
 {
+    if (setjmp(get_jump_point(true)) != 0)
+        return;
     params->hostname = host.empty() ? "0.0.0.0" : host;
     if (port >= 0)
         params->port = port;
@@ -655,6 +659,8 @@ void LLMService::start_server(const std::string &host, int port, const std::stri
 
 void LLMService::stop_server()
 {
+    if (setjmp(get_jump_point(true)) != 0)
+        return;
     std::lock_guard<std::mutex> lock(start_stop_mutex);
     LLAMALIB_INF("stopping server\n");
     if (svr.get() != nullptr)
@@ -672,6 +678,8 @@ void LLMService::stop_server()
 
 void LLMService::join_server()
 {
+    if (setjmp(get_jump_point(true)) != 0)
+        return;
     std::unique_lock<std::mutex> lock(start_stop_mutex);
     server_stopped_cv.wait(lock, [this]
                            { return server_stopped; });
@@ -679,6 +687,8 @@ void LLMService::join_server()
 
 void LLMService::start()
 {
+    if (setjmp(get_jump_point(true)) != 0)
+        return;
     std::lock_guard<std::mutex> lock(start_stop_mutex);
     service_thread = std::thread([&]()
                                  {
@@ -694,6 +704,8 @@ void LLMService::start()
 
 void LLMService::stop()
 {
+    if (setjmp(get_jump_point(true)) != 0)
+        return;
     try
     {
         std::lock_guard<std::mutex> lock(start_stop_mutex);
@@ -737,6 +749,8 @@ void LLMService::stop()
 
 void LLMService::join_service()
 {
+    if (setjmp(get_jump_point(true)) != 0)
+        return;
     std::unique_lock<std::mutex> lock(start_stop_mutex);
     service_stopped_cv.wait(lock, [this]
                             { return service_stopped; });
@@ -797,6 +811,8 @@ bool LLMService::middleware_validate_api_key(const httplib::Request &req, httpli
 
 std::string LLMService::get_template_json()
 {
+    if (setjmp(get_jump_point(true)) != 0)
+        return "";
     json result;
     result["chat_template"] = params->chat_template;
     return result.dump();
@@ -804,6 +820,8 @@ std::string LLMService::get_template_json()
 
 void LLMService::set_template_json(const json &body)
 {
+    if (setjmp(get_jump_point(true)) != 0)
+        return;
     if (body.count("chat_template") == 0)
         return;
     std::string chat_template = body.at("chat_template");
@@ -815,6 +833,8 @@ void LLMService::set_template_json(const json &body)
 
 std::string LLMService::apply_template_json(const json &body)
 {
+    if (setjmp(get_jump_point(true)) != 0)
+        return "";
     json data = oaicompat_completion_params_parse(body, params->use_jinja, params->reasoning_format, ctx_server->chat_templates.get());
     return safe_json_to_str({{"prompt", std::move(data.at("prompt"))}});
 }
@@ -908,6 +928,8 @@ std::string LLMService::embeddings_json(
     httplib::Response *res,
     std::function<bool()> is_connection_closed)
 {
+    if (setjmp(get_jump_point(true)) != 0)
+        return "";
     oaicompat_type oaicompat = OAICOMPAT_TYPE_EMBEDDING;
     // an input prompt can be a string or a list of tokens (integer)
     json prompt;
@@ -1018,6 +1040,8 @@ std::string LLMService::lora_weight_json(const json &body)
 
 std::string LLMService::lora_weight_json(const json &body, httplib::Response *res)
 {
+    if (setjmp(get_jump_point(true)) != 0)
+        return "";
     if (!body.is_array())
     {
         if (res != nullptr)
@@ -1080,6 +1104,8 @@ std::string LLMService::lora_weight_json(const json &body, httplib::Response *re
 
 std::string LLMService::lora_list_json()
 {
+    if (setjmp(get_jump_point(true)) != 0)
+        return "";
     json result = json::array();
     const auto &loras = ctx_server->params_base.lora_adapters;
     for (size_t i = 0; i < loras.size(); ++i)
@@ -1422,6 +1448,8 @@ void LLMService::cancel_json(const json &data)
 
 int LLMService::embedding_size()
 {
+    if (setjmp(get_jump_point(true)) != 0)
+        return 0;
     return ctx_server->model_meta()["n_embd"];
 }
 
@@ -1457,4 +1485,9 @@ LLMService *LLMService_From_Command(const char *params_string_arr)
     {
         return LLMService::from_command(params_string);
     }
+}
+
+void LLMService_InjectErrorState(ErrorState *error_state)
+{
+    ErrorStateRegistry::inject_error_state(error_state);
 }

@@ -1,15 +1,15 @@
 #include "error_handling.h"
 
+ErrorState *ErrorStateRegistry::custom_error_state_ = nullptr;
+
 int &get_status_code()
 {
-    static int status_code = 0;
-    return status_code;
+    return ErrorStateRegistry::get_error_state().status_code;
 }
 
 std::string &get_status_message()
 {
-    static std::string status_message = "";
-    return status_message;
+    return ErrorStateRegistry::get_error_state().status_message;
 }
 
 sigjmp_buf &get_sigjmp_buf_point()
@@ -32,10 +32,9 @@ std::vector<Hook> &get_sigint_hooks()
 
 void fail(std::string message, int code)
 {
-    int &status_code = get_status_code();
-    std::string &status_message = get_status_message();
-    status_code = code;
-    status_message = message;
+    ErrorState &error_state = ErrorStateRegistry::get_error_state();
+    error_state.status_code = code;
+    error_state.status_message = message;
 }
 
 void handle_exception(int code)
@@ -58,12 +57,7 @@ sigjmp_buf &get_jump_point(bool clear_status)
 {
     sigjmp_buf &sigjmp_buf_point = get_sigjmp_buf_point();
     if (clear_status)
-    {
-        int &status_code = get_status_code();
-        std::string &status_message = get_status_message();
-        status_code = 0;
-        status_message.clear();
-    }
+        fail("", 0);
     return sigjmp_buf_point;
 }
 
@@ -86,8 +80,7 @@ BOOL WINAPI console_ctrl_handler(DWORD ctrl_type)
 
 void set_error_handlers(bool crash_handlers, bool sigint_handlers)
 {
-    get_status_code();
-    get_status_message();
+    ErrorStateRegistry::get_error_state();
 
     if (crash_handlers)
     {
@@ -113,8 +106,7 @@ void handle_signal(int sig, siginfo_t *, void *)
 
 void set_error_handlers(bool crash_handlers, bool sigint_handlers)
 {
-    get_status_code();
-    get_status_message();
+    ErrorStateRegistry::get_error_state();
 
     if (crash_handlers)
     {

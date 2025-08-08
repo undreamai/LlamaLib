@@ -17,6 +17,40 @@
 
 using Hook = std::function<void(int)>;
 
+/// @brief Error state container for sharing between libraries
+struct ErrorState
+{
+    int status_code = 0;
+    std::string status_message = "";
+};
+
+/// @brief Error state registry for managing shared error state
+class ErrorStateRegistry
+{
+public:
+    /// @brief Inject a custom error state instance
+    /// @param state Custom error state instance to use
+    /// @details Allows error state injection when using different dynamic libraries
+    static void inject_error_state(ErrorState *state)
+    {
+        custom_error_state_ = state;
+    }
+
+    /// @brief Get the error state instance
+    /// @return Reference to the error state instance
+    static ErrorState &get_error_state()
+    {
+        if (custom_error_state_)
+            return *custom_error_state_;
+
+        static ErrorState error_state;
+        return error_state;
+    }
+
+private:
+    static ErrorState *custom_error_state_;
+};
+
 int &get_status_code();
 std::string &get_status_message();
 sigjmp_buf &get_sigjmp_buf_point();

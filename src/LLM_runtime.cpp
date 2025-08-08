@@ -254,7 +254,13 @@ bool LLMService::create_LLM_library_backend(const std::string &command, const st
 #undef DECLARE_AND_LOAD
 
             LLMService_Registry(&LLMProviderRegistry::instance());
+            LLMService_InjectErrorState(&ErrorStateRegistry::get_error_state());
             llm = (LLMProvider *)LLMService_From_Command(command.c_str());
+            if (get_status_code() != 0)
+            {
+                std::cerr << "Failed to construct LLM (error: " << get_status_code() << "): " << get_status_message() << std::endl;
+                return false;
+            }
             return true;
         }
     }
@@ -273,6 +279,7 @@ bool LLMService::create_LLM_library(const std::string &command)
             return true;
         }
     }
+    std::cerr << "Couldn't load a backend" << std::endl;
     return false;
 }
 

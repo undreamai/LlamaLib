@@ -306,6 +306,8 @@ extern "C"
     /// @return Pointer to new LLMService instance
     /// @details See https://github.com/ggml-org/llama.cpp/tree/master/tools/server#usage for arguments.
     UNDREAMAI_API LLMService *LLMService_From_Command(const char *params_string);
+
+    UNDREAMAI_API void LLMService_InjectErrorState(ErrorState *error_state);
 }
 
 /// @}

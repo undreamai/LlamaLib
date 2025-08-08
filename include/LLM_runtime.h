@@ -56,6 +56,7 @@ using LibHandle = void *; ///< Unix library handle type
 /// @details This macro is used to generate function pointer declarations and loading code
 #define LLM_FUNCTIONS_LIST(M)                                                                                     \
     M(LLMService_Registry, void, LLMProviderRegistry *)                                                           \
+    M(LLMService_InjectErrorState, void, ErrorState *)                                                            \
     M(LLMService_Construct, LLMProvider *, const char *, int, int, int, bool, int, int, bool, int, const char **) \
     M(LLMService_From_Command, LLMProvider *, const char *)
 
