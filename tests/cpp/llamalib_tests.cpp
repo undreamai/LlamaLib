@@ -571,7 +571,7 @@ public:
     int cancelled_slot = -1;
     std::string chat_template = "";
 
-    void start_server(const std::string &host = "0.0.0.0", int port = 0, const std::string &API_key = "") override {}
+    void start_server(const std::string &host = "0.0.0.0", int port = -1, const std::string &API_key = "") override {}
     void stop_server() override {}
     void join_server() override {}
     void start() override {}
@@ -957,6 +957,24 @@ void set_SSL(LLMProvider *llm, LLMClient *llm_remote_client)
     llm_remote_client->set_SSL(client_crt.c_str());
 }
 
+void test_API_key(LLMService *llm_service)
+{
+    std::string API_key = "secret_code";
+    llm_service->start_server("", 8080, API_key);
+
+    LLMClient llm_remote_client("http://localhost", 8080);
+    std::string reply = std::string(LLM_Tokenize(&llm_remote_client, PROMPT.c_str()));
+    ASSERT(reply == "[]");
+
+    LLMClient llm_remote_client_key("http://localhost", 8080, API_key);
+    reply = std::string(LLM_Tokenize(&llm_remote_client_key, PROMPT.c_str()));
+    ASSERT(reply != "[]");
+    json reply_data = json::parse(reply);
+    std::vector<int> tokens = reply_data.get<std::vector<int>>();
+    ASSERT(tokens.size() > 0);
+    llm_service->stop_server();
+}
+
 int main(int argc, char **argv)
 {
     LLM_Debug(1);
@@ -979,16 +997,19 @@ int main(int argc, char **argv)
     std::cout << std::endl
               << "-------- LLM remote client --------" << std::endl;
     LLMClient llm_remote_client("http://localhost", 8080);
-    LLM_Start_Server(llm_service, "", 8080);
+    llm_service->start_server("", 8080);
     run_LLMLocal_tests(&llm_remote_client);
-    LLM_Stop_Server(llm_service);
+    llm_service->stop_server();
+
+    test_API_key(llm_service);
 
     std::cout << std::endl
               << "-------- LLM remote client SSL --------" << std::endl;
     LLMClient llm_remote_client_SSL("https://localhost", 8080);
     set_SSL(llm_service, &llm_remote_client_SSL);
-    LLM_Start_Server(llm_service, "", 8080);
+    llm_service->start_server("", 8080);
     run_LLMLocal_tests(&llm_remote_client_SSL);
+    llm_service->stop_server();
 
     std::cout << std::endl
               << "-------- Stop service --------" << std::endl;

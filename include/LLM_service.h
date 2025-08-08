@@ -148,7 +148,7 @@ public:
     /// @param host Host address to bind (default: "0.0.0.0")
     /// @param port Port number (0 for auto-selection)
     /// @param API_key Optional API key for authentication
-    void start_server(const std::string &host = "0.0.0.0", int port = 0, const std::string &API_key = "") override;
+    void start_server(const std::string &host = "0.0.0.0", int port = -1, const std::string &API_key = "") override;
 
     /// @brief Stop HTTP server (override)
     void stop_server() override;

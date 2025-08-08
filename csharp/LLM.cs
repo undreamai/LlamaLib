@@ -353,7 +353,7 @@ namespace UndreamAI.LlamaLib
             llamaLib.LLM_Stop(llm);
         }
 
-        public void StartServer(string host = "0.0.0.0", int port = 0, string apiKey = "")
+        public void StartServer(string host = "0.0.0.0", int port = -1, string apiKey = "")
         {
             CheckLlamaLib();
             if (string.IsNullOrEmpty(host))

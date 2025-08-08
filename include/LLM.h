@@ -323,7 +323,7 @@ public:
     /// @param host Host address to bind to (default: "0.0.0.0")
     /// @param port Port number to bind to (0 for auto-select)
     /// @param API_key Optional API key for authentication
-    virtual void start_server(const std::string &host = "0.0.0.0", int port = 0, const std::string &API_key = "") = 0;
+    virtual void start_server(const std::string &host = "0.0.0.0", int port = -1, const std::string &API_key = "") = 0;
 
     /// @brief Stop HTTP server
     virtual void stop_server() = 0;
@@ -638,7 +638,7 @@ extern "C"
     /// @param host Host address (default: "0.0.0.0")
     /// @param port Port number (0 for auto)
     /// @param API_key Optional API key
-    UNDREAMAI_API void LLM_Start_Server(LLMProvider *llm, const char *host = "0.0.0.0", int port = 0, const char *API_key = "");
+    UNDREAMAI_API void LLM_Start_Server(LLMProvider *llm, const char *host = "0.0.0.0", int port = -1, const char *API_key = "");
 
     /// @brief Stop HTTP server (C API)
     /// @param llm LLMProvider instance pointer

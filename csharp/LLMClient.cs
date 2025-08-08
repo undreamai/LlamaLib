@@ -13,7 +13,7 @@ namespace UndreamAI.LlamaLib
             llm = CreateClient(provider);
         }
 
-        public LLMClient(string url, int port)
+        public LLMClient(string url, int port, string apiKey = "")
         {
             if (string.IsNullOrEmpty(url))
                 throw new ArgumentNullException(nameof(url));
@@ -21,7 +21,7 @@ namespace UndreamAI.LlamaLib
             try
             {
                 llamaLib = new LlamaLib(false);
-                llm = CreateRemoteClient(url, port);
+                llm = CreateRemoteClient(url, port, apiKey);
             }
             catch
             {
@@ -38,9 +38,9 @@ namespace UndreamAI.LlamaLib
             return llm;
         }
 
-        private IntPtr CreateRemoteClient(string url, int port)
+        private IntPtr CreateRemoteClient(string url, int port, string apiKey = "")
         {
-            var llm = llamaLib.LLMClient_Construct_Remote(url, port);
+            var llm = llamaLib.LLMClient_Construct_Remote(url, port, apiKey);
             if (llm == IntPtr.Zero)
                 throw new InvalidOperationException($"Failed to create remote LLMClient for {url}:{port}");
             return llm;

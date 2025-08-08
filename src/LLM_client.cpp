@@ -63,6 +63,8 @@ std::string LLMClient::post_request(
         {"Content-Type", "application/json"},
         {"Accept", stream ? "text/event-stream" : "application/json"},
         {"Cache-Control", "no-cache"}};
+    if (!API_key.empty())
+        headers.insert({"Authorization", "Bearer " + API_key});
 
     httplib::Request req;
     req.method = "POST";
@@ -145,7 +147,7 @@ std::string LLMClient::post_request(
 LLMClient::LLMClient(LLMProvider *llm_) : llm(llm_) {}
 
 // Constructor for remote LLM
-LLMClient::LLMClient(const std::string &url_, const int port_) : url(url_), port(port_)
+LLMClient::LLMClient(const std::string &url_, const int port_, const std::string &API_key_) : url(url_), port(port_), API_key(API_key_)
 {
     std::string host;
     if (url.rfind("https://", 0) == 0)
@@ -310,7 +312,7 @@ LLMClient *LLMClient_Construct(LLMProvider *llm)
     return new LLMClient(llm);
 }
 
-LLMClient *LLMClient_Construct_Remote(const char *url, const int port)
+LLMClient *LLMClient_Construct_Remote(const char *url, const int port, const char *API_key)
 {
-    return new LLMClient(url, port);
+    return new LLMClient(url, port, API_key);
 }

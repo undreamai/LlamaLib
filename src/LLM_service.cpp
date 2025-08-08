@@ -423,12 +423,10 @@ int LLMService::get_next_available_slot()
 
 void LLMService::start_server(const std::string &host, int port, const std::string &API_key)
 {
-    if (host.empty())
-        params->hostname = "0.0.0.0";
-    else
-        params->hostname = host;
-    if (port > 0)
+    params->hostname = host.empty() ? "0.0.0.0" : host;
+    if (port >= 0)
         params->port = port;
+    params->api_keys.clear();
     if (!API_key.empty())
         params->api_keys.push_back(API_key);
 

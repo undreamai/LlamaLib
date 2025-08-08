@@ -120,7 +120,7 @@ public:
     /// @param host Host address (default: "0.0.0.0")
     /// @param port Port number (0 for auto)
     /// @param API_key Optional API key
-    void start_server(const std::string &host = "0.0.0.0", int port = 0, const std::string &API_key = "") override { ((LLMProvider *)llm)->start_server(host, port, API_key); }
+    void start_server(const std::string &host = "0.0.0.0", int port = -1, const std::string &API_key = "") override { ((LLMProvider *)llm)->start_server(host, port, API_key); }
 
     /// @brief Stop HTTP server (override - delegates to loaded library)
     void stop_server() override { ((LLMProvider *)llm)->stop_server(); }

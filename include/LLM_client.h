@@ -36,8 +36,9 @@ public:
     /// @brief Constructor for remote LLM access
     /// @param url Server URL or hostname
     /// @param port Server port number
+    /// @param API_key Optional API key
     /// @details Creates a client that connects to a remote LLM server via HTTP
-    LLMClient(const std::string &url, const int port);
+    LLMClient(const std::string &url, const int port, const std::string &API_key = "");
 
     /// @brief Destructor
     ~LLMClient();
@@ -117,6 +118,7 @@ private:
     // Remote LLM members
     std::string url = "";      ///< Server URL for remote clients
     int port = -1;             ///< Server port for remote clients
+    std::string API_key = "";  ///< API key for accessing remote server
     std::string SSL_cert = ""; ///< SSL certificate path for remote clients
 
     /// @brief Send HTTP POST request to remote server
@@ -151,7 +153,7 @@ extern "C"
     /// @param port Server port number
     /// @return Pointer to new LLMClient instance
     /// @details Creates a client for remote LLM server access
-    UNDREAMAI_API LLMClient *LLMClient_Construct_Remote(const char *url, const int port);
+    UNDREAMAI_API LLMClient *LLMClient_Construct_Remote(const char *url, const int port, const char *API_key = "");
 }
 
 /// @}

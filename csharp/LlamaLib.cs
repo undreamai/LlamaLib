@@ -119,9 +119,9 @@ namespace UndreamAI.LlamaLib
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Start_Server")]
         public static extern void LLM_Start_Server_Static(IntPtr llm,
             [MarshalAs(UnmanagedType.LPStr)] string host="0.0.0.0",
-            int port=0,
+            int port=-1,
             [MarshalAs(UnmanagedType.LPStr)] string apiKey="");
-        public void LLM_Start_Server(IntPtr llm, string host="0.0.0.0", int port=0, string apiKey="") => LlamaLib.LLM_Start_Server_Static(llm, host, port, apiKey);
+        public void LLM_Start_Server(IntPtr llm, string host="0.0.0.0", int port=-1, string apiKey="") => LlamaLib.LLM_Start_Server_Static(llm, host, port, apiKey);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Stop_Server")]
         public static extern void LLM_Stop_Server_Static(IntPtr llm);
@@ -192,8 +192,9 @@ namespace UndreamAI.LlamaLib
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLMClient_Construct_Remote")]
         public static extern IntPtr LLMClient_Construct_Remote_Static(
             [MarshalAs(UnmanagedType.LPStr)] string url,
-            int port);
-        public IntPtr LLMClient_Construct_Remote(string url, int port) => LlamaLib.LLMClient_Construct_Remote_Static(url, port);
+            int port,
+            [MarshalAs(UnmanagedType.LPStr)] string apiKey = "");
+        public IntPtr LLMClient_Construct_Remote(string url, int port, string apiKey = "") => LlamaLib.LLMClient_Construct_Remote_Static(url, port, apiKey);
 
         // LLMAgent functions
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLMAgent_Construct")]
@@ -541,7 +542,7 @@ namespace UndreamAI.LlamaLib
         public delegate void LLM_Stop_Delegate(IntPtr llm);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void LLM_Start_Server_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string host = "0.0.0.0", int port = 0, [MarshalAs(UnmanagedType.LPStr)] string apiKey = "");
+        public delegate void LLM_Start_Server_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string host = "0.0.0.0", int port = -1, [MarshalAs(UnmanagedType.LPStr)] string apiKey = "");
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void LLM_Stop_Server_Delegate(IntPtr llm);
@@ -584,7 +585,7 @@ namespace UndreamAI.LlamaLib
         public delegate IntPtr LLMClient_Construct_Delegate(IntPtr llm);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr LLMClient_Construct_Remote_Delegate([MarshalAs(UnmanagedType.LPStr)] string url, int port);
+        public delegate IntPtr LLMClient_Construct_Remote_Delegate([MarshalAs(UnmanagedType.LPStr)] string url, int port, [MarshalAs(UnmanagedType.LPStr)] string apiKey = "");
 
         // LLMAgent functions
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
