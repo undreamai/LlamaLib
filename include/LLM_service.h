@@ -83,50 +83,20 @@ public:
     void init(const char *params_string);
 
     //=================================== LLM METHODS START ===================================//
-    /// @brief Set debug level (override)
-    /// @param debug_level Debug verbosity level
-    void debug(int debug_level) override;
+    /// @brief Tokenize text
+    /// @param query Text string to tokenize
+    /// @return Vector of token IDs
+    std::vector<int> tokenize(const std::string &query) override;
 
-    /// @brief Set logging callback (override)
-    /// @param callback Function to receive log messages
-    void logging_callback(CharArrayFn callback) override;
-
-    /// @brief Get template JSON (override)
-    /// @return JSON string with template information
-    std::string get_template() override;
-
-    /// @brief Set template from JSON (override)
-    /// @param data JSON object containing template data
-    void set_template_json(const json &data) override;
-
-    /// @brief Apply template to data (override)
-    /// @param data JSON object containing messages
-    /// @return Formatted string with template applied
-    std::string apply_template_json(const json &data) override;
-
-    /// @brief Tokenize input (override)
-    /// @param data JSON object containing text to tokenize
-    /// @return JSON string with token data
-    std::string tokenize_json(const json &data) override;
-
-    /// @brief Detokenize tokens (override)
-    /// @param data JSON object containing tokens
+    /// @brief Convert tokens to text
+    /// @param tokens Vector of token IDs to convert
     /// @return Detokenized text string
-    std::string detokenize_json(const json &data) override;
+    std::string detokenize(const std::vector<int32_t> &tokens) override;
 
-    /// @brief Generate embeddings (override)
-    /// @param data JSON object containing text to embed
-    /// @return JSON string with embedding vectors
-    std::string embeddings_json(const json &data) override;
-
-    /// @brief Configure LoRA weights (override)
-    /// @param data JSON object with LoRA configuration
-    /// @return JSON response string
-    std::string lora_weight_json(const json &data) override;
-
-    /// @brief List available LoRA adapters (override)
-    /// @return JSON string with LoRA adapter list
-    std::string lora_list_json() override;
+    /// @brief Generate embeddings
+    /// @param query Text string to embed
+    /// @return Vector of embedding values
+    std::vector<float> embeddings(const std::string &query) override;
 
     /// @brief Generate completion (override)
     /// @param data JSON object with prompt and parameters
@@ -135,14 +105,41 @@ public:
     /// @return Generated completion text or JSON
     std::string completion_json(const json &data, CharArrayFn callback = nullptr, bool callbackWithJSON = true) override;
 
-    /// @brief Manage processing slots (override)
-    /// @param data JSON object with slot operation parameters
-    /// @return JSON response string
-    std::string slot_json(const json &data) override;
+    /// @brief Apply template to messages
+    /// @param messages JSON array of chat messages
+    /// @return Formatted chat string
+    std::string apply_template(const json &messages) override;
+
+    /// @brief Get template JSON (override)
+    /// @return JSON string with template information
+    std::string get_template() override;
+
+    /// @brief Set chat template
+    /// @param chat_template Template string to set
+    void set_template(std::string chat_template) override;
+
+    /// @brief Configure LoRA weights
+    /// @param loras Vector of LoRA adapters with their scales
+    /// @return true if configuration was successful, false otherwise
+    bool lora_weight(const std::vector<LoraIdScale> &loras) override;
+
+    /// @brief List available LoRA adapters
+    /// @return Vector of available LoRA adapters with paths
+    std::vector<LoraIdScalePath> lora_list() override;
 
     /// @brief Cancel running request (override)
     /// @param data JSON object with cancellation parameters
     void cancel(int id_slot) override;
+
+    /// @brief Start the LLM service (override)
+    void start() override;
+
+    /// @brief Check service status (override)
+    /// @return true if service is running, false otherwise
+    bool started() override;
+
+    /// @brief Stop the LLM service (override)
+    void stop() override;
 
     /// @brief Start HTTP server (override)
     /// @param host Host address to bind (default: "0.0.0.0")
@@ -153,26 +150,16 @@ public:
     /// @brief Stop HTTP server (override)
     void stop_server() override;
 
-    /// @brief Wait for server thread completion (override)
-    void join_server() override;
-
-    /// @brief Start the LLM service (override)
-    void start() override;
-
-    /// @brief Stop the LLM service (override)
-    void stop() override;
-
     /// @brief Wait for service thread completion (override)
     void join_service() override;
+
+    /// @brief Wait for server thread completion (override)
+    void join_server() override;
 
     /// @brief Configure SSL certificates (override)
     /// @param SSL_cert Path to SSL certificate file
     /// @param SSL_key Path to SSL private key file
     void set_SSL(const std::string &SSL_cert, const std::string &SSL_key) override;
-
-    /// @brief Check service status (override)
-    /// @return true if service is running, false otherwise
-    bool started() override;
 
     /// @brief Get embedding vector dimensions (override)
     /// @return Number of dimensions in embedding vectors
@@ -182,42 +169,26 @@ public:
     /// @return Available slot ID or -1 if none available
     int get_next_available_slot() override;
 
+    /// @brief Set debug level (override)
+    /// @param debug_level Debug verbosity level
+    void debug(int debug_level) override;
+
+    /// @brief Set logging callback (override)
+    /// @param callback Function to receive log messages
+    void logging_callback(CharArrayFn callback) override;
+
     std::string debug_implementation() override { return "standalone"; }
     //=================================== LLM METHODS END ===================================//
 
 protected:
-    /// @brief Generate embeddings with HTTP response support
-    /// @param data JSON object containing embedding request
-    /// @param res HTTP response object (for server mode)
-    /// @param is_connection_closed Function to check connection status
-    /// @return JSON string with embedding data
-    /// @details Protected method used internally for server-based embedding generation
-    std::string embeddings_json(const json &data, httplib::Response *res, std::function<bool()> is_connection_closed = always_false);
-
-    /// @brief Configure LoRA weights with HTTP response support
-    /// @param data JSON object with LoRA configuration
-    /// @param res HTTP response object (for server mode)
-    /// @return JSON response string
-    /// @details Protected method used internally for server-based LoRA configuration
-    std::string lora_weight_json(const json &data, httplib::Response *res);
-
-    /// @brief Generate completion with HTTP response support
-    /// @param data JSON object with completion request
-    /// @param callback Optional streaming callback function
-    /// @param callbackWithJSON Whether callback receives JSON format
-    /// @param res HTTP response object (for server mode)
-    /// @param is_connection_closed Function to check connection status
-    /// @param oaicompat OpenAI compatibility mode flag
-    /// @return Generated completion text or JSON
-    /// @details Protected method used internally for server-based completion generation
-    std::string completion_json(const json &data, CharArrayFn callback, bool callbackWithJSON, httplib::Response *res, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
-
-    /// @brief Manage slots with HTTP response support
-    /// @param data JSON object with slot operation
-    /// @param res HTTP response object (for server mode)
-    /// @return JSON response string
-    /// @details Protected method used internally for server-based slot management
-    std::string slot_json(const json &data, httplib::Response *res);
+    //=================================== LLM METHODS START ===================================//
+    /// @brief Perform slot operation
+    /// @param id_slot Slot ID to operate on
+    /// @param action Action to perform ("save" or "restore")
+    /// @param filepath Path for save/load operation
+    /// @return Operation result string
+    std::string slot(int id_slot, const std::string &action, const std::string &filepath) override;
+    //=================================== LLM METHODS END ===================================//
 
 private:
     common_params *params;                ///< Backend parameters structure
@@ -275,6 +246,64 @@ private:
     /// @return true if API key is valid, false otherwise
     /// @details HTTP middleware for validating API key authentication
     bool middleware_validate_api_key(const httplib::Request &req, httplib::Response &res);
+
+    /// @brief Tokenize input (override)
+    /// @param data JSON object containing text to tokenize
+    /// @return JSON string with token data
+    std::string tokenize_json(const json &data);
+
+    /// @brief Convert tokens back to text
+    /// @param data JSON object containing token IDs
+    /// @return JSON string containing detokenized text
+    /// @details Pure virtual method for converting token sequences back to text
+    std::string detokenize_json(const json &data);
+
+    /// @brief Generate embeddings with HTTP response support
+    /// @param data JSON object containing embedding request
+    /// @param res HTTP response object (for server mode)
+    /// @param is_connection_closed Function to check connection status
+    /// @return JSON string with embedding data
+    /// @details Protected method used internally for server-based embedding generation
+    std::string embeddings_json(const json &data, httplib::Response *res = nullptr, std::function<bool()> is_connection_closed = always_false);
+
+    /// @brief Generate completion with HTTP response support
+    /// @param data JSON object with completion request
+    /// @param callback Optional streaming callback function
+    /// @param callbackWithJSON Whether callback receives JSON format
+    /// @param res HTTP response object (for server mode)
+    /// @param is_connection_closed Function to check connection status
+    /// @param oaicompat OpenAI compatibility mode flag
+    /// @return Generated completion text or JSON
+    /// @details Protected method used internally for server-based completion generation
+    std::string completion_json(const json &data, CharArrayFn callback, bool callbackWithJSON, httplib::Response *res, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
+
+    /// @brief Apply a chat template to message data
+    /// @param data JSON object containing messages to format
+    /// @return Formatted string with template applied
+    /// @details Pure virtual method for applying chat templates to conversation data
+    std::string apply_template_json(const json &data);
+
+    /// @brief Set chat template from JSON
+    /// @param data JSON object containing template specification
+    void set_template_json(const json &data);
+
+    /// @brief Configure LoRA weights with HTTP response support
+    /// @param data JSON object with LoRA configuration
+    /// @param res HTTP response object (for server mode)
+    /// @return JSON response string
+    /// @details Protected method used internally for server-based LoRA configuration
+    std::string lora_weight_json(const json &data, httplib::Response *res = nullptr);
+
+    /// @brief List available LoRA adapters
+    /// @return JSON string containing list of available LoRA adapters
+    std::string lora_list_json();
+
+    /// @brief Manage slots with HTTP response support
+    /// @param data JSON object with slot operation
+    /// @param res HTTP response object (for server mode)
+    /// @return JSON response string
+    /// @details Protected method used internally for server-based slot management
+    std::string slot_json(const json &data, httplib::Response *res = nullptr);
 };
 
 /// @ingroup c_api

@@ -816,17 +816,19 @@ std::string LLMService::get_template()
     return params->chat_template;
 }
 
-void LLMService::set_template_json(const json &body)
+void LLMService::set_template(std::string chat_template)
 {
     if (setjmp(get_jump_point(true)) != 0)
         return;
-    if (body.count("chat_template") == 0)
-        return;
-    std::string chat_template = body.at("chat_template");
-    if (chat_template == "")
+    if (chat_template.empty())
         return;
     params->chat_template = chat_template;
     ctx_server->chat_templates = common_chat_templates_init(ctx_server->model, chat_template);
+}
+
+std::string LLMService::apply_template(const json &messages)
+{
+    return parse_apply_template_json(json::parse(apply_template_json(build_apply_template_json(messages))));
 }
 
 std::string LLMService::apply_template_json(const json &body)
@@ -835,6 +837,11 @@ std::string LLMService::apply_template_json(const json &body)
         return "";
     json data = oaicompat_completion_params_parse(body, params->use_jinja, params->reasoning_format, ctx_server->chat_templates.get());
     return safe_json_to_str({{"prompt", std::move(data.at("prompt"))}});
+}
+
+std::vector<int> LLMService::tokenize(const std::string &input)
+{
+    return parse_tokenize_json(json::parse(tokenize_json(build_tokenize_json(input))));
 }
 
 std::string LLMService::tokenize_json(const json &body)
@@ -893,6 +900,11 @@ std::string LLMService::tokenize_json(const json &body)
     return "";
 }
 
+std::string LLMService::detokenize(const std::vector<int32_t> &tokens)
+{
+    return parse_detokenize_json(json::parse(detokenize_json(build_detokenize_json(tokens))));
+}
+
 std::string LLMService::detokenize_json(const json &body)
 {
     if (setjmp(get_jump_point(true)) != 0)
@@ -916,9 +928,9 @@ std::string LLMService::detokenize_json(const json &body)
     return "";
 }
 
-std::string LLMService::embeddings_json(const json &body)
+std::vector<float> LLMService::embeddings(const std::string &query)
 {
-    return embeddings_json(body, nullptr);
+    return parse_embeddings_json(json::parse(embeddings_json(build_embeddings_json(query))));
 }
 
 std::string LLMService::embeddings_json(
@@ -1031,9 +1043,9 @@ std::string LLMService::embeddings_json(
     return result;
 };
 
-std::string LLMService::lora_weight_json(const json &body)
+bool LLMService::lora_weight(const std::vector<LoraIdScale> &loras)
 {
-    return lora_weight_json(body, nullptr);
+    return parse_lora_weight_json(json::parse(lora_weight_json(build_lora_weight_json(loras))));
 }
 
 std::string LLMService::lora_weight_json(const json &body, httplib::Response *res)
@@ -1099,6 +1111,11 @@ std::string LLMService::lora_weight_json(const json &body, httplib::Response *re
 
     return safe_json_to_str(result_data);
 };
+
+std::vector<LoraIdScalePath> LLMService::lora_list()
+{
+    return parse_lora_list_json(json::parse(lora_list_json()));
+}
 
 std::string LLMService::lora_list_json()
 {
@@ -1349,9 +1366,9 @@ std::string LLMService::completion_json(
     return result_data;
 }
 
-std::string LLMService::slot_json(const json &data)
+std::string LLMService::slot(int id_slot, const std::string &action, const std::string &filepath)
 {
-    return slot_json(data, nullptr);
+    return parse_slot_json(json::parse(slot_json(build_slot_json(id_slot, action, filepath))));
 }
 
 std::string LLMService::slot_json(

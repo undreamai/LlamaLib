@@ -109,13 +109,53 @@ public:
     bool create_LLM_library(const std::string &command);
 
     //=================================== LLM METHODS START ===================================//
-    /// @brief Set debug level (override - delegates to loaded library)
-    /// @param debug_level Debug verbosity level
-    void debug(int debug_level) override { ((LLMProvider *)llm)->debug(debug_level); }
+    /// @brief Tokenize text
+    /// @param query Text string to tokenize
+    /// @return Vector of token IDs
+    std::vector<int> tokenize(const std::string &query) override { return ((LLMProvider *)llm)->tokenize(query); }
 
-    /// @brief Set logging callback (override - delegates to loaded library)
-    /// @param callback Function to receive log messages
-    void logging_callback(CharArrayFn callback) override { ((LLMProvider *)llm)->logging_callback(callback); }
+    /// @brief Convert tokens to text
+    /// @param tokens Vector of token IDs to convert
+    /// @return Detokenized text string
+    std::string detokenize(const std::vector<int32_t> &tokens) override { return ((LLMProvider *)llm)->detokenize(tokens); }
+
+    /// @brief Generate embeddings
+    /// @param query Text string to embed
+    /// @return Vector of embedding values
+    std::vector<float> embeddings(const std::string &query) override { return ((LLMProvider *)llm)->embeddings(query); }
+
+    /// @brief Generate completion (override - delegates to loaded library)
+    /// @param data JSON completion request
+    /// @param callback Optional streaming callback
+    /// @param callbackWithJSON Whether callback uses JSON
+    /// @return Generated completion
+    std::string completion_json(const json &data, CharArrayFn callback = nullptr, bool callbackWithJSON = true) override { return ((LLMProvider *)llm)->completion_json(data, callback, callbackWithJSON); }
+
+    /// @brief Get template (override - delegates to loaded library)
+    /// @return JSON template response
+    std::string get_template() override { return ((LLMProvider *)llm)->get_template(); }
+
+    /// @brief Set chat template
+    /// @param chat_template Template string to set
+    void set_template(std::string chat_template) override { ((LLMProvider *)llm)->set_template(chat_template); }
+
+    /// @brief Apply template to messages
+    /// @param messages JSON array of chat messages
+    /// @return Formatted chat string
+    std::string apply_template(const json &messages) override { return ((LLMProvider *)llm)->apply_template(messages); }
+
+    /// @brief Cancel request (override - delegates to loaded library)
+    /// @param data JSON cancellation request
+    void cancel(int id_slot) override { ((LLMProvider *)llm)->cancel(id_slot); }
+
+    /// @brief Configure LoRA weights
+    /// @param loras Vector of LoRA adapters with their scales
+    /// @return true if configuration was successful, false otherwise
+    bool lora_weight(const std::vector<LoraIdScale> &loras) override { return ((LLMProvider *)llm)->lora_weight(loras); }
+
+    /// @brief List available LoRA adapters
+    /// @return Vector of available LoRA adapters with paths
+    std::vector<LoraIdScalePath> lora_list() override { return ((LLMProvider *)llm)->lora_list(); }
 
     /// @brief Start HTTP server (override - delegates to loaded library)
     /// @param host Host address (default: "0.0.0.0")
@@ -126,11 +166,12 @@ public:
     /// @brief Stop HTTP server (override - delegates to loaded library)
     void stop_server() override { ((LLMProvider *)llm)->stop_server(); }
 
-    /// @brief Wait for server completion (override - delegates to loaded library)
-    void join_server() override { ((LLMProvider *)llm)->join_server(); }
-
     /// @brief Start service (override - delegates to loaded library)
     void start() override { ((LLMProvider *)llm)->start(); }
+
+    /// @brief Check service status (override - delegates to loaded library)
+    /// @return true if started, false otherwise
+    bool started() override { return ((LLMProvider *)llm)->started(); }
 
     /// @brief Stop service (override - delegates to loaded library)
     void stop() override
@@ -141,14 +182,13 @@ public:
     /// @brief Wait for service completion (override - delegates to loaded library)
     void join_service() override { ((LLMProvider *)llm)->join_service(); }
 
+    /// @brief Wait for server completion (override - delegates to loaded library)
+    void join_server() override { ((LLMProvider *)llm)->join_server(); }
+
     /// @brief Set SSL configuration (override - delegates to loaded library)
     /// @param cert SSL certificate path
     /// @param key SSL private key path
     void set_SSL(const std::string &cert, const std::string &key) override { ((LLMProvider *)llm)->set_SSL(cert, key); }
-
-    /// @brief Check service status (override - delegates to loaded library)
-    /// @return true if started, false otherwise
-    bool started() override { return ((LLMProvider *)llm)->started(); }
 
     /// @brief Get embedding size (override - delegates to loaded library)
     /// @return Number of embedding dimensions
@@ -158,58 +198,13 @@ public:
     /// @return Available slot ID
     int get_next_available_slot() override { return ((LLMProvider *)llm)->get_next_available_slot(); }
 
-    /// @brief Tokenize input (override - delegates to loaded library)
-    /// @param data JSON tokenization request
-    /// @return JSON tokenization response
-    std::string tokenize_json(const json &data) override { return ((LLMProvider *)llm)->tokenize_json(data); }
+    /// @brief Set debug level (override - delegates to loaded library)
+    /// @param debug_level Debug verbosity level
+    void debug(int debug_level) override { ((LLMProvider *)llm)->debug(debug_level); }
 
-    /// @brief Detokenize tokens (override - delegates to loaded library)
-    /// @param data JSON detokenization request
-    /// @return Detokenized text
-    std::string detokenize_json(const json &data) override { return ((LLMProvider *)llm)->detokenize_json(data); }
-
-    /// @brief Generate embeddings (override - delegates to loaded library)
-    /// @param data JSON embedding request
-    /// @return JSON embedding response
-    std::string embeddings_json(const json &data) override { return ((LLMProvider *)llm)->embeddings_json(data); }
-
-    /// @brief Generate completion (override - delegates to loaded library)
-    /// @param data JSON completion request
-    /// @param callback Optional streaming callback
-    /// @param callbackWithJSON Whether callback uses JSON
-    /// @return Generated completion
-    std::string completion_json(const json &data, CharArrayFn callback = nullptr, bool callbackWithJSON = true) override { return ((LLMProvider *)llm)->completion_json(data, callback, callbackWithJSON); }
-
-    /// @brief Manage slots (override - delegates to loaded library)
-    /// @param data JSON slot operation request
-    /// @return JSON slot operation response
-    std::string slot_json(const json &data) override { return ((LLMProvider *)llm)->slot_json(data); }
-
-    /// @brief Get template (override - delegates to loaded library)
-    /// @return JSON template response
-    std::string get_template() override { return ((LLMProvider *)llm)->get_template(); }
-
-    /// @brief Set template (override - delegates to loaded library)
-    /// @param data JSON template data
-    void set_template_json(const json &data) override { ((LLMProvider *)llm)->set_template_json(data); }
-
-    /// @brief Apply template (override - delegates to loaded library)
-    /// @param data JSON template application request
-    /// @return Formatted template result
-    std::string apply_template_json(const json &data) override { return ((LLMProvider *)llm)->apply_template_json(data); }
-
-    /// @brief Cancel request (override - delegates to loaded library)
-    /// @param data JSON cancellation request
-    void cancel(int id_slot) override { ((LLMProvider *)llm)->cancel(id_slot); }
-
-    /// @brief Configure LoRA weights (override - delegates to loaded library)
-    /// @param data JSON LoRA configuration
-    /// @return JSON LoRA response
-    std::string lora_weight_json(const json &data) override { return ((LLMProvider *)llm)->lora_weight_json(data); }
-
-    /// @brief List LoRA adapters (override - delegates to loaded library)
-    /// @return JSON LoRA list
-    std::string lora_list_json() override { return ((LLMProvider *)llm)->lora_list_json(); }
+    /// @brief Set logging callback (override - delegates to loaded library)
+    /// @param callback Function to receive log messages
+    void logging_callback(CharArrayFn callback) override { ((LLMProvider *)llm)->logging_callback(callback); }
 
     std::string debug_implementation() override { return "runtime_detection"; }
     //=================================== LLM METHODS END ===================================//
@@ -230,6 +225,15 @@ protected:
     /// @return true if library loaded successfully, false otherwise
     /// @details Internal method for loading specific library files
     bool create_LLM_library_backend(const std::string &command, const std::string &llm_lib_filename);
+
+    //=================================== LLM METHODS START ===================================//
+    /// @brief Perform slot operation
+    /// @param id_slot Slot ID to operate on
+    /// @param action Action to perform ("save" or "restore")
+    /// @param filepath Path for save/load operation
+    /// @return Operation result string
+    std::string slot(int id_slot, const std::string &action, const std::string &filepath) override;
+    //=================================== LLM METHODS END ===================================//
 };
 
 /// @brief Get OS-specific library directory

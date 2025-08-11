@@ -323,6 +323,22 @@ LLMService::~LLMService()
     }
 }
 
+std::string LLMService::slot(int id_slot, const std::string &action, const std::string &filepath)
+{
+    if (action == "save")
+    {
+        return ((LLMProvider *)llm)->save_slot(id_slot, filepath);
+    }
+    else if (action == "restore")
+    {
+        return ((LLMProvider *)llm)->load_slot(id_slot, filepath);
+    }
+    else
+    {
+        throw std::runtime_error("Invalid action" + action);
+    }
+}
+
 //============================= API =============================//
 
 const char *Available_Architectures(bool gpu)

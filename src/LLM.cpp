@@ -137,11 +137,6 @@ std::string LLM::parse_apply_template_json(const json &result)
     return "";
 }
 
-std::string LLM::apply_template(const json &messages)
-{
-    return parse_apply_template_json(json::parse(apply_template_json(build_apply_template_json(messages))));
-}
-
 //=========================== Tokenize ===========================//
 
 json LLM::build_tokenize_json(const std::string &query)
@@ -161,11 +156,6 @@ std::vector<int> LLM::parse_tokenize_json(const json &result)
     {
     }
     return {};
-}
-
-std::vector<int> LLM::tokenize(const std::string &input)
-{
-    return parse_tokenize_json(json::parse(tokenize_json(build_tokenize_json(input))));
 }
 
 //=========================== Detokenize ===========================//
@@ -189,11 +179,6 @@ std::string LLM::parse_detokenize_json(const json &result)
     return "";
 }
 
-std::string LLM::detokenize(const std::vector<int32_t> &tokens)
-{
-    return parse_detokenize_json(json::parse(detokenize_json(build_detokenize_json(tokens))));
-}
-
 //=========================== Embeddings ===========================//
 
 json LLM::build_embeddings_json(const std::string &query)
@@ -213,11 +198,6 @@ std::vector<float> LLM::parse_embeddings_json(const json &result)
     {
     }
     return {};
-}
-
-std::vector<float> LLM::embeddings(const std::string &query)
-{
-    return parse_embeddings_json(json::parse(embeddings_json(build_embeddings_json(query))));
 }
 
 //=========================== Completion ===========================//
@@ -297,11 +277,6 @@ std::string LLMLocal::parse_slot_json(const json &result)
     return "";
 }
 
-std::string LLMLocal::slot(int id_slot, const std::string &action, const std::string &filepath)
-{
-    return parse_slot_json(json::parse(slot_json(build_slot_json(id_slot, action, filepath))));
-}
-
 //=========================== Logging ===========================//
 
 void LLMProvider::logging_stop()
@@ -316,11 +291,6 @@ json LLMProvider::build_set_template_json(std::string chat_template)
     json j;
     j["chat_template"] = chat_template;
     return j;
-}
-
-void LLMProvider::set_template(std::string chat_template)
-{
-    set_template_json(build_set_template_json(chat_template));
 }
 
 //=========================== Lora Adapters Apply ===========================//
@@ -348,11 +318,6 @@ bool LLMProvider::parse_lora_weight_json(const json &result)
     return false;
 }
 
-bool LLMProvider::lora_weight(const std::vector<LoraIdScale> &loras)
-{
-    return parse_lora_weight_json(json::parse(lora_weight_json(build_lora_weight_json(loras))));
-}
-
 //=========================== Lora Adapters List ===========================//
 
 std::vector<LoraIdScalePath> LLMProvider::parse_lora_list_json(const json &result)
@@ -371,11 +336,6 @@ std::vector<LoraIdScalePath> LLMProvider::parse_lora_list_json(const json &resul
     {
     }
     return loras;
-}
-
-std::vector<LoraIdScalePath> LLMProvider::lora_list()
-{
-    return parse_lora_list_json(json::parse(lora_list_json()));
 }
 
 //=========================== API ===========================//
@@ -502,8 +462,14 @@ bool LLM_Lora_Weight(LLMProvider *llm, const char *loras_as_json)
 {
     try
     {
-        json result = json::parse(llm->lora_weight_json(loras_as_json));
-        return result.at("success").get<bool>();
+        json loras_arr = json::array();
+        loras_arr = json::parse(loras_as_json);
+        std::vector<LoraIdScale> loras;
+        for (const auto &lora : loras_arr)
+        {
+            loras.push_back({lora["id"].get<int>(), lora["scale"].get<float>()});
+        }
+        return llm->lora_weight(loras);
     }
     catch (const std::exception &)
     {
@@ -513,8 +479,14 @@ bool LLM_Lora_Weight(LLMProvider *llm, const char *loras_as_json)
 
 const char *LLM_Lora_List(LLMProvider *llm)
 {
-    std::string result = llm->lora_list_json();
-    return stringToCharArray(result);
+    std::vector<LoraIdScalePath> loras = llm->lora_list();
+    json j = json::array();
+    for (const auto &lora : loras)
+    {
+        j.push_back({{"id", lora.id},
+                     {"scale", lora.scale}});
+    }
+    return stringToCharArray(j.dump());
 }
 
 void LLM_Delete(LLMProvider *llm)

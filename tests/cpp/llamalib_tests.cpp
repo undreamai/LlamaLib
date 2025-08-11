@@ -586,25 +586,19 @@ public:
     void debug(int debug_level) override {}
     void logging_callback(CharArrayFn callback) override {}
 
-    std::string tokenize_json(const json &data) override
+    std::vector<int> tokenize(const std::string &query)
     {
-        json result;
-        result["tokens"] = TOKENS;
-        return result.dump();
+        return TOKENS;
     }
 
-    std::string detokenize_json(const json &data) override
+    std::string detokenize(const std::vector<int32_t> &tokens) override
     {
-        json result;
-        result["content"] = CONTENT;
-        return result.dump();
+        return CONTENT;
     }
 
-    std::string embeddings_json(const json &data) override
+    std::vector<float> embeddings(const std::string &query) override
     {
-        json result;
-        result["embedding"] = EMBEDDING;
-        return result.dump();
+        return EMBEDDING;
     }
 
     std::string completion_json(const json &data, CharArrayFn callback = nullptr, bool callbackWithJSON = true) override
@@ -614,11 +608,9 @@ public:
         return result.dump();
     }
 
-    std::string slot_json(const json &data) override
+    std::string slot(int id_slot, const std::string &action, const std::string &filepath) override
     {
-        json result;
-        result["filename"] = SAVE_PATH;
-        return result.dump();
+        return SAVE_PATH;
     }
 
     void cancel(int id_slot) override
@@ -626,19 +618,14 @@ public:
         cancelled_slot = id_slot;
     }
 
-    std::string lora_weight_json(const json &data) override
+    bool lora_weight(const std::vector<LoraIdScale> &loras) override
     {
-        json result;
-        result["success"] = true;
-        return result.dump();
+        return true;
     }
 
-    std::string lora_list_json() override
+    std::vector<LoraIdScalePath> lora_list()
     {
-        json j = json::array();
-        for (auto &l : LORAS)
-            j.push_back({{"id", l.id}, {"scale", l.scale}, {"path", l.path}});
-        return j.dump();
+        return LORAS;
     }
 
     std::string get_template() override
@@ -646,16 +633,14 @@ public:
         return chat_template;
     }
 
-    void set_template_json(const json &data) override
+    void set_template(std::string chat_template_) override
     {
-        chat_template = data.at("chat_template");
+        chat_template = chat_template_;
     }
 
-    std::string apply_template_json(const json &data) override
+    std::string apply_template(const json &messages) override
     {
-        json result;
-        result["prompt"] = data.at("messages")[0].at("message");
-        return result.dump();
+        return messages[0].at("message");
     }
 
     std::string debug_implementation() override { return "standalone"; }
@@ -754,7 +739,6 @@ void run_mock_tests()
         ASSERT(llm.parse_tokenize_json(output_json) == llm.TOKENS);
         ASSERT(llm.tokenize(llm.CONTENT.c_str()) == llm.TOKENS);
         ASSERT(llm.tokenize(llm.CONTENT) == llm.TOKENS);
-        ASSERT(llm.tokenize_json(input_json) == output_json.dump());
     }
 
     // --- Detokenize ---
@@ -765,7 +749,6 @@ void run_mock_tests()
         ASSERT(llm.build_detokenize_json(llm.TOKENS)["tokens"] == llm.TOKENS);
         ASSERT(llm.parse_detokenize_json(output_json) == llm.CONTENT);
         ASSERT(llm.detokenize(llm.TOKENS) == llm.CONTENT);
-        ASSERT(llm.detokenize_json(input_json) == output_json.dump());
     }
 
     // --- Embeddings ---
@@ -775,9 +758,7 @@ void run_mock_tests()
 
         ASSERT(llm.build_embeddings_json(llm.CONTENT) == input_json);
         ASSERT(llm.parse_embeddings_json(output_json) == llm.EMBEDDING);
-        ASSERT(json::parse(llm.embeddings_json(input_json))["embedding"] == llm.EMBEDDING);
         ASSERT(llm.embeddings(llm.CONTENT) == llm.EMBEDDING);
-        ASSERT(llm.embeddings(llm.CONTENT.c_str()) == llm.EMBEDDING);
     }
 
     // --- completion ---
@@ -811,7 +792,6 @@ void run_mock_tests()
         ASSERT(llm.build_slot_json(id_slot, action, llm.SAVE_PATH) == input_json);
         ASSERT(llm.parse_slot_json(output_json) == llm.SAVE_PATH);
         ASSERT(llm.load_slot(id_slot, llm.SAVE_PATH) == llm.SAVE_PATH);
-        ASSERT(llm.slot_json(input_json) == output_json.dump());
     }
 
     // --- LoRA Apply ---
@@ -827,8 +807,6 @@ void run_mock_tests()
 
         ASSERT(llm.build_lora_weight_json(loras) == input_json);
         ASSERT(llm.parse_lora_weight_json(output_json));
-        ASSERT(llm.lora_weight_json(input_json) == output_json.dump());
-        ASSERT(llm.lora_weight(loras));
     }
 
     // --- LoRA List ---
@@ -838,7 +816,6 @@ void run_mock_tests()
             input_json.push_back({{"id", l.id}, {"scale", l.scale}, {"path", l.path}});
 
         ASSERT(llm.parse_lora_list_json(input_json) == llm.LORAS);
-        ASSERT(llm.lora_list() == llm.LORAS);
     }
 
     // --- Cancel ---
@@ -856,7 +833,7 @@ void run_mock_tests()
         json input_json = {{"chat_template", chat_template}};
 
         ASSERT(llm.build_set_template_json(chat_template) == input_json);
-        llm.set_template_json(input_json);
+        llm.set_template(chat_template);
         ASSERT(llm.get_template() == chat_template);
     }
 
@@ -872,7 +849,6 @@ void run_mock_tests()
 
         ASSERT(llm.build_apply_template_json(messages_json) == input_json);
         ASSERT(llm.parse_apply_template_json(output_json) == message);
-        ASSERT(llm.apply_template_json(input_json) == output_json.dump());
     }
 }
 

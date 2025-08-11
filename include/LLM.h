@@ -69,35 +69,17 @@ public:
     /// @brief Tokenize text
     /// @param query Text string to tokenize
     /// @return Vector of token IDs
-    virtual std::vector<int> tokenize(const std::string &query);
-
-    /// @brief Tokenize text input
-    /// @param data JSON object containing text to tokenize
-    /// @return JSON string containing token IDs
-    /// @details Pure virtual method for converting text to token sequences
-    virtual std::string tokenize_json(const json &data) = 0;
+    virtual std::vector<int> tokenize(const std::string &query) = 0;
 
     /// @brief Convert tokens to text
     /// @param tokens Vector of token IDs to convert
     /// @return Detokenized text string
-    virtual std::string detokenize(const std::vector<int32_t> &tokens);
-
-    /// @brief Convert tokens back to text
-    /// @param data JSON object containing token IDs
-    /// @return JSON string containing detokenized text
-    /// @details Pure virtual method for converting token sequences back to text
-    virtual std::string detokenize_json(const json &data) = 0;
+    virtual std::string detokenize(const std::vector<int32_t> &tokens) = 0;
 
     /// @brief Generate embeddings
     /// @param query Text string to embed
     /// @return Vector of embedding values
-    virtual std::vector<float> embeddings(const std::string &query);
-
-    /// @brief Generate embeddings for input text
-    /// @param data JSON object containing text to embed
-    /// @return JSON string containing text embeddings
-    /// @details Pure virtual method for generating vector representations of text
-    virtual std::string embeddings_json(const json &data) = 0;
+    virtual std::vector<float> embeddings(const std::string &query) = 0;
 
     /// @brief Set completion parameters
     /// @param completion_params_ JSON object containing completion parameters
@@ -141,13 +123,7 @@ public:
     /// @brief Apply template to messages
     /// @param messages JSON array of chat messages
     /// @return Formatted chat string
-    virtual std::string apply_template(const json &messages);
-
-    /// @brief Apply a chat template to message data
-    /// @param data JSON object containing messages to format
-    /// @return Formatted string with template applied
-    /// @details Pure virtual method for applying chat templates to conversation data
-    virtual std::string apply_template_json(const json &data) = 0;
+    virtual std::string apply_template(const json &messages) = 0;
 
     /// @brief Check if command line arguments specify GPU layers
     /// @param command Command line string to analyze
@@ -230,11 +206,6 @@ public:
     /// @return Available slot ID, or -1 if none determined
     virtual int get_next_available_slot() = 0;
 
-    /// @brief Manage processing slots (save/load state)
-    /// @param data JSON object containing slot operation parameters
-    /// @return JSON response string
-    virtual std::string slot_json(const json &data) = 0;
-
     /// @brief Save slot state to file
     /// @param id_slot Slot ID to save
     /// @param filepath Path to save state file
@@ -257,7 +228,7 @@ protected:
     /// @param action Action to perform ("save" or "restore")
     /// @param filepath Path for save/load operation
     /// @return Operation result string
-    virtual std::string slot(int id_slot, const std::string &action, const std::string &filepath);
+    virtual std::string slot(int id_slot, const std::string &action, const std::string &filepath) = 0;
 
     /// @brief Build JSON for slot operations
     /// @param id_slot Slot ID to operate on
@@ -281,6 +252,19 @@ public:
     /// @brief Virtual destructor
     virtual ~LLMProvider();
 
+    /// @brief Set chat template
+    /// @param chat_template Template string to set
+    virtual void set_template(std::string chat_template) = 0;
+
+    /// @brief Configure LoRA weights
+    /// @param loras Vector of LoRA adapters with their scales
+    /// @return true if configuration was successful, false otherwise
+    virtual bool lora_weight(const std::vector<LoraIdScale> &loras) = 0;
+
+    /// @brief List available LoRA adapters
+    /// @return Vector of available LoRA adapters with paths
+    virtual std::vector<LoraIdScalePath> lora_list() = 0;
+
     /// @brief Set debug level
     /// @param debug_level Debug verbosity level (0 = off, 1 = LlamaLib messages, 2 and higher = llama.cpp messages and more verbose)
     virtual void debug(int debug_level) = 0;
@@ -289,18 +273,18 @@ public:
     /// @param callback Function to receive log messages
     virtual void logging_callback(CharArrayFn callback) = 0;
 
-    /// @brief Set chat template from JSON
-    /// @param data JSON object containing template specification
-    virtual void set_template_json(const json &data) = 0;
+    /// @brief Stop logging
+    virtual void logging_stop();
 
-    /// @brief Configure LoRA adapter weights
-    /// @param data JSON object containing LoRA configuration
-    /// @return JSON response string
-    virtual std::string lora_weight_json(const json &data) = 0;
+    /// @brief Start the LLM service
+    virtual void start() = 0;
 
-    /// @brief List available LoRA adapters
-    /// @return JSON string containing list of available LoRA adapters
-    virtual std::string lora_list_json() = 0;
+    /// @brief Check if service is started
+    /// @return true if service is running, false otherwise
+    virtual bool started() = 0;
+
+    /// @brief Stop the LLM service
+    virtual void stop() = 0;
 
     /// @brief Start HTTP server
     /// @param host Host address to bind to (default: "0.0.0.0")
@@ -311,50 +295,24 @@ public:
     /// @brief Stop HTTP server
     virtual void stop_server() = 0;
 
-    /// @brief Wait for server thread to complete
-    virtual void join_server() = 0;
-
-    /// @brief Start the LLM service
-    virtual void start() = 0;
-
-    /// @brief Stop the LLM service
-    virtual void stop() = 0;
-
     /// @brief Wait for service thread to complete
     virtual void join_service() = 0;
 
-    /// @brief Implementation debugging
-    /// @return "standalore" or "runtime_detection" according to the implementation
-    virtual std::string debug_implementation() = 0;
+    /// @brief Wait for server thread to complete
+    virtual void join_server() = 0;
 
     /// @brief Configure SSL certificates
     /// @param SSL_cert SSL certificate
     /// @param SSL_key SSL private key
     virtual void set_SSL(const std::string &SSL_cert, const std::string &SSL_key) = 0;
 
-    /// @brief Check if service is started
-    /// @return true if service is running, false otherwise
-    virtual bool started() = 0;
-
     /// @brief Get embedding vector size
     /// @return Number of dimensions in embedding vectors
     virtual int embedding_size() = 0;
 
-    /// @brief Stop logging
-    virtual void logging_stop();
-
-    /// @brief Set chat template
-    /// @param chat_template Template string to set
-    virtual void set_template(std::string chat_template);
-
-    /// @brief Configure LoRA weights
-    /// @param loras Vector of LoRA adapters with their scales
-    /// @return true if configuration was successful, false otherwise
-    virtual bool lora_weight(const std::vector<LoraIdScale> &loras);
-
-    /// @brief List available LoRA adapters
-    /// @return Vector of available LoRA adapters with paths
-    virtual std::vector<LoraIdScalePath> lora_list();
+    /// @brief Implementation debugging
+    /// @return "standalore" or "runtime_detection" according to the implementation
+    virtual std::string debug_implementation() = 0;
 
 protected:
     /// @brief Build JSON for template setting

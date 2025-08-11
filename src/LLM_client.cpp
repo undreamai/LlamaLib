@@ -189,39 +189,42 @@ void LLMClient::set_SSL(const char *SSL_cert_)
     }
 }
 
-std::string LLMClient::tokenize_json(const json &data)
+std::vector<int> LLMClient::tokenize(const std::string &query)
 {
     if (is_remote())
     {
-        return post_request("tokenize", data);
+        return parse_tokenize_json(json::parse(
+            post_request("tokenize", build_tokenize_json(query))));
     }
     else
     {
-        return llm->tokenize_json(data);
+        return llm->tokenize(query);
     }
 }
 
-std::string LLMClient::detokenize_json(const json &data)
+std::string LLMClient::detokenize(const std::vector<int32_t> &tokens)
 {
     if (is_remote())
     {
-        return post_request("detokenize", data);
+        return parse_detokenize_json(json::parse(
+            post_request("detokenize", build_detokenize_json(tokens))));
     }
     else
     {
-        return llm->detokenize_json(data);
+        return llm->detokenize(tokens);
     }
 }
 
-std::string LLMClient::embeddings_json(const json &data)
+std::vector<float> LLMClient::embeddings(const std::string &query)
 {
     if (is_remote())
     {
-        return post_request("embeddings", data);
+        return parse_embeddings_json(json::parse(
+            post_request("embeddings", build_embeddings_json(query))));
     }
     else
     {
-        return llm->embeddings_json(data);
+        return llm->embeddings(query);
     }
 }
 
@@ -250,15 +253,16 @@ int LLMClient::get_next_available_slot()
     return llm->get_next_available_slot();
 }
 
-std::string LLMClient::apply_template_json(const json &data)
+std::string LLMClient::apply_template(const json &messages)
 {
     if (is_remote())
     {
-        return post_request("apply-template", data);
+        return parse_apply_template_json(json::parse(
+            post_request("apply-template", build_apply_template_json(messages))));
     }
     else
     {
-        return llm->apply_template_json(data);
+        return llm->apply_template(messages);
     }
 }
 
@@ -274,16 +278,27 @@ std::string LLMClient::get_template()
     }
 }
 
-std::string LLMClient::slot_json(const json &data)
+std::string LLMClient::slot(int id_slot, const std::string &action, const std::string &filepath)
 {
     if (is_remote())
     {
         std::cerr << "Slot operations are not supported in remote clients" << std::endl;
-        return "{}";
+        return "";
     }
     else
     {
-        return llm->slot_json(data);
+        if (action == "save")
+        {
+            return llm->save_slot(id_slot, filepath);
+        }
+        else if (action == "restore")
+        {
+            return llm->load_slot(id_slot, filepath);
+        }
+        else
+        {
+            throw std::runtime_error("Invalid action" + action);
+        }
     }
 }
 

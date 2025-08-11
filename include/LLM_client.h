@@ -54,58 +54,54 @@ public:
     bool is_remote() const { return !url.empty() && port > -1; }
 
     //=================================== LLM METHODS START ===================================//
-    /// @brief Get template JSON (override)
-    /// @return JSON string with template information
-    /// @details Forwards request to appropriate backend (local or remote)
-    std::string get_template() override;
+    /// @brief Tokenize text
+    /// @param query Text string to tokenize
+    /// @return Vector of token IDs
+    std::vector<int> tokenize(const std::string &query) override;
 
-    /// @brief Apply template to messages (override)
-    /// @param data JSON object containing messages to format
-    /// @return Formatted string with template applied
-    /// @details Forwards template application to appropriate backend
-    std::string apply_template_json(const json &data) override;
-
-    /// @brief Tokenize text input (override)
-    /// @param data JSON object containing text to tokenize
-    /// @return JSON string containing token data
-    /// @details Forwards tokenization to appropriate backend
-    std::string tokenize_json(const json &data) override;
-
-    /// @brief Convert tokens to text (override)
-    /// @param data JSON object containing tokens to detokenize
+    /// @brief Convert tokens to text
+    /// @param tokens Vector of token IDs to convert
     /// @return Detokenized text string
-    /// @details Forwards detokenization to appropriate backend
-    std::string detokenize_json(const json &data) override;
+    std::string detokenize(const std::vector<int32_t> &tokens) override;
 
-    /// @brief Generate embeddings (override)
-    /// @param data JSON object containing text to embed
-    /// @return JSON string with embedding vectors
-    /// @details Forwards embedding generation to appropriate backend
-    std::string embeddings_json(const json &data) override;
+    /// @brief Generate embeddings
+    /// @param query Text string to embed
+    /// @return Vector of embedding values
+    std::vector<float> embeddings(const std::string &query) override;
 
     /// @brief Generate text completion (override)
     /// @param data JSON object with prompt and parameters
     /// @param callback Optional callback for streaming responses
     /// @param callbackWithJSON Whether callback receives JSON format
     /// @return Generated completion text or JSON
-    /// @details Forwards completion generation to appropriate backend with streaming support
     std::string completion_json(const json &data, CharArrayFn callback = nullptr, bool callbackWithJSON = true) override;
 
-    /// @brief Manage processing slots (override)
-    /// @param data JSON object with slot operation parameters
-    /// @return JSON response string
-    /// @details Forwards slot operations to appropriate backend
-    std::string slot_json(const json &data) override;
+    /// @brief Get template JSON (override)
+    /// @return JSON string with template information
+    std::string get_template() override;
+
+    /// @brief Apply template to messages
+    /// @param messages JSON array of chat messages
+    /// @return Formatted chat string
+    std::string apply_template(const json &messages) override;
 
     /// @brief Cancel running request (override)
     /// @param data JSON object with cancellation parameters
-    /// @details Forwards cancellation request to appropriate backend
     void cancel(int id_slot) override;
 
     /// @brief Get available processing slot (override)
     /// @return Available slot ID or -1 if none available
-    /// @details Forwards slot availability check to appropriate backend
     int get_next_available_slot() override;
+    //=================================== LLM METHODS END ===================================//
+
+protected:
+    //=================================== LLM METHODS START ===================================//
+    /// @brief Perform slot operation
+    /// @param id_slot Slot ID to operate on
+    /// @param action Action to perform ("save" or "restore")
+    /// @param filepath Path for save/load operation
+    /// @return Operation result string
+    std::string slot(int id_slot, const std::string &action, const std::string &filepath) override;
     //=================================== LLM METHODS END ===================================//
 
 private:

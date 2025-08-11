@@ -67,6 +67,75 @@ public:
     /// @details Creates an agent that manages conversations with the specified LLM backend
     LLMAgent(LLMLocal *llm, const std::string &system_prompt = "", const std::string &user_role = "user", const std::string &assistant_role = "assistant");
 
+    //=================================== LLM METHOD DELEGATES ===================================//
+    /// @brief Tokenize text
+    /// @param query Text string to tokenize
+    /// @return Vector of token IDs
+    std::vector<int> tokenize(const std::string &query) override { return llm->tokenize(query); }
+
+    /// @brief Convert tokens to text
+    /// @param tokens Vector of token IDs to convert
+    /// @return Detokenized text string
+    std::string detokenize(const std::vector<int32_t> &tokens) override { return llm->detokenize(tokens); }
+
+    /// @brief Generate embeddings
+    /// @param query Text string to embed
+    /// @return Vector of embedding values
+    std::vector<float> embeddings(const std::string &query) override { return llm->embeddings(query); }
+
+    /// @brief Build completion JSON with agent's slot
+    /// @param prompt Input prompt text
+    /// @return JSON object for completion request
+    /// @details Override that automatically uses the agent's assigned slot
+    virtual json build_completion_json(const std::string &prompt) { return LLMLocal::build_completion_json(prompt, this->id_slot); }
+
+    /// @brief Get template JSON (delegate to wrapped LLM)
+    /// @return JSON string with template information
+    std::string get_template() override { return llm->get_template(); }
+
+    /// @brief Apply template to messages
+    /// @param messages JSON array of chat messages
+    /// @return Formatted chat string
+    std::string apply_template(const json &messages) override { return llm->apply_template(messages); }
+
+    /// @brief Cancel request (delegate to wrapped LLM)
+    /// @param data JSON cancellation request
+    void cancel(int id_slot) override { return llm->cancel(id_slot); }
+
+    /// @brief Get available slot (delegate to wrapped LLM)
+    /// @return Available slot ID
+    int get_next_available_slot() override { return llm->get_next_available_slot(); }
+    //=================================== LLM METHOD DELEGATES ===================================//
+
+    //=================================== Slot-aware method overrides ===================================//
+    /// @brief Generate completion with agent's slot
+    /// @param prompt Input prompt text
+    /// @param callback Optional streaming callback
+    /// @param return_response_json Whether to return JSON response
+    /// @return Generated completion text or JSON
+    /// @details Override that automatically uses the agent's assigned slot
+    virtual std::string completion(const std::string &prompt, CharArrayFn callback = nullptr, bool return_response_json = false)
+    {
+        return LLMLocal::completion(prompt, callback, this->id_slot, return_response_json);
+    }
+
+    /// @brief Save agent's slot state
+    /// @param filepath Path to save slot state
+    /// @return Operation result string
+    /// @details Saves the agent's current processing state to file
+    virtual std::string save_slot(const std::string &filepath) { return LLMLocal::save_slot(this->id_slot, filepath); }
+
+    /// @brief Load agent's slot state
+    /// @param filepath Path to load slot state from
+    /// @return Operation result string
+    /// @details Restores the agent's processing state from file
+    virtual std::string load_slot(const std::string &filepath) { return LLMLocal::load_slot(this->id_slot, filepath); }
+
+    /// @brief Cancel agent's current request
+    /// @details Cancels any running request on the agent's slot
+    virtual void cancel() { llm->cancel(this->id_slot); }
+    //=================================== Slot-aware method overrides ===================================//
+
     /// @brief Get current processing slot ID
     /// @return Current slot ID
     /// @details Returns the slot ID used for this agent's operations
@@ -171,79 +240,23 @@ public:
     /// generates a response, and optionally updates conversation history
     std::string chat(const std::string &user_prompt, bool add_to_history = true, CharArrayFn callback = nullptr, bool return_response_json = false);
 
+protected:
     //=================================== Slot-aware method overrides ===================================//
-    /// @brief Build completion JSON with agent's slot
-    /// @param prompt Input prompt text
-    /// @return JSON object for completion request
-    /// @details Override that automatically uses the agent's assigned slot
-    virtual json build_completion_json(const std::string &prompt) { return LLMLocal::build_completion_json(prompt, this->id_slot); }
-
-    /// @brief Generate completion with agent's slot
-    /// @param prompt Input prompt text
-    /// @param callback Optional streaming callback
-    /// @param return_response_json Whether to return JSON response
-    /// @return Generated completion text or JSON
-    /// @details Override that automatically uses the agent's assigned slot
-    virtual std::string completion(const std::string &prompt, CharArrayFn callback = nullptr, bool return_response_json = false)
-    {
-        return LLMLocal::completion(prompt, callback, this->id_slot, return_response_json);
-    }
-
     /// @brief Build slot operation JSON with agent's slot
     /// @param action Slot operation action ("save" or "restore")
     /// @param filepath File path for slot operation
     /// @return JSON object for slot operation
     /// @details Override that automatically uses the agent's assigned slot
     virtual json build_slot_json(const std::string &action, const std::string &filepath) { return LLMLocal::build_slot_json(this->id_slot, action, filepath); }
+    //=================================== Slot-aware method overrides ===================================//
 
+    //=================================== LLM METHODS START ===================================//
     /// @brief Perform slot operation with agent's slot
     /// @param action Slot operation action
     /// @param filepath File path for operation
     /// @return Operation result string
     /// @details Override that automatically uses the agent's assigned slot
-    virtual std::string slot(const std::string &action, const std::string &filepath) { return LLMLocal::slot(this->id_slot, action, filepath); }
-
-    /// @brief Save agent's slot state
-    /// @param filepath Path to save slot state
-    /// @return Operation result string
-    /// @details Saves the agent's current processing state to file
-    virtual std::string save_slot(const std::string &filepath) { return LLMLocal::save_slot(this->id_slot, filepath); }
-
-    /// @brief Load agent's slot state
-    /// @param filepath Path to load slot state from
-    /// @return Operation result string
-    /// @details Restores the agent's processing state from file
-    virtual std::string load_slot(const std::string &filepath) { return LLMLocal::load_slot(this->id_slot, filepath); }
-
-    /// @brief Cancel agent's current request
-    /// @details Cancels any running request on the agent's slot
-    virtual void cancel() { llm->cancel(this->id_slot); }
-    //=================================== Slot-aware method overrides ===================================//
-
-    //=================================== LLM METHOD DELEGATES ===================================//
-    /// @brief Get template JSON (delegate to wrapped LLM)
-    /// @return JSON string with template information
-    std::string get_template() override { return llm->get_template(); }
-
-    /// @brief Apply template (delegate to wrapped LLM)
-    /// @param data JSON object with template application data
-    /// @return Formatted template result
-    std::string apply_template_json(const json &data) override { return llm->apply_template_json(data); }
-
-    /// @brief Tokenize text (delegate to wrapped LLM)
-    /// @param data JSON object with tokenization request
-    /// @return JSON tokenization response
-    std::string tokenize_json(const json &data) override { return llm->tokenize_json(data); }
-
-    /// @brief Detokenize tokens (delegate to wrapped LLM)
-    /// @param data JSON object with detokenization request
-    /// @return Detokenized text
-    std::string detokenize_json(const json &data) override { return llm->detokenize_json(data); }
-
-    /// @brief Generate embeddings (delegate to wrapped LLM)
-    /// @param data JSON object with embedding request
-    /// @return JSON embedding response
-    std::string embeddings_json(const json &data) override { return llm->embeddings_json(data); }
+    std::string slot(int id_slot, const std::string &action, const std::string &filepath) override;
 
     /// @brief Generate completion (delegate to wrapped LLM)
     /// @param data JSON completion request
@@ -251,20 +264,7 @@ public:
     /// @param callbackWithJSON Whether callback uses JSON
     /// @return Generated completion
     std::string completion_json(const json &data, CharArrayFn callback = nullptr, bool callbackWithJSON = true) override { return llm->completion_json(data, callback, callbackWithJSON); }
-
-    /// @brief Manage slots (delegate to wrapped LLM)
-    /// @param data JSON slot operation request
-    /// @return JSON slot operation response
-    std::string slot_json(const json &data) override { return llm->slot_json(data); }
-
-    /// @brief Cancel request (delegate to wrapped LLM)
-    /// @param data JSON cancellation request
-    void cancel(int id_slot) override { return llm->cancel(id_slot); }
-
-    /// @brief Get available slot (delegate to wrapped LLM)
-    /// @return Available slot ID
-    int get_next_available_slot() override { return llm->get_next_available_slot(); }
-    //=================================== LLM METHOD DELEGATES ===================================//
+    //=================================== LLM METHODS START ===================================//
 
 private:
     LLMLocal *llm = nullptr;                  ///< Wrapped LLM instance
