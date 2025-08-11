@@ -18,5 +18,5 @@ $doxygen .github/doxygen/Doxyfile
 
 output_dir=html
 mkdir -p $output_dir/images/
-cp .github/*png .github/*.gif $output_dir/images/
+cp .github/*png $output_dir/images/
 sed -i 's:LLamaLib:Package:g' $output_dir/navtreedata.js
