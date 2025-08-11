@@ -57,7 +57,7 @@ public:
     /// @brief Get template JSON (override)
     /// @return JSON string with template information
     /// @details Forwards request to appropriate backend (local or remote)
-    std::string get_template_json() override;
+    std::string get_template() override;
 
     /// @brief Apply template to messages (override)
     /// @param data JSON object containing messages to format
@@ -100,7 +100,7 @@ public:
     /// @brief Cancel running request (override)
     /// @param data JSON object with cancellation parameters
     /// @details Forwards cancellation request to appropriate backend
-    void cancel_json(const json &data) override;
+    void cancel(int id_slot) override;
 
     /// @brief Get available processing slot (override)
     /// @return Available slot ID or -1 if none available

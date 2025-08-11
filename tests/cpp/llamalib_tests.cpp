@@ -100,6 +100,7 @@ void test_template(LLMProvider *llm, bool use_api)
         get_template = LLM_Get_Template(llm);
     else
         get_template = llm->get_template();
+    std::cout << get_template << std::endl;
     ASSERT(get_template == chat_template);
 
     llm->set_template("chatml");
@@ -620,9 +621,9 @@ public:
         return result.dump();
     }
 
-    void cancel_json(const json &data) override
+    void cancel(int id_slot) override
     {
-        cancelled_slot = data.at("id_slot");
+        cancelled_slot = id_slot;
     }
 
     std::string lora_weight_json(const json &data) override
@@ -640,7 +641,7 @@ public:
         return j.dump();
     }
 
-    std::string get_template_json() override
+    std::string get_template() override
     {
         return chat_template;
     }
@@ -658,6 +659,86 @@ public:
     }
 
     std::string debug_implementation() override { return "standalone"; }
+
+    json build_apply_template_json(const json &messages) override
+    {
+        return LLM::build_apply_template_json(messages);
+    }
+
+    std::string parse_apply_template_json(const json &result) override
+    {
+        return LLM::parse_apply_template_json(result);
+    }
+
+    json build_tokenize_json(const std::string &query) override
+    {
+        return LLM::build_tokenize_json(query);
+    }
+
+    std::vector<int> parse_tokenize_json(const json &result) override
+    {
+        return LLM::parse_tokenize_json(result);
+    }
+
+    json build_detokenize_json(const std::vector<int32_t> &tokens) override
+    {
+        return LLM::build_detokenize_json(tokens);
+    }
+
+    std::string parse_detokenize_json(const json &result) override
+    {
+        return LLM::parse_detokenize_json(result);
+    }
+
+    json build_embeddings_json(const std::string &query) override
+    {
+        return LLM::build_embeddings_json(query);
+    }
+
+    std::vector<float> parse_embeddings_json(const json &result) override
+    {
+        return LLM::parse_embeddings_json(result);
+    }
+
+    json build_completion_json(const std::string &prompt, int id_slot = -1) override
+    {
+        return LLM::build_completion_json(prompt, id_slot);
+    }
+
+    std::string parse_completion_json(const json &result) override
+    {
+        return LLM::parse_completion_json(result);
+    }
+
+    json build_slot_json(int id_slot, const std::string &action, const std::string &filepath) override
+    {
+        return LLMLocal::build_slot_json(id_slot, action, filepath);
+    }
+
+    std::string parse_slot_json(const json &result) override
+    {
+        return LLMLocal::parse_slot_json(result);
+    }
+
+    json build_set_template_json(std::string chat_template) override
+    {
+        return LLMProvider::build_set_template_json(chat_template);
+    }
+
+    bool parse_lora_weight_json(const json &result) override
+    {
+        return LLMProvider::parse_lora_weight_json(result);
+    }
+
+    json build_lora_weight_json(const std::vector<LoraIdScale> &loras) override
+    {
+        return LLMProvider::build_lora_weight_json(loras);
+    }
+
+    std::vector<LoraIdScalePath> parse_lora_list_json(const json &result) override
+    {
+        return LLMProvider::parse_lora_list_json(result);
+    }
 };
 
 void run_mock_tests()
@@ -729,7 +810,7 @@ void run_mock_tests()
 
         ASSERT(llm.build_slot_json(id_slot, action, llm.SAVE_PATH) == input_json);
         ASSERT(llm.parse_slot_json(output_json) == llm.SAVE_PATH);
-        ASSERT(llm.slot(id_slot, action, llm.SAVE_PATH) == llm.SAVE_PATH);
+        ASSERT(llm.load_slot(id_slot, llm.SAVE_PATH) == llm.SAVE_PATH);
         ASSERT(llm.slot_json(input_json) == output_json.dump());
     }
 
@@ -765,7 +846,6 @@ void run_mock_tests()
         int id_slot = 10;
         json input_json = {{"id_slot", id_slot}};
 
-        ASSERT(llm.build_cancel_json(id_slot) == input_json);
         llm.cancel(id_slot);
         ASSERT(llm.cancelled_slot == id_slot);
     }
@@ -777,9 +857,7 @@ void run_mock_tests()
 
         ASSERT(llm.build_set_template_json(chat_template) == input_json);
         llm.set_template_json(input_json);
-
-        ASSERT(llm.parse_get_template_json(input_json) == chat_template);
-        ASSERT(llm.get_template_json() == chat_template);
+        ASSERT(llm.get_template() == chat_template);
     }
 
     // --- Apply Template ---

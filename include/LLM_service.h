@@ -93,7 +93,7 @@ public:
 
     /// @brief Get template JSON (override)
     /// @return JSON string with template information
-    std::string get_template_json() override;
+    std::string get_template() override;
 
     /// @brief Set template from JSON (override)
     /// @param data JSON object containing template data
@@ -142,7 +142,7 @@ public:
 
     /// @brief Cancel running request (override)
     /// @param data JSON object with cancellation parameters
-    void cancel_json(const json &data) override;
+    void cancel(int id_slot) override;
 
     /// @brief Start HTTP server (override)
     /// @param host Host address to bind (default: "0.0.0.0")

@@ -215,20 +215,15 @@ public:
     /// @details Restores the agent's processing state from file
     virtual std::string load_slot(const std::string &filepath) { return LLMLocal::load_slot(this->id_slot, filepath); }
 
-    /// @brief Build cancellation JSON with agent's slot
-    /// @return JSON object for cancellation request
-    /// @details Override that automatically uses the agent's assigned slot
-    virtual json build_cancel_json() { return LLMLocal::build_cancel_json(this->id_slot); }
-
     /// @brief Cancel agent's current request
     /// @details Cancels any running request on the agent's slot
-    virtual void cancel() { LLMLocal::cancel(this->id_slot); }
+    virtual void cancel() { llm->cancel(this->id_slot); }
     //=================================== Slot-aware method overrides ===================================//
 
     //=================================== LLM METHOD DELEGATES ===================================//
     /// @brief Get template JSON (delegate to wrapped LLM)
     /// @return JSON string with template information
-    std::string get_template_json() override { return llm->get_template_json(); }
+    std::string get_template() override { return llm->get_template(); }
 
     /// @brief Apply template (delegate to wrapped LLM)
     /// @param data JSON object with template application data
@@ -264,7 +259,7 @@ public:
 
     /// @brief Cancel request (delegate to wrapped LLM)
     /// @param data JSON cancellation request
-    void cancel_json(const json &data) override { return llm->cancel_json(data); }
+    void cancel(int id_slot) override { return llm->cancel(id_slot); }
 
     /// @brief Get available slot (delegate to wrapped LLM)
     /// @return Available slot ID

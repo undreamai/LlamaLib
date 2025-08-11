@@ -63,16 +63,13 @@ public:
     std::string grammar = ""; ///< Grammar specification in GBNF format or JSON schema
     json completion_params;   ///< JSON object containing completion parameters
 
-    /// @brief Get the chat template in JSON format
-    /// @return JSON string representing the chat template
-    /// @details Pure virtual method that must be implemented by derived classes
-    virtual std::string get_template_json() = 0;
+    /// @brief Virtual destructor
+    virtual ~LLM() = default;
 
-    /// @brief Apply a chat template to message data
-    /// @param data JSON object containing messages to format
-    /// @return Formatted string with template applied
-    /// @details Pure virtual method for applying chat templates to conversation data
-    virtual std::string apply_template_json(const json &data) = 0;
+    /// @brief Tokenize text
+    /// @param query Text string to tokenize
+    /// @return Vector of token IDs
+    virtual std::vector<int> tokenize(const std::string &query);
 
     /// @brief Tokenize text input
     /// @param data JSON object containing text to tokenize
@@ -80,37 +77,27 @@ public:
     /// @details Pure virtual method for converting text to token sequences
     virtual std::string tokenize_json(const json &data) = 0;
 
+    /// @brief Convert tokens to text
+    /// @param tokens Vector of token IDs to convert
+    /// @return Detokenized text string
+    virtual std::string detokenize(const std::vector<int32_t> &tokens);
+
     /// @brief Convert tokens back to text
     /// @param data JSON object containing token IDs
     /// @return JSON string containing detokenized text
     /// @details Pure virtual method for converting token sequences back to text
     virtual std::string detokenize_json(const json &data) = 0;
 
+    /// @brief Generate embeddings
+    /// @param query Text string to embed
+    /// @return Vector of embedding values
+    virtual std::vector<float> embeddings(const std::string &query);
+
     /// @brief Generate embeddings for input text
     /// @param data JSON object containing text to embed
     /// @return JSON string containing text embeddings
     /// @details Pure virtual method for generating vector representations of text
     virtual std::string embeddings_json(const json &data) = 0;
-
-    /// @brief Generate text completion
-    /// @param data JSON object containing prompt and parameters
-    /// @param callback Optional callback function for streaming responses
-    /// @param callbackWithJSON Whether callback receives JSON or plain text
-    /// @return JSON string containing generated completion text or JSON response
-    /// @details Pure virtual method for text generation with optional streaming
-    virtual std::string completion_json(const json &data, CharArrayFn callback, bool callbackWithJSON) = 0;
-
-    /// @brief Virtual destructor
-    virtual ~LLM() = default;
-
-    /// @brief Set grammar for constrained generation
-    /// @param grammar_ Grammar specification in GBNF format or JSON schema
-    /// @details See https://github.com/ggml-org/llama.cpp/tree/master/grammars for format details
-    virtual void set_grammar(std::string grammar_) { grammar = grammar_; }
-
-    /// @brief Get current grammar specification
-    /// @return Current grammar string
-    virtual std::string get_grammar() { return grammar; }
 
     /// @brief Set completion parameters
     /// @param completion_params_ JSON object containing completion parameters
@@ -121,6 +108,46 @@ public:
     /// @brief Get current completion parameters
     /// @return JSON string of current completion parameters
     virtual std::string get_completion_params() { return completion_params; }
+
+    /// @brief Generate completion
+    /// @param prompt Input text prompt
+    /// @param callback Optional callback for streaming
+    /// @param id_slot Slot ID for the request (-1 for auto)
+    /// @param return_response_json Whether to return full JSON response
+    /// @return Generated completion text or JSON response
+    virtual std::string completion(const std::string &prompt, CharArrayFn callback = nullptr, int id_slot = -1, bool return_response_json = false);
+
+    /// @brief Generate text completion
+    /// @param data JSON object containing prompt and parameters
+    /// @param callback Optional callback function for streaming responses
+    /// @param callbackWithJSON Whether callback receives JSON or plain text
+    /// @return JSON string containing generated completion text or JSON response
+    /// @details Pure virtual method for text generation with optional streaming
+    virtual std::string completion_json(const json &data, CharArrayFn callback, bool callbackWithJSON) = 0;
+
+    /// @brief Set grammar for constrained generation
+    /// @param grammar_ Grammar specification in GBNF format or JSON schema
+    /// @details See https://github.com/ggml-org/llama.cpp/tree/master/grammars for format details
+    virtual void set_grammar(std::string grammar_) { grammar = grammar_; }
+
+    /// @brief Get current grammar specification
+    /// @return Current grammar string
+    virtual std::string get_grammar() { return grammar; }
+
+    /// @brief Get chat template
+    /// @return Chat template string
+    virtual std::string get_template() = 0;
+
+    /// @brief Apply template to messages
+    /// @param messages JSON array of chat messages
+    /// @return Formatted chat string
+    virtual std::string apply_template(const json &messages);
+
+    /// @brief Apply a chat template to message data
+    /// @param data JSON object containing messages to format
+    /// @return Formatted string with template applied
+    /// @details Pure virtual method for applying chat templates to conversation data
+    virtual std::string apply_template_json(const json &data) = 0;
 
     /// @brief Check if command line arguments specify GPU layers
     /// @param command Command line string to analyze
@@ -140,15 +167,7 @@ public:
     /// @return Command line string with all parameters
     static std::string LLM_args_to_command(const std::string &model_path, int num_slots = 1, int num_threads = -1, int num_GPU_layers = 0, bool flash_attention = false, int context_size = 4096, int batch_size = 2048, bool embedding_only = false, const std::vector<std::string> &lora_paths = {});
 
-    /// @brief Parse template JSON response
-    /// @param result JSON response from get_template_json
-    /// @return Parsed template string
-    virtual std::string parse_get_template_json(const json &result);
-
-    /// @brief Get chat template
-    /// @return Chat template string
-    virtual std::string get_template();
-
+protected:
     /// @brief Build JSON for template application
     /// @param messages JSON array of chat messages
     /// @return JSON object ready for apply_template_json
@@ -158,11 +177,6 @@ public:
     /// @param result JSON response from apply_template_json
     /// @return Formatted chat string
     virtual std::string parse_apply_template_json(const json &result);
-
-    /// @brief Apply template to messages
-    /// @param messages JSON array of chat messages
-    /// @return Formatted chat string
-    virtual std::string apply_template(const json &messages);
 
     /// @brief Build JSON for tokenization
     /// @param query Text string to tokenize
@@ -174,11 +188,6 @@ public:
     /// @return Vector of token IDs
     virtual std::vector<int> parse_tokenize_json(const json &result);
 
-    /// @brief Tokenize text
-    /// @param query Text string to tokenize
-    /// @return Vector of token IDs
-    virtual std::vector<int> tokenize(const std::string &query);
-
     /// @brief Build JSON for detokenization
     /// @param tokens Vector of token IDs to convert
     /// @return JSON object ready for detokenize_json
@@ -188,11 +197,6 @@ public:
     /// @param result JSON response from detokenize_json
     /// @return Detokenized text string
     virtual std::string parse_detokenize_json(const json &result);
-
-    /// @brief Convert tokens to text
-    /// @param tokens Vector of token IDs to convert
-    /// @return Detokenized text string
-    virtual std::string detokenize(const std::vector<int32_t> &tokens);
 
     /// @brief Build JSON for embeddings generation
     /// @param query Text string to embed
@@ -204,11 +208,6 @@ public:
     /// @return Vector of embedding values
     virtual std::vector<float> parse_embeddings_json(const json &result);
 
-    /// @brief Generate embeddings
-    /// @param query Text string to embed
-    /// @return Vector of embedding values
-    virtual std::vector<float> embeddings(const std::string &query);
-
     /// @brief Build JSON for completion generation
     /// @param prompt Input text prompt
     /// @param id_slot Slot ID for the request (-1 for auto)
@@ -219,14 +218,6 @@ public:
     /// @param result JSON response from completion_json
     /// @return Generated completion text
     virtual std::string parse_completion_json(const json &result);
-
-    /// @brief Generate completion
-    /// @param prompt Input text prompt
-    /// @param callback Optional callback for streaming
-    /// @param id_slot Slot ID for the request (-1 for auto)
-    /// @param return_response_json Whether to return full JSON response
-    /// @return Generated completion text or JSON response
-    virtual std::string completion(const std::string &prompt, CharArrayFn callback = nullptr, int id_slot = -1, bool return_response_json = false);
 };
 
 /// @brief Abstract class for local LLM operations with slot management
@@ -235,10 +226,6 @@ public:
 class UNDREAMAI_API LLMLocal : public LLM
 {
 public:
-    /// @brief Cancel a running request
-    /// @param data JSON object containing cancellation parameters
-    virtual void cancel_json(const json &data) = 0;
-
     /// @brief Get an available processing slot
     /// @return Available slot ID, or -1 if none determined
     virtual int get_next_available_slot() = 0;
@@ -247,25 +234,6 @@ public:
     /// @param data JSON object containing slot operation parameters
     /// @return JSON response string
     virtual std::string slot_json(const json &data) = 0;
-
-    /// @brief Build JSON for slot operations
-    /// @param id_slot Slot ID to operate on
-    /// @param action Action to perform ("save" or "restore")
-    /// @param filepath Path to save/load slot state
-    /// @return JSON object ready for slot_json
-    virtual json build_slot_json(int id_slot, const std::string &action, const std::string &filepath);
-
-    /// @brief Parse slot operation result
-    /// @param result JSON response from slot_json
-    /// @return Operation result string
-    virtual std::string parse_slot_json(const json &result);
-
-    /// @brief Perform slot operation
-    /// @param id_slot Slot ID to operate on
-    /// @param action Action to perform ("save" or "restore")
-    /// @param filepath Path for save/load operation
-    /// @return Operation result string
-    virtual std::string slot(int id_slot, const std::string &action, const std::string &filepath);
 
     /// @brief Save slot state to file
     /// @param id_slot Slot ID to save
@@ -279,14 +247,29 @@ public:
     /// @return Operation result string
     virtual std::string load_slot(int id_slot, const std::string &filepath) { return slot(id_slot, "restore", filepath); }
 
-    /// @brief Build JSON for cancellation
-    /// @param id_slot Slot ID to cancel
-    /// @return JSON object ready for cancel_json
-    virtual json build_cancel_json(int id_slot);
-
     /// @brief Cancel request
     /// @param id_slot Slot ID to cancel
-    virtual void cancel(int id_slot);
+    virtual void cancel(int id_slot) = 0;
+
+protected:
+    /// @brief Perform slot operation
+    /// @param id_slot Slot ID to operate on
+    /// @param action Action to perform ("save" or "restore")
+    /// @param filepath Path for save/load operation
+    /// @return Operation result string
+    virtual std::string slot(int id_slot, const std::string &action, const std::string &filepath);
+
+    /// @brief Build JSON for slot operations
+    /// @param id_slot Slot ID to operate on
+    /// @param action Action to perform ("save" or "restore")
+    /// @param filepath Path to save/load slot state
+    /// @return JSON object ready for slot_json
+    virtual json build_slot_json(int id_slot, const std::string &action, const std::string &filepath);
+
+    /// @brief Parse slot operation result
+    /// @param result JSON response from slot_json
+    /// @return Operation result string
+    virtual std::string parse_slot_json(const json &result);
 };
 
 /// @brief Abstract class for LLM service providers
@@ -360,38 +343,39 @@ public:
     /// @brief Stop logging
     virtual void logging_stop();
 
-    /// @brief Build JSON for template setting
-    /// @param chat_template Template string to set
-    /// @return JSON object ready for set_template_json
-    virtual json build_set_template_json(std::string chat_template);
-
     /// @brief Set chat template
     /// @param chat_template Template string to set
     virtual void set_template(std::string chat_template);
-
-    /// @brief Build JSON for LoRA weight configuration
-    /// @param loras Vector of LoRA adapters with their scales
-    /// @return JSON object ready for lora_weight_json
-    virtual json build_lora_weight_json(const std::vector<LoraIdScale> &loras);
-
-    /// @brief Parse LoRA weight configuration result
-    /// @param result JSON response from lora_weight_json
-    /// @return true if configuration was successful, false otherwise
-    virtual bool parse_lora_weight_json(const json &result);
 
     /// @brief Configure LoRA weights
     /// @param loras Vector of LoRA adapters with their scales
     /// @return true if configuration was successful, false otherwise
     virtual bool lora_weight(const std::vector<LoraIdScale> &loras);
 
+    /// @brief List available LoRA adapters
+    /// @return Vector of available LoRA adapters with paths
+    virtual std::vector<LoraIdScalePath> lora_list();
+
+protected:
+    /// @brief Build JSON for template setting
+    /// @param chat_template Template string to set
+    /// @return JSON object ready for set_template_json
+    virtual json build_set_template_json(std::string chat_template);
+
+    /// @brief Parse LoRA weight configuration result
+    /// @param result JSON response from lora_weight_json
+    /// @return true if configuration was successful, false otherwise
+    virtual bool parse_lora_weight_json(const json &result);
+
+    /// @brief Build JSON for LoRA weight configuration
+    /// @param loras Vector of LoRA adapters with their scales
+    /// @return JSON object ready for lora_weight_json
+    virtual json build_lora_weight_json(const std::vector<LoraIdScale> &loras);
+
     /// @brief Parse LoRA list result
     /// @param result JSON response from lora_list_json
     /// @return Vector of available LoRA adapters with paths
     virtual std::vector<LoraIdScalePath> parse_lora_list_json(const json &result);
-
-    /// @brief List available LoRA adapters
-    /// @return Vector of available LoRA adapters with paths
-    virtual std::vector<LoraIdScalePath> lora_list();
 };
 
 /// @brief Registry for managing LLM provider instances

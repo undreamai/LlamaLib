@@ -187,7 +187,7 @@ public:
 
     /// @brief Get template (override - delegates to loaded library)
     /// @return JSON template response
-    std::string get_template_json() override { return ((LLMProvider *)llm)->get_template_json(); }
+    std::string get_template() override { return ((LLMProvider *)llm)->get_template(); }
 
     /// @brief Set template (override - delegates to loaded library)
     /// @param data JSON template data
@@ -200,7 +200,7 @@ public:
 
     /// @brief Cancel request (override - delegates to loaded library)
     /// @param data JSON cancellation request
-    void cancel_json(const json &data) override { ((LLMProvider *)llm)->cancel_json(data); }
+    void cancel(int id_slot) override { ((LLMProvider *)llm)->cancel(id_slot); }
 
     /// @brief Configure LoRA weights (override - delegates to loaded library)
     /// @param data JSON LoRA configuration

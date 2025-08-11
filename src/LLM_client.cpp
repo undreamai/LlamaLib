@@ -262,7 +262,7 @@ std::string LLMClient::apply_template_json(const json &data)
     }
 }
 
-std::string LLMClient::get_template_json()
+std::string LLMClient::get_template()
 {
     if (is_remote())
     {
@@ -270,7 +270,7 @@ std::string LLMClient::get_template_json()
     }
     else
     {
-        return llm->get_template_json();
+        return llm->get_template();
     }
 }
 
@@ -287,7 +287,7 @@ std::string LLMClient::slot_json(const json &data)
     }
 }
 
-void LLMClient::cancel_json(const json &data)
+void LLMClient::cancel(int id_slot)
 {
     if (is_remote())
     {
@@ -296,7 +296,7 @@ void LLMClient::cancel_json(const json &data)
     }
     else
     {
-        llm->cancel_json(data);
+        llm->cancel(id_slot);
     }
 }
 

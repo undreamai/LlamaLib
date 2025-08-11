@@ -574,7 +574,7 @@ void LLMService::start_server(const std::string &host, int port, const std::stri
 
     const auto get_template_post = [this](const httplib::Request &req, httplib::Response &res)
     {
-        return res_ok(res, get_template_json());
+        return res_ok(res, get_template());
     };
 
     const auto apply_template_post = [this](const httplib::Request &req, httplib::Response &res)
@@ -809,13 +809,11 @@ bool LLMService::middleware_validate_api_key(const httplib::Request &req, httpli
     return false;
 }
 
-std::string LLMService::get_template_json()
+std::string LLMService::get_template()
 {
     if (setjmp(get_jump_point(true)) != 0)
         return "";
-    json result;
-    result["chat_template"] = params->chat_template;
-    return result.dump();
+    return params->chat_template;
 }
 
 void LLMService::set_template_json(const json &body)
@@ -1424,13 +1422,12 @@ std::string LLMService::slot_json(
     return result_data;
 }
 
-void LLMService::cancel_json(const json &data)
+void LLMService::cancel(int id_slot)
 {
     if (setjmp(get_jump_point(true)) != 0)
         return;
     try
     {
-        int id_slot = json_value(data, "id_slot", -1);
         for (auto &slot : ctx_server->slots)
         {
             if (slot.id == id_slot)

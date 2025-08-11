@@ -116,25 +116,6 @@ bool LLM::has_gpu_layers(const std::string &command)
     return false;
 }
 
-//=========================== Get Template ===========================//
-
-std::string LLM::parse_get_template_json(const json &result)
-{
-    try
-    {
-        return result.at("chat_template").get<std::string>();
-    }
-    catch (const std::exception &)
-    {
-    }
-    return "";
-}
-
-std::string LLM::get_template()
-{
-    return parse_get_template_json(json::parse(get_template_json()));
-}
-
 //=========================== Apply Template ===========================//
 
 json LLM::build_apply_template_json(const json &messages)
@@ -291,20 +272,6 @@ std::string LLM::completion(const std::string &prompt, CharArrayFn callback, int
     if (return_response_json)
         return response;
     return parse_completion_json(json::parse(response));
-}
-
-//=========================== Cancel ===========================//
-
-json LLMLocal::build_cancel_json(int id_slot)
-{
-    json j;
-    j["id_slot"] = id_slot;
-    return j;
-}
-
-void LLMLocal::cancel(int id_slot)
-{
-    cancel_json(build_cancel_json(id_slot));
 }
 
 //=========================== Slot Action ===========================//
@@ -533,7 +500,15 @@ void LLM_Cancel(LLMLocal *llm, int id_slot)
 
 bool LLM_Lora_Weight(LLMProvider *llm, const char *loras_as_json)
 {
-    return llm->parse_lora_weight_json(json::parse(llm->lora_weight_json(loras_as_json)));
+    try
+    {
+        json result = json::parse(llm->lora_weight_json(loras_as_json));
+        return result.at("success").get<bool>();
+    }
+    catch (const std::exception &)
+    {
+    }
+    return false;
 }
 
 const char *LLM_Lora_List(LLMProvider *llm)

@@ -15,3 +15,5 @@ runtimes
 tests/cpp-cmake/test
 tests/cpp-cmake/test_runtime
 html
+main
+server
