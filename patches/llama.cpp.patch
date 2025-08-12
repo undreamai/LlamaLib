@@ -32,11 +32,67 @@ index c56bb50d..922a03fc 100644
  // needed by the LOG_TMPL macro to avoid computing log arguments if the verbosity lower
  // set via common_log_set_verbosity()
  extern int common_log_verbosity_thold;
-diff --git a/examples/server/server.cpp b/examples/server/server.cpp
-index c580ec12..84cc9584 100644
---- a/examples/server/server.cpp
-+++ b/examples/server/server.cpp
-@@ -1552,30 +1552,29 @@ struct server_queue {
+diff --git a/ggml/src/CMakeLists.txt b/ggml/src/CMakeLists.txt
+index 177fb282..03430ee4 100644
+--- a/ggml/src/CMakeLists.txt
++++ b/ggml/src/CMakeLists.txt
+@@ -140,11 +140,6 @@ endif()
+ # Somehow in OpenBSD whenever POSIX conformance is specified
+ # some string functions rely on locale_t availability,
+ # which was introduced in POSIX.1-2008, forcing us to go higher
+-if (CMAKE_SYSTEM_NAME MATCHES "OpenBSD")
+-    add_compile_definitions(_XOPEN_SOURCE=700)
+-else()
+-    add_compile_definitions(_XOPEN_SOURCE=600)
+-endif()
+ 
+ # Data types, macros and functions related to controlling CPU affinity and
+ # some memory allocation are available on Linux through GNU extensions in libc
+@@ -184,7 +179,7 @@ endif()
+ # ggml
+ 
+ if (GGML_BACKEND_DL AND NOT BUILD_SHARED_LIBS)
+-    message(FATAL_ERROR "GGML_BACKEND_DL requires BUILD_SHARED_LIBS")
++    message(WARNING "GGML_BACKEND_DL requires BUILD_SHARED_LIBS")
+ endif()
+ 
+ add_library(ggml-base
+diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
+index 4070e248..3e51cce5 100644
+--- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
++++ b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
+@@ -90,7 +90,7 @@ static bool is_pow2(uint32_t x) { return x > 1 && (x & (x-1)) == 0; }
+         if (err_ != vk::Result::eSuccess) {                         \
+             fprintf(stderr, "ggml_vulkan: %s error %s at %s:%d\n",  \
+                 #err, to_string(err_).c_str(), __FILE__, __LINE__); \
+-            exit(1);                                                \
++            std::terminate();                                       \
+         }                                                           \
+     } while (0)
+ 
+diff --git a/ggml/src/ggml.c b/ggml/src/ggml.c
+index 55a76f82..7895087a 100644
+--- a/ggml/src/ggml.c
++++ b/ggml/src/ggml.c
+@@ -230,7 +230,12 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {
+         ggml_print_backtrace();
+     }
+ 
+-    abort();
++    raise(SIGSEGV);
++#ifdef _MSC_VER
++    __assume(0);
++#else
++    __builtin_unreachable();
++#endif
+ }
+ 
+ // ggml_print_backtrace is registered with std::set_terminate by ggml.cpp
+diff --git a/tools/server/server.cpp b/tools/server/server.cpp
+index 45f50e93..fd4dc5c1 100644
+--- a/tools/server/server.cpp
++++ b/tools/server/server.cpp
+@@ -1634,11 +1634,11 @@ struct server_queue {
      std::condition_variable condition_tasks;
  
      // callback functions
@@ -51,20 +107,7 @@ index c580ec12..84cc9584 100644
          std::unique_lock<std::mutex> lock(mutex_tasks);
          GGML_ASSERT(task.id != -1);
          // if this is cancel task make sure to clean up pending tasks
-         if (task.type == SERVER_TASK_TYPE_CANCEL) {
-             cleanup_pending_task(task.id_target);
-         }
--        const int task_id = task.id;
--        QUE_DBG("new task, id = %d, front = %d\n", task_id, front);
-+        QUE_DBG("new task, id = %d, front = %d\n", task.id, front);
-         if (front) {
-             queue_tasks.push_front(std::move(task));
-         } else {
-             queue_tasks.push_back(std::move(task));
-         }
-         condition_tasks.notify_one();
--        return task_id;
-+        return task.id;
+@@ -1657,7 +1657,7 @@ struct server_queue {
      }
  
      // multi-task version of post()
@@ -73,7 +116,7 @@ index c580ec12..84cc9584 100644
          std::unique_lock<std::mutex> lock(mutex_tasks);
          for (auto & task : tasks) {
              if (task.id == -1) {
-@@ -1597,7 +1596,7 @@ struct server_queue {
+@@ -1679,7 +1679,7 @@ struct server_queue {
      }
  
      // Add a new task, but defer until one slot is available
@@ -82,7 +125,7 @@ index c580ec12..84cc9584 100644
          std::unique_lock<std::mutex> lock(mutex_tasks);
          QUE_DBG("defer task, id = %d\n", task.id);
          queue_tasks_deferred.push_back(std::move(task));
-@@ -1612,7 +1611,7 @@ struct server_queue {
+@@ -1694,7 +1694,7 @@ struct server_queue {
      }
  
      // Register function to process a new task
@@ -91,7 +134,7 @@ index c580ec12..84cc9584 100644
          callback_new_task = std::move(callback);
      }
  
-@@ -1661,7 +1660,7 @@ struct server_queue {
+@@ -1743,7 +1743,7 @@ struct server_queue {
                      lock.unlock();
                      break;
                  }
@@ -100,8 +143,8 @@ index c580ec12..84cc9584 100644
                  queue_tasks.pop_front();
                  lock.unlock();
  
-@@ -1878,14 +1877,20 @@ struct server_context {
-     ~server_context() {
+@@ -1966,14 +1966,20 @@ struct server_context {
+ 
          // Clear any sampling context
          for (server_slot & slot : slots) {
 -            common_sampler_free(slot.smpl);
@@ -127,7 +170,7 @@ index c580ec12..84cc9584 100644
  
              llama_batch_free(slot.batch_spec);
          }
-@@ -2005,7 +2010,7 @@ struct server_context {
+@@ -2137,7 +2143,7 @@ struct server_context {
  
              slot.reset();
  
@@ -136,8 +179,8 @@ index c580ec12..84cc9584 100644
          }
  
          default_generation_settings_for_props = slots[0].to_json();
-@@ -2106,7 +2111,7 @@ struct server_context {
-         return true;
+@@ -2236,7 +2242,7 @@ struct server_context {
+         return ret;
      }
  
 -    bool launch_slot_with_task(server_slot & slot, server_task && task) {
@@ -145,20 +188,7 @@ index c580ec12..84cc9584 100644
          slot.reset();
          slot.id_task       = task.id;
          slot.index         = task.index;
-@@ -2114,10 +2119,10 @@ struct server_context {
-         slot.params        = std::move(task.params);
-         slot.prompt_tokens = std::move(task.prompt_tokens);
- 
--        if (!are_lora_equal(slot.params.lora, slot.lora)) {
-+        if (!are_lora_equal(task.params.lora, slot.lora)) {
-             // if lora is changed, we cannot reuse cached tokens
-             slot.cache_tokens.clear();
--            slot.lora = slot.params.lora;
-+            slot.lora = task.params.lora;
-         }
- 
-         bool can_detokenize = can_be_detokenized(ctx, slot.prompt_tokens);
-@@ -2214,7 +2219,7 @@ struct server_context {
+@@ -2339,7 +2345,7 @@ struct server_context {
              }
  
              slot.add_token(result);
@@ -167,7 +197,7 @@ index c580ec12..84cc9584 100644
                  send_partial_response(slot, result);
              }
          }
-@@ -2548,10 +2553,10 @@ struct server_context {
+@@ -2695,10 +2701,10 @@ struct server_context {
              server_task task(SERVER_TASK_TYPE_CANCEL);
              task.id_target = id_task;
              queue_results.remove_waiting_task_id(id_task);
@@ -180,7 +210,7 @@ index c580ec12..84cc9584 100644
      }
  
      // receive the results from task(s)
-@@ -2638,7 +2643,7 @@ struct server_context {
+@@ -2785,7 +2791,7 @@ struct server_context {
      // Functions to process the task
      //
  
@@ -189,7 +219,7 @@ index c580ec12..84cc9584 100644
          switch (task.type) {
              case SERVER_TASK_TYPE_COMPLETION:
              case SERVER_TASK_TYPE_INFILL:
-@@ -2652,17 +2657,17 @@ struct server_context {
+@@ -2799,18 +2805,18 @@ struct server_context {
                      if (slot == nullptr) {
                          // if no slot is available, we defer this task for processing later
                          SRV_DBG("no slot is available, defer task, id_task = %d\n", task.id);
@@ -197,6 +227,7 @@ index c580ec12..84cc9584 100644
 +                        queue_tasks.defer(task);
                          break;
                      }
+ 
                      if (slot->is_processing()) {
                          // if requested slot is unavailable, we defer this task for processing later
                          SRV_DBG("requested slot is unavailable, defer task, id_task = %d\n", task.id);
@@ -210,7 +241,7 @@ index c580ec12..84cc9584 100644
                          SRV_ERR("failed to launch slot with task, id_task = %d\n", task.id);
                          break;
                      }
-@@ -2741,7 +2746,7 @@ struct server_context {
+@@ -2890,7 +2896,7 @@ struct server_context {
                      if (slot->is_processing()) {
                          // if requested slot is unavailable, we defer this task for processing later
                          SRV_DBG("requested slot is unavailable, defer task, id_task = %d\n", task.id);
@@ -219,7 +250,7 @@ index c580ec12..84cc9584 100644
                          break;
                      }
  
-@@ -2777,7 +2782,7 @@ struct server_context {
+@@ -2928,7 +2934,7 @@ struct server_context {
                      if (slot->is_processing()) {
                          // if requested slot is unavailable, we defer this task for processing later
                          SRV_DBG("requested slot is unavailable, defer task, id_task = %d\n", task.id);
@@ -228,7 +259,7 @@ index c580ec12..84cc9584 100644
                          break;
                      }
  
-@@ -2820,7 +2825,7 @@ struct server_context {
+@@ -2975,7 +2981,7 @@ struct server_context {
                      if (slot->is_processing()) {
                          // if requested slot is unavailable, we defer this task for processing later
                          SRV_DBG("requested slot is unavailable, defer task, id_task = %d\n", task.id);
@@ -237,7 +268,7 @@ index c580ec12..84cc9584 100644
                          break;
                      }
  
-@@ -2872,7 +2877,7 @@ struct server_context {
+@@ -3028,7 +3034,7 @@ struct server_context {
  
              server_task task(SERVER_TASK_TYPE_NEXT_RESPONSE);
              task.id = queue_tasks.get_new_id();
@@ -246,7 +277,7 @@ index c580ec12..84cc9584 100644
          }
  
          // apply context-shift if needed
-@@ -3441,7 +3446,7 @@ inline void signal_handler(int signal) {
+@@ -3704,7 +3710,7 @@ inline void signal_handler(int signal) {
      shutdown_handler(signal);
  }
  
@@ -255,11 +286,10 @@ index c580ec12..84cc9584 100644
      // own arguments required by this example
      common_params params;
  
-@@ -3634,17 +3639,14 @@ int main(int argc, char ** argv) {
-         }
+@@ -3902,12 +3908,10 @@ int main(int argc, char ** argv) {
  
          // request slots data using task queue
--        int task_id = ctx_server.queue_tasks.get_new_id();
+         int task_id = ctx_server.queue_tasks.get_new_id();
 -        {
 -            server_task task(SERVER_TASK_TYPE_METRICS);
 -            task.id = task_id;
@@ -267,23 +297,16 @@ index c580ec12..84cc9584 100644
 -            ctx_server.queue_tasks.post(std::move(task), true); // high-priority task
 -        }
 +        server_task task(SERVER_TASK_TYPE_METRICS);
-+        task.id = ctx_server.queue_tasks.get_new_id();
-+        ctx_server.queue_results.add_waiting_task_id(task.id);
++        task.id = task_id;
++        ctx_server.queue_results.add_waiting_task_id(task_id);
 +        ctx_server.queue_tasks.post(task, true); // high-priority task
  
          // get the result
--        server_task_result_ptr result = ctx_server.queue_results.recv(task_id);
--        ctx_server.queue_results.remove_waiting_task_id(task_id);
-+        server_task_result_ptr result = ctx_server.queue_results.recv(task.id);
-+        ctx_server.queue_results.remove_waiting_task_id(task.id);
- 
-         if (result->is_error()) {
-             res_error(res, result->to_json());
-@@ -3673,17 +3675,16 @@ int main(int argc, char ** argv) {
-         }
+         server_task_result_ptr result = ctx_server.queue_results.recv(task_id);
+@@ -3941,12 +3945,10 @@ int main(int argc, char ** argv) {
  
          // request slots data using task queue
--        int task_id = ctx_server.queue_tasks.get_new_id();
+         int task_id = ctx_server.queue_tasks.get_new_id();
 -        {
 -            server_task task(SERVER_TASK_TYPE_METRICS);
 -            task.id = task_id;
@@ -291,25 +314,16 @@ index c580ec12..84cc9584 100644
 -            ctx_server.queue_tasks.post(std::move(task), true); // high-priority task
 -        }
 +        server_task task(SERVER_TASK_TYPE_METRICS);
-+        task.id = ctx_server.queue_tasks.get_new_id();
-+        task.metrics_reset_bucket = true;
-+
-+        ctx_server.queue_results.add_waiting_task_id(task.id);
++        task.id = task_id;
++        ctx_server.queue_results.add_waiting_task_id(task_id);
 +        ctx_server.queue_tasks.post(task, true); // high-priority task
  
          // get the result
--        server_task_result_ptr result = ctx_server.queue_results.recv(task_id);
--        ctx_server.queue_results.remove_waiting_task_id(task_id);
-+        server_task_result_ptr result = ctx_server.queue_results.recv(task.id);
-+        ctx_server.queue_results.remove_waiting_task_id(task.id);
- 
-         if (result->is_error()) {
-             res_error(res, result->to_json());
-@@ -3780,20 +3781,17 @@ int main(int argc, char ** argv) {
-         }
+         server_task_result_ptr result = ctx_server.queue_results.recv(task_id);
+@@ -4040,16 +4042,14 @@ int main(int argc, char ** argv) {
          std::string filepath = params.slot_save_path + filename;
  
--        int task_id = ctx_server.queue_tasks.get_new_id();
+         int task_id = ctx_server.queue_tasks.get_new_id();
 -        {
 -            server_task task(SERVER_TASK_TYPE_SLOT_SAVE);
 -            task.id = task_id;
@@ -317,7 +331,7 @@ index c580ec12..84cc9584 100644
 -            task.slot_action.filename = filename;
 -            task.slot_action.filepath = filepath;
 +        server_task task(SERVER_TASK_TYPE_SLOT_SAVE);
-+        task.id = ctx_server.queue_tasks.get_new_id();
++        task.id = task_id;
 +        task.slot_action.slot_id  = id_slot;
 +        task.slot_action.filename = filename;
 +        task.slot_action.filepath = filepath;
@@ -325,21 +339,15 @@ index c580ec12..84cc9584 100644
 -            ctx_server.queue_results.add_waiting_task_id(task_id);
 -            ctx_server.queue_tasks.post(std::move(task));
 -        }
-+        ctx_server.queue_results.add_waiting_task_id(task.id);
++        ctx_server.queue_results.add_waiting_task_id(task_id);
 +        ctx_server.queue_tasks.post(task);
  
--        server_task_result_ptr result = ctx_server.queue_results.recv(task_id);
--        ctx_server.queue_results.remove_waiting_task_id(task_id);
-+        server_task_result_ptr result = ctx_server.queue_results.recv(task.id);
-+        ctx_server.queue_results.remove_waiting_task_id(task.id);
- 
-         if (result->is_error()) {
-             res_error(res, result->to_json());
-@@ -3812,20 +3810,17 @@ int main(int argc, char ** argv) {
-         }
+         server_task_result_ptr result = ctx_server.queue_results.recv(task_id);
+         ctx_server.queue_results.remove_waiting_task_id(task_id);
+@@ -4072,16 +4072,14 @@ int main(int argc, char ** argv) {
          std::string filepath = params.slot_save_path + filename;
  
--        int task_id = ctx_server.queue_tasks.get_new_id();
+         int task_id = ctx_server.queue_tasks.get_new_id();
 -        {
 -            server_task task(SERVER_TASK_TYPE_SLOT_RESTORE);
 -            task.id = task_id;
@@ -347,7 +355,7 @@ index c580ec12..84cc9584 100644
 -            task.slot_action.filename = filename;
 -            task.slot_action.filepath = filepath;
 +        server_task task(SERVER_TASK_TYPE_SLOT_RESTORE);
-+        task.id = ctx_server.queue_tasks.get_new_id();
++        task.id = task_id;
 +        task.slot_action.slot_id  = id_slot;
 +        task.slot_action.filename = filename;
 +        task.slot_action.filepath = filepath;
@@ -355,76 +363,51 @@ index c580ec12..84cc9584 100644
 -            ctx_server.queue_results.add_waiting_task_id(task_id);
 -            ctx_server.queue_tasks.post(std::move(task));
 -        }
-+        ctx_server.queue_results.add_waiting_task_id(task.id);
++        ctx_server.queue_results.add_waiting_task_id(task_id);
 +        ctx_server.queue_tasks.post(task);
  
--        server_task_result_ptr result = ctx_server.queue_results.recv(task_id);
--        ctx_server.queue_results.remove_waiting_task_id(task_id);
-+        server_task_result_ptr result = ctx_server.queue_results.recv(task.id);
-+        ctx_server.queue_results.remove_waiting_task_id(task.id);
- 
-         if (result->is_error()) {
-             res_error(res, result->to_json());
-@@ -3837,18 +3832,15 @@ int main(int argc, char ** argv) {
-     };
+         server_task_result_ptr result = ctx_server.queue_results.recv(task_id);
+         ctx_server.queue_results.remove_waiting_task_id(task_id);
+@@ -4097,14 +4095,12 @@ int main(int argc, char ** argv) {
  
      const auto handle_slots_erase = [&ctx_server, &res_error, &res_ok](const httplib::Request & /* req */, httplib::Response & res, int id_slot) {
--        int task_id = ctx_server.queue_tasks.get_new_id();
+         int task_id = ctx_server.queue_tasks.get_new_id();
 -        {
 -            server_task task(SERVER_TASK_TYPE_SLOT_ERASE);
 -            task.id = task_id;
 -            task.slot_action.slot_id = id_slot;
 +        server_task task(SERVER_TASK_TYPE_SLOT_ERASE);
-+        task.id = ctx_server.queue_tasks.get_new_id();
++        task.id = task_id;
 +        task.slot_action.slot_id = id_slot;
  
 -            ctx_server.queue_results.add_waiting_task_id(task_id);
 -            ctx_server.queue_tasks.post(std::move(task));
 -        }
-+        ctx_server.queue_results.add_waiting_task_id(task.id);
++        ctx_server.queue_results.add_waiting_task_id(task_id);
 +        ctx_server.queue_tasks.post(task);
  
--        server_task_result_ptr result = ctx_server.queue_results.recv(task_id);
--        ctx_server.queue_results.remove_waiting_task_id(task_id);
-+        server_task_result_ptr result = ctx_server.queue_results.recv(task.id);
-+        ctx_server.queue_results.remove_waiting_task_id(task.id);
- 
-         if (result->is_error()) {
-             res_error(res, result->to_json());
-@@ -3952,10 +3944,9 @@ int main(int argc, char ** argv) {
-         }
+         server_task_result_ptr result = ctx_server.queue_results.recv(task_id);
+         ctx_server.queue_results.remove_waiting_task_id(task_id);
+@@ -4224,10 +4220,8 @@ int main(int argc, char ** argv) {
+         GGML_ASSERT(type == SERVER_TASK_TYPE_COMPLETION || type == SERVER_TASK_TYPE_INFILL);
  
          auto completion_id = gen_chatcmplid();
 -        std::unordered_set<int> task_ids;
--        try {
--            std::vector<server_task> tasks;
 +        std::vector<server_task> tasks;
- 
-+        try {
+         try {
+-            std::vector<server_task> tasks;
+-
              const auto & prompt = data.at("prompt");
              // TODO: this log can become very long, put it behind a flag or think about a more compact format
              //SRV_DBG("Prompt: %s\n", prompt.is_string() ? prompt.get<std::string>().c_str() : prompt.dump(2).c_str());
-@@ -3970,9 +3961,9 @@ int main(int argc, char ** argv) {
- 
-                 task.prompt_tokens    = std::move(tokenized_prompts[i]);
-                 task.params           = server_task::params_from_json_cmpl(
--                        ctx_server.ctx,
--                        ctx_server.params_base,
--                        data);
-+                                            ctx_server.ctx,
-+                                            ctx_server.params_base,
-+                                            data);
-                 task.id_selected_slot = json_value(data, "id_slot", -1);
- 
-                 // OAI-compat
-@@ -3980,18 +3971,18 @@ int main(int argc, char ** argv) {
+@@ -4303,18 +4297,19 @@ int main(int argc, char ** argv) {
                  task.params.oaicompat_cmpl_id         = completion_id;
                  // oaicompat_model is already populated by params_from_json_cmpl
  
 -                tasks.push_back(std::move(task));
 +                tasks.push_back(task);
              }
--
+ 
 -            task_ids = server_task::get_list_id(tasks);
 -            ctx_server.queue_results.add_waiting_tasks(tasks);
 -            ctx_server.queue_tasks.post(std::move(tasks));
@@ -441,17 +424,20 @@ index c580ec12..84cc9584 100644
  
          if (!stream) {
              ctx_server.receive_multi_results(task_ids, [&](std::vector<server_task_result_ptr> & results) {
-@@ -4283,7 +4274,6 @@ int main(int argc, char ** argv) {
+@@ -4659,9 +4654,8 @@ int main(int argc, char ** argv) {
          // create and queue the task
          json responses = json::array();
          bool error = false;
 -        std::unordered_set<int> task_ids;
++        std::vector<server_task> tasks;
          {
-             std::vector<server_task> tasks;
+-            std::vector<server_task> tasks;
              for (size_t i = 0; i < tokenized_prompts.size(); i++) {
-@@ -4296,26 +4286,27 @@ int main(int argc, char ** argv) {
-                 // OAI-compat
+                 server_task task = server_task(SERVER_TASK_TYPE_EMBEDDING);
+ 
+@@ -4673,13 +4667,13 @@ int main(int argc, char ** argv) {
                  task.params.oaicompat = oaicompat;
+                 task.params.embd_normalize = embd_normalize;
  
 -                tasks.push_back(std::move(task));
 +                tasks.push_back(task);
@@ -460,50 +446,27 @@ index c580ec12..84cc9584 100644
 -            task_ids = server_task::get_list_id(tasks);
              ctx_server.queue_results.add_waiting_tasks(tasks);
 -            ctx_server.queue_tasks.post(std::move(tasks));
--        }
-+            ctx_server.queue_tasks.post(tasks);
+         }
++        ctx_server.queue_tasks.post(tasks);
++        std::unordered_set<int> task_ids = server_task::get_list_id(tasks);
  
--        // get the result
--        ctx_server.receive_multi_results(task_ids, [&](std::vector<server_task_result_ptr> & results) {
--            for (auto & res : results) {
--                GGML_ASSERT(dynamic_cast<server_task_result_embd*>(res.get()) != nullptr);
--                responses.push_back(res->to_json());
--            }
--        }, [&](const json & error_data) {
--            res_error(res, error_data);
--            error = true;
--        }, req.is_connection_closed);
-+            // get the result
-+            std::unordered_set<int> task_ids = server_task::get_list_id(tasks);
- 
--        ctx_server.queue_results.remove_waiting_task_ids(task_ids);
-+            ctx_server.receive_multi_results(task_ids, [&](std::vector<server_task_result_ptr> & results) {
-+                for (auto & res : results) {
-+                    GGML_ASSERT(dynamic_cast<server_task_result_embd*>(res.get()) != nullptr);
-+                    responses.push_back(res->to_json());
-+                }
-+            }, [&](const json & error_data) {
-+                res_error(res, error_data);
-+                error = true;
-+            }, req.is_connection_closed);
-+
-+            ctx_server.queue_results.remove_waiting_task_ids(task_ids);
-+        }
- 
-         if (error) {
-             return;
-@@ -4382,7 +4373,6 @@ int main(int argc, char ** argv) {
+         // get the result
+         ctx_server.receive_multi_results(task_ids, [&](std::vector<server_task_result_ptr> & results) {
+@@ -4759,9 +4753,8 @@ int main(int argc, char ** argv) {
          // create and queue the task
          json responses = json::array();
          bool error = false;
 -        std::unordered_set<int> task_ids;
++        std::vector<server_task> tasks;
          {
-             std::vector<server_task> tasks;
-             std::vector<llama_tokens> tokenized_docs = tokenize_input_prompts(ctx_server.vocab, documents, /* add_special */ false, true);
-@@ -4392,23 +4382,25 @@ int main(int argc, char ** argv) {
+-            std::vector<server_task> tasks;
+             auto tokenized_docs = tokenize_input_prompts(ctx_server.vocab, documents, /* add_special */ false, true);
+             tasks.reserve(tokenized_docs.size());
+             for (size_t i = 0; i < tokenized_docs.size(); i++) {
+@@ -4770,13 +4763,13 @@ int main(int argc, char ** argv) {
                  task.id            = ctx_server.queue_tasks.get_new_id();
                  task.index         = i;
-                 task.prompt_tokens = format_rerank(ctx_server.vocab, tokenized_query, tokenized_docs[i]);
+                 task.prompt_tokens = server_tokens(tmp, ctx_server.mctx != nullptr);
 -                tasks.push_back(std::move(task));
 +                tasks.push_back(task);
              }
@@ -511,45 +474,16 @@ index c580ec12..84cc9584 100644
 -            task_ids = server_task::get_list_id(tasks);
              ctx_server.queue_results.add_waiting_tasks(tasks);
 -            ctx_server.queue_tasks.post(std::move(tasks));
--        }
-+            ctx_server.queue_tasks.post(tasks);
- 
--        ctx_server.receive_multi_results(task_ids, [&](std::vector<server_task_result_ptr> & results) {
--            for (auto & res : results) {
--                GGML_ASSERT(dynamic_cast<server_task_result_rerank*>(res.get()) != nullptr);
--                responses.push_back(res->to_json());
--            }
--        }, [&](const json & error_data) {
--            res_error(res, error_data);
--            error = true;
--        }, req.is_connection_closed);
-+            // get the result
-+            std::unordered_set<int> task_ids = server_task::get_list_id(tasks);
-+
-+            ctx_server.receive_multi_results(task_ids, [&](std::vector<server_task_result_ptr> & results) {
-+                for (auto & res : results) {
-+                    GGML_ASSERT(dynamic_cast<server_task_result_rerank*>(res.get()) != nullptr);
-+                    responses.push_back(res->to_json());
-+                }
-+            }, [&](const json & error_data) {
-+                res_error(res, error_data);
-+                error = true;
-+            }, req.is_connection_closed);
-+        }
- 
-         if (error) {
-             return;
-@@ -4445,19 +4437,14 @@ int main(int argc, char ** argv) {
-             res_error(res, format_error_response("Request body must be an array", ERROR_TYPE_INVALID_REQUEST));
-             return;
          }
-+        server_task task(SERVER_TASK_TYPE_SET_LORA);
-+        task.id = ctx_server.queue_tasks.get_new_id();
-+        task.set_lora = parse_lora_request(ctx_server.params_base.lora_adapters, body);
-+        ctx_server.queue_results.add_waiting_task_id(task.id);
-+        ctx_server.queue_tasks.post(task);
++        ctx_server.queue_tasks.post(tasks);
++        std::unordered_set<int> task_ids = server_task::get_list_id(tasks);
  
--        int task_id = ctx_server.queue_tasks.get_new_id();
+         ctx_server.receive_multi_results(task_ids, [&](std::vector<server_task_result_ptr> & results) {
+             for (auto & res : results) {
+@@ -4825,13 +4818,11 @@ int main(int argc, char ** argv) {
+         }
+ 
+         int task_id = ctx_server.queue_tasks.get_new_id();
 -        {
 -            server_task task(SERVER_TASK_TYPE_SET_LORA);
 -            task.id = task_id;
@@ -557,16 +491,15 @@ index c580ec12..84cc9584 100644
 -            ctx_server.queue_results.add_waiting_task_id(task_id);
 -            ctx_server.queue_tasks.post(std::move(task));
 -        }
--
--        // get the result
--        server_task_result_ptr result = ctx_server.queue_results.recv(task_id);
--        ctx_server.queue_results.remove_waiting_task_id(task_id);
-+        server_task_result_ptr result = ctx_server.queue_results.recv(task.id);
-+        ctx_server.queue_results.remove_waiting_task_id(task.id);
++        server_task task(SERVER_TASK_TYPE_SET_LORA);
++        task.id = task_id;
++        task.set_lora = parse_lora_request(ctx_server.params_base.lora_adapters, body);
++        ctx_server.queue_results.add_waiting_task_id(task_id);
++        ctx_server.queue_tasks.post(task);
  
-         if (result->is_error()) {
-             res_error(res, result->to_json());
-@@ -4601,8 +4588,8 @@ int main(int argc, char ** argv) {
+         // get the result
+         server_task_result_ptr result = ctx_server.queue_results.recv(task_id);
+@@ -4983,8 +4974,8 @@ int main(int argc, char ** argv) {
          common_chat_templates_source(ctx_server.chat_templates.get()),
          common_chat_format_example(ctx_server.chat_templates.get(), ctx_server.params_base.use_jinja).c_str());
  
@@ -577,81 +510,21 @@ index c580ec12..84cc9584 100644
      });
  
      ctx_server.queue_tasks.on_update_slots([&ctx_server]() {
-diff --git a/examples/server/utils.hpp b/examples/server/utils.hpp
-index b497959f..ce397c84 100644
---- a/examples/server/utils.hpp
-+++ b/examples/server/utils.hpp
-@@ -6,9 +6,9 @@
- #include "base64.hpp"
+diff --git a/tools/server/utils.hpp b/tools/server/utils.hpp
+index f3dfc822..8686e3e1 100644
+--- a/tools/server/utils.hpp
++++ b/tools/server/utils.hpp
+@@ -10,11 +10,11 @@
+ #include "chat.h"
  
  // increase max payload length to allow use of larger context size
 -#define CPPHTTPLIB_FORM_URL_ENCODED_PAYLOAD_MAX_LENGTH 1048576
 +// #define CPPHTTPLIB_FORM_URL_ENCODED_PAYLOAD_MAX_LENGTH 1048576
+ // increase backlog size to avoid connection resets for >> 1 slots
+ #define CPPHTTPLIB_LISTEN_BACKLOG 512
  // disable Nagle's algorithm
 -#define CPPHTTPLIB_TCP_NODELAY true
 +// #define CPPHTTPLIB_TCP_NODELAY true
- #include "httplib.h"
+ #include <cpp-httplib/httplib.h>
  
- // Change JSON_ASSERT from assert() to GGML_ASSERT:
-diff --git a/ggml/src/CMakeLists.txt b/ggml/src/CMakeLists.txt
-index 43d9fc4f..0e8fa1db 100644
---- a/ggml/src/CMakeLists.txt
-+++ b/ggml/src/CMakeLists.txt
-@@ -139,11 +139,11 @@ endif()
- # Somehow in OpenBSD whenever POSIX conformance is specified
- # some string functions rely on locale_t availability,
- # which was introduced in POSIX.1-2008, forcing us to go higher
--if (CMAKE_SYSTEM_NAME MATCHES "OpenBSD")
--    add_compile_definitions(_XOPEN_SOURCE=700)
--else()
--    add_compile_definitions(_XOPEN_SOURCE=600)
--endif()
-+# if (CMAKE_SYSTEM_NAME MATCHES "OpenBSD")
-+#     add_compile_definitions(_XOPEN_SOURCE=700)
-+# else()
-+#     add_compile_definitions(_XOPEN_SOURCE=600)
-+# endif()
- 
- # Data types, macros and functions related to controlling CPU affinity and
- # some memory allocation are available on Linux through GNU extensions in libc
-@@ -183,7 +183,7 @@ endif()
- # ggml
- 
- if (GGML_BACKEND_DL AND NOT BUILD_SHARED_LIBS)
--    message(FATAL_ERROR "GGML_BACKEND_DL requires BUILD_SHARED_LIBS")
-+    message(WARNING "GGML_BACKEND_DL requires BUILD_SHARED_LIBS")
- endif()
- 
- add_library(ggml-base
-diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-index eac0b422..d96727d3 100644
---- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-+++ b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-@@ -90,7 +90,7 @@ static bool is_pow2(uint32_t x) { return x > 1 && (x & (x-1)) == 0; }
-         if (err_ != vk::Result::eSuccess) {                         \
-             fprintf(stderr, "ggml_vulkan: %s error %s at %s:%d\n",  \
-                 #err, to_string(err_).c_str(), __FILE__, __LINE__); \
--            exit(1);                                                \
-+            std::terminate();                                                \
-         }                                                           \
-     } while (0)
- 
-diff --git a/ggml/src/ggml.c b/ggml/src/ggml.c
-index 7654ae17..9748ebdc 100644
---- a/ggml/src/ggml.c
-+++ b/ggml/src/ggml.c
-@@ -182,7 +182,13 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {
-     fprintf(stderr, "\n");
- 
-     ggml_print_backtrace();
--    abort();
-+    raise(SIGSEGV);
-+#ifdef _MSC_VER
-+    __assume(0);
-+#else
-+    __builtin_unreachable();
-+#endif
-+
- }
- 
- //
+ #define JSON_ASSERT GGML_ASSERT
