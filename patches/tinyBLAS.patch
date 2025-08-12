@@ -1,5 +1,5 @@
 diff --git a/ggml/src/ggml-cuda/CMakeLists.txt b/ggml/src/ggml-cuda/CMakeLists.txt
-index f3cfdeae..069309c6 100644
+index f3cfdeae..723167b3 100644
 --- a/ggml/src/ggml-cuda/CMakeLists.txt
 +++ b/ggml/src/ggml-cuda/CMakeLists.txt
 @@ -28,9 +28,16 @@ if (CUDAToolkit_FOUND)
@@ -16,7 +16,7 @@ index f3cfdeae..069309c6 100644
 +    list(APPEND GGML_SOURCES_CUDA ${SRCS})
 +    endif()
 +
-+    if (NOT GGML_CUDA_NO_FA)
++    if (GGML_CUDA_FA)
 +    file(GLOB   SRCS "template-instances/fattn-mma*.cu")
      list(APPEND GGML_SOURCES_CUDA ${SRCS})
  
@@ -29,6 +29,17 @@ index f3cfdeae..069309c6 100644
  
      ggml_add_backend_library(ggml-cuda
                               ${GGML_HEADERS_CUDA}
+@@ -73,6 +81,10 @@ if (CUDAToolkit_FOUND)
+         add_compile_definitions(GGML_CUDA_NO_FA)
+     endif()
+ 
++    if (GGML_CUDA_NO_IQUANTS)
++        add_compile_definitions(GGML_CUDA_NO_IQUANTS)
++    endif()
++
+     if (GGML_CUDA_F16 OR GGML_CUDA_DMMV_F16)
+         add_compile_definitions(GGML_CUDA_F16)
+     endif()
 diff --git a/ggml/src/ggml-cuda/common.cuh b/ggml/src/ggml-cuda/common.cuh
 index 2ea014e6..d55247b6 100644
 --- a/ggml/src/ggml-cuda/common.cuh
@@ -1386,7 +1397,7 @@ index 1a28831b..c871f88c 100644
  static __device__ __forceinline__ int __vsubss4(const int a, const int b) {
 diff --git a/ggml/src/ggml-cuda/vendors/tinyblas_vendor.h b/ggml/src/ggml-cuda/vendors/tinyblas_vendor.h
 new file mode 100644
-index 00000000..84cec64f
+index 00000000..0ddcf366
 --- /dev/null
 +++ b/ggml/src/ggml-cuda/vendors/tinyblas_vendor.h
 @@ -0,0 +1,27 @@
@@ -1417,11 +1428,8 @@ index 00000000..84cec64f
 +#define cublasGetStatusString tinyblasGetStatusString
 +#define cudaDataType_t tinyblasDataType_t
 +#define cublasSetMathMode(handle, mode) CUBLAS_STATUS_SUCCESS
-+
-+#define BLAS_NAME "tinyBLAS"
-\ No newline at end of file
 diff --git a/ggml/src/ggml-hip/CMakeLists.txt b/ggml/src/ggml-hip/CMakeLists.txt
-index 1fe8fe3b..27556bc3 100644
+index 1fe8fe3b..88d1b41e 100644
 --- a/ggml/src/ggml-hip/CMakeLists.txt
 +++ b/ggml/src/ggml-hip/CMakeLists.txt
 @@ -59,9 +59,17 @@ file(GLOB   GGML_HEADERS_ROCM "../ggml-cuda/*.cuh")
@@ -1431,15 +1439,15 @@ index 1fe8fe3b..27556bc3 100644
 -file(GLOB   SRCS "../ggml-cuda/template-instances/fattn-mma*.cu")
 +
 +file(GLOB   SRCS "../ggml-cuda/template-instances/mmq-instance-q*.cu")
-+list(APPEND GGML_SOURCES_ROCM ${SRCS})
+ list(APPEND GGML_SOURCES_ROCM ${SRCS})
+-file(GLOB   SRCS "../ggml-cuda/template-instances/mmq*.cu")
 +
 +if (NOT GGML_CUDA_NO_IQUANTS)
 +file(GLOB   SRCS "../ggml-cuda/template-instances/mmq-instance-i*.cu")
- list(APPEND GGML_SOURCES_ROCM ${SRCS})
--file(GLOB   SRCS "../ggml-cuda/template-instances/mmq*.cu")
++list(APPEND GGML_SOURCES_ROCM ${SRCS})
 +endif()
 +
-+if (NOT GGML_CUDA_NO_FA)
++if (GGML_CUDA_FA)
 +file(GLOB   SRCS "../ggml-cuda/template-instances/fattn-mma*.cu")
  list(APPEND GGML_SOURCES_ROCM ${SRCS})
  
@@ -1452,3 +1460,14 @@ index 1fe8fe3b..27556bc3 100644
  
  ggml_add_backend_library(ggml-hip
                           ${GGML_HEADERS_ROCM}
+@@ -117,6 +126,10 @@ if (NOT GGML_CUDA_FA)
+     add_compile_definitions(GGML_CUDA_NO_FA)
+ endif()
+ 
++if (GGML_CUDA_NO_IQUANTS)
++    add_compile_definitions(GGML_CUDA_NO_IQUANTS)
++endif()
++
+ if (CXX_IS_HIPCC)
+     set_source_files_properties(${GGML_SOURCES_ROCM} PROPERTIES LANGUAGE CXX)
+     target_link_libraries(ggml-hip PRIVATE hip::device)

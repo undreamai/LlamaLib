@@ -127,6 +127,12 @@ add_custom_target(generate_assets ALL DEPENDS ${GENERATED_HEADERS})
 
 ################################################ BUILD ################################################
 
+
+if(ARCHITECTURE MATCHES "tinyblas")
+    set(GGML_CUDA_FA OFF)
+    set(GGML_CUDA_NO_IQUANTS ON)
+endif()
+
 add_subdirectory("llama.cpp")
 
 # Output override
@@ -145,7 +151,7 @@ endif()
 if(ARCHITECTURE MATCHES "tinyblas")
     foreach (target common ggml-cuda ggml-hip ggml-musa)
         if (TARGET ${target})
-            target_compile_definitions(${target} PUBLIC GGML_USE_TINYBLAS GGML_CUDA_NO_FA GGML_CUDA_NO_IQUANTS)
+            target_compile_definitions(${target} PUBLIC GGML_USE_TINYBLAS)
         endif()
     endforeach()
 endif()
