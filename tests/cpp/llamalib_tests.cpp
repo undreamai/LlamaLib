@@ -89,7 +89,7 @@ void count_calls(const char *c)
 
 void test_template(LLMProvider *llm, bool use_api)
 {
-    std::string chat_template = "phi3";
+    std::string chat_template = "llama2";
     std::cout << "set_template" << std::endl;
     if (use_api)
         LLM_Set_Template(llm, chat_template.c_str());
@@ -102,7 +102,6 @@ void test_template(LLMProvider *llm, bool use_api)
         get_template = LLM_Get_Template(llm);
     else
         get_template = llm->get_template();
-    std::cout << get_template << std::endl;
     ASSERT(get_template == chat_template);
 
     llm->set_template("chatml");
@@ -111,6 +110,7 @@ void test_template(LLMProvider *llm, bool use_api)
 void test_apply_template(LLM *llm, bool use_api)
 {
     std::cout << "apply_template" << std::endl;
+    std::cout << llm->get_template() << std::endl;
     json data = json::array();
     data.push_back({{"role", "user"}, {"content", "how are you?"}});
     data.push_back({{"role", "assistant"}, {"content", "fine, thanks, and you?"}});
@@ -831,7 +831,7 @@ void run_mock_tests()
 
     // --- Get / Set Template ---
     {
-        std::string chat_template = "strange";
+        std::string chat_template = "llama2";
         json input_json = {{"chat_template", chat_template}};
 
         ASSERT(llm.build_set_template_json(chat_template) == input_json);

@@ -101,10 +101,8 @@ if(ARCHITECTURE MATCHES "tinyblas")
 endif()
 
 # copy include files needed into LlamaLib
-message(STATUS "${LLAMA_CPP_ROOT}/common/json.hpp ${CMAKE_SOURCE_DIR}/include")
-message(STATUS "${LLAMA_CPP_ROOT}/examples/server/httplib.h ${CMAKE_SOURCE_DIR}/include")
-file(COPY ${LLAMA_CPP_ROOT}/common/json.hpp DESTINATION ${CMAKE_SOURCE_DIR}/include)
-file(COPY ${LLAMA_CPP_ROOT}/examples/server/httplib.h DESTINATION ${CMAKE_SOURCE_DIR}/include)
+file(COPY ${LLAMA_CPP_ROOT}/vendor/nlohmann/json.hpp DESTINATION ${CMAKE_SOURCE_DIR}/include)
+file(COPY ${LLAMA_CPP_ROOT}/vendor/cpp-httplib/httplib.h DESTINATION ${CMAKE_SOURCE_DIR}/include)
 
 set(PUBLIC_ASSETS
     index.html.gz
@@ -113,8 +111,8 @@ set(PUBLIC_ASSETS
 
 # generate files needed by llama.cpp
 foreach(asset ${PUBLIC_ASSETS})
-    set(input "${LLAMA_CPP_ROOT}/examples/server/public/${asset}")
-    set(output "${LLAMA_CPP_ROOT}/examples/server/${asset}.hpp")
+    set(input "${LLAMA_CPP_ROOT}/tools/server/public/${asset}")
+    set(output "${LLAMA_CPP_ROOT}/tools/server/${asset}.hpp")
     list(APPEND GENERATED_HEADERS ${output})
 
     add_custom_command(
@@ -130,6 +128,7 @@ add_custom_target(generate_assets ALL DEPENDS ${GENERATED_HEADERS})
 ################################################ BUILD ################################################
 
 add_subdirectory("llama.cpp")
+add_subdirectory("llama.cpp/tools/mtmd")
 
 # Output override
 set_property(DIRECTORY llama.cpp PROPERTY CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
