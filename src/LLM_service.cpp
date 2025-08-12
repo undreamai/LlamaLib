@@ -322,8 +322,8 @@ void LLMService::init(int argc, char **argv)
 
         init_template();
 
-        ctx_server->queue_tasks.on_new_task([this](const server_task &task)
-                                            { this->ctx_server->process_single_task(task); });
+        ctx_server->queue_tasks.on_new_task([this](server_task && task)
+                                            { this->ctx_server->process_single_task(std::move(task)); });
         ctx_server->queue_tasks.on_update_slots([this]()
                                                 { this->ctx_server->update_slots(); });
     }
@@ -567,7 +567,7 @@ void LLMService::start_server(const std::string &host, int port, const std::stri
     const auto chat_completion_post = [this, &res_error](const httplib::Request &req, httplib::Response &res)
     {
         json body = handle_post(req, res);
-        json data = oaicompat_completion_params_parse(body, params->use_jinja, params->reasoning_format, ctx_server->chat_templates.get());
+        json data = oaicompat_completion_params_parse(body);
         LOG_DBG("formatted prompt: %s\n", data.dump().c_str());
         completion_json(data, nullptr, true, &res, req.is_connection_closed, OAICOMPAT_TYPE_CHAT);
     };
@@ -824,6 +824,16 @@ void LLMService::set_template(std::string chat_template)
         return;
     params->chat_template = chat_template;
     ctx_server->chat_templates = common_chat_templates_init(ctx_server->model, chat_template);
+    ctx_server->oai_parser_opt = {
+        /* use_jinja             */ params->use_jinja,
+        /* prefill_assistant     */ params->prefill_assistant,
+        /* reasoning_format      */ params->reasoning_format,
+        /* chat_template_kwargs  */ params->default_template_kwargs,
+        /* common_chat_templates */ ctx_server->chat_templates.get(),
+        /* allow_image           */ false,
+        /* allow_audio           */ false,
+        /* enable_thinking       */ params->reasoning_budget != 0,
+    };
 }
 
 std::string LLMService::apply_template(const json &messages)
@@ -835,7 +845,12 @@ std::string LLMService::apply_template_json(const json &body)
 {
     if (setjmp(get_jump_point(true)) != 0)
         return "";
-    json data = oaicompat_completion_params_parse(body, params->use_jinja, params->reasoning_format, ctx_server->chat_templates.get());
+    std::vector<raw_buffer> files; // dummy, unused
+    json copy = body;
+    json data = oaicompat_chat_params_parse(
+        copy,
+        ctx_server->oai_parser_opt,
+        files);
     return safe_json_to_str({{"prompt", std::move(data.at("prompt"))}});
 }
 
@@ -999,16 +1014,16 @@ std::string LLMService::embeddings_json(
 
             task.id = ctx_server->queue_tasks.get_new_id();
             task.index = i;
-            task.prompt_tokens = std::move(tokenized_prompts[i]);
+            task.prompt_tokens = server_tokens(tokenized_prompts[i], ctx_server->mctx != nullptr);
 
             // OAI-compat
             task.params.oaicompat = oaicompat;
 
-            tasks.push_back(task);
+            tasks.push_back(std::move(task));
         }
 
         ctx_server->queue_results.add_waiting_tasks(tasks);
-        ctx_server->queue_tasks.post(tasks);
+        ctx_server->queue_tasks.post(std::move(tasks));
 
         // get the result
         std::unordered_set<int> task_ids = server_task::get_list_id(tasks);
@@ -1091,7 +1106,7 @@ std::string LLMService::lora_weight_json(const json &body, httplib::Response *re
     task.id = ctx_server->queue_tasks.get_new_id();
     task.set_lora = lora;
     ctx_server->queue_results.add_waiting_task_id(task.id);
-    ctx_server->queue_tasks.post(task);
+    ctx_server->queue_tasks.post(std::move(task));
 
     server_task_result_ptr result = ctx_server->queue_results.recv(task.id);
     ctx_server->queue_results.remove_waiting_task_id(task.id);
@@ -1258,7 +1273,7 @@ std::string LLMService::completion_json(
                 task.id = ctx_server->queue_tasks.get_new_id();
                 task.index = i;
 
-                task.prompt_tokens = std::move(tokenized_prompts[i]);
+                task.prompt_tokens = server_tokens(tokenized_prompts[i], ctx_server->mctx != nullptr);
                 task.params = server_task::params_from_json_cmpl(
                     ctx_server->ctx,
                     ctx_server->params_base,
@@ -1271,12 +1286,12 @@ std::string LLMService::completion_json(
                 task.params.oaicompat_cmpl_id = completion_id;
                 // oaicompat_model is already populated by params_from_json_cmpl
 
-                tasks.push_back(task);
+                tasks.push_back(std::move(task));
             }
 
             task_ids = server_task::get_list_id(tasks);
             ctx_server->queue_results.add_waiting_tasks(tasks);
-            ctx_server->queue_tasks.post(tasks);
+            ctx_server->queue_tasks.post(std::move(tasks));
         }
         catch (const std::exception &e)
         {
@@ -1286,7 +1301,7 @@ std::string LLMService::completion_json(
         }
 
         ctx_server->queue_results.add_waiting_tasks(tasks);
-        ctx_server->queue_tasks.post(tasks);
+        ctx_server->queue_tasks.post(std::move(tasks));
 
         if (!stream)
         {
@@ -1413,7 +1428,7 @@ std::string LLMService::slot_json(
         }
 
         ctx_server->queue_results.add_waiting_task_id(task.id);
-        ctx_server->queue_tasks.post(task);
+        ctx_server->queue_tasks.post(std::move(task));
 
         server_task_result_ptr result = ctx_server->queue_results.recv(task.id);
         ctx_server->queue_results.remove_waiting_task_id(task.id);
