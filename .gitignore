@@ -4,6 +4,9 @@
 build*/*
 csharp/*/*
 tests/csharp/*/*
+examples/csharp/*/bin
+examples/csharp/*/obj
+examples/csharp/*/Debug
 *gguf
 include/httplib.h
 include/json.hpp

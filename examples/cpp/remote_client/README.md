@@ -2,7 +2,7 @@
 
 ## What it does
 
-The local client example demonstrates the local functionality of the `LLMClient` class.  
+The remote client example demonstrates the remote server-client functionality of the `LLMClient` class.  
 The `LLMClient` class in remote mode connects to an LLM server running on a different process or machine via HTTP. This example demonstrates:
 
 - **Client-Server Architecture**: Separating LLM processing from client application
@@ -26,12 +26,12 @@ make
 ## How to Run
 1. Copy a model .gguf file as `model.gguf` inside the directory (or change the `model = ...` line in server.cpp)
 
-2. Run server
+2. Run the server
 ```bash
 ./server
 ```
 
-2. Run client
+3. Run the client in a second terminal
 ```bash
 ./main
 ```
