@@ -63,7 +63,7 @@ index a23da57e..b215e037 100644
  #endif // !defined(GGML_CUDA_NO_FA) && !(defined(GGML_USE_MUSA) && __MUSA_ARCH__ < 220)
  
 diff --git a/ggml/src/ggml-cuda/ggml-cuda.cu b/ggml/src/ggml-cuda/ggml-cuda.cu
-index d9110491..e5faa7c7 100644
+index d9110491..49055346 100644
 --- a/ggml/src/ggml-cuda/ggml-cuda.cu
 +++ b/ggml/src/ggml-cuda/ggml-cuda.cu
 @@ -1237,7 +1237,9 @@ static void ggml_cuda_op_mul_mat_cublas(
@@ -81,7 +81,7 @@ index d9110491..e5faa7c7 100644
  
          const to_fp32_cuda_t to_fp32_cuda = ggml_get_to_fp32_cuda(GGML_TYPE_BF16);
          to_fp32_cuda(dst_bf16.get(), dst_dd_i, row_diff*src1_ncols, stream);
-++#endif //GGML_USE_TINYBLAS
++#endif //GGML_USE_TINYBLAS
      } else if (fast_fp16_hardware_available(cc) && use_fp16) {
          // convert src0 and src1 to fp16, multiply as fp16, convert dst to fp32
          ggml_cuda_pool_alloc<half> src0_as_f16(ctx.pool(id));
