@@ -8,6 +8,8 @@
 
 #include <iostream>
 #include <fstream>
+#include <thread>
+#include <chrono>
 
 std::string PROMPT = "you are an artificial intelligence assistant\n\n### user: Hello, how are you?\n### assistant";
 int ID_SLOT = 0;
@@ -1052,6 +1054,7 @@ int main(int argc, char **argv)
               << "-------- LLM remote client --------" << std::endl;
     LLMClient llm_remote_client("http://localhost", 8080);
     llm_service->start_server("", 8080);
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
     run_LLMLocal_tests(&llm_remote_client);
     llm_service->stop_server();
 
@@ -1062,6 +1065,7 @@ int main(int argc, char **argv)
     LLMClient llm_remote_client_SSL("https://localhost", 8080);
     set_SSL(llm_service, &llm_remote_client_SSL);
     llm_service->start_server("", 8080);
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
     run_LLMLocal_tests(&llm_remote_client_SSL);
     llm_service->stop_server();
 
