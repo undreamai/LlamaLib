@@ -88,6 +88,36 @@ index 55a76f82..7895087a 100644
  }
  
  // ggml_print_backtrace is registered with std::set_terminate by ggml.cpp
+diff --git a/tools/mtmd/CMakeLists.txt b/tools/mtmd/CMakeLists.txt
+index 4baa15b9..097f5564 100644
+--- a/tools/mtmd/CMakeLists.txt
++++ b/tools/mtmd/CMakeLists.txt
+@@ -47,14 +47,14 @@ if (TARGET BUILD_INFO)
+     add_dependencies(mtmd-helper BUILD_INFO)
+ endif()
+ 
+-add_executable(llama-llava-cli    deprecation-warning.cpp)
+-add_executable(llama-gemma3-cli   deprecation-warning.cpp)
+-add_executable(llama-minicpmv-cli deprecation-warning.cpp)
+-add_executable(llama-qwen2vl-cli  deprecation-warning.cpp)
+-
+-set(TARGET llama-mtmd-cli)
+-add_executable         (${TARGET} mtmd-cli.cpp)
+-set_target_properties  (${TARGET} PROPERTIES OUTPUT_NAME llama-mtmd-cli)
+-install                (TARGETS ${TARGET} RUNTIME)
+-target_link_libraries  (${TARGET} PRIVATE common mtmd Threads::Threads)
+-target_compile_features(${TARGET} PRIVATE cxx_std_17)
++# add_executable(llama-llava-cli    deprecation-warning.cpp)
++# add_executable(llama-gemma3-cli   deprecation-warning.cpp)
++# add_executable(llama-minicpmv-cli deprecation-warning.cpp)
++# add_executable(llama-qwen2vl-cli  deprecation-warning.cpp)
++
++# set(TARGET llama-mtmd-cli)
++# add_executable         (${TARGET} mtmd-cli.cpp)
++# set_target_properties  (${TARGET} PROPERTIES OUTPUT_NAME llama-mtmd-cli)
++# install                (TARGETS ${TARGET} RUNTIME)
++# target_link_libraries  (${TARGET} PRIVATE common mtmd Threads::Threads)
++# target_compile_features(${TARGET} PRIVATE cxx_std_17)
 diff --git a/tools/server/server.cpp b/tools/server/server.cpp
 index 45f50e93..345aa8f8 100644
 --- a/tools/server/server.cpp
