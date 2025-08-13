@@ -63,7 +63,7 @@ index a23da57e..b215e037 100644
  #endif // !defined(GGML_CUDA_NO_FA) && !(defined(GGML_USE_MUSA) && __MUSA_ARCH__ < 220)
  
 diff --git a/ggml/src/ggml-cuda/ggml-cuda.cu b/ggml/src/ggml-cuda/ggml-cuda.cu
-index d9110491..49055346 100644
+index d9110491..ccc01e00 100644
 --- a/ggml/src/ggml-cuda/ggml-cuda.cu
 +++ b/ggml/src/ggml-cuda/ggml-cuda.cu
 @@ -1237,7 +1237,9 @@ static void ggml_cuda_op_mul_mat_cublas(
@@ -85,7 +85,35 @@ index d9110491..49055346 100644
      } else if (fast_fp16_hardware_available(cc) && use_fp16) {
          // convert src0 and src1 to fp16, multiply as fp16, convert dst to fp32
          ggml_cuda_pool_alloc<half> src0_as_f16(ctx.pool(id));
-@@ -2482,9 +2485,11 @@ static bool ggml_cuda_compute_forward(ggml_backend_cuda_context & ctx, struct gg
+@@ -1795,6 +1798,7 @@ struct batched_mul_mat_traits<GGML_TYPE_F32> {
+     static inline auto get_nc_converter(ggml_type src_type) { return ggml_get_to_fp32_nc_cuda(src_type); }
+ };
+ 
++#ifndef GGML_USE_TINYBLAS
+ template<>
+ struct batched_mul_mat_traits<GGML_TYPE_BF16> {
+     using cuda_type = nv_bfloat16;
+@@ -1807,6 +1811,7 @@ struct batched_mul_mat_traits<GGML_TYPE_BF16> {
+     static inline const void* get_beta() { static const float val = beta; return &val; }
+     static inline auto get_nc_converter(ggml_type src_type) { return ggml_get_to_bf16_nc_cuda(src_type); }
+ };
++#endif
+ 
+ template<>
+ struct batched_mul_mat_traits<GGML_TYPE_F16> {
+@@ -1989,9 +1994,11 @@ static void ggml_cuda_mul_mat_batched_cublas(ggml_backend_cuda_context & ctx, co
+         case GGML_TYPE_F32:
+             ggml_cuda_mul_mat_batched_cublas_impl<GGML_TYPE_F32>(ctx, src0, src1, dst);
+             break;
++#ifndef GGML_USE_TINYBLAS
+         case GGML_TYPE_BF16:
+             ggml_cuda_mul_mat_batched_cublas_impl<GGML_TYPE_BF16>(ctx, src0, src1, dst);
+             break;
++#endif
+         case GGML_TYPE_F16:
+             ggml_cuda_mul_mat_batched_cublas_impl<GGML_TYPE_F16>(ctx, src0, src1, dst);
+             break;
+@@ -2482,9 +2489,11 @@ static bool ggml_cuda_compute_forward(ggml_backend_cuda_context & ctx, struct gg
          case GGML_OP_ARGSORT:
              ggml_cuda_op_argsort(ctx, dst);
              break;
@@ -98,10 +126,22 @@ index d9110491..49055346 100644
              ggml_cuda_cross_entropy_loss(ctx, dst);
              break;
 diff --git a/ggml/src/ggml-cuda/mmq.cu b/ggml/src/ggml-cuda/mmq.cu
-index 384ee761..2e2ab603 100644
+index 384ee761..e1a9ef35 100644
 --- a/ggml/src/ggml-cuda/mmq.cu
 +++ b/ggml/src/ggml-cuda/mmq.cu
-@@ -38,6 +38,7 @@ static void ggml_cuda_mul_mat_q_switch_type(ggml_backend_cuda_context & ctx, con
+@@ -20,9 +20,11 @@ static void ggml_cuda_mul_mat_q_switch_type(ggml_backend_cuda_context & ctx, con
+         case GGML_TYPE_Q8_0:
+             mul_mat_q_case<GGML_TYPE_Q8_0>(ctx, args, stream);
+             break;
++#ifndef GGML_USE_TINYBLAS
+         case GGML_TYPE_MXFP4:
+             mul_mat_q_case<GGML_TYPE_MXFP4>(ctx, args, stream);
+             break;
++#endif
+         case GGML_TYPE_Q2_K:
+             mul_mat_q_case<GGML_TYPE_Q2_K>(ctx, args, stream);
+             break;
+@@ -38,6 +40,7 @@ static void ggml_cuda_mul_mat_q_switch_type(ggml_backend_cuda_context & ctx, con
          case GGML_TYPE_Q6_K:
              mul_mat_q_case<GGML_TYPE_Q6_K>(ctx, args, stream);
              break;
@@ -109,7 +149,7 @@ index 384ee761..2e2ab603 100644
          case GGML_TYPE_IQ2_XXS:
              mul_mat_q_case<GGML_TYPE_IQ2_XXS>(ctx, args, stream);
              break;
-@@ -62,6 +63,7 @@ static void ggml_cuda_mul_mat_q_switch_type(ggml_backend_cuda_context & ctx, con
+@@ -62,6 +65,7 @@ static void ggml_cuda_mul_mat_q_switch_type(ggml_backend_cuda_context & ctx, con
          case GGML_TYPE_IQ4_NL:
              mul_mat_q_case<GGML_TYPE_IQ4_NL>(ctx, args, stream);
              break;
