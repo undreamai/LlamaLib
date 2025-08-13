@@ -495,8 +495,10 @@ void LLMService::start_server(const std::string &host, int port, const std::stri
     svr->set_write_timeout(params->timeout_write);
 
     bool was_bound = false;
+    bool is_sock = false;
     if (string_ends_with(std::string(params->hostname), ".sock"))
     {
+        is_sock = true;
         LOG_INF("%s: setting address family to AF_UNIX\n", __func__);
         svr->set_address_family(AF_UNIX);
         // bind_to_port requires a second arg, any value other than 0 should
@@ -617,20 +619,20 @@ void LLMService::start_server(const std::string &host, int port, const std::stri
     //
 
     // register API routes
-    svr->Post("/completion", completion_post); // legacy
-    svr->Post("/completions", completion_post);
-    svr->Post("/chat/completions", chat_completion_post);
-    svr->Post("/v1/chat/completions", chat_completion_post);
-    svr->Post("/tokenize", tokenize_post);
-    svr->Post("/detokenize", detokenize_post);
-    svr->Post("/apply-template", apply_template_post);
-    svr->Post("/embedding", embeddings_post); // legacy
-    svr->Post("/embeddings", embeddings_post);
-    svr->Post("/get-template", get_template_post);
+    svr->Post(params->api_prefix + "/completion", completion_post); // legacy
+    svr->Post(params->api_prefix + "/completions", completion_post);
+    svr->Post(params->api_prefix + "/chat/completions", chat_completion_post);
+    svr->Post(params->api_prefix + "/v1/chat/completions", chat_completion_post);
+    svr->Post(params->api_prefix + "/tokenize", tokenize_post);
+    svr->Post(params->api_prefix + "/detokenize", detokenize_post);
+    svr->Post(params->api_prefix + "/apply-template", apply_template_post);
+    svr->Post(params->api_prefix + "/embedding", embeddings_post); // legacy
+    svr->Post(params->api_prefix + "/embeddings", embeddings_post);
+    svr->Post(params->api_prefix + "/get-template", get_template_post);
     // svr->Get ("/lora-adapters",       lora_list_post);
-    // svr->Post("/lora-adapters-list",  lora_list_post);
-    // svr->Post("/lora-adapters",       lora_weight_post);
-    // svr->Post("/slots",               slots_post);
+    // svr->Post(params->api_prefix + "/lora-adapters-list",  lora_list_post);
+    // svr->Post(params->api_prefix + "/lora-adapters",       lora_weight_post);
+    // svr->Post(params->api_prefix + "/slots",               slots_post);
 
     //
     // Start the server
@@ -654,7 +656,9 @@ void LLMService::start_server(const std::string &host, int port, const std::stri
         return 0; });
     svr->wait_until_ready();
 
-    LLAMALIB_INF("%s: HTTP server is listening, hostname: %s, port: %d, http threads: %d\n", __func__, params->hostname.c_str(), params->port, params->n_threads_http);
+    LLAMALIB_INF("%s: server is listening on %s - starting the main loop\n", __func__,
+                 is_sock ? string_format("unix://%s", params->hostname.c_str()).c_str() :
+                 string_format("http://%s:%d", params->hostname.c_str(), params->port).c_str());
 }
 
 void LLMService::stop_server()
@@ -869,9 +873,10 @@ std::string LLMService::tokenize_json(const json &body)
         if (body.count("content") != 0)
         {
             const bool add_special = json_value(body, "add_special", false);
+            const bool parse_special = json_value(body, "parse_special", true);
             const bool with_pieces = json_value(body, "with_pieces", false);
 
-            llama_tokens tokens = tokenize_mixed(ctx_server->vocab, body.at("content"), add_special, true);
+            llama_tokens tokens = tokenize_mixed(ctx_server->vocab, body.at("content"), add_special, parse_special);
 
             if (with_pieces)
             {
@@ -1003,6 +1008,14 @@ std::string LLMService::embeddings_json(
         }
     }
 
+    int embd_normalize = 2; // default to Euclidean/L2 norm
+    if (body.count("embd_normalize") != 0) {
+        embd_normalize = body.at("embd_normalize");
+        if (llama_pooling_type(ctx_server->ctx) == LLAMA_POOLING_TYPE_NONE) {
+            SRV_DBG("embd_normalize is not supported by pooling type %d, ignoring it\n", llama_pooling_type(ctx_server->ctx));
+        }
+    }
+
     // create and queue the task
     json responses = json::array();
     bool error = false;
@@ -1018,6 +1031,7 @@ std::string LLMService::embeddings_json(
 
             // OAI-compat
             task.params.oaicompat = oaicompat;
+            task.params.embd_normalize = embd_normalize;
 
             tasks.push_back(std::move(task));
         }
