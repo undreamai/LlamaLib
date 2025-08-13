@@ -161,7 +161,7 @@ jobs:
               lipo -create -output $output osx-x64_$acc/$f osx-arm64_$acc/`echo $f|sed -e "s:x64:arm64:g"`
             done
           done
-          zip -r ../${{ matrix.arch }}.zip ${{ matrix.arch }}
+          zip -j ../${{ matrix.arch }}.zip ${{ matrix.arch }}/*
 
 ################################ Windows ################################
 
