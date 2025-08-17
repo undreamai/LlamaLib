@@ -1178,20 +1178,7 @@ static void server_sent_event_with_stringswrapper(
     std::vector<int> &concat_tokens,
     bool return_tokens)
 {
-    std::string data_str = safe_json_to_str(data);
-    std::string data_content = json_value(data, "content", std::string(""));
-    if (callback)
-    {
-        if (callbackWithJSON)
-            callback(data_str.c_str());
-        else
-        {
-            if (data_content != "")
-                callback(data_content.c_str());
-        }
-    }
-
-    concat_string += data_content;
+    concat_string += json_value(data, "content", std::string(""));
     if (return_tokens)
     {
         for (const auto &tok : json_value(data, "tokens", std::vector<int>()))
@@ -1202,9 +1189,29 @@ static void server_sent_event_with_stringswrapper(
 
     if (sink != nullptr)
     {
-        const std::string sink_str = std::string(event) + ": " + data_str + "\n\n";
+        // in remote mode do not concat, it will be done on the receiving end to save data
+        const std::string sink_str = std::string(event) + ": " + safe_json_to_str(data) + "\n\n";
         if (!sink->write(sink_str.c_str(), sink_str.size()))
             throw SinkException();
+    }
+    else
+    {
+        // in local mode, concat and call callback
+        if (callback)
+        {
+            if (callbackWithJSON)
+            {
+                json data_concat = data;
+                data_concat["content"] = concat_string;
+                data_concat["tokens"] = concat_tokens;
+                callback(safe_json_to_str(data_concat).c_str());
+            }
+            else
+            {
+                callback(concat_string.c_str());
+            }
+        }
+
     }
 }
 
@@ -1220,8 +1227,7 @@ std::string LLMService::completion_streaming(
     std::vector<int> concat_tokens;
     json result_data;
 
-    ctx_server->receive_cmpl_results_stream(task_ids, [&](server_task_result_ptr &result) -> bool
-                                            {
+    ctx_server->receive_cmpl_results_stream(task_ids, [&](server_task_result_ptr &result) -> bool {
         json res_json = result->to_json();
         if (res_json.is_array()) {
             for (const auto & res : res_json) {
@@ -1232,8 +1238,10 @@ std::string LLMService::completion_streaming(
             server_sent_event_with_stringswrapper(callback, callbackWithJSON, sink, "data", res_json, concat_string, concat_tokens, return_tokens);
             result_data = res_json;
         }
-        return true; }, [&](const json &error_data)
-                                            { server_sent_event_with_stringswrapper(callback, callbackWithJSON, sink, "error", error_data, concat_string, concat_tokens, return_tokens); }, is_connection_closed);
+        return true; }, [&](const json &error_data) {
+            server_sent_event_with_stringswrapper(callback, callbackWithJSON, sink, "error", error_data, concat_string, concat_tokens, return_tokens);
+        }, is_connection_closed
+    );
     if (sink != nullptr)
         sink->done();
     result_data["content"] = concat_string;

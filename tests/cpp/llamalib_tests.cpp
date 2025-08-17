@@ -53,38 +53,16 @@ std::string trim(const std::string &s)
     return ltrim(rtrim(s));
 }
 
-std::string concatenate_streaming_result(std::string input)
-{
-    std::vector<std::string> contents;
-    std::istringstream stream(input);
-    std::string line;
-
-    std::string output = "";
-    while (std::getline(stream, line))
-    {
-        if (line.find("data: ") == 0)
-        {
-            std::string json_str = line.substr(6);
-            try
-            {
-                json parsed = json::parse(json_str);
-                output += parsed["content"];
-            }
-            catch (const json::exception &e)
-            {
-                std::cerr << "JSON parse error: " << e.what() << std::endl;
-            }
-        }
-    }
-    return output;
-}
-
 int counter = 0;
 std::string concat_result = "";
 void count_calls(const char *c)
 {
-    concat_result += c;
     counter++;
+    std::string msg(c);
+    if (msg.length() == 0 || msg.length() == concat_result.length()) return;
+    ASSERT(concat_result.length() < msg.length());
+    ASSERT(concat_result == msg.substr(0, concat_result.length()));
+    concat_result = c;
 }
 
 void test_template(LLMProvider *llm, bool use_api)

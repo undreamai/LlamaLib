@@ -45,7 +45,7 @@ namespace UndreamAI.LlamaLib.Tests
 
         private static void CountCalls(string input)
         {
-            concatData += input;
+            concatData = input;
             counter++;
         }
 

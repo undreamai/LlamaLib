@@ -92,19 +92,6 @@ std::string LLMClient::post_request(
             }
 
             json data_json = json::parse(chunk_str);
-            if (context.callback != nullptr)
-            {
-                if (callbackWithJSON)
-                {
-                    context.callback(chunk_str.c_str());
-                }
-                else
-                {
-                    if (data_json.contains("content"))
-                        context.callback(data_json["content"].get<std::string>().c_str());
-                }
-            }
-
             if (data_json.contains("content"))
             {
                 concat_string += data_json["content"].get<std::string>();
@@ -120,6 +107,15 @@ std::string LLMClient::post_request(
             json concat_data = data_json;
             concat_data["content"] = concat_string;
             concat_data["tokens"] = concat_tokens;
+
+            if (context.callback != nullptr)
+            {
+                if (callbackWithJSON)
+                    context.callback(concat_data.dump().c_str());
+                else
+                    context.callback(concat_string.c_str());
+            }
+
             context.buffer = concat_data.dump();
         }
         else
