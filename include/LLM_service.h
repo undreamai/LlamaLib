@@ -214,14 +214,10 @@ private:
     /// @details Helper method for parsing command line strings
     std::vector<std::string> splitArguments(const std::string &inputString);
 
-    /// @brief Initialize chat template
-    /// @details Sets up the default chat template for the model
-    void init_template();
-
     /// @brief Auto-detect appropriate chat template
     /// @return Detected chat template string
     /// @details Analyzes the model to determine the best chat template format
-    const char *detect_chat_template();
+    const std::string detect_chat_template();
 
     /// @brief Handle streaming completion generation
     /// @param id_tasks Set of task IDs for the completion

@@ -320,7 +320,8 @@ void LLMService::init(int argc, char **argv)
         }
         LLAMALIB_INF("model loaded\n");
 
-        init_template();
+        params->chat_template = detect_chat_template();
+        LLAMALIB_INF("chat_template: %s\n", params->chat_template.c_str());
 
         ctx_server->queue_tasks.on_new_task([this](server_task && task)
                                             { this->ctx_server->process_single_task(std::move(task)); });
@@ -333,22 +334,7 @@ void LLMService::init(int argc, char **argv)
     }
 }
 
-void LLMService::init_template()
-{
-    const char *chat_template = detect_chat_template();
-    if (chat_template == "")
-    {
-        set_template("chatml");
-        chat_template = detect_chat_template();
-    }
-    else
-    {
-        params->chat_template = chat_template;
-    }
-    LLAMALIB_INF("chat_template: %s\n", chat_template);
-}
-
-const char *LLMService::detect_chat_template()
+const std::string LLMService::detect_chat_template()
 {
     const char *chat_template_jinja = common_chat_templates_source(ctx_server->chat_templates.get());
     int chat_template_value = llm_chat_detect_template(chat_template_jinja);
@@ -824,10 +810,8 @@ void LLMService::set_template(std::string chat_template)
 {
     if (setjmp(get_jump_point(true)) != 0)
         return;
-    if (chat_template.empty())
-        return;
-    params->chat_template = chat_template;
     ctx_server->chat_templates = common_chat_templates_init(ctx_server->model, chat_template);
+    params->chat_template = detect_chat_template();
     ctx_server->oai_parser_opt = {
         /* use_jinja             */ params->use_jinja,
         /* prefill_assistant     */ params->prefill_assistant,
