@@ -705,17 +705,19 @@ void LLMService::stop()
 
         // hack completion slots to think task is completed
         for (server_slot &slot : ctx_server->slots)
-        {
             release_slot(slot);
-        }
-        LLAMALIB_INF("Wait until tasks are finished\n");
 
-        // wait until tasks are completed
-        while (!ctx_server->queue_tasks.queue_tasks.empty())
+        // wait until tasks have completed
+        if((!ctx_server->queue_tasks.queue_tasks.empty()))
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            LLAMALIB_INF("Wait until tasks have finished\n");
+            int grace = 10;
+            while (!ctx_server->queue_tasks.queue_tasks.empty() && grace-- > 0)
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            }
+            LLAMALIB_INF("Tasks have finished\n");
         }
-        LLAMALIB_INF("Tasks are finished\n");
 
         ctx_server->queue_tasks.terminate();
         if (llama_backend_has_init)
