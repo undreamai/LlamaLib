@@ -46,7 +46,7 @@ namespace LlamaLibExamples
             List<ChatMessage> history = agent.GetHistory();
             foreach (ChatMessage msg in history)
             {
-                Console.WriteLine($"{msg.Role}: {msg.Content}");
+                Console.WriteLine($"{msg.role}: {msg.content}");
             }
 
             // Save conversation history
