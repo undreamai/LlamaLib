@@ -8,23 +8,23 @@ using Newtonsoft.Json.Linq;
 namespace UndreamAI.LlamaLib
 {
     // Data structure for chat messages
-    public struct ChatMessage
+    public class ChatMessage
     {
-        public string Role { get; set; }
-        public string Content { get; set; }
+        public string role { get; set; }
+        public string content { get; set; }
 
-        public ChatMessage(string role, string content)
+        public ChatMessage(string _role, string _content)
         {
-            Role = role;
-            Content = content;
+            role = _role;
+            content = _content;
         }
 
         public JObject ToJson()
         {
             return new JObject
             {
-                ["role"] = Role,
-                ["content"] = Content
+                ["role"] = role,
+                ["content"] = content
             };
         }
 
@@ -197,7 +197,7 @@ namespace UndreamAI.LlamaLib
 
         public void AddMessage(ChatMessage message)
         {
-            AddMessage(message.Role, message.Content);
+            AddMessage(message.role, message.content);
         }
 
         public void RemoveLastMessage()
