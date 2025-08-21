@@ -189,8 +189,8 @@ namespace UndreamAI.LlamaLib.Tests
             Assert.AreEqual(1, agent.GetHistorySize());
             var initialHistory = agent.GetHistory();
             Assert.AreEqual(1, initialHistory.Count);
-            Assert.AreEqual("system", initialHistory[0].Role);
-            Assert.AreEqual(SYSTEM_PROMPT, initialHistory[0].Content);
+            Assert.AreEqual("system", initialHistory[0].role);
+            Assert.AreEqual(SYSTEM_PROMPT, initialHistory[0].content);
 
             // Test adding messages
             agent.AddMessage("user", "Test user message");
@@ -199,10 +199,10 @@ namespace UndreamAI.LlamaLib.Tests
             Assert.AreEqual(3, agent.GetHistorySize());
             var history = agent.GetHistory();
             Assert.AreEqual(3, history.Count);
-            Assert.AreEqual("user", history[1].Role);
-            Assert.AreEqual("Test user message", history[1].Content);
-            Assert.AreEqual("assistant", history[2].Role);
-            Assert.AreEqual("Test assistant response", history[2].Content);
+            Assert.AreEqual("user", history[1].role);
+            Assert.AreEqual("Test user message", history[1].content);
+            Assert.AreEqual("assistant", history[2].role);
+            Assert.AreEqual("Test assistant response", history[2].content);
 
             // Test AddUserMessage and AddAssistantMessage
             agent.AddUserMessage("User message via shortcut");
@@ -210,10 +210,10 @@ namespace UndreamAI.LlamaLib.Tests
 
             Assert.AreEqual(5, agent.GetHistorySize());
             history = agent.GetHistory();
-            Assert.AreEqual(USER_ROLE, history[3].Role);
-            Assert.AreEqual("User message via shortcut", history[3].Content);
-            Assert.AreEqual(ASSISTANT_ROLE, history[4].Role);
-            Assert.AreEqual("Assistant message via shortcut", history[4].Content);
+            Assert.AreEqual(USER_ROLE, history[3].role);
+            Assert.AreEqual("User message via shortcut", history[3].content);
+            Assert.AreEqual(ASSISTANT_ROLE, history[4].role);
+            Assert.AreEqual("Assistant message via shortcut", history[4].content);
 
             // Test AddMessage with ChatMessage struct
             var chatMsg = new ChatMessage("user", "Message via struct");
@@ -320,11 +320,11 @@ namespace UndreamAI.LlamaLib.Tests
             Assert.AreEqual(3, agent.GetHistorySize());
 
             var history = agent.GetHistory();
-            Assert.AreEqual("system", history[0].Role);
-            Assert.AreEqual(USER_ROLE, history[1].Role);
-            Assert.AreEqual(userPrompt, history[1].Content);
-            Assert.AreEqual(ASSISTANT_ROLE, history[2].Role);
-            Assert.AreEqual(response1, history[2].Content);
+            Assert.AreEqual("system", history[0].role);
+            Assert.AreEqual(USER_ROLE, history[1].role);
+            Assert.AreEqual(userPrompt, history[1].content);
+            Assert.AreEqual(ASSISTANT_ROLE, history[2].role);
+            Assert.AreEqual(response1, history[2].content);
 
             // Test chat without history addition
             string response2 = agent.Chat("Another question", addToHistory: false);
