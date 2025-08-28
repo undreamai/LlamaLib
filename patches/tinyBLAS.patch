@@ -1,5 +1,5 @@
 diff --git a/ggml/src/ggml-cuda/CMakeLists.txt b/ggml/src/ggml-cuda/CMakeLists.txt
-index bce07ac3..5cbe7333 100644
+index bce07ac3..51511a80 100644
 --- a/ggml/src/ggml-cuda/CMakeLists.txt
 +++ b/ggml/src/ggml-cuda/CMakeLists.txt
 @@ -46,9 +46,24 @@ if (CUDAToolkit_FOUND)
@@ -16,7 +16,7 @@ index bce07ac3..5cbe7333 100644
 +    list(REMOVE_ITEM GGML_SOURCES_CUDA ${REMOVE_SOURCES_CUDA})
 +
 +    file(GLOB   SRCS "template-instances/mmq-instance-q*.cu")
-+    list(APPEND GGML_SOURCES_CUDA ${SRCS})
++    list(APPEND GGML_SOURCES_CUDA "${SRCS};template-instances/mmq-instance-mxfp4.cu")
 +
 +    if (NOT GGML_CUDA_NO_IQUANTS)
 +    file(GLOB   SRCS "template-instances/mmq-instance-i*.cu")
@@ -51,10 +51,10 @@ index bce07ac3..5cbe7333 100644
          add_compile_definitions(GGML_CUDA_F16)
      endif()
 diff --git a/ggml/src/ggml-cuda/common.cuh b/ggml/src/ggml-cuda/common.cuh
-index a23da57e..b215e037 100644
+index 5a2a3478..f87ed8cd 100644
 --- a/ggml/src/ggml-cuda/common.cuh
 +++ b/ggml/src/ggml-cuda/common.cuh
-@@ -145,7 +145,7 @@ void ggml_cuda_error(const char * stmt, const char * func, const char * file, in
+@@ -149,7 +149,7 @@ void ggml_cuda_error(const char * stmt, const char * func, const char * file, in
  
  #define CUDA_CHECK(err) CUDA_CHECK_GEN(err, cudaSuccess, cudaGetErrorString)
  
@@ -63,7 +63,7 @@ index a23da57e..b215e037 100644
      static const char * cublas_get_error_str(const cublasStatus_t err) {
          return cublasGetStatusString(err);
      }
-@@ -244,7 +244,7 @@ typedef float2 dfloat2;
+@@ -248,7 +248,7 @@ typedef float2 dfloat2;
  #define CP_ASYNC_AVAILABLE
  #endif // !defined(GGML_USE_HIP) && __CUDA_ARCH__ >= GGML_CUDA_CC_AMPERE
  
@@ -210,22 +210,10 @@ index d9110491..45db4c12 100644
              ggml_cuda_cross_entropy_loss(ctx, dst);
              break;
 diff --git a/ggml/src/ggml-cuda/mmq.cu b/ggml/src/ggml-cuda/mmq.cu
-index 384ee761..e1a9ef35 100644
+index 384ee761..2e2ab603 100644
 --- a/ggml/src/ggml-cuda/mmq.cu
 +++ b/ggml/src/ggml-cuda/mmq.cu
-@@ -20,9 +20,11 @@ static void ggml_cuda_mul_mat_q_switch_type(ggml_backend_cuda_context & ctx, con
-         case GGML_TYPE_Q8_0:
-             mul_mat_q_case<GGML_TYPE_Q8_0>(ctx, args, stream);
-             break;
-+#ifndef GGML_USE_TINYBLAS
-         case GGML_TYPE_MXFP4:
-             mul_mat_q_case<GGML_TYPE_MXFP4>(ctx, args, stream);
-             break;
-+#endif
-         case GGML_TYPE_Q2_K:
-             mul_mat_q_case<GGML_TYPE_Q2_K>(ctx, args, stream);
-             break;
-@@ -38,6 +40,7 @@ static void ggml_cuda_mul_mat_q_switch_type(ggml_backend_cuda_context & ctx, con
+@@ -38,6 +38,7 @@ static void ggml_cuda_mul_mat_q_switch_type(ggml_backend_cuda_context & ctx, con
          case GGML_TYPE_Q6_K:
              mul_mat_q_case<GGML_TYPE_Q6_K>(ctx, args, stream);
              break;
@@ -233,7 +221,7 @@ index 384ee761..e1a9ef35 100644
          case GGML_TYPE_IQ2_XXS:
              mul_mat_q_case<GGML_TYPE_IQ2_XXS>(ctx, args, stream);
              break;
-@@ -62,6 +65,7 @@ static void ggml_cuda_mul_mat_q_switch_type(ggml_backend_cuda_context & ctx, con
+@@ -62,6 +63,7 @@ static void ggml_cuda_mul_mat_q_switch_type(ggml_backend_cuda_context & ctx, con
          case GGML_TYPE_IQ4_NL:
              mul_mat_q_case<GGML_TYPE_IQ4_NL>(ctx, args, stream);
              break;
@@ -1737,7 +1725,7 @@ index 3b308677..5a69c0ec 100644
 +
 +#endif // GGML_USE_TINYBLAS 2
 diff --git a/ggml/src/ggml-cuda/vendors/hip.h b/ggml/src/ggml-cuda/vendors/hip.h
-index c31f3192..058912de 100644
+index 96f8bc75..058912de 100644
 --- a/ggml/src/ggml-cuda/vendors/hip.h
 +++ b/ggml/src/ggml-cuda/vendors/hip.h
 @@ -1,12 +1,22 @@
@@ -1890,7 +1878,7 @@ index 00000000..0ddcf366
 +#define cudaDataType_t tinyblasDataType_t
 +#define cublasSetMathMode(handle, mode) CUBLAS_STATUS_SUCCESS
 diff --git a/ggml/src/ggml-hip/CMakeLists.txt b/ggml/src/ggml-hip/CMakeLists.txt
-index 852de973..bff22e53 100644
+index 852de973..c6ab8c9b 100644
 --- a/ggml/src/ggml-hip/CMakeLists.txt
 +++ b/ggml/src/ggml-hip/CMakeLists.txt
 @@ -59,9 +59,24 @@ file(GLOB   GGML_HEADERS_ROCM "../ggml-cuda/*.cuh")
@@ -1907,7 +1895,7 @@ index 852de973..bff22e53 100644
 +list(REMOVE_ITEM GGML_SOURCES_ROCM ${REMOVE_SOURCES_ROCM})
 +
 +file(GLOB   SRCS "../ggml-cuda/template-instances/mmq-instance-q*.cu")
-+list(APPEND GGML_SOURCES_ROCM ${SRCS})
++list(APPEND GGML_SOURCES_ROCM "${SRCS};../ggml-cuda/template-instances/mmq-instance-mxfp4.cu")
 +
 +if (NOT GGML_CUDA_NO_IQUANTS)
 +file(GLOB   SRCS "../ggml-cuda/template-instances/mmq-instance-i*.cu")
