@@ -443,6 +443,11 @@ void LLM_Set_Template(LLMProvider *llm, const char *chat_template)
     llm->set_template(chat_template);
 }
 
+void LLM_Enable_Reasoning(LLMProvider *llm, bool enable_reasoning)
+{
+    llm->enable_reasoning(enable_reasoning);
+}
+
 const char *LLM_Save_Slot(LLMLocal *llm, int id_slot, const char *filepath)
 {
     return stringToCharArray(llm->save_slot(id_slot, filepath));

@@ -261,6 +261,12 @@ namespace UndreamAI.LlamaLib
             llamaLib.LLM_Set_Template(llm, template);
         }
 
+        public void EnableReasoning(bool enableReasoning)
+        {
+            CheckLlamaLib();
+            llamaLib.LLM_Enable_Reasoning(llm, enableReasoning);
+        }
+
         // LoRA Weight methods
         public string BuildLoraWeightJSON(List<LoraIdScale> loras)
         {

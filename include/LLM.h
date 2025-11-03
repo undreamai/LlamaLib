@@ -265,6 +265,10 @@ public:
     /// @return Vector of available LoRA adapters with paths
     virtual std::vector<LoraIdScalePath> lora_list() = 0;
 
+    /// @brief nable reasoning
+    /// @param reasoning whether to enable reasoning
+    virtual void enable_reasoning(bool reasoning) { reasoning_enabled = reasoning; }
+
     /// @brief Set debug level
     /// @param debug_level Debug verbosity level (0 = off, 1 = LlamaLib messages, 2 and higher = llama.cpp messages and more verbose)
     virtual void debug(int debug_level) = 0;
@@ -315,6 +319,8 @@ public:
     virtual std::string debug_implementation() = 0;
 
 protected:
+    bool reasoning_enabled = false; ///< Whether reasoning is enabled
+
     /// @brief Build JSON for template setting
     /// @param chat_template Template string to set
     /// @return JSON object ready for set_template_json
@@ -552,6 +558,11 @@ extern "C"
     /// @param loras_as_json JSON string with LoRA configuration
     /// @return true if successful, false otherwise
     UNDREAMAI_API bool LLM_Lora_Weight(LLMProvider *llm, const char *loras_as_json);
+
+    /// @brief Enable reasoning (C API)
+    /// @param llm LLMProvider instance pointer
+    /// @param enable_reasoning bool whether to enable reasoning
+    UNDREAMAI_API void LLM_Enable_Reasoning(LLMProvider *llm, bool enable_reasoning);
 
     /// @brief List LoRA adapters (C API)
     /// @param llm LLMProvider instance pointer

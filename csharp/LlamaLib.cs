@@ -91,6 +91,10 @@ namespace UndreamAI.LlamaLib
         public void LLM_Cancel(IntPtr llm, int idSlot) => LlamaLib.LLM_Cancel_Static(llm, idSlot);
 
         // LLMProvider functions
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Enable_Reasoning")]
+        public static extern bool LLM_Enable_Reasoning_Static(IntPtr llm, bool enable_reasoning);
+        public bool LLM_Enable_Reasoning(IntPtr llm, bool enable_reasoning) => LlamaLib.LLM_Enable_Reasoning_Static(llm, enable_reasoning);
+
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLM_Lora_Weight")]
         public static extern bool LLM_Lora_Weight_Static(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string loras_as_json);
         public bool LLM_Lora_Weight(IntPtr llm, string loras_as_json) => LlamaLib.LLM_Lora_Weight_Static(llm, loras_as_json);
@@ -434,6 +438,7 @@ namespace UndreamAI.LlamaLib
             LLM_Load_Slot = LibraryLoader.GetSymbolDelegate<LLM_Load_Slot_Delegate>(libraryHandle, "LLM_Load_Slot");
             LLM_Cancel = LibraryLoader.GetSymbolDelegate<LLM_Cancel_Delegate>(libraryHandle, "LLM_Cancel");
             LLM_Lora_Weight = LibraryLoader.GetSymbolDelegate<LLM_Lora_Weight_Delegate>(libraryHandle, "LLM_Lora_Weight");
+            LLM_Enable_Reasoning = LibraryLoader.GetSymbolDelegate<LLM_Enable_Reasoning_Delegate>(libraryHandle, "LLM_Enable_Reasoning");
             LLM_Lora_List = LibraryLoader.GetSymbolDelegate<LLM_Lora_List_Delegate>(libraryHandle, "LLM_Lora_List");
             LLM_Delete = LibraryLoader.GetSymbolDelegate<LLM_Delete_Delegate>(libraryHandle, "LLM_Delete");
             LLM_Start = LibraryLoader.GetSymbolDelegate<LLM_Start_Delegate>(libraryHandle, "LLM_Start");
@@ -522,6 +527,9 @@ namespace UndreamAI.LlamaLib
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void LLM_Cancel_Delegate(IntPtr llm, int idSlot);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate bool LLM_Enable_Reasoning_Delegate(IntPtr llm, bool enable_reasoning);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate bool LLM_Lora_Weight_Delegate(IntPtr llm, [MarshalAs(UnmanagedType.LPStr)] string loras_as_json);
@@ -683,6 +691,7 @@ namespace UndreamAI.LlamaLib
         public LLM_Save_Slot_Delegate LLM_Save_Slot;
         public LLM_Load_Slot_Delegate LLM_Load_Slot;
         public LLM_Cancel_Delegate LLM_Cancel;
+        public LLM_Enable_Reasoning_Delegate LLM_Enable_Reasoning;
         public LLM_Lora_Weight_Delegate LLM_Lora_Weight;
         public LLM_Lora_List_Delegate LLM_Lora_List;
         public LLM_Delete_Delegate LLM_Delete;
