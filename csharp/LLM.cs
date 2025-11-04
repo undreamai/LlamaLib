@@ -164,7 +164,7 @@ namespace UndreamAI.LlamaLib
         public JObject GetCompletionParameters()
         {
             CheckLlamaLib();
-            JObject parameters = [];
+            JObject parameters = new JObject();
             IntPtr result = llamaLib.LLM_Get_Completion_Parameters(llm);
             string parametersString = Marshal.PtrToStringAnsi(result) ?? "{}";
             try
