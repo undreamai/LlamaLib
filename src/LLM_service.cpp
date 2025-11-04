@@ -1239,19 +1239,20 @@ std::string LLMService::escape_reasoning(std::string prompt)
 {
     if (!reasoning_enabled)
     {
+        std::string escape_suffix = "";
         const std::string src = std::string(common_chat_templates_source(ctx_server->oai_parser_opt.tmpls));
         if (
             (src.find("<｜tool▁calls▁begin｜>") != std::string::npos) ||
             (src.find("<tool_call>") != std::string::npos) ||
             (src.find("elif thinking") != std::string::npos && src.find("<|tool_call|>") != std::string::npos)
         ) {
-            prompt += "<think>\n</think>\n";
+            escape_suffix = "<think>\n</think>\n";
         } else if (src.find("<|END_THINKING|><|START_ACTION|>") != std::string::npos) {
-            prompt += "<|START_THINKING|>\n<|END_THINKING|>\n";
+            escape_suffix = "<|START_THINKING|>\n<|END_THINKING|>\n";
         } else if (src.find("<|channel|>") != std::string::npos) {
-            prompt += "<|channel|>analysis<|message|>\n<|start|>assistant<|channel|>final<|message|>\n";
+            escape_suffix = "<|channel|>analysis<|message|>\n<|start|>assistant<|channel|>final<|message|>\n";
         }
-        prompt += "\n";
+        if (escape_suffix != "") prompt += "\n" + escape_suffix + "\n";
     }
     return prompt;
 }
