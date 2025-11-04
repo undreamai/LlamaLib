@@ -841,24 +841,7 @@ std::string LLMService::apply_template_json(const json &body)
         copy,
         ctx_server->oai_parser_opt,
         files);
-
-    std::string prompt = std::move(data.at("prompt"));
-    if (!reasoning_enabled)
-    {
-        const std::string src = std::string(common_chat_templates_source(ctx_server->oai_parser_opt.tmpls));
-        if (
-            (src.find("<｜tool▁calls▁begin｜>") != std::string::npos) ||
-            (src.find("<tool_call>") != std::string::npos) ||
-            (src.find("elif thinking") != std::string::npos && src.find("<|tool_call|>") != std::string::npos)
-        ) {
-            prompt += "<think>\n</think>\n";
-        } else if (src.find("<|END_THINKING|><|START_ACTION|>") != std::string::npos) {
-            prompt += "<|START_THINKING|>\n<|END_THINKING|>\n";
-        } else if (src.find("<|channel|>") != std::string::npos) {
-            prompt += "<|channel|>analysis<|message|>\n<|start|>assistant<|channel|>final<|message|>\n";
-        }
-    }
-    return safe_json_to_str({{"prompt", prompt}});
+    return safe_json_to_str({{"prompt", std::move(data.at("prompt"))}});
 }
 
 std::vector<int> LLMService::tokenize(const std::string &input)
@@ -1252,6 +1235,27 @@ std::string LLMService::completion_streaming(
     return safe_json_to_str(result_data);
 }
 
+std::string LLMService::escape_reasoning(std::string prompt)
+{
+    if (!reasoning_enabled)
+    {
+        const std::string src = std::string(common_chat_templates_source(ctx_server->oai_parser_opt.tmpls));
+        if (
+            (src.find("<｜tool▁calls▁begin｜>") != std::string::npos) ||
+            (src.find("<tool_call>") != std::string::npos) ||
+            (src.find("elif thinking") != std::string::npos && src.find("<|tool_call|>") != std::string::npos)
+        ) {
+            prompt += "<think>\n</think>\n";
+        } else if (src.find("<|END_THINKING|><|START_ACTION|>") != std::string::npos) {
+            prompt += "<|START_THINKING|>\n<|END_THINKING|>\n";
+        } else if (src.find("<|channel|>") != std::string::npos) {
+            prompt += "<|channel|>analysis<|message|>\n<|start|>assistant<|channel|>final<|message|>\n";
+        }
+        prompt += "\n";
+    }
+    return prompt;
+}
+
 std::string LLMService::completion_json(const json &data, CharArrayFn callback, bool callbackWithJSON)
 {
     return completion_json(data, callback, callbackWithJSON, nullptr);
@@ -1267,6 +1271,8 @@ std::string LLMService::completion_json(
 {
     if (setjmp(get_jump_point(true)) != 0)
         return "";
+
+    std::string prompt = escape_reasoning(data.at("prompt"));
     std::string result_data = "";
     try
     {
@@ -1289,7 +1295,7 @@ std::string LLMService::completion_json(
         std::vector<server_task> tasks;
         try
         {
-            std::vector<llama_tokens> tokenized_prompts = tokenize_input_prompts(ctx_server->vocab, data.at("prompt"), true, true);
+            std::vector<llama_tokens> tokenized_prompts = tokenize_input_prompts(ctx_server->vocab, prompt, true, true);
             tasks.reserve(tokenized_prompts.size());
             for (size_t i = 0; i < tokenized_prompts.size(); i++)
             {

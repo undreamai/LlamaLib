@@ -265,7 +265,7 @@ public:
     /// @return Vector of available LoRA adapters with paths
     virtual std::vector<LoraIdScalePath> lora_list() = 0;
 
-    /// @brief nable reasoning
+    /// @brief enable reasoning
     /// @param reasoning whether to enable reasoning
     virtual void enable_reasoning(bool reasoning) { reasoning_enabled = reasoning; }
 

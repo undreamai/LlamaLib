@@ -262,6 +262,11 @@ private:
     /// @details Protected method used internally for server-based embedding generation
     std::string embeddings_json(const json &data, httplib::Response *res = nullptr, std::function<bool()> is_connection_closed = always_false);
 
+    /// @brief Escape reasoning by adding think tokens
+    /// @param prompt original prompt
+    /// @return prompt with think tokens
+    std::string escape_reasoning(std::string prompt);
+
     /// @brief Generate completion with HTTP response support
     /// @param data JSON object with completion request
     /// @param callback Optional streaming callback function
