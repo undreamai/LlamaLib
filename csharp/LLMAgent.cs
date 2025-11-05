@@ -75,7 +75,10 @@ namespace UndreamAI.LlamaLib
             llmBase = _llm;
             llamaLib = llmBase.llamaLib;
 
-            llm = llamaLib.LLMAgent_Construct(llmBase.llm, _systemPrompt ?? "", _userRole ?? "user", _assistantRole ?? "assistant");
+            llm = llamaLib.LLMAgent_Construct(llmBase.llm, 
+                _systemPrompt ?? string.Empty, 
+                _userRole ?? "user", 
+                _assistantRole ?? "assistant");
             if (llm == IntPtr.Zero) throw new InvalidOperationException("Failed to create LLMAgent");
         }
 
@@ -104,7 +107,7 @@ namespace UndreamAI.LlamaLib
             set
             {
                 CheckLlamaLib();
-                llamaLib.LLMAgent_Set_User_Role(llm, value);
+                llamaLib.LLMAgent_Set_User_Role(llm, value ?? string.Empty);
             }
         }
 
@@ -118,7 +121,7 @@ namespace UndreamAI.LlamaLib
             set
             {
                 CheckLlamaLib();
-                llamaLib.LLMAgent_Set_Assistant_Role(llm, value);
+                llamaLib.LLMAgent_Set_Assistant_Role(llm, value ?? string.Empty);
             }
         }
 
@@ -132,7 +135,7 @@ namespace UndreamAI.LlamaLib
             set
             {
                 CheckLlamaLib();
-                llamaLib.LLMAgent_Set_System_Prompt(llm, value);
+                llamaLib.LLMAgent_Set_System_Prompt(llm, value ?? string.Empty);
             }
         }
 
@@ -203,19 +206,19 @@ namespace UndreamAI.LlamaLib
         public void AddMessage(string role, string content)
         {
             CheckLlamaLib();
-            llamaLib.LLMAgent_Add_Message(llm, role, content);
+            llamaLib.LLMAgent_Add_Message(llm, role ?? string.Empty, content ?? string.Empty);
         }
 
         public void AddUserMessage(string content)
         {
             CheckLlamaLib();
-            llamaLib.LLMAgent_Add_Message(llm, UserRole, content);
+            llamaLib.LLMAgent_Add_Message(llm, UserRole, content ?? string.Empty);
         }
 
         public void AddAssistantMessage(string content)
         {
             CheckLlamaLib();
-            llamaLib.LLMAgent_Add_Message(llm, AssistantRole, content);
+            llamaLib.LLMAgent_Add_Message(llm, AssistantRole, content ?? string.Empty);
         }
 
         public void AddMessage(ChatMessage message)
@@ -235,7 +238,7 @@ namespace UndreamAI.LlamaLib
                 throw new ArgumentNullException(nameof(filepath));
 
             CheckLlamaLib();
-            llamaLib.LLMAgent_Save_History(llm, filepath);
+            llamaLib.LLMAgent_Save_History(llm, filepath ?? string.Empty);
         }
 
         public void LoadHistory(string filepath)
@@ -244,7 +247,7 @@ namespace UndreamAI.LlamaLib
                 throw new ArgumentNullException(nameof(filepath));
 
             CheckLlamaLib();
-            llamaLib.LLMAgent_Load_History(llm, filepath);
+            llamaLib.LLMAgent_Load_History(llm, filepath ?? string.Empty);
         }
 
         public int GetHistorySize()
@@ -257,7 +260,7 @@ namespace UndreamAI.LlamaLib
         public string Chat(string userPrompt, bool addToHistory = true, LlamaLib.CharArrayCallback callback = null, bool returnResponseJson = false)
         {
             CheckLlamaLib();
-            IntPtr result = llamaLib.LLMAgent_Chat(llm, userPrompt, addToHistory, callback, returnResponseJson);
+            IntPtr result = llamaLib.LLMAgent_Chat(llm, userPrompt ?? string.Empty, addToHistory, callback, returnResponseJson);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
@@ -283,7 +286,7 @@ namespace UndreamAI.LlamaLib
                 throw new ArgumentNullException(nameof(filepath));
 
             CheckLlamaLib();
-            IntPtr result = llamaLib.LLM_Save_Slot(llm, SlotId, filepath);
+            IntPtr result = llamaLib.LLM_Save_Slot(llm, SlotId, filepath ?? string.Empty);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 
@@ -293,7 +296,7 @@ namespace UndreamAI.LlamaLib
                 throw new ArgumentNullException(nameof(filepath));
 
             CheckLlamaLib();
-            IntPtr result = llamaLib.LLM_Load_Slot(llm, SlotId, filepath);
+            IntPtr result = llamaLib.LLM_Load_Slot(llm, SlotId, filepath ?? string.Empty);
             return Marshal.PtrToStringAnsi(result) ?? string.Empty;
         }
 

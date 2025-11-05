@@ -46,8 +46,8 @@ namespace UndreamAI.LlamaLib
             IntPtr llmInstance = IntPtr.Zero;
             try
             {
-                llamaLibInstance = new LlamaLib(LlamaLib.Has_GPU_Layers(paramsString));
-                llmInstance = llamaLibInstance.LLMService_From_Command(paramsString);
+                llamaLibInstance = new LlamaLib(LlamaLib.Has_GPU_Layers(paramsString ?? string.Empty));
+                llmInstance = llamaLibInstance.LLMService_From_Command(paramsString ?? string.Empty);
             }
             catch
             {
@@ -77,7 +77,7 @@ namespace UndreamAI.LlamaLib
                         if (string.IsNullOrEmpty(loraPaths[i]))
                             throw new ArgumentException($"Lora path at index {i} is null or empty");
 
-                        IntPtr stringPtr = Marshal.StringToHGlobalAnsi(loraPaths[i]);
+                        IntPtr stringPtr = Marshal.StringToHGlobalAnsi(loraPaths[i] ?? string.Empty);
                         Marshal.WriteIntPtr(loraPathsPtr, i * IntPtr.Size, stringPtr);
                     }
                 }
@@ -98,7 +98,7 @@ namespace UndreamAI.LlamaLib
             try
             {
                 var llm = llamaLib.LLMService_Construct(
-                    modelPath, numSlots, numThreads, numGpuLayers,
+                    modelPath ?? string.Empty, numSlots, numThreads, numGpuLayers,
                     flashAttention, contextSize, batchSize, embeddingOnly,
                     loraPathCount, loraPathsPtr);
 
