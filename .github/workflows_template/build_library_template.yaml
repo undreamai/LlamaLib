@@ -132,7 +132,7 @@ jobs:
     runs-on: windows-2022
 
     env:
-      VULKAN_VERSION: 1.3.261.1
+      VULKAN_VERSION: 1.4.328.1
       PLATFORM: windows
 
     strategy:
