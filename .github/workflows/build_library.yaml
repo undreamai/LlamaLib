@@ -490,7 +490,7 @@ jobs:
         - id: setup_openssl_windows
           name: Install OpenSSL
           run: |
-            choco install openssl --no-progress --version 3.5.2
+            choco install openssl --no-progress --version 3.5.4
             $OPENSSL_ROOT_DIR = 'C:\Program Files\OpenSSL'
             Copy-Item $OPENSSL_ROOT_DIR\lib\VC\x64\MD\*.lib $OPENSSL_ROOT_DIR\lib\
             Copy-Item $OPENSSL_ROOT_DIR\lib\libcrypto_static.lib $OPENSSL_ROOT_DIR\lib\libcrypto.a
@@ -600,7 +600,7 @@ jobs:
         - id: setup_openssl_windows
           name: Install OpenSSL
           run: |
-            choco install openssl --no-progress --version 3.5.2
+            choco install openssl --no-progress --version 3.5.4
             $OPENSSL_ROOT_DIR = 'C:\Program Files\OpenSSL'
             Copy-Item $OPENSSL_ROOT_DIR\lib\VC\x64\MD\*.lib $OPENSSL_ROOT_DIR\lib\
             Copy-Item $OPENSSL_ROOT_DIR\lib\libcrypto_static.lib $OPENSSL_ROOT_DIR\lib\libcrypto.a
