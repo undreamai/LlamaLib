@@ -546,6 +546,11 @@ void LLMService::start_server(const std::string &host, int port, const std::stri
         }
         return httplib::Server::HandlerResponse::Unhandled; });
 
+    const auto handle_health = [this](const httplib::Request &, httplib::Response & res) {
+        json health = {{"status", "ok"}};
+        return res_ok(res, health.dump());
+    };
+
     const auto completion_post = [this, &res_error](const httplib::Request &req, httplib::Response &res)
     {
         json data = handle_post(req, res);
@@ -605,6 +610,8 @@ void LLMService::start_server(const std::string &host, int port, const std::stri
     //
 
     // register API routes
+    svr->Post (params->api_prefix + "/health",  handle_health); // public endpoint (no API key check)
+    svr->Post (params->api_prefix + "/v1/health", handle_health); // public endpoint (no API key check)
     svr->Post(params->api_prefix + "/completion", completion_post); // legacy
     svr->Post(params->api_prefix + "/completions", completion_post);
     svr->Post(params->api_prefix + "/chat/completions", chat_completion_post);
