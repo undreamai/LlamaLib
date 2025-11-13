@@ -241,6 +241,8 @@ public:
     std::string chat(const std::string &user_prompt, bool add_to_history = true, CharArrayFn callback = nullptr, bool return_response_json = false);
 
 protected:
+    void set_n_keep();
+
     //=================================== Slot-aware method overrides ===================================//
     /// @brief Build slot operation JSON with agent's slot
     /// @param action Slot operation action ("save" or "restore")
