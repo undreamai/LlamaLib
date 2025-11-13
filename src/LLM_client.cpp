@@ -137,14 +137,20 @@ std::string LLMClient::post_request(
         return true;
     };
 
-    bool ok = use_ssl ? sslClient->send(req) : client->send(req);
-    if (!ok)
+    const int max_delay = 30;
+    for (int attempt = 0; attempt <= max_retries; attempt++)
     {
-        std::string error = "HTTP POST streaming request failed";
-        std::cerr << error << std::endl;
-        context.buffer = "{}";
+        bool ok = use_ssl ? sslClient->send(req) : client->send(req);
+        if (ok) return context.buffer;
+
+        int delay_seconds = std::min(max_delay, 1 << attempt);
+        std::cerr << "[LLMClient] POST failed, retrying in " << delay_seconds
+                  << "s (attempt " << (attempt + 1) << "/" << max_retries << ")\n";
+        std::this_thread::sleep_for(std::chrono::seconds(delay_seconds));
     }
 
+    std::cerr << "[LLMClient] POST request failed after retries\n";
+    context.buffer = "{}";
     return context.buffer;
 }
 
@@ -154,7 +160,7 @@ std::string LLMClient::post_request(
 LLMClient::LLMClient(LLMProvider *llm_) : llm(llm_) {}
 
 // Constructor for remote LLM
-LLMClient::LLMClient(const std::string &url_, const int port_, const std::string &API_key_) : url(url_), port(port_), API_key(API_key_)
+LLMClient::LLMClient(const std::string &url_, const int port_, const std::string &API_key_, const int max_retries_) : url(url_), port(port_), API_key(API_key_), max_retries(max_retries_)
 {
     std::string host;
     if (url.rfind("https://", 0) == 0)

@@ -38,7 +38,7 @@ public:
     /// @param port Server port number
     /// @param API_key Optional API key
     /// @details Creates a client that connects to a remote LLM server via HTTP
-    LLMClient(const std::string &url, const int port, const std::string &API_key = "");
+    LLMClient(const std::string &url, const int port, const std::string &API_key = "", const int max_retries = 5);
 
     /// @brief Destructor
     ~LLMClient();
@@ -119,6 +119,7 @@ private:
     int port = -1;             ///< Server port for remote clients
     std::string API_key = "";  ///< API key for accessing remote server
     std::string SSL_cert = ""; ///< SSL certificate path for remote clients
+    int max_retries = 5;
 
     /// @brief Send HTTP POST request to remote server
     /// @param path API endpoint path
