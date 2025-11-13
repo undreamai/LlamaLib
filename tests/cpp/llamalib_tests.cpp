@@ -995,18 +995,25 @@ void test_API_key(LLMService *llm_service)
 {
     std::string API_key = "secret_code";
     llm_service->start_server("", 8080, API_key);
+    while (!llm_service->started()){
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
 
     LLMClient llm_remote_client("http://localhost", 8080);
+    ASSERT(LLMClient_Is_Server_Alive(&llm_remote_client));
     std::string reply = std::string(LLM_Tokenize(&llm_remote_client, PROMPT.c_str()));
     ASSERT(reply == "[]");
 
     LLMClient llm_remote_client_key("http://localhost", 8080, API_key);
+    ASSERT(LLMClient_Is_Server_Alive(&llm_remote_client_key));
     reply = std::string(LLM_Tokenize(&llm_remote_client_key, PROMPT.c_str()));
     ASSERT(reply != "[]");
     json reply_data = json::parse(reply);
     std::vector<int> tokens = reply_data.get<std::vector<int>>();
     ASSERT(tokens.size() > 0);
     llm_service->stop_server();
+
+    ASSERT(!LLMClient_Is_Server_Alive(&llm_remote_client));
 }
 
 int main(int argc, char **argv)

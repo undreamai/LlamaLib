@@ -43,6 +43,17 @@ X509_STORE *load_client_cert(const std::string &cert_str)
     return cts;
 }
 
+bool LLMClient::is_server_alive()
+{
+    if (!is_remote()) return true;
+
+    httplib::Headers headers;
+    if (!API_key.empty())
+        headers.insert({"Authorization", "Bearer " + API_key});
+    auto res = use_ssl ? sslClient->Post("/health", headers) : client->Post("/health", headers);
+    return res && res->status >= 200 && res->status < 300;
+}
+
 std::string LLMClient::post_request(
     const std::string &path,
     const json &payload,
@@ -131,7 +142,7 @@ std::string LLMClient::post_request(
     {
         std::string error = "HTTP POST streaming request failed";
         std::cerr << error << std::endl;
-        context.buffer = error;
+        context.buffer = "{}";
     }
 
     return context.buffer;
@@ -312,6 +323,11 @@ void LLMClient::cancel(int id_slot)
 }
 
 //================ API ================//
+
+bool LLMClient_Is_Server_Alive(LLMClient *llm)
+{
+    return llm->is_server_alive();
+}
 
 void LLMClient_Set_SSL(LLMClient *llm, const char *SSL_cert)
 {

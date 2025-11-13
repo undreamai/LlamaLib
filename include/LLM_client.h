@@ -43,6 +43,9 @@ public:
     /// @brief Destructor
     ~LLMClient();
 
+
+    bool is_server_alive();
+
     /// @brief Configure SSL certificate for remote connections
     /// @param SSL_cert Path to SSL certificate file
     /// @details Only applicable for remote clients. Sets up SSL verification.
@@ -132,6 +135,8 @@ private:
 
 extern "C"
 {
+    UNDREAMAI_API bool LLMClient_Is_Server_Alive(LLMClient *llm);
+
     /// @brief Set SSL certificate (C API)
     /// @param llm LLMClient instance pointer
     /// @param SSL_cert Path to SSL certificate file
