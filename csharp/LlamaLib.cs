@@ -305,6 +305,7 @@ namespace UndreamAI.LlamaLib
         // Desktop platform implementation with dynamic loading
         private static List<LlamaLib> instances = new List<LlamaLib>();
         private static readonly object runtimeLock = new object();
+        public static string baseLibraryPath = Assembly.GetExecutingAssembly().Location;
         private static IntPtr runtimeLibraryHandle = IntPtr.Zero;
         private IntPtr libraryHandle = IntPtr.Zero;
         private static int debugLevelGlobal = 0;
@@ -353,11 +354,9 @@ namespace UndreamAI.LlamaLib
 
         public virtual string FindLibrary(string libraryName)
         {
-            string baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
             List<string> lookupDirs = new List<string>();
-            lookupDirs.Add(Path.Combine(baseDir, "runtimes", GetPlatform(), "native"));
-            lookupDirs.Add(baseDir);
+            lookupDirs.Add(baseLibraryPath);
+            lookupDirs.Add(Path.Combine(baseLibraryPath, "runtimes", GetPlatform(), "native"));
 
             foreach (string lookupDir in lookupDirs)
             {
