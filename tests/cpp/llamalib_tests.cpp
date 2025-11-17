@@ -354,14 +354,12 @@ void test_agent_chat(LLMAgent *agent, bool stream, bool use_api)
         {
             history_size = agent->get_history_size();
         }
-        ASSERT(history_size == 3);
+        ASSERT(history_size == 2);
 
         json history = agent->get_history();
-        ASSERT(history[0]["role"] == "system");
-        ASSERT(history[1]["role"] == user_role);
-        ASSERT(history[2]["role"] == assistant_role);
-        ASSERT(history[0]["content"] == agent->get_system_prompt());
-        ASSERT(history[1]["content"] == user_prompt);
+        ASSERT(history[0]["role"] == user_role);
+        ASSERT(history[1]["role"] == assistant_role);
+        ASSERT(history[0]["content"] == user_prompt);
     }
 
     if (use_api)
@@ -404,7 +402,7 @@ void test_history(LLMAgent *agent, bool use_api)
         history_size = LLMAgent_Get_History_Size(agent);
     else
         history_size = agent->get_history_size();
-    ASSERT(history_size == 3); // system + user + assistant
+    ASSERT(history_size == 2);
 
     // Test getting history as JSON
     json history;
@@ -413,34 +411,24 @@ void test_history(LLMAgent *agent, bool use_api)
     else
         history = agent->get_history();
     ASSERT(history.is_array());
-    ASSERT(history.size() == 3);
-
-    // test history formatting
-    std::string data_formatted_gt = "<|im_start|>system\n" + system_prompt + "<|im_end|>\n<|im_start|>user\nTest user message<|im_end|>\n<|im_start|>assistant\nTest assistant response";
-    std::string data_formatted;
-    if (use_api)
-        data_formatted = LLM_Apply_Template(agent, history.dump().c_str());
-    else
-        data_formatted = agent->apply_template(history);
-    ASSERT(data_formatted == data_formatted_gt);
+    ASSERT(history.size() == 2);
 
     // Test removing last message
     if (use_api)
         LLMAgent_Remove_Last_Message(agent);
     else
         agent->remove_last_message();
-    ASSERT(agent->get_history_size() == 2);
+    ASSERT(agent->get_history_size() == 1);
 
     // Test clearing history
     if (use_api)
         LLMAgent_Clear_History(agent);
     else
         agent->clear_history();
-    ASSERT(agent->get_history_size() == 1);
+    ASSERT(agent->get_history_size() == 0);
 
     // Create test history JSON
     json test_history = json::array();
-    test_history.push_back({{"role", "system"}, {"content", "Test system prompt"}});
     test_history.push_back({{"role", "user"}, {"content", "Hello"}});
     test_history.push_back({{"role", "assistant"}, {"content", "Hi there!"}});
     test_history.push_back({{"role", "user"}, {"content", "How are you?"}});
@@ -451,7 +439,7 @@ void test_history(LLMAgent *agent, bool use_api)
         LLMAgent_Set_History(agent, test_history.dump().c_str());
     else
         agent->set_history(test_history);
-    ASSERT(agent->get_history_size() == 5);
+    ASSERT(agent->get_history_size() == 4);
 
     json retrieved_history;
     if (use_api)
@@ -472,7 +460,7 @@ void test_history(LLMAgent *agent, bool use_api)
         agent->set_system_prompt(new_system_prompt);
         ASSERT(agent->get_system_prompt() == new_system_prompt);
     }
-    ASSERT(agent->get_history_size() == 1);
+    ASSERT(agent->get_history_size() == 0);
 }
 
 void test_save_history(LLMAgent *agent, bool use_api)
@@ -499,7 +487,7 @@ void test_save_history(LLMAgent *agent, bool use_api)
     file.close();
 
     agent->clear_history();
-    ASSERT(agent->get_history_size() == 1);
+    ASSERT(agent->get_history_size() == 0);
 
     if (use_api)
         LLMAgent_Load_History(agent, filename.c_str());

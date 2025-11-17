@@ -44,7 +44,6 @@ void LLMAgent::set_slot(int id_slot_)
 void LLMAgent::clear_history()
 {
     history = json::array();
-    history.push_back(ChatMessage(system_role, system_prompt).to_json());
     n_keep = -1;
 }
 
@@ -53,10 +52,7 @@ void LLMAgent::set_n_keep()
     try
     {
         json working_history = json::array();
-        if (history.size() > 0)
-            working_history.push_back(history[0]);
-        else
-            working_history.push_back(ChatMessage(system_role, system_prompt).to_json());
+        working_history.push_back(ChatMessage(system_role, system_prompt).to_json());
         working_history.push_back(ChatMessage(user_role, "").to_json());
         n_keep = tokenize(apply_template(working_history)).size();
     } catch(...){ }
@@ -65,8 +61,12 @@ void LLMAgent::set_n_keep()
 std::string LLMAgent::chat(const std::string &user_prompt, bool add_to_history, CharArrayFn callback, bool return_response_json)
 {
     if (n_keep == -1) set_n_keep();
+
     // Add user message to working history
-    json working_history = history;
+    json working_history = json::array();
+    working_history.push_back(ChatMessage(system_role, system_prompt).to_json());
+    for (auto &m : history)
+        working_history.push_back(m);
     ChatMessage user_msg(user_role, user_prompt);
     working_history.push_back(user_msg.to_json());
 
