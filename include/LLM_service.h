@@ -82,6 +82,9 @@ public:
     /// @details C-compatible version of string parameter initialization
     void init(const char *params_string);
 
+    /// @brief Returns the construct command
+    std::string get_command() { return command; }
+
     //=================================== LLM METHODS START ===================================//
     /// @brief Tokenize text
     /// @param query Text string to tokenize
@@ -191,6 +194,7 @@ protected:
     //=================================== LLM METHODS END ===================================//
 
 private:
+    std::string command = "";             ///< constructor command
     common_params *params;                ///< Backend parameters structure
     bool llama_backend_has_init;          ///< Whether backend is initialized
     server_context *ctx_server = nullptr; ///< Server context pointer
@@ -336,6 +340,10 @@ extern "C"
     /// @return Pointer to new LLMService instance
     /// @details See https://github.com/ggml-org/llama.cpp/tree/master/tools/server#usage for arguments.
     UNDREAMAI_API LLMService *LLMService_From_Command(const char *params_string);
+
+    /// @brief Returns the construct command (C API)
+    /// @param llm_service the LLMService instance
+    UNDREAMAI_API const char *LLMService_Command(LLMService *llm_service);
 
     UNDREAMAI_API void LLMService_InjectErrorState(ErrorState *error_state);
 }

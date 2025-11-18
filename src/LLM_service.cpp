@@ -283,6 +283,8 @@ void LLMService::init(int argc, char **argv)
         return;
     try
     {
+        command = args_to_command(argc, argv);
+
         LLMProviderRegistry &registry = LLMProviderRegistry::instance();
         registry.register_instance(this);
         debug(registry.get_debug_level());
@@ -1553,6 +1555,11 @@ LLMService *LLMService_From_Command(const char *params_string_arr)
     {
         return LLMService::from_command(params_string);
     }
+}
+
+const char *LLMService_Command(LLMService *llm_service)
+{
+    return stringToCharArray(llm_service->get_command());
 }
 
 void LLMService_InjectErrorState(ErrorState *error_state)
