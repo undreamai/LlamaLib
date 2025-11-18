@@ -70,6 +70,9 @@ std::string LLMClient::post_request(
     else
         body["stream"] = stream;
 
+    bool* cancel_flag = new bool(false);
+    if (stream) active_requests.push_back(cancel_flag);
+
     httplib::Headers headers = {
         {"Content-Type", "application/json"},
         {"Accept", stream ? "text/event-stream" : "application/json"},
@@ -128,6 +131,12 @@ std::string LLMClient::post_request(
             }
 
             context.buffer = concat_data.dump();
+
+            if (*cancel_flag)
+            {
+                std::cerr << "[LLMClient] Streaming cancelled\n";
+                return false;
+            }
         }
         else
         {
@@ -138,19 +147,27 @@ std::string LLMClient::post_request(
     };
 
     const int max_delay = 30;
+    bool request_sent;
     for (int attempt = 0; attempt <= max_retries; attempt++)
     {
-        bool ok = use_ssl ? sslClient->send(req) : client->send(req);
-        if (ok) return context.buffer;
+        request_sent = use_ssl ? sslClient->send(req) : client->send(req);
+        if (request_sent || *cancel_flag) break;
 
         int delay_seconds = std::min(max_delay, 1 << attempt);
         std::cerr << "[LLMClient] POST failed, retrying in " << delay_seconds
-                  << "s (attempt " << (attempt + 1) << "/" << max_retries << ")\n";
+                  << "s (attempt " << attempt << "/" << max_retries << ")\n";
         std::this_thread::sleep_for(std::chrono::seconds(delay_seconds));
     }
 
-    std::cerr << "[LLMClient] POST request failed after retries\n";
-    context.buffer = "{}";
+    if (!request_sent)
+    {
+        std::cerr << "[LLMClient] POST request failed after retries\n";
+        context.buffer = "{}";
+    }
+
+    if (stream) active_requests.erase(std::remove(active_requests.begin(), active_requests.end(), cancel_flag), active_requests.end());
+    delete cancel_flag;
+
     return context.buffer;
 }
 
@@ -319,8 +336,7 @@ void LLMClient::cancel(int id_slot)
 {
     if (is_remote())
     {
-        std::cerr << "Cancel is not supported in remote clients" << std::endl;
-        return;
+        for (bool* flag : active_requests) *flag = true;
     }
     else
     {

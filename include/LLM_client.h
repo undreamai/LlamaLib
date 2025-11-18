@@ -120,6 +120,8 @@ private:
     std::string API_key = "";  ///< API key for accessing remote server
     std::string SSL_cert = ""; ///< SSL certificate path for remote clients
     int max_retries = 5;
+    std::vector<bool*> active_requests;
+
 
     /// @brief Send HTTP POST request to remote server
     /// @param path API endpoint path
