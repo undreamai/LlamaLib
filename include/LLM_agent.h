@@ -167,11 +167,7 @@ public:
     /// @brief Set system prompt
     /// @param system_prompt_ New system prompt text
     /// @details Sets the system prompt and clears conversation history
-    void set_system_prompt(const std::string &system_prompt_)
-    {
-        system_prompt = system_prompt_;
-        clear_history();
-    }
+    void set_system_prompt(const std::string &system_prompt_) { system_prompt = system_prompt_; }
 
     /// @brief Get current system prompt
     /// @return Current system prompt string
