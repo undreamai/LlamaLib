@@ -460,7 +460,7 @@ void test_history(LLMAgent *agent, bool use_api)
         agent->set_system_prompt(new_system_prompt);
         ASSERT(agent->get_system_prompt() == new_system_prompt);
     }
-    ASSERT(agent->get_history_size() == 0);
+    ASSERT(agent->get_history_size() == 4);
 }
 
 void test_save_history(LLMAgent *agent, bool use_api)
