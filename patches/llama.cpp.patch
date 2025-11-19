@@ -58,10 +58,10 @@ index c8f3d8596..381439df9 100644
  
  add_library(ggml-base
 diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-index 325d7cad9..cb3038700 100644
+index 003a90106..8771ebe16 100644
 --- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 +++ b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-@@ -96,7 +96,7 @@ static bool is_pow2(uint32_t x) { return x > 1 && (x & (x-1)) == 0; }
+@@ -104,7 +104,7 @@ static bool is_pow2(uint32_t x) { return x > 1 && (x & (x-1)) == 0; }
          if (err_ != vk::Result::eSuccess) {                         \
              fprintf(stderr, "ggml_vulkan: %s error %s at %s:%d\n",  \
                  #err, to_string(err_).c_str(), __FILE__, __LINE__); \
@@ -71,7 +71,7 @@ index 325d7cad9..cb3038700 100644
      } while (0)
  
 diff --git a/ggml/src/ggml.c b/ggml/src/ggml.c
-index a5796214f..2a2440ded 100644
+index aecbdad5a..9ac1d5bc3 100644
 --- a/ggml/src/ggml.c
 +++ b/ggml/src/ggml.c
 @@ -230,7 +230,12 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {
