@@ -51,7 +51,7 @@ index 0d8c5af47..157df28bc 100644
          add_compile_definitions(GGML_CUDA_NO_PEER_COPY)
      endif()
 diff --git a/ggml/src/ggml-cuda/common.cuh b/ggml/src/ggml-cuda/common.cuh
-index 931524a20..c6cadc14d 100644
+index b0feea362..b780cb4e6 100644
 --- a/ggml/src/ggml-cuda/common.cuh
 +++ b/ggml/src/ggml-cuda/common.cuh
 @@ -151,7 +151,7 @@ void ggml_cuda_error(const char * stmt, const char * func, const char * file, in
@@ -73,7 +73,7 @@ index 931524a20..c6cadc14d 100644
  #endif // !defined(GGML_CUDA_NO_FA) && !(defined(GGML_USE_MUSA) && __MUSA_ARCH__ < 220)
  
 diff --git a/ggml/src/ggml-cuda/ggml-cuda.cu b/ggml/src/ggml-cuda/ggml-cuda.cu
-index 0f68d6853..7c44092c6 100644
+index 9ea8f4589..16b67d802 100644
 --- a/ggml/src/ggml-cuda/ggml-cuda.cu
 +++ b/ggml/src/ggml-cuda/ggml-cuda.cu
 @@ -23,9 +23,13 @@
@@ -1725,7 +1725,7 @@ index 3b3086778..5a69c0ec2 100644
 +
 +#endif // GGML_USE_TINYBLAS 2
 diff --git a/ggml/src/ggml-cuda/vendors/hip.h b/ggml/src/ggml-cuda/vendors/hip.h
-index c6a33d5de..50eede587 100644
+index 12bbee455..d6eb3fb10 100644
 --- a/ggml/src/ggml-cuda/vendors/hip.h
 +++ b/ggml/src/ggml-cuda/vendors/hip.h
 @@ -1,11 +1,18 @@
