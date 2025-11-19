@@ -58,7 +58,7 @@ index 2b5b8169d..d3e6b441a 100644
  
  add_library(ggml-base
 diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-index cd1c66ba7..ab539faa8 100644
+index f0fa9e668..aed123522 100644
 --- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 +++ b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 @@ -90,7 +90,7 @@ static bool is_pow2(uint32_t x) { return x > 1 && (x & (x-1)) == 0; }
@@ -71,7 +71,7 @@ index cd1c66ba7..ab539faa8 100644
      } while (0)
  
 diff --git a/ggml/src/ggml.c b/ggml/src/ggml.c
-index f35c33795..5eeb58b50 100644
+index 50dc1aa24..97fe6b146 100644
 --- a/ggml/src/ggml.c
 +++ b/ggml/src/ggml.c
 @@ -230,7 +230,12 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {
@@ -111,10 +111,10 @@ index 097948856..cb59fc413 100644
 -target_link_libraries  (${TARGET} PRIVATE common mtmd Threads::Threads)
 -target_compile_features(${TARGET} PRIVATE cxx_std_17)
 diff --git a/tools/server/server.cpp b/tools/server/server.cpp
-index 70aa18756..1a7355ec0 100644
+index 39ef439e9..e6d853907 100644
 --- a/tools/server/server.cpp
 +++ b/tools/server/server.cpp
-@@ -4067,7 +4067,7 @@ inline void signal_handler(int signal) {
+@@ -4068,7 +4068,7 @@ inline void signal_handler(int signal) {
      shutdown_handler(signal);
  }
  

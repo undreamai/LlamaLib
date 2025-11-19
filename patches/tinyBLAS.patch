@@ -1,5 +1,5 @@
 diff --git a/ggml/src/ggml-cuda/CMakeLists.txt b/ggml/src/ggml-cuda/CMakeLists.txt
-index d3dfc7807..9c20ca4ae 100644
+index 0d8c5af47..157df28bc 100644
 --- a/ggml/src/ggml-cuda/CMakeLists.txt
 +++ b/ggml/src/ggml-cuda/CMakeLists.txt
 @@ -40,9 +40,24 @@ if (CUDAToolkit_FOUND)
@@ -27,9 +27,9 @@ index d3dfc7807..9c20ca4ae 100644
 +    if (GGML_CUDA_FA)
 +    file(GLOB   SRCS "template-instances/fattn-mma*.cu")
      list(APPEND GGML_SOURCES_CUDA ${SRCS})
- 
-     if (GGML_CUDA_FA_ALL_QUANTS)
-@@ -57,6 +72,9 @@ if (CUDAToolkit_FOUND)
+     file(GLOB   SRCS "template-instances/mmf*.cu")
+     list(APPEND GGML_SOURCES_CUDA ${SRCS})
+@@ -59,6 +74,9 @@ if (CUDAToolkit_FOUND)
          file(GLOB   SRCS "template-instances/fattn-vec*f16-f16.cu")
          list(APPEND GGML_SOURCES_CUDA ${SRCS})
      endif()
@@ -39,7 +39,7 @@ index d3dfc7807..9c20ca4ae 100644
  
      ggml_add_backend_library(ggml-cuda
                               ${GGML_HEADERS_CUDA}
-@@ -85,6 +103,10 @@ if (CUDAToolkit_FOUND)
+@@ -87,6 +105,10 @@ if (CUDAToolkit_FOUND)
          add_compile_definitions(GGML_CUDA_NO_FA)
      endif()
  
@@ -73,7 +73,7 @@ index 931524a20..c6cadc14d 100644
  #endif // !defined(GGML_CUDA_NO_FA) && !(defined(GGML_USE_MUSA) && __MUSA_ARCH__ < 220)
  
 diff --git a/ggml/src/ggml-cuda/ggml-cuda.cu b/ggml/src/ggml-cuda/ggml-cuda.cu
-index 0c01eb6fa..34ed01717 100644
+index 0f68d6853..7c44092c6 100644
 --- a/ggml/src/ggml-cuda/ggml-cuda.cu
 +++ b/ggml/src/ggml-cuda/ggml-cuda.cu
 @@ -23,9 +23,13 @@
@@ -197,7 +197,7 @@ index 0c01eb6fa..34ed01717 100644
              }
              return;
          }
-@@ -2488,9 +2515,11 @@ static bool ggml_cuda_compute_forward(ggml_backend_cuda_context & ctx, struct gg
+@@ -2493,9 +2520,11 @@ static bool ggml_cuda_compute_forward(ggml_backend_cuda_context & ctx, struct gg
          case GGML_OP_ARGSORT:
              ggml_cuda_op_argsort(ctx, dst);
              break;
