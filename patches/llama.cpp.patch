@@ -65,7 +65,7 @@ index ba281b8e6..729130c73 100644
  
  add_library(ggml-base
 diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-index b783f7805..b650522de 100644
+index c3e5a9ecc..cdc0a5bb5 100644
 --- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 +++ b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 @@ -102,7 +102,7 @@ static bool is_pow2(uint32_t x) { return x > 1 && (x & (x-1)) == 0; }
@@ -118,10 +118,10 @@ index 2381012a0..cb59fc413 100644
 -target_link_libraries  (${TARGET} PRIVATE common mtmd Threads::Threads)
 -target_compile_features(${TARGET} PRIVATE cxx_std_17)
 diff --git a/tools/server/server.cpp b/tools/server/server.cpp
-index 4124bffa4..8d696211d 100644
+index 92d30664e..cbba3dabe 100644
 --- a/tools/server/server.cpp
 +++ b/tools/server/server.cpp
-@@ -4402,7 +4402,7 @@ inline void signal_handler(int signal) {
+@@ -4383,7 +4383,7 @@ inline void signal_handler(int signal) {
      shutdown_handler(signal);
  }
  
@@ -131,10 +131,10 @@ index 4124bffa4..8d696211d 100644
      common_params params;
  
 diff --git a/tools/server/utils.hpp b/tools/server/utils.hpp
-index cc48f5a9d..9da34b52f 100644
+index b6198edfc..859240962 100644
 --- a/tools/server/utils.hpp
 +++ b/tools/server/utils.hpp
-@@ -10,11 +10,11 @@
+@@ -10,13 +10,13 @@
  #include "chat.h"
  
  // increase max payload length to allow use of larger context size
@@ -142,6 +142,8 @@ index cc48f5a9d..9da34b52f 100644
 +// #define CPPHTTPLIB_FORM_URL_ENCODED_PAYLOAD_MAX_LENGTH 1048576
  // increase backlog size to avoid connection resets for >> 1 slots
  #define CPPHTTPLIB_LISTEN_BACKLOG 512
+ // increase max URI length to handle longer prompts in query string
+ #define CPPHTTPLIB_REQUEST_URI_MAX_LENGTH 32768
  // disable Nagle's algorithm
 -#define CPPHTTPLIB_TCP_NODELAY true
 +// #define CPPHTTPLIB_TCP_NODELAY true
