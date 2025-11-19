@@ -118,7 +118,7 @@ index 2381012a0..cb59fc413 100644
 -target_link_libraries  (${TARGET} PRIVATE common mtmd Threads::Threads)
 -target_compile_features(${TARGET} PRIVATE cxx_std_17)
 diff --git a/tools/server/server.cpp b/tools/server/server.cpp
-index 60326e8e5..9a27c35ef 100644
+index cf12805b4..4678cbfa8 100644
 --- a/tools/server/server.cpp
 +++ b/tools/server/server.cpp
 @@ -4394,7 +4394,7 @@ inline void signal_handler(int signal) {
@@ -131,7 +131,7 @@ index 60326e8e5..9a27c35ef 100644
      common_params params;
  
 diff --git a/tools/server/utils.hpp b/tools/server/utils.hpp
-index f175115f4..140af05f5 100644
+index fd0bc8de5..b4c47d20d 100644
 --- a/tools/server/utils.hpp
 +++ b/tools/server/utils.hpp
 @@ -10,11 +10,11 @@

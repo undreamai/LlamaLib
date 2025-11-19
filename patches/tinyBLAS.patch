@@ -1,12 +1,11 @@
 diff --git a/ggml/src/ggml-cuda/CMakeLists.txt b/ggml/src/ggml-cuda/CMakeLists.txt
-index bdcefe7b7..4d72812b1 100644
+index 302477513..fad961b83 100644
 --- a/ggml/src/ggml-cuda/CMakeLists.txt
 +++ b/ggml/src/ggml-cuda/CMakeLists.txt
-@@ -44,9 +44,24 @@ if (CUDAToolkit_FOUND)
+@@ -44,12 +44,27 @@ if (CUDAToolkit_FOUND)
      list(APPEND GGML_HEADERS_CUDA "../../include/ggml-cuda.h")
  
      file(GLOB   GGML_SOURCES_CUDA "*.cu")
--    file(GLOB   SRCS "template-instances/fattn-mma*.cu")
 +
 +    if (GGML_USE_TINYBLAS)
 +        file(GLOB REMOVE_SOURCES_CUDA "mm*f.cu")
@@ -20,16 +19,20 @@ index bdcefe7b7..4d72812b1 100644
 +
 +    if (NOT GGML_CUDA_NO_IQUANTS)
 +    file(GLOB   SRCS "template-instances/mmq-instance-i*.cu")
-     list(APPEND GGML_SOURCES_CUDA ${SRCS})
--    file(GLOB   SRCS "template-instances/mmq*.cu")
++    list(APPEND GGML_SOURCES_CUDA ${SRCS})
 +    endif()
 +
 +    if (GGML_CUDA_FA)
-+    file(GLOB   SRCS "template-instances/fattn-mma*.cu")
+     file(GLOB   SRCS "template-instances/fattn-tile*.cu")
      list(APPEND GGML_SOURCES_CUDA ${SRCS})
+     file(GLOB   SRCS "template-instances/fattn-mma*.cu")
+     list(APPEND GGML_SOURCES_CUDA ${SRCS})
+-    file(GLOB   SRCS "template-instances/mmq*.cu")
+-    list(APPEND GGML_SOURCES_CUDA ${SRCS})
      file(GLOB   SRCS "template-instances/mmf*.cu")
      list(APPEND GGML_SOURCES_CUDA ${SRCS})
-@@ -63,6 +78,9 @@ if (CUDAToolkit_FOUND)
+ 
+@@ -65,6 +80,9 @@ if (CUDAToolkit_FOUND)
          file(GLOB   SRCS "template-instances/fattn-vec*f16-f16.cu")
          list(APPEND GGML_SOURCES_CUDA ${SRCS})
      endif()
@@ -39,7 +42,7 @@ index bdcefe7b7..4d72812b1 100644
  
      ggml_add_backend_library(ggml-cuda
                               ${GGML_HEADERS_CUDA}
-@@ -91,6 +109,10 @@ if (CUDAToolkit_FOUND)
+@@ -93,6 +111,10 @@ if (CUDAToolkit_FOUND)
          add_compile_definitions(GGML_CUDA_NO_FA)
      endif()
  
@@ -51,7 +54,7 @@ index bdcefe7b7..4d72812b1 100644
          add_compile_definitions(GGML_CUDA_NO_PEER_COPY)
      endif()
 diff --git a/ggml/src/ggml-cuda/common.cuh b/ggml/src/ggml-cuda/common.cuh
-index d51abbeaf..3439a1245 100644
+index e0abde542..3a5d0a796 100644
 --- a/ggml/src/ggml-cuda/common.cuh
 +++ b/ggml/src/ggml-cuda/common.cuh
 @@ -153,7 +153,7 @@ void ggml_cuda_error(const char * stmt, const char * func, const char * file, in
@@ -1873,14 +1876,13 @@ index 000000000..0ddcf366c
 +#define cudaDataType_t tinyblasDataType_t
 +#define cublasSetMathMode(handle, mode) CUBLAS_STATUS_SUCCESS
 diff --git a/ggml/src/ggml-hip/CMakeLists.txt b/ggml/src/ggml-hip/CMakeLists.txt
-index 0e2b1847e..48e0a6d4c 100644
+index 934aefdcb..dfb95e7fd 100644
 --- a/ggml/src/ggml-hip/CMakeLists.txt
 +++ b/ggml/src/ggml-hip/CMakeLists.txt
-@@ -53,9 +53,24 @@ file(GLOB   GGML_HEADERS_ROCM "../ggml-cuda/*.cuh")
+@@ -53,12 +53,27 @@ file(GLOB   GGML_HEADERS_ROCM "../ggml-cuda/*.cuh")
  list(APPEND GGML_HEADERS_ROCM "../../include/ggml-cuda.h")
  
  file(GLOB   GGML_SOURCES_ROCM "../ggml-cuda/*.cu")
--file(GLOB   SRCS "../ggml-cuda/template-instances/fattn-mma*.cu")
 +
 +if (GGML_USE_TINYBLAS)
 +    file(GLOB REMOVE_SOURCES_ROCM "../ggml-cuda/mm*f.cu")
@@ -1894,16 +1896,20 @@ index 0e2b1847e..48e0a6d4c 100644
 +
 +if (NOT GGML_CUDA_NO_IQUANTS)
 +file(GLOB   SRCS "../ggml-cuda/template-instances/mmq-instance-i*.cu")
- list(APPEND GGML_SOURCES_ROCM ${SRCS})
--file(GLOB   SRCS "../ggml-cuda/template-instances/mmq*.cu")
++list(APPEND GGML_SOURCES_ROCM ${SRCS})
 +endif()
 +
 +if (GGML_CUDA_FA)
-+file(GLOB   SRCS "../ggml-cuda/template-instances/fattn-mma*.cu")
+ file(GLOB   SRCS "../ggml-cuda/template-instances/fattn-tile*.cu")
  list(APPEND GGML_SOURCES_ROCM ${SRCS})
+ file(GLOB   SRCS "../ggml-cuda/template-instances/fattn-mma*.cu")
+ list(APPEND GGML_SOURCES_ROCM ${SRCS})
+-file(GLOB   SRCS "../ggml-cuda/template-instances/mmq*.cu")
+-list(APPEND GGML_SOURCES_ROCM ${SRCS})
  
  if (GGML_CUDA_FA_ALL_QUANTS)
-@@ -70,6 +85,9 @@ else()
+     file(GLOB   SRCS "../ggml-cuda/template-instances/fattn-vec*.cu")
+@@ -72,6 +87,9 @@ else()
      file(GLOB   SRCS "../ggml-cuda/template-instances/fattn-vec*f16-f16.cu")
      list(APPEND GGML_SOURCES_ROCM ${SRCS})
  endif()
@@ -1913,7 +1919,7 @@ index 0e2b1847e..48e0a6d4c 100644
  
  ggml_add_backend_library(ggml-hip
                           ${GGML_HEADERS_ROCM}
-@@ -119,6 +137,10 @@ if (NOT GGML_CUDA_FA)
+@@ -121,6 +139,10 @@ if (NOT GGML_CUDA_FA)
      add_compile_definitions(GGML_CUDA_NO_FA)
  endif()
  
