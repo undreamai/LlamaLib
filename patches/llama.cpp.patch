@@ -33,7 +33,7 @@ index f329b434c..156b9c294 100644
  // set via common_log_set_verbosity()
  extern int common_log_verbosity_thold;
 diff --git a/ggml/src/CMakeLists.txt b/ggml/src/CMakeLists.txt
-index ba281b8e6..729130c73 100644
+index f30e4ac90..8949a37f6 100644
 --- a/ggml/src/CMakeLists.txt
 +++ b/ggml/src/CMakeLists.txt
 @@ -140,18 +140,6 @@ endif()
@@ -65,7 +65,7 @@ index ba281b8e6..729130c73 100644
  
  add_library(ggml-base
 diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-index c3e5a9ecc..cdc0a5bb5 100644
+index ab94bc3d7..63ed5be03 100644
 --- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 +++ b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 @@ -102,7 +102,7 @@ static bool is_pow2(uint32_t x) { return x > 1 && (x & (x-1)) == 0; }
@@ -118,10 +118,10 @@ index 2381012a0..cb59fc413 100644
 -target_link_libraries  (${TARGET} PRIVATE common mtmd Threads::Threads)
 -target_compile_features(${TARGET} PRIVATE cxx_std_17)
 diff --git a/tools/server/server.cpp b/tools/server/server.cpp
-index 92d30664e..cbba3dabe 100644
+index 0e1a9afc8..8c35ecda0 100644
 --- a/tools/server/server.cpp
 +++ b/tools/server/server.cpp
-@@ -4383,7 +4383,7 @@ inline void signal_handler(int signal) {
+@@ -4441,7 +4441,7 @@ inline void signal_handler(int signal) {
      shutdown_handler(signal);
  }
  
@@ -131,7 +131,7 @@ index 92d30664e..cbba3dabe 100644
      common_params params;
  
 diff --git a/tools/server/utils.hpp b/tools/server/utils.hpp
-index b6198edfc..859240962 100644
+index 2bce2f4a4..10c352de3 100644
 --- a/tools/server/utils.hpp
 +++ b/tools/server/utils.hpp
 @@ -10,13 +10,13 @@
