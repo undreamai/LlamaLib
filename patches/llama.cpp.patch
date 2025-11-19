@@ -1,10 +1,10 @@
 diff --git a/common/log.cpp b/common/log.cpp
-index 52b31470c..6bbfeedbd 100644
+index 4ccdbd17c..ca52264ac 100644
 --- a/common/log.cpp
 +++ b/common/log.cpp
-@@ -9,7 +9,8 @@
- #include <thread>
- #include <vector>
+@@ -20,7 +20,8 @@
+ #    include <unistd.h>
+ #endif // defined(_WIN32)
  
 -int common_log_verbosity_thold = LOG_DEFAULT_LLAMA;
 +void (*log_callback)(const char*) = nullptr;
@@ -12,7 +12,7 @@ index 52b31470c..6bbfeedbd 100644
  
  void common_log_set_verbosity_thold(int verbosity) {
      common_log_verbosity_thold = verbosity;
-@@ -96,6 +97,7 @@ struct common_log_entry {
+@@ -131,6 +132,7 @@ struct common_log_entry {
          }
  
          fprintf(fcur, "%s", msg.data());
@@ -21,12 +21,12 @@ index 52b31470c..6bbfeedbd 100644
          if (level == GGML_LOG_LEVEL_WARN || level == GGML_LOG_LEVEL_ERROR || level == GGML_LOG_LEVEL_DEBUG) {
              fprintf(fcur, "%s", g_col[COMMON_LOG_COL_DEFAULT]);
 diff --git a/common/log.h b/common/log.h
-index c56bb50d9..922a03fc1 100644
+index f329b434c..156b9c294 100644
 --- a/common/log.h
 +++ b/common/log.h
-@@ -24,6 +24,7 @@
- #define LOG_DEFAULT_DEBUG 1
- #define LOG_DEFAULT_LLAMA 0
+@@ -30,6 +30,7 @@ enum log_colors {
+     LOG_COLORS_ENABLED  = 1,
+ };
  
 +extern void (*log_callback)(const char*);
  // needed by the LOG_TMPL macro to avoid computing log arguments if the verbosity lower
@@ -58,7 +58,7 @@ index 2b5b8169d..d3e6b441a 100644
  
  add_library(ggml-base
 diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-index 04ad664e6..77dc0cbd4 100644
+index cd1c66ba7..ab539faa8 100644
 --- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 +++ b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 @@ -90,7 +90,7 @@ static bool is_pow2(uint32_t x) { return x > 1 && (x & (x-1)) == 0; }
@@ -71,7 +71,7 @@ index 04ad664e6..77dc0cbd4 100644
      } while (0)
  
 diff --git a/ggml/src/ggml.c b/ggml/src/ggml.c
-index d76ea58f7..d31267193 100644
+index f35c33795..5eeb58b50 100644
 --- a/ggml/src/ggml.c
 +++ b/ggml/src/ggml.c
 @@ -230,7 +230,12 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {
@@ -111,10 +111,10 @@ index 097948856..cb59fc413 100644
 -target_link_libraries  (${TARGET} PRIVATE common mtmd Threads::Threads)
 -target_compile_features(${TARGET} PRIVATE cxx_std_17)
 diff --git a/tools/server/server.cpp b/tools/server/server.cpp
-index 6eb5aeb58..6cc09b534 100644
+index 70aa18756..1a7355ec0 100644
 --- a/tools/server/server.cpp
 +++ b/tools/server/server.cpp
-@@ -3824,7 +3824,7 @@ inline void signal_handler(int signal) {
+@@ -4067,7 +4067,7 @@ inline void signal_handler(int signal) {
      shutdown_handler(signal);
  }
  
@@ -124,7 +124,7 @@ index 6eb5aeb58..6cc09b534 100644
      common_params params;
  
 diff --git a/tools/server/utils.hpp b/tools/server/utils.hpp
-index 036060bb3..e6cf3ae50 100644
+index 85fe25e00..4f0007bcc 100644
 --- a/tools/server/utils.hpp
 +++ b/tools/server/utils.hpp
 @@ -10,11 +10,11 @@
