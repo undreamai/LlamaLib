@@ -33,10 +33,10 @@ index f329b434c..156b9c294 100644
  // set via common_log_set_verbosity()
  extern int common_log_verbosity_thold;
 diff --git a/ggml/src/CMakeLists.txt b/ggml/src/CMakeLists.txt
-index 2b5b8169d..d3e6b441a 100644
+index c8f3d8596..381439df9 100644
 --- a/ggml/src/CMakeLists.txt
 +++ b/ggml/src/CMakeLists.txt
-@@ -140,11 +140,6 @@ endif()
+@@ -143,11 +143,6 @@ endif()
  # Somehow in OpenBSD whenever POSIX conformance is specified
  # some string functions rely on locale_t availability,
  # which was introduced in POSIX.1-2008, forcing us to go higher
@@ -48,7 +48,7 @@ index 2b5b8169d..d3e6b441a 100644
  
  # Data types, macros and functions related to controlling CPU affinity and
  # some memory allocation are available on Linux through GNU extensions in libc
-@@ -184,7 +179,7 @@ endif()
+@@ -187,7 +182,7 @@ endif()
  # ggml
  
  if (GGML_BACKEND_DL AND NOT BUILD_SHARED_LIBS)
@@ -58,7 +58,7 @@ index 2b5b8169d..d3e6b441a 100644
  
  add_library(ggml-base
 diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-index 60a99dc78..dd7acb012 100644
+index 325d7cad9..cb3038700 100644
 --- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 +++ b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 @@ -96,7 +96,7 @@ static bool is_pow2(uint32_t x) { return x > 1 && (x & (x-1)) == 0; }
@@ -71,7 +71,7 @@ index 60a99dc78..dd7acb012 100644
      } while (0)
  
 diff --git a/ggml/src/ggml.c b/ggml/src/ggml.c
-index 3584827dc..9ed3cd3ec 100644
+index a5796214f..2a2440ded 100644
 --- a/ggml/src/ggml.c
 +++ b/ggml/src/ggml.c
 @@ -230,7 +230,12 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {
@@ -111,10 +111,10 @@ index 2381012a0..cb59fc413 100644
 -target_link_libraries  (${TARGET} PRIVATE common mtmd Threads::Threads)
 -target_compile_features(${TARGET} PRIVATE cxx_std_17)
 diff --git a/tools/server/server.cpp b/tools/server/server.cpp
-index 519704fad..a8ce7dabc 100644
+index 6062904a8..24607aafd 100644
 --- a/tools/server/server.cpp
 +++ b/tools/server/server.cpp
-@@ -4068,7 +4068,7 @@ inline void signal_handler(int signal) {
+@@ -4075,7 +4075,7 @@ inline void signal_handler(int signal) {
      shutdown_handler(signal);
  }
  
@@ -124,7 +124,7 @@ index 519704fad..a8ce7dabc 100644
      common_params params;
  
 diff --git a/tools/server/utils.hpp b/tools/server/utils.hpp
-index 85fe25e00..4f0007bcc 100644
+index 4ca1423aa..785886dba 100644
 --- a/tools/server/utils.hpp
 +++ b/tools/server/utils.hpp
 @@ -10,11 +10,11 @@
