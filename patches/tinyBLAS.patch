@@ -73,7 +73,7 @@ index d51abbeaf..3439a1245 100644
  #endif // !defined(GGML_CUDA_NO_FA) && !(defined(GGML_USE_MUSA) && __MUSA_ARCH__ < 220)
  
 diff --git a/ggml/src/ggml-cuda/ggml-cuda.cu b/ggml/src/ggml-cuda/ggml-cuda.cu
-index b7e81b21b..fd82698fa 100644
+index 856e9de2e..4768dc548 100644
 --- a/ggml/src/ggml-cuda/ggml-cuda.cu
 +++ b/ggml/src/ggml-cuda/ggml-cuda.cu
 @@ -23,9 +23,13 @@
@@ -197,7 +197,7 @@ index b7e81b21b..fd82698fa 100644
              }
              return;
          }
-@@ -2494,9 +2521,11 @@ static bool ggml_cuda_compute_forward(ggml_backend_cuda_context & ctx, struct gg
+@@ -2497,9 +2524,11 @@ static bool ggml_cuda_compute_forward(ggml_backend_cuda_context & ctx, struct gg
          case GGML_OP_ARGSORT:
              ggml_cuda_op_argsort(ctx, dst);
              break;
