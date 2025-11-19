@@ -65,7 +65,7 @@ index f30e4ac90..8949a37f6 100644
  
  add_library(ggml-base
 diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-index ab94bc3d7..63ed5be03 100644
+index 9c2aeb57f..e8451968d 100644
 --- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 +++ b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 @@ -102,7 +102,7 @@ static bool is_pow2(uint32_t x) { return x > 1 && (x & (x-1)) == 0; }
@@ -118,10 +118,10 @@ index 2381012a0..cb59fc413 100644
 -target_link_libraries  (${TARGET} PRIVATE common mtmd Threads::Threads)
 -target_compile_features(${TARGET} PRIVATE cxx_std_17)
 diff --git a/tools/server/server.cpp b/tools/server/server.cpp
-index 0e1a9afc8..8c35ecda0 100644
+index 164e8cf4e..200231ee0 100644
 --- a/tools/server/server.cpp
 +++ b/tools/server/server.cpp
-@@ -4441,7 +4441,7 @@ inline void signal_handler(int signal) {
+@@ -4443,7 +4443,7 @@ inline void signal_handler(int signal) {
      shutdown_handler(signal);
  }
  
