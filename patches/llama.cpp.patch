@@ -1,5 +1,5 @@
 diff --git a/common/log.cpp b/common/log.cpp
-index 4ccdbd17c..ca52264ac 100644
+index a24782b73..023b84bf2 100644
 --- a/common/log.cpp
 +++ b/common/log.cpp
 @@ -20,7 +20,8 @@
@@ -21,7 +21,7 @@ index 4ccdbd17c..ca52264ac 100644
          if (level == GGML_LOG_LEVEL_WARN || level == GGML_LOG_LEVEL_ERROR || level == GGML_LOG_LEVEL_DEBUG) {
              fprintf(fcur, "%s", g_col[COMMON_LOG_COL_DEFAULT]);
 diff --git a/common/log.h b/common/log.h
-index f329b434c..156b9c294 100644
+index 7edb239a3..106d94e37 100644
 --- a/common/log.h
 +++ b/common/log.h
 @@ -30,6 +30,7 @@ enum log_colors {
@@ -65,10 +65,10 @@ index 628db3fd6..b5e81530a 100644
  
  add_library(ggml-base
 diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-index c6503f032..013e2914e 100644
+index 413a550a5..2a52d1452 100644
 --- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 +++ b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-@@ -102,7 +102,7 @@ static bool is_pow2(uint32_t x) { return x > 1 && (x & (x-1)) == 0; }
+@@ -103,7 +103,7 @@ static bool is_pow2(uint32_t x) { return x > 1 && (x & (x-1)) == 0; }
          if (err_ != vk::Result::eSuccess) {                         \
              fprintf(stderr, "ggml_vulkan: %s error %s at %s:%d\n",  \
                  #err, to_string(err_).c_str(), __FILE__, __LINE__); \
@@ -78,7 +78,7 @@ index c6503f032..013e2914e 100644
      } while (0)
  
 diff --git a/ggml/src/ggml.c b/ggml/src/ggml.c
-index 9be35c1be..4cb7a6fc6 100644
+index a5846a239..8861ad6f3 100644
 --- a/ggml/src/ggml.c
 +++ b/ggml/src/ggml.c
 @@ -230,7 +230,12 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {
@@ -118,11 +118,11 @@ index f640ae2a6..b574b8091 100644
 -target_link_libraries  (${TARGET} PRIVATE common mtmd Threads::Threads)
 -target_compile_features(${TARGET} PRIVATE cxx_std_17)
 diff --git a/tools/server/server.cpp b/tools/server/server.cpp
-index 0b3c77879..b43598c05 100644
+index 3750c8fdb..8883ac24e 100644
 --- a/tools/server/server.cpp
 +++ b/tools/server/server.cpp
-@@ -4456,7 +4456,7 @@ inline void signal_handler(int signal) {
-     shutdown_handler(signal);
+@@ -5502,7 +5502,7 @@ static server_http_context::handler_t ex_wrapper(server_http_context::handler_t
+     };
  }
  
 -int main(int argc, char ** argv) {
