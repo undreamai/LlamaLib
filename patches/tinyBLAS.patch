@@ -1,8 +1,8 @@
 diff --git a/ggml/src/ggml-cuda/CMakeLists.txt b/ggml/src/ggml-cuda/CMakeLists.txt
-index bce07ac3..51511a80 100644
+index ea824965a..3c354fea1 100644
 --- a/ggml/src/ggml-cuda/CMakeLists.txt
 +++ b/ggml/src/ggml-cuda/CMakeLists.txt
-@@ -46,9 +46,24 @@ if (CUDAToolkit_FOUND)
+@@ -40,9 +40,24 @@ if (CUDAToolkit_FOUND)
      list(APPEND GGML_HEADERS_CUDA "../../include/ggml-cuda.h")
  
      file(GLOB   GGML_SOURCES_CUDA "*.cu")
@@ -29,7 +29,7 @@ index bce07ac3..51511a80 100644
      list(APPEND GGML_SOURCES_CUDA ${SRCS})
  
      if (GGML_CUDA_FA_ALL_QUANTS)
-@@ -63,6 +78,9 @@ if (CUDAToolkit_FOUND)
+@@ -57,6 +72,9 @@ if (CUDAToolkit_FOUND)
          file(GLOB   SRCS "template-instances/fattn-vec*f16-f16.cu")
          list(APPEND GGML_SOURCES_CUDA ${SRCS})
      endif()
@@ -39,7 +39,7 @@ index bce07ac3..51511a80 100644
  
      ggml_add_backend_library(ggml-cuda
                               ${GGML_HEADERS_CUDA}
-@@ -91,6 +109,10 @@ if (CUDAToolkit_FOUND)
+@@ -85,6 +103,10 @@ if (CUDAToolkit_FOUND)
          add_compile_definitions(GGML_CUDA_NO_FA)
      endif()
  
@@ -47,14 +47,14 @@ index bce07ac3..51511a80 100644
 +        add_compile_definitions(GGML_CUDA_NO_IQUANTS)
 +    endif()
 +
-     if (GGML_CUDA_F16 OR GGML_CUDA_DMMV_F16)
-         add_compile_definitions(GGML_CUDA_F16)
+     if (GGML_CUDA_NO_PEER_COPY)
+         add_compile_definitions(GGML_CUDA_NO_PEER_COPY)
      endif()
 diff --git a/ggml/src/ggml-cuda/common.cuh b/ggml/src/ggml-cuda/common.cuh
-index 5a2a3478..f87ed8cd 100644
+index 85bc9e933..5c5e6a94c 100644
 --- a/ggml/src/ggml-cuda/common.cuh
 +++ b/ggml/src/ggml-cuda/common.cuh
-@@ -149,7 +149,7 @@ void ggml_cuda_error(const char * stmt, const char * func, const char * file, in
+@@ -151,7 +151,7 @@ void ggml_cuda_error(const char * stmt, const char * func, const char * file, in
  
  #define CUDA_CHECK(err) CUDA_CHECK_GEN(err, cudaSuccess, cudaGetErrorString)
  
@@ -63,7 +63,7 @@ index 5a2a3478..f87ed8cd 100644
      static const char * cublas_get_error_str(const cublasStatus_t err) {
          return cublasGetStatusString(err);
      }
-@@ -248,7 +248,7 @@ typedef float2 dfloat2;
+@@ -242,7 +242,7 @@ static const char * cu_get_error_str(CUresult err) {
  #define CP_ASYNC_AVAILABLE
  #endif // !defined(GGML_USE_HIP) && __CUDA_ARCH__ >= GGML_CUDA_CC_AMPERE
  
@@ -73,7 +73,7 @@ index 5a2a3478..f87ed8cd 100644
  #endif // !defined(GGML_CUDA_NO_FA) && !(defined(GGML_USE_MUSA) && __MUSA_ARCH__ < 220)
  
 diff --git a/ggml/src/ggml-cuda/ggml-cuda.cu b/ggml/src/ggml-cuda/ggml-cuda.cu
-index d9110491..45db4c12 100644
+index 449488341..0d275f99f 100644
 --- a/ggml/src/ggml-cuda/ggml-cuda.cu
 +++ b/ggml/src/ggml-cuda/ggml-cuda.cu
 @@ -22,9 +22,13 @@
@@ -91,7 +91,7 @@ index d9110491..45db4c12 100644
  #include "ggml-cuda/mmvq.cuh"
  #include "ggml-cuda/norm.cuh"
  #include "ggml-cuda/opt-step-adamw.cuh"
-@@ -1237,7 +1241,9 @@ static void ggml_cuda_op_mul_mat_cublas(
+@@ -1235,7 +1239,9 @@ static void ggml_cuda_op_mul_mat_cublas(
          (GGML_CUDA_CC_IS_MTHREADS(cc) && cc >= GGML_CUDA_CC_QY2);
  
      const bool use_fp16 = (src0->type == GGML_TYPE_F16 || ggml_is_quantized(src0->type)) && ggml_is_contiguous(src0) && row_diff == src0->ne[1] && dst->op_params[0] == GGML_PREC_DEFAULT;
@@ -102,7 +102,7 @@ index d9110491..45db4c12 100644
      if (supports_bf16 && src0->type == GGML_TYPE_BF16 && ggml_is_contiguous(src0) && row_diff == src0->ne[1]) {
          ggml_cuda_pool_alloc<nv_bfloat16> src1_as_bf16(ctx.pool(id));
          if (src1->type != GGML_TYPE_BF16) {
-@@ -1266,6 +1272,7 @@ static void ggml_cuda_op_mul_mat_cublas(
+@@ -1264,6 +1270,7 @@ static void ggml_cuda_op_mul_mat_cublas(
  
          const to_fp32_cuda_t to_fp32_cuda = ggml_get_to_fp32_cuda(GGML_TYPE_BF16);
          to_fp32_cuda(dst_bf16.get(), dst_dd_i, row_diff*src1_ncols, stream);
@@ -110,7 +110,7 @@ index d9110491..45db4c12 100644
      } else if (fast_fp16_hardware_available(cc) && use_fp16) {
          // convert src0 and src1 to fp16, multiply as fp16, convert dst to fp32
          ggml_cuda_pool_alloc<half> src0_as_f16(ctx.pool(id));
-@@ -1795,6 +1802,7 @@ struct batched_mul_mat_traits<GGML_TYPE_F32> {
+@@ -1791,6 +1798,7 @@ struct batched_mul_mat_traits<GGML_TYPE_F32> {
      static inline auto get_nc_converter(ggml_type src_type) { return ggml_get_to_fp32_nc_cuda(src_type); }
  };
  
@@ -118,7 +118,7 @@ index d9110491..45db4c12 100644
  template<>
  struct batched_mul_mat_traits<GGML_TYPE_BF16> {
      using cuda_type = nv_bfloat16;
-@@ -1807,6 +1815,7 @@ struct batched_mul_mat_traits<GGML_TYPE_BF16> {
+@@ -1803,6 +1811,7 @@ struct batched_mul_mat_traits<GGML_TYPE_BF16> {
      static inline const void* get_beta() { static const float val = beta; return &val; }
      static inline auto get_nc_converter(ggml_type src_type) { return ggml_get_to_bf16_nc_cuda(src_type); }
  };
@@ -126,7 +126,7 @@ index d9110491..45db4c12 100644
  
  template<>
  struct batched_mul_mat_traits<GGML_TYPE_F16> {
-@@ -1989,9 +1998,11 @@ static void ggml_cuda_mul_mat_batched_cublas(ggml_backend_cuda_context & ctx, co
+@@ -1985,9 +1994,11 @@ static void ggml_cuda_mul_mat_batched_cublas(ggml_backend_cuda_context & ctx, co
          case GGML_TYPE_F32:
              ggml_cuda_mul_mat_batched_cublas_impl<GGML_TYPE_F32>(ctx, src0, src1, dst);
              break;
@@ -138,7 +138,7 @@ index d9110491..45db4c12 100644
          case GGML_TYPE_F16:
              ggml_cuda_mul_mat_batched_cublas_impl<GGML_TYPE_F16>(ctx, src0, src1, dst);
              break;
-@@ -2033,16 +2044,20 @@ static void ggml_cuda_mul_mat(ggml_backend_cuda_context & ctx, const ggml_tensor
+@@ -2029,16 +2040,20 @@ static void ggml_cuda_mul_mat(ggml_backend_cuda_context & ctx, const ggml_tensor
              const int cc            = ggml_cuda_info().devices[id].cc;
              const int warp_size     = ggml_cuda_info().devices[id].warp_size;
              use_mul_mat_q           = use_mul_mat_q             && ggml_cuda_should_use_mmq(src0->type, cc, src1->ne[1]);
@@ -159,7 +159,7 @@ index d9110491..45db4c12 100644
          any_gpus_with_slow_fp16 = any_gpus_with_slow_fp16   || !fast_fp16_hardware_available(cc);
      }
  
-@@ -2063,9 +2078,13 @@ static void ggml_cuda_mul_mat(ggml_backend_cuda_context & ctx, const ggml_tensor
+@@ -2059,9 +2074,13 @@ static void ggml_cuda_mul_mat(ggml_backend_cuda_context & ctx, const ggml_tensor
      if (!split && use_mul_mat_vec_f) {
          // the custom F16 vector kernel can be used over batched cuBLAS GEMM
          // but this is only faster for GPUs without tensor cores or with a thin src0 matrix (particularly KQV in attention)
@@ -173,7 +173,7 @@ index d9110491..45db4c12 100644
      } else if (!split && use_mul_mat_vec_q) {
          ggml_cuda_mul_mat_vec_q(ctx, src0, src1, nullptr, dst);
      } else if (!split && use_mul_mat_q) {
-@@ -2075,7 +2094,11 @@ static void ggml_cuda_mul_mat(ggml_backend_cuda_context & ctx, const ggml_tensor
+@@ -2071,7 +2090,11 @@ static void ggml_cuda_mul_mat(ggml_backend_cuda_context & ctx, const ggml_tensor
          // general KQ + KQV multi-batch without FlashAttention
          ggml_cuda_mul_mat_batched_cublas(ctx, src0, src1, dst);
      } else if (use_mul_mat_vec_f) {
@@ -185,7 +185,7 @@ index d9110491..45db4c12 100644
      } else if (use_mul_mat_vec_q) {
          ggml_cuda_op_mul_mat(ctx, src0, src1, dst, ggml_cuda_op_mul_mat_vec_q, quantize_row_q8_1_cuda);
      } else if (use_mul_mat_q) {
-@@ -2103,7 +2126,11 @@ static void ggml_cuda_mul_mat_id(ggml_backend_cuda_context & ctx, ggml_tensor *
+@@ -2099,7 +2122,11 @@ static void ggml_cuda_mul_mat_id(ggml_backend_cuda_context & ctx, ggml_tensor *
              if (ggml_is_quantized(src0->type)) {
                  ggml_cuda_mul_mat_vec_q(ctx, src0, src1, ids, dst);
              } else {
@@ -197,7 +197,7 @@ index d9110491..45db4c12 100644
              }
              return;
          }
-@@ -2482,9 +2509,11 @@ static bool ggml_cuda_compute_forward(ggml_backend_cuda_context & ctx, struct gg
+@@ -2481,9 +2508,11 @@ static bool ggml_cuda_compute_forward(ggml_backend_cuda_context & ctx, struct gg
          case GGML_OP_ARGSORT:
              ggml_cuda_op_argsort(ctx, dst);
              break;
@@ -210,10 +210,10 @@ index d9110491..45db4c12 100644
              ggml_cuda_cross_entropy_loss(ctx, dst);
              break;
 diff --git a/ggml/src/ggml-cuda/mmq.cu b/ggml/src/ggml-cuda/mmq.cu
-index 384ee761..2e2ab603 100644
+index 714b23f9f..ffe0f194b 100644
 --- a/ggml/src/ggml-cuda/mmq.cu
 +++ b/ggml/src/ggml-cuda/mmq.cu
-@@ -38,6 +38,7 @@ static void ggml_cuda_mul_mat_q_switch_type(ggml_backend_cuda_context & ctx, con
+@@ -172,6 +172,7 @@ static void ggml_cuda_mul_mat_q_switch_type(ggml_backend_cuda_context & ctx, con
          case GGML_TYPE_Q6_K:
              mul_mat_q_case<GGML_TYPE_Q6_K>(ctx, args, stream);
              break;
@@ -221,7 +221,7 @@ index 384ee761..2e2ab603 100644
          case GGML_TYPE_IQ2_XXS:
              mul_mat_q_case<GGML_TYPE_IQ2_XXS>(ctx, args, stream);
              break;
-@@ -62,6 +63,7 @@ static void ggml_cuda_mul_mat_q_switch_type(ggml_backend_cuda_context & ctx, con
+@@ -196,6 +197,7 @@ static void ggml_cuda_mul_mat_q_switch_type(ggml_backend_cuda_context & ctx, con
          case GGML_TYPE_IQ4_NL:
              mul_mat_q_case<GGML_TYPE_IQ4_NL>(ctx, args, stream);
              break;
@@ -230,10 +230,10 @@ index 384ee761..2e2ab603 100644
              GGML_ABORT("fatal error");
              break;
 diff --git a/ggml/src/ggml-cuda/mmq.cuh b/ggml/src/ggml-cuda/mmq.cuh
-index 96129bd8..0e9fa269 100644
+index c9a07e82f..6c0398772 100644
 --- a/ggml/src/ggml-cuda/mmq.cuh
 +++ b/ggml/src/ggml-cuda/mmq.cuh
-@@ -3725,6 +3725,7 @@ extern DECL_MMQ_CASE(GGML_TYPE_Q3_K);
+@@ -3735,6 +3735,7 @@ extern DECL_MMQ_CASE(GGML_TYPE_Q3_K);
  extern DECL_MMQ_CASE(GGML_TYPE_Q4_K);
  extern DECL_MMQ_CASE(GGML_TYPE_Q5_K);
  extern DECL_MMQ_CASE(GGML_TYPE_Q6_K);
@@ -241,7 +241,7 @@ index 96129bd8..0e9fa269 100644
  extern DECL_MMQ_CASE(GGML_TYPE_IQ2_XXS);
  extern DECL_MMQ_CASE(GGML_TYPE_IQ2_XS);
  extern DECL_MMQ_CASE(GGML_TYPE_IQ2_S);
-@@ -3733,6 +3734,7 @@ extern DECL_MMQ_CASE(GGML_TYPE_IQ3_S);
+@@ -3743,6 +3744,7 @@ extern DECL_MMQ_CASE(GGML_TYPE_IQ3_S);
  extern DECL_MMQ_CASE(GGML_TYPE_IQ1_S);
  extern DECL_MMQ_CASE(GGML_TYPE_IQ4_NL);
  extern DECL_MMQ_CASE(GGML_TYPE_IQ4_XS);
@@ -251,7 +251,7 @@ index 96129bd8..0e9fa269 100644
  
 diff --git a/ggml/src/ggml-cuda/mmv.cu b/ggml/src/ggml-cuda/mmv.cu
 new file mode 100644
-index 00000000..d8c385e2
+index 000000000..d8c385e23
 --- /dev/null
 +++ b/ggml/src/ggml-cuda/mmv.cu
 @@ -0,0 +1,336 @@
@@ -593,7 +593,7 @@ index 00000000..d8c385e2
 +}
 diff --git a/ggml/src/ggml-cuda/mmv.cuh b/ggml/src/ggml-cuda/mmv.cuh
 new file mode 100644
-index 00000000..756e7e1c
+index 000000000..756e7e1cc
 --- /dev/null
 +++ b/ggml/src/ggml-cuda/mmv.cuh
 @@ -0,0 +1,12 @@
@@ -610,7 +610,7 @@ index 00000000..756e7e1c
 +    const char * src1_ddq_i, float * dst_dd_i, const int64_t row_low, const int64_t row_high, const int64_t src1_ncols,
 +    const int64_t src1_padded_row_size, cudaStream_t stream);
 diff --git a/ggml/src/ggml-cuda/mmvq.cu b/ggml/src/ggml-cuda/mmvq.cu
-index 5c8e5c4a..afcaaa22 100644
+index b7c307930..1bd88c26f 100644
 --- a/ggml/src/ggml-cuda/mmvq.cu
 +++ b/ggml/src/ggml-cuda/mmvq.cu
 @@ -428,6 +428,7 @@ static void mul_mat_vec_q_switch_type(
@@ -631,7 +631,7 @@ index 5c8e5c4a..afcaaa22 100644
              break;
 diff --git a/ggml/src/ggml-cuda/tinyblas.cu b/ggml/src/ggml-cuda/tinyblas.cu
 new file mode 100644
-index 00000000..1d4da084
+index 000000000..1d4da0844
 --- /dev/null
 +++ b/ggml/src/ggml-cuda/tinyblas.cu
 @@ -0,0 +1,981 @@
@@ -1618,7 +1618,7 @@ index 00000000..1d4da084
 +}
 diff --git a/ggml/src/ggml-cuda/tinyblas.h b/ggml/src/ggml-cuda/tinyblas.h
 new file mode 100644
-index 00000000..d6c2aae1
+index 000000000..d6c2aae1a
 --- /dev/null
 +++ b/ggml/src/ggml-cuda/tinyblas.h
 @@ -0,0 +1,66 @@
@@ -1689,7 +1689,7 @@ index 00000000..d6c2aae1
 +                                              long long, int, tinyblasComputeType_t,
 +                                              tinyblasGemmAlgo_t);
 diff --git a/ggml/src/ggml-cuda/vendors/cuda.h b/ggml/src/ggml-cuda/vendors/cuda.h
-index 3b308677..5a69c0ec 100644
+index 3b3086778..5a69c0ec2 100644
 --- a/ggml/src/ggml-cuda/vendors/cuda.h
 +++ b/ggml/src/ggml-cuda/vendors/cuda.h
 @@ -1,10 +1,22 @@
@@ -1725,22 +1725,21 @@ index 3b308677..5a69c0ec 100644
 +
 +#endif // GGML_USE_TINYBLAS 2
 diff --git a/ggml/src/ggml-cuda/vendors/hip.h b/ggml/src/ggml-cuda/vendors/hip.h
-index 96f8bc75..058912de 100644
+index c6a33d5de..50eede587 100644
 --- a/ggml/src/ggml-cuda/vendors/hip.h
 +++ b/ggml/src/ggml-cuda/vendors/hip.h
-@@ -1,12 +1,22 @@
+@@ -1,11 +1,18 @@
 -#pragma once
 -
 -#define HIP_DISABLE_WARP_SYNC_BUILTINS 1
  #include <hip/hip_runtime.h>
 -#include <hipblas/hipblas.h>
  #include <hip/hip_fp16.h>
- #include <hip/hip_bfloat16.h>
-+
+ #include <hip/hip_bf16.h>
+ 
 +#ifdef GGML_USE_TINYBLAS
 +
 +#include "tinyblas_vendor.h"
-+#define __nv_bfloat16 hip_bfloat16
 +#define CUBLAS_COMPUTE_32F_FAST_16F TINYBLAS_COMPUTE_32F
 +#define CUBLAS_TF32_TENSOR_OP_MATH 0
 +
@@ -1749,13 +1748,10 @@ index 96f8bc75..058912de 100644
 +#define BLAS_NAME GGML_CUBLAS_NAME
 +
 +#include <hipblas/hipblas.h>
- // for rocblas_initialize()
- #include "rocblas/rocblas.h"
-+typedef hip_bfloat16 nv_bfloat16;
- 
  #define CUBLAS_GEMM_DEFAULT HIPBLAS_GEMM_DEFAULT
  #define CUBLAS_GEMM_DEFAULT_TENSOR_OP HIPBLAS_GEMM_DEFAULT
-@@ -17,14 +27,21 @@
+ #define CUBLAS_OP_N HIPBLAS_OP_N
+@@ -15,17 +22,24 @@
  #define CUDA_R_16F  HIPBLAS_R_16F
  #define CUDA_R_16BF HIPBLAS_R_16B
  #define CUDA_R_32F  HIPBLAS_R_32F
@@ -1771,13 +1767,16 @@ index 96f8bc75..058912de 100644
 +#endif //GGML_USE_TINYBLAS 2
 +
  #define __shfl_sync(mask, var, laneMask, width) __shfl(var, laneMask, width)
+ #define __shfl_up_sync(mask, var, laneMask, width) __shfl_up(var, laneMask, width)
  #define __shfl_xor_sync(mask, var, laneMask, width) __shfl_xor(var, laneMask, width)
+ #define __all_sync(mask, var) __all(var)
+ #define __any_sync(mask, var) __any(var)
 +
 +#ifndef GGML_USE_TINYBLAS //3
  #define cublasCreate hipblasCreate
  #define cublasDestroy hipblasDestroy
  #define cublasGemmEx hipblasGemmEx
-@@ -36,6 +53,8 @@
+@@ -37,6 +51,8 @@
  #define cublasSgemm hipblasSgemm
  #define cublasStatus_t hipblasStatus_t
  #define cublasOperation_t hipblasOperation_t
@@ -1786,7 +1785,7 @@ index 96f8bc75..058912de 100644
  #define cudaDeviceCanAccessPeer hipDeviceCanAccessPeer
  #define cudaDeviceDisablePeerAccess hipDeviceDisablePeerAccess
  #define cudaDeviceEnablePeerAccess hipDeviceEnablePeerAccess
-@@ -79,6 +98,8 @@
+@@ -80,6 +96,8 @@
  #define cudaMemGetInfo hipMemGetInfo
  #define cudaOccupancyMaxPotentialBlockSize hipOccupancyMaxPotentialBlockSize
  #define cudaSetDevice hipSetDevice
@@ -1795,7 +1794,7 @@ index 96f8bc75..058912de 100644
  #define cuDeviceGet hipDeviceGet
  #define CUdevice hipDevice_t
  #define CUdeviceptr hipDeviceptr_t
-@@ -94,6 +115,8 @@
+@@ -95,6 +113,8 @@
  #define cuMemGetAllocationGranularity hipMemGetAllocationGranularity
  #define CUmemAllocationProp hipMemAllocationProp
  #define cuDeviceGetAttribute hipDeviceGetAttribute
@@ -1804,7 +1803,7 @@ index 96f8bc75..058912de 100644
  #define cudaStreamCreateWithFlags hipStreamCreateWithFlags
  #define cudaStreamDestroy hipStreamDestroy
  #define cudaStreamFireAndForget hipStreamFireAndForget
-@@ -101,6 +124,8 @@
+@@ -102,6 +122,8 @@
  #define cudaStreamPerThread hipStreamPerThread
  #define cudaStreamSynchronize hipStreamSynchronize
  #define cudaStreamWaitEvent(stream, event, flags) hipStreamWaitEvent(stream, event, flags)
@@ -1813,7 +1812,7 @@ index 96f8bc75..058912de 100644
  #define cudaGraphExec_t hipGraphExec_t
  #define cudaGraphNode_t hipGraphNode_t
  #define cudaKernelNodeParams hipKernelNodeParams
-@@ -123,10 +148,14 @@
+@@ -124,10 +146,14 @@
  #define cudaStreamCaptureModeRelaxed hipStreamCaptureModeRelaxed
  #define cudaStreamBeginCapture hipStreamBeginCapture
  #define cudaGraph_t hipGraph_t
@@ -1828,25 +1827,17 @@ index 96f8bc75..058912de 100644
  #define CUBLAS_STATUS_SUCCESS HIPBLAS_STATUS_SUCCESS
  #define CUBLAS_STATUS_NOT_INITIALIZED HIPBLAS_STATUS_NOT_INITIALIZED
  #define CUBLAS_STATUS_ALLOC_FAILED HIPBLAS_STATUS_ALLOC_FAILED
-@@ -136,6 +165,7 @@
+@@ -137,6 +163,7 @@
  #define CUBLAS_STATUS_EXECUTION_FAILED HIPBLAS_STATUS_EXECUTION_FAILED
  #define CUBLAS_STATUS_INTERNAL_ERROR HIPBLAS_STATUS_INTERNAL_ERROR
  #define CUBLAS_STATUS_NOT_SUPPORTED HIPBLAS_STATUS_NOT_SUPPORTED
 +#endif //GGML_USE_TINYBLAS 6
  
- #if HIP_VERSION >= 70000000
+ #if HIP_VERSION >= 60500000
  #define CUBLAS_COMPUTE_16F HIPBLAS_COMPUTE_16F
-@@ -199,7 +229,6 @@
-     #define __has_builtin(x) 0
- #endif
- 
--typedef hip_bfloat16 nv_bfloat16;
- typedef short2 nv_bfloat162; // FIXME there is no 2x BF16 type being defined in bfloat16.h, ad-hoc compilation fix
- 
- typedef int8_t int8x4_t __attribute__((ext_vector_type(4)));
 diff --git a/ggml/src/ggml-cuda/vendors/tinyblas_vendor.h b/ggml/src/ggml-cuda/vendors/tinyblas_vendor.h
 new file mode 100644
-index 00000000..0ddcf366
+index 000000000..0ddcf366c
 --- /dev/null
 +++ b/ggml/src/ggml-cuda/vendors/tinyblas_vendor.h
 @@ -0,0 +1,27 @@
@@ -1878,7 +1869,7 @@ index 00000000..0ddcf366
 +#define cudaDataType_t tinyblasDataType_t
 +#define cublasSetMathMode(handle, mode) CUBLAS_STATUS_SUCCESS
 diff --git a/ggml/src/ggml-hip/CMakeLists.txt b/ggml/src/ggml-hip/CMakeLists.txt
-index 852de973..c6ab8c9b 100644
+index d327b90cc..ecc3c2946 100644
 --- a/ggml/src/ggml-hip/CMakeLists.txt
 +++ b/ggml/src/ggml-hip/CMakeLists.txt
 @@ -59,9 +59,24 @@ file(GLOB   GGML_HEADERS_ROCM "../ggml-cuda/*.cuh")

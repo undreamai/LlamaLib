@@ -991,7 +991,7 @@ std::string LLMService::embeddings_json(
         }
     }
 
-    std::vector<llama_tokens> tokenized_prompts = tokenize_input_prompts(ctx_server->vocab, prompt, true, true);
+    std::vector<server_tokens> tokenized_prompts = tokenize_input_prompts(ctx_server->vocab, ctx_server->mctx, prompt, true, true);
     for (const auto &tokens : tokenized_prompts)
     {
         // this check is necessary for models that do not add BOS token to the input
@@ -1022,7 +1022,7 @@ std::string LLMService::embeddings_json(
 
             task.id = ctx_server->queue_tasks.get_new_id();
             task.index = i;
-            task.prompt_tokens = server_tokens(tokenized_prompts[i], ctx_server->mctx != nullptr);
+            task.prompt_tokens = std::move(tokenized_prompts[i]);
 
             // OAI-compat
             task.params.oaicompat = oaicompat;
@@ -1305,16 +1305,16 @@ std::string LLMService::completion_json(
         std::vector<server_task> tasks;
         try
         {
-            std::vector<llama_tokens> tokenized_prompts = tokenize_input_prompts(ctx_server->vocab, prompt, true, true);
-            tasks.reserve(tokenized_prompts.size());
-            for (size_t i = 0; i < tokenized_prompts.size(); i++)
+            std::vector<server_tokens> inputs = tokenize_input_prompts(ctx_server->vocab, ctx_server->mctx, prompt, true, true);
+            tasks.reserve(inputs.size());
+            for (size_t i = 0; i < inputs.size(); i++)
             {
                 server_task task = server_task(type);
 
                 task.id = ctx_server->queue_tasks.get_new_id();
                 task.index = i;
 
-                task.prompt_tokens = server_tokens(tokenized_prompts[i], ctx_server->mctx != nullptr);
+                task.prompt_tokens    = std::move(inputs[i]);
                 task.params = server_task::params_from_json_cmpl(
                     ctx_server->ctx,
                     ctx_server->params_base,
