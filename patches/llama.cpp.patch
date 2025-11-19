@@ -33,7 +33,7 @@ index f329b434c..156b9c294 100644
  // set via common_log_set_verbosity()
  extern int common_log_verbosity_thold;
 diff --git a/ggml/src/CMakeLists.txt b/ggml/src/CMakeLists.txt
-index f30e4ac90..8949a37f6 100644
+index 628db3fd6..b5e81530a 100644
 --- a/ggml/src/CMakeLists.txt
 +++ b/ggml/src/CMakeLists.txt
 @@ -140,18 +140,6 @@ endif()
@@ -65,7 +65,7 @@ index f30e4ac90..8949a37f6 100644
  
  add_library(ggml-base
 diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-index 9c2aeb57f..e8451968d 100644
+index c6503f032..013e2914e 100644
 --- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 +++ b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 @@ -102,7 +102,7 @@ static bool is_pow2(uint32_t x) { return x > 1 && (x & (x-1)) == 0; }
@@ -96,10 +96,10 @@ index 9be35c1be..4cb7a6fc6 100644
  
  // ggml_print_backtrace is registered with std::set_terminate by ggml.cpp
 diff --git a/tools/mtmd/CMakeLists.txt b/tools/mtmd/CMakeLists.txt
-index 2381012a0..cb59fc413 100644
+index f640ae2a6..b574b8091 100644
 --- a/tools/mtmd/CMakeLists.txt
 +++ b/tools/mtmd/CMakeLists.txt
-@@ -46,17 +46,3 @@ if (TARGET BUILD_INFO)
+@@ -51,17 +51,3 @@ if (TARGET BUILD_INFO)
      add_dependencies(mtmd        BUILD_INFO)
      add_dependencies(mtmd-helper BUILD_INFO)
  endif()
@@ -118,10 +118,10 @@ index 2381012a0..cb59fc413 100644
 -target_link_libraries  (${TARGET} PRIVATE common mtmd Threads::Threads)
 -target_compile_features(${TARGET} PRIVATE cxx_std_17)
 diff --git a/tools/server/server.cpp b/tools/server/server.cpp
-index 164e8cf4e..200231ee0 100644
+index 0b3c77879..b43598c05 100644
 --- a/tools/server/server.cpp
 +++ b/tools/server/server.cpp
-@@ -4443,7 +4443,7 @@ inline void signal_handler(int signal) {
+@@ -4456,7 +4456,7 @@ inline void signal_handler(int signal) {
      shutdown_handler(signal);
  }
  
@@ -130,23 +130,3 @@ index 164e8cf4e..200231ee0 100644
      // own arguments required by this example
      common_params params;
  
-diff --git a/tools/server/utils.hpp b/tools/server/utils.hpp
-index 2bce2f4a4..10c352de3 100644
---- a/tools/server/utils.hpp
-+++ b/tools/server/utils.hpp
-@@ -10,13 +10,13 @@
- #include "chat.h"
- 
- // increase max payload length to allow use of larger context size
--#define CPPHTTPLIB_FORM_URL_ENCODED_PAYLOAD_MAX_LENGTH 1048576
-+// #define CPPHTTPLIB_FORM_URL_ENCODED_PAYLOAD_MAX_LENGTH 1048576
- // increase backlog size to avoid connection resets for >> 1 slots
- #define CPPHTTPLIB_LISTEN_BACKLOG 512
- // increase max URI length to handle longer prompts in query string
- #define CPPHTTPLIB_REQUEST_URI_MAX_LENGTH 32768
- // disable Nagle's algorithm
--#define CPPHTTPLIB_TCP_NODELAY true
-+// #define CPPHTTPLIB_TCP_NODELAY true
- #include <cpp-httplib/httplib.h>
- 
- #define JSON_ASSERT GGML_ASSERT

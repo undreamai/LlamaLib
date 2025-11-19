@@ -54,7 +54,7 @@ index 67af1d8cc..6ebb264a7 100644
          add_compile_definitions(GGML_CUDA_NO_PEER_COPY)
      endif()
 diff --git a/ggml/src/ggml-cuda/common.cuh b/ggml/src/ggml-cuda/common.cuh
-index ca876459d..63f3f733e 100644
+index 25e9308d7..e2e23cc92 100644
 --- a/ggml/src/ggml-cuda/common.cuh
 +++ b/ggml/src/ggml-cuda/common.cuh
 @@ -153,7 +153,7 @@ void ggml_cuda_error(const char * stmt, const char * func, const char * file, in
