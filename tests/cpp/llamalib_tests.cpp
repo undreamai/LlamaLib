@@ -206,7 +206,6 @@ void test_embeddings(LLM *llm, bool use_api)
     if (use_api)
     {
         std::string reply = std::string(LLM_Embeddings(llm, PROMPT.c_str()));
-    std::cout<<reply<<std::endl;
         embeddings = json::parse(reply).get<std::vector<float>>();
     }
     else
@@ -368,9 +367,8 @@ void test_agent_chat(LLMAgent *agent, bool stream, bool use_api)
         ASSERT(reply != "");
         if (stream)
         {
-            // std::cout << "counter: " << counter << std::endl;
-            // ASSERT(counter > 3);
-            // ASSERT(reply == concat_result);
+            ASSERT(counter > 3);
+            ASSERT(reply == concat_result);
         }
 
         size_t history_size;
@@ -847,7 +845,7 @@ void run_LLM_tests(LLM *llm)
         test_tokenize(llm, use_api);
         test_completion(llm, false, use_api);
         test_completion(llm, true, use_api);
-        // test_apply_template(llm, use_api);
+        test_apply_template(llm, use_api);
     }
 }
 
@@ -893,7 +891,7 @@ void run_LLMLocal_tests(LLMLocal *llm)
     for (bool use_api : {true, false})
     {
         std::cout << "*** USE_C_API: " << use_api << " ***" << std::endl;
-        // test_cancel(llm, use_api);
+        test_cancel(llm, use_api);
         test_slot(llm, use_api);
     }
 }
@@ -1025,15 +1023,13 @@ void run_all_tests(LLMService *llm_service, bool embedding)
 
     EMBEDDING_SIZE = LLM_Embedding_Size(llm_service);
     if (embedding) run_LLM_embedding_tests(llm_service);
-    // else run_LLMProvider_tests(llm_service);
-    else run_LLM_tests(llm_service);
+    else run_LLMProvider_tests(llm_service);
 
     std::cout << std::endl
               << "-------- LLM client --------" << std::endl;
     LLMClient llm_client(llm_service);
     if (embedding) run_LLM_embedding_tests(&llm_client);
-    else run_LLM_tests(&llm_client);
-    // else run_LLMLocal_tests(&llm_client);
+    else run_LLMLocal_tests(&llm_client);
 
     std::cout << std::endl
               << "-------- LLM remote client --------" << std::endl;
@@ -1041,8 +1037,7 @@ void run_all_tests(LLMService *llm_service, bool embedding)
     llm_service->start_server("", 8080);
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     if (embedding) run_LLM_embedding_tests(&llm_remote_client);
-    else run_LLM_tests(&llm_remote_client);
-    // else run_LLMLocal_tests(&llm_remote_client);
+    else run_LLMLocal_tests(&llm_remote_client);
     llm_service->stop_server();
 
     test_API_key(llm_service);
@@ -1054,8 +1049,7 @@ void run_all_tests(LLMService *llm_service, bool embedding)
     llm_service->start_server("", 8080);
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     if (embedding) run_LLM_embedding_tests(&llm_remote_client_SSL);
-    else run_LLM_tests(&llm_remote_client_SSL);
-    // else run_LLMLocal_tests(&llm_remote_client_SSL);
+    else run_LLMLocal_tests(&llm_remote_client_SSL);
     llm_service->stop_server();
 
     std::cout << std::endl
@@ -1069,8 +1063,8 @@ int main(int argc, char **argv)
     run_mock_tests();
     LLMService* llm_service = new LLMService("../tests/model.gguf");
     run_all_tests(llm_service, false);
-    // LLMService* llm_service_embedding = LLMService::from_command("-m ../tests/model_embedding.gguf --embeddings");
-    // run_all_tests(llm_service_embedding, true);
+    LLMService* llm_service_embedding = LLMService::from_command("-m ../tests/model_embedding.gguf --embeddings");
+    run_all_tests(llm_service_embedding, true);
      
     return 0;
 }

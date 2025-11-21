@@ -17,6 +17,10 @@ struct server_context; ///< Forward declaration of server context structure
 struct server_http_context; ///< Forward declaration of server http context structure
 struct server_routes;
 struct server_http_req;
+struct server_http_res;
+
+using server_http_res_ptr = std::unique_ptr<server_http_res>;
+using handler_t = std::function<server_http_res_ptr(const server_http_req & req)>;
 
 /// @brief Concrete implementation of LLMProvider with server capabilities
 /// @details This class provides a full-featured LLM service with HTTP server,
@@ -90,6 +94,8 @@ public:
     std::string get_command() { return command; }
 
     //=================================== LLM METHODS START ===================================//
+
+    std::string encapsulate_route(const json &body, handler_t route_handler);
 
     /// @brief Tokenize text
     /// @param query Text string to tokenize
@@ -219,13 +225,6 @@ private:
     /// @return Detected chat template string
     /// @details Analyzes the model to determine the best chat template format
     const std::string detect_chat_template();
-
-    /// @brief Validate API key middleware
-    /// @param req HTTP request object
-    /// @param res HTTP response object
-    /// @return true if API key is valid, false otherwise
-    /// @details HTTP middleware for validating API key authentication
-    bool middleware_validate_api_key(const httplib::Request &req, httplib::Response &res);
 
     /// @brief Tokenize input (override)
     /// @param data JSON object containing text to tokenize

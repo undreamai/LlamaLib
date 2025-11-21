@@ -216,7 +216,7 @@ std::vector<float> LLMClient::embeddings(const std::string &query)
     if (is_remote())
     {
         return parse_embeddings_json(json::parse(
-            post_request("v1/embeddings", build_embeddings_json(query))));
+            post_request("embeddings", build_embeddings_json(query))));
     }
     else
     {

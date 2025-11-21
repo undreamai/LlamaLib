@@ -380,7 +380,7 @@ void handle_error(httplib::Response &res, const json error_data)
 
 void release_slot(server_slot &slot)
 {
-    if (slot.task->type == SERVER_TASK_TYPE_COMPLETION)
+    if (slot.task && slot.task->type == SERVER_TASK_TYPE_COMPLETION)
     {
         slot.i_batch = -1;
         // slot.task->params.n_predict = 0;
@@ -442,7 +442,6 @@ void LLMService::start_server(const std::string &host, int port, const std::stri
     ctx_http->post("/apply-template", ex_wrapper(routes->post_apply_template));
     ctx_http->post("/embedding", ex_wrapper(routes->post_embeddings)); // legacy
     ctx_http->post("/embeddings", ex_wrapper(routes->post_embeddings));
-    // ctx_http->post("/v1/embeddings", ex_wrapper(routes->post_embeddings_oai));
 
 
     // start the HTTP server before loading the model to be able to serve /health requests
@@ -563,46 +562,24 @@ void LLMService::set_SSL(const std::string &SSL_cert_str, const std::string &SSL
     params->ssl_key = SSL_key_str;
 }
 
-bool LLMService::middleware_validate_api_key(const httplib::Request &req, httplib::Response &res)
+std::string LLMService::encapsulate_route(const json &body, server_http_context::handler_t route_handler)
 {
-    // TODO: should we apply API key to all endpoints, including "/health" and "/models"?
-    static const std::set<std::string> public_endpoints = {
-        "/health",
-        "/models",
-        "/v1/models",
-    };
+    if (setjmp(get_jump_point(true)) != 0)
+        return "";
 
-    // If API key is not set, skip validation
-    if (params->api_keys.empty())
+    try
     {
-        return true;
+        server_http_req req {
+            .body = body.dump(),
+            .should_stop = always_false
+        };
+        return route_handler(req)->data;
     }
-
-    // If path is in public_endpoints list, skip validation
-    if (public_endpoints.find(req.path) != public_endpoints.end() || req.path == "/")
+    catch (...)
     {
-        return true;
+        handle_exception();
     }
-
-    // Check for API key in the header
-    auto auth_header = req.get_header_value("Authorization");
-
-    std::string prefix = "Bearer ";
-    if (auth_header.substr(0, prefix.size()) == prefix)
-    {
-        std::string received_api_key = auth_header.substr(prefix.size());
-        if (std::find(params->api_keys.begin(), params->api_keys.end(), received_api_key) != params->api_keys.end())
-        {
-            return true; // API key is valid
-        }
-    }
-
-    // API key is invalid or not provided
-    handle_error(res, format_error_response("Invalid API Key", ERROR_TYPE_AUTHENTICATION));
-
-    LOG_WRN("Unauthorized: Invalid API Key\n");
-
-    return false;
+    return "";
 }
 
 std::string LLMService::apply_template(const json &messages)
@@ -630,59 +607,7 @@ std::vector<int> LLMService::tokenize(const std::string &input)
 
 std::string LLMService::tokenize_json(const json &body)
 {
-    if (setjmp(get_jump_point(true)) != 0)
-        return "";
-    try
-    {
-        json tokens_response = json::array();
-        if (body.count("content") != 0)
-        {
-            const bool add_special = json_value(body, "add_special", false);
-            const bool parse_special = json_value(body, "parse_special", true);
-            const bool with_pieces = json_value(body, "with_pieces", false);
-
-            llama_tokens tokens = tokenize_mixed(ctx_server->vocab, body.at("content"), add_special, parse_special);
-
-            if (with_pieces)
-            {
-                for (const auto &token : tokens)
-                {
-                    std::string piece = common_token_to_piece(ctx_server->ctx, token);
-                    json piece_json;
-
-                    // Check if the piece is valid UTF-8
-                    if (is_valid_utf8(piece))
-                    {
-                        piece_json = piece;
-                    }
-                    else
-                    {
-                        // If not valid UTF-8, store as array of byte values
-                        piece_json = json::array();
-                        for (unsigned char c : piece)
-                        {
-                            piece_json.push_back(static_cast<int>(c));
-                        }
-                    }
-
-                    tokens_response.push_back({{"id", token},
-                                               {"piece", piece_json}});
-                }
-            }
-            else
-            {
-                tokens_response = tokens;
-            }
-        }
-
-        const json data = format_tokenizer_response(tokens_response);
-        return data.dump();
-    }
-    catch (...)
-    {
-        handle_exception();
-    }
-    return "";
+    return encapsulate_route(body, routes->post_tokenize);
 }
 
 std::string LLMService::detokenize(const std::vector<int32_t> &tokens)
@@ -692,25 +617,7 @@ std::string LLMService::detokenize(const std::vector<int32_t> &tokens)
 
 std::string LLMService::detokenize_json(const json &body)
 {
-    if (setjmp(get_jump_point(true)) != 0)
-        return "";
-    try
-    {
-        std::string content;
-        if (body.count("tokens") != 0)
-        {
-            const llama_tokens tokens = body.at("tokens");
-            content = tokens_to_str(ctx_server->ctx, tokens.cbegin(), tokens.cend());
-        }
-
-        const json data = format_detokenized_response(content);
-        return data.dump();
-    }
-    catch (...)
-    {
-        handle_exception();
-    }
-    return "";
+    return encapsulate_route(body, routes->post_detokenize);
 }
 
 std::vector<float> LLMService::embeddings(const std::string &query)
@@ -723,23 +630,7 @@ std::string LLMService::embeddings_json(
     httplib::Response *res,
     std::function<bool()> is_connection_closed)
 {
-    if (setjmp(get_jump_point(true)) != 0)
-        return "";
-
-    server_http_req req {
-        .body = body.dump(),
-        .should_stop = is_connection_closed
-    };
-    std::unique_ptr<server_http_res> result = routes->post_embeddings(req);
-    // std::unique_ptr<server_http_res> result = routes->post_embeddings_oai(req);
-    std::cout << "result->data: " << result->data<<std::endl;
-    // return json::parse(result->data);
-    return result->data;
-    // take the pooled data
-    // std::string result = safe_json_to_str(root["data"][0]);
-    // if (res != nullptr)
-    //     res_ok(*res, result);
-    // return result;
+    return encapsulate_route(body, routes->post_embeddings);
 };
 
 bool LLMService::lora_weight(const std::vector<LoraIdScale> &loras)
@@ -749,66 +640,7 @@ bool LLMService::lora_weight(const std::vector<LoraIdScale> &loras)
 
 std::string LLMService::lora_weight_json(const json &body, httplib::Response *res)
 {
-    if (setjmp(get_jump_point(true)) != 0)
-        return "";
-    if (!body.is_array())
-    {
-        if (res != nullptr)
-            handle_error(*res, format_error_response("Request body must be an array", ERROR_TYPE_INVALID_REQUEST));
-        return "";
-    }
-
-    std::vector<common_adapter_lora_info> lora(ctx_server->params_base.lora_adapters);
-    int max_idx = lora.size();
-
-    // clear existing value
-    for (auto &entry : lora)
-    {
-        entry.scale = 0.0f;
-    }
-
-    // set value
-    for (const auto &entry : body)
-    {
-        int id = json_value(entry, "id", -1);
-        float scale = json_value(entry, "scale", 0.0f);
-        if (0 <= id && id < max_idx)
-        {
-            lora[id].scale = scale;
-        }
-        else
-        {
-            std::string error = "invalid adapter id";
-            LOG_ERR("%s\n", error.c_str());
-            if (res != nullptr)
-                handle_error(*res, format_error_response(error, ERROR_TYPE_INVALID_REQUEST));
-            return "";
-        }
-    }
-
-    server_task task(SERVER_TASK_TYPE_SET_LORA);
-    task.id = ctx_server->queue_tasks.get_new_id();
-    task.set_lora = lora;
-    ctx_server->queue_results.add_waiting_task_id(task.id);
-    ctx_server->queue_tasks.post(std::move(task));
-
-    server_task_result_ptr result = ctx_server->queue_results.recv(task.id);
-    ctx_server->queue_results.remove_waiting_task_id(task.id);
-
-    json result_data = result->to_json();
-    if (res != nullptr)
-    {
-        if (result->is_error())
-        {
-            handle_error(*res, result_data);
-        }
-        else
-        {
-            res_ok(*res, result_data);
-        }
-    }
-
-    return safe_json_to_str(result_data);
+    return safe_json_to_str(encapsulate_route(body, routes->post_lora_adapters));
 };
 
 std::vector<LoraIdScalePath> LLMService::lora_list()
@@ -818,71 +650,7 @@ std::vector<LoraIdScalePath> LLMService::lora_list()
 
 std::string LLMService::lora_list_json()
 {
-    if (setjmp(get_jump_point(true)) != 0)
-        return "";
-    json result = json::array();
-    const auto &loras = ctx_server->params_base.lora_adapters;
-    for (size_t i = 0; i < loras.size(); ++i)
-    {
-        auto &lora = loras[i];
-        result.push_back({
-            {"id", i},
-            {"path", lora.path},
-            {"scale", lora.scale},
-        });
-    }
-    return result.dump();
-}
-
-class SinkException : public std::exception
-{
-};
-
-static void server_sent_event_with_stringswrapper(
-    CharArrayFn callback,
-    bool callbackWithJSON,
-    httplib::DataSink *sink,
-    const char *event,
-    const json &data,
-    std::string &concat_string,
-    std::vector<int> &concat_tokens,
-    bool return_tokens)
-{
-    concat_string += json_value(data, "content", std::string(""));
-    if (return_tokens)
-    {
-        for (const auto &tok : json_value(data, "tokens", std::vector<int>()))
-        {
-            concat_tokens.push_back(tok);
-        }
-    }
-
-    if (sink != nullptr)
-    {
-        // in remote mode do not concat, it will be done on the receiving end to save data
-        const std::string sink_str = std::string(event) + ": " + safe_json_to_str(data) + "\n\n";
-        if (!sink->write(sink_str.c_str(), sink_str.size()))
-            throw SinkException();
-    }
-    else
-    {
-        // in local mode, concat and call callback
-        if (callback)
-        {
-            if (callbackWithJSON)
-            {
-                json data_concat = data;
-                data_concat["content"] = concat_string;
-                data_concat["tokens"] = concat_tokens;
-                callback(safe_json_to_str(data_concat).c_str());
-            }
-            else
-            {
-                callback(concat_string.c_str());
-            }
-        }
-
-    }
+    return encapsulate_route({}, routes->get_lora_adapters);
 }
 
 server_http_req LLMService::escape_reasoning(server_http_req req)
@@ -918,32 +686,40 @@ std::string LLMService::completion_json(const json &data_in, CharArrayFn callbac
     if (setjmp(get_jump_point(true)) != 0)
         return "";
     
-    bool stream = json_value(data_in, "stream", callback != nullptr);
-    json data = data_in;
-    data["stream"] = stream;
-
-    server_http_req req {
-        .body = data.dump(),
-        .should_stop = always_false
-    };
-
-    auto result = routes->post_completions(escape_reasoning(req));
-    if (stream)
+    try
     {
-        ResponseConcatenator concatenator;
-        if (callback) concatenator.set_callback(callback, callbackWithJSON);
-        while (!concatenator.is_complete()) {
-            std::string chunk;
-            bool has_next = result->next(chunk);
-            if (!chunk.empty()) {
-                if (!concatenator.process_chunk(chunk)) break;
+        bool stream = json_value(data_in, "stream", callback != nullptr);
+        json data = data_in;
+        data["stream"] = stream;
+
+        server_http_req req {
+            .body = data.dump(),
+            .should_stop = always_false
+        };
+
+        auto result = routes->post_completions(escape_reasoning(req));
+        if (stream)
+        {
+            ResponseConcatenator concatenator;
+            if (callback) concatenator.set_callback(callback, callbackWithJSON);
+            while (!concatenator.is_complete()) {
+                std::string chunk;
+                bool has_next = result->next(chunk);
+                if (!chunk.empty()) {
+                    if (!concatenator.process_chunk(chunk)) break;
+                }
+                if (!has_next) break;
             }
-            if (!has_next) break;
+            return concatenator.get_result_json();
+        } else {
+            return result->data;
         }
-        return concatenator.get_result_json();
-    } else {
-        return result->data;
     }
+    catch (...)
+    {
+        handle_exception();
+    }
+    return "";
 }
 
 
