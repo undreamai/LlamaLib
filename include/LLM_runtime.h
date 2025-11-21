@@ -131,14 +131,6 @@ public:
     /// @return Generated completion
     std::string completion_json(const json &data, CharArrayFn callback = nullptr, bool callbackWithJSON = true) override { return ((LLMProvider *)llm)->completion_json(data, callback, callbackWithJSON); }
 
-    /// @brief Get template (override - delegates to loaded library)
-    /// @return JSON template response
-    std::string get_template() override { return ((LLMProvider *)llm)->get_template(); }
-
-    /// @brief Set chat template
-    /// @param chat_template Template string to set
-    void set_template(std::string chat_template) override { ((LLMProvider *)llm)->set_template(chat_template); }
-
     /// @brief Apply template to messages
     /// @param messages JSON array of chat messages
     /// @return Formatted chat string

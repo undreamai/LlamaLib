@@ -12,14 +12,7 @@
 #include <iostream>
 #include <sstream>
 #include "LLM.h"
-
-/// @brief Context structure for streaming operations
-/// @details Used internally to manage streaming response data and callbacks
-struct StreamingContext
-{
-    std::string buffer;             ///< Buffer for accumulating streaming data
-    CharArrayFn callback = nullptr; ///< Callback function for processing chunks
-};
+#include "completion_processor.h"
 
 /// @brief Client for accessing LLM functionality locally or remotely
 /// @details Provides a unified interface that can connect to either local LLMProvider
@@ -78,10 +71,6 @@ public:
     /// @param callbackWithJSON Whether callback receives JSON format
     /// @return Generated completion text or JSON
     std::string completion_json(const json &data, CharArrayFn callback = nullptr, bool callbackWithJSON = true) override;
-
-    /// @brief Get template JSON (override)
-    /// @return JSON string with template information
-    std::string get_template() override;
 
     /// @brief Apply template to messages
     /// @param messages JSON array of chat messages

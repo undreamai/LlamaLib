@@ -284,15 +284,6 @@ void LLMProvider::logging_stop()
     logging_callback(nullptr);
 }
 
-//=========================== Set Template ===========================//
-
-json LLMProvider::build_set_template_json(std::string chat_template)
-{
-    json j;
-    j["chat_template"] = chat_template;
-    return j;
-}
-
 //=========================== Lora Adapters Apply ===========================//
 
 json LLMProvider::build_lora_weight_json(const std::vector<LoraIdScale> &loras)
@@ -428,19 +419,9 @@ const char *LLM_Get_Grammar(LLM *llm)
     return stringToCharArray(llm->grammar);
 }
 
-const char *LLM_Get_Template(LLM *llm)
-{
-    return stringToCharArray(llm->get_template());
-}
-
 const char *LLM_Apply_Template(LLM *llm, const char *messages_as_json)
 {
     return stringToCharArray(llm->apply_template(json::parse(messages_as_json)));
-}
-
-void LLM_Set_Template(LLMProvider *llm, const char *chat_template)
-{
-    llm->set_template(chat_template);
 }
 
 void LLM_Enable_Reasoning(LLMProvider *llm, bool enable_reasoning)

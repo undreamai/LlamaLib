@@ -89,10 +89,6 @@ public:
     /// @details Override that automatically uses the agent's assigned slot
     virtual json build_completion_json(const std::string &prompt) { return LLMLocal::build_completion_json(prompt, this->id_slot); }
 
-    /// @brief Get template JSON (delegate to wrapped LLM)
-    /// @return JSON string with template information
-    std::string get_template() override { return llm->get_template(); }
-
     /// @brief Apply template to messages
     /// @param messages JSON array of chat messages
     /// @return Formatted chat string

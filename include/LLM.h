@@ -116,10 +116,6 @@ public:
     /// @return Current grammar string
     virtual std::string get_grammar() { return grammar; }
 
-    /// @brief Get chat template
-    /// @return Chat template string
-    virtual std::string get_template() = 0;
-
     /// @brief Apply template to messages
     /// @param messages JSON array of chat messages
     /// @return Formatted chat string
@@ -252,10 +248,6 @@ public:
     /// @brief Virtual destructor
     virtual ~LLMProvider();
 
-    /// @brief Set chat template
-    /// @param chat_template Template string to set
-    virtual void set_template(std::string chat_template) = 0;
-
     /// @brief Configure LoRA weights
     /// @param loras Vector of LoRA adapters with their scales
     /// @return true if configuration was successful, false otherwise
@@ -320,11 +312,6 @@ public:
 
 protected:
     bool reasoning_enabled = false; ///< Whether reasoning is enabled
-
-    /// @brief Build JSON for template setting
-    /// @param chat_template Template string to set
-    /// @return JSON object ready for set_template_json
-    virtual json build_set_template_json(std::string chat_template);
 
     /// @brief Parse LoRA weight configuration result
     /// @param result JSON response from lora_weight_json
