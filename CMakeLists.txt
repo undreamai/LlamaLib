@@ -45,7 +45,7 @@ function(LLAMALIB_COMPILE_DEFS NAME)
     add_compile_definitions(${NAME} PRIVATE UNDREAMAI_EXPORTS)
     target_include_directories(${NAME} PRIVATE "${CMAKE_SOURCE_DIR}/include")
     target_compile_definitions(${NAME} PRIVATE CPPHTTPLIB_OPENSSL_SUPPORT)
-    target_link_libraries(${NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+    target_link_libraries(${NAME} PRIVATE cpp-httplib OpenSSL::SSL OpenSSL::Crypto)
 endfunction()
 
 if (NOT WIN32)

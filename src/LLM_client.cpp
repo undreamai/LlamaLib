@@ -60,9 +60,6 @@ std::string LLMClient::post_request(
     CharArrayFn callback,
     bool callbackWithJSON)
 {
-    StreamingContext context;
-    context.callback = callback;
-
     json body = payload;
     bool stream = callback != nullptr;
     if (body.contains("stream"))
@@ -86,52 +83,18 @@ std::string LLMClient::post_request(
     req.headers = headers;
     req.body = body.dump();
 
-    std::string concat_string = "";
-    std::vector<int> concat_tokens;
+    std::string response_buffer = "";
+    ResponseConcatenator concatenator;
+    if (stream && callback) concatenator.set_callback(callback, callbackWithJSON);
+
     req.content_receiver = [&](const char *data, size_t data_length, uint64_t /*offset*/, uint64_t /*total_length*/)
     {
+        std::string chunk_str(data, data_length);
         if (stream)
         {
-            std::string chunk_str(data, data_length);
-            // remove preceding "data: "
-            const std::string prefix = "data: ";
-            if (chunk_str.rfind(prefix, 0) == 0)
-            {
-                chunk_str.erase(0, prefix.length());
+            if (!concatenator.process_chunk(chunk_str)) {
+                return false;
             }
-            // Remove any trailing newlines or carriage returns
-            while (!chunk_str.empty() && (chunk_str.back() == '\n' || chunk_str.back() == '\r'))
-            {
-                chunk_str.pop_back();
-            }
-
-            json data_json = json::parse(chunk_str);
-            if (data_json.contains("content"))
-            {
-                concat_string += data_json["content"].get<std::string>();
-            }
-            if (data_json.contains("tokens"))
-            {
-                for (const auto &tok : data_json["tokens"])
-                {
-                    concat_tokens.push_back(tok.get<int>());
-                }
-            }
-
-            json concat_data = data_json;
-            concat_data["content"] = concat_string;
-            concat_data["tokens"] = concat_tokens;
-
-            if (context.callback != nullptr)
-            {
-                if (callbackWithJSON)
-                    context.callback(concat_data.dump().c_str());
-                else
-                    context.callback(concat_string.c_str());
-            }
-
-            context.buffer = concat_data.dump();
-
             if (*cancel_flag)
             {
                 std::cerr << "[LLMClient] Streaming cancelled\n";
@@ -140,8 +103,7 @@ std::string LLMClient::post_request(
         }
         else
         {
-            std::string chunk_str(data, data_length);
-            context.buffer += chunk_str;
+            response_buffer += chunk_str;
         }
         return true;
     };
@@ -162,13 +124,17 @@ std::string LLMClient::post_request(
     if (!request_sent)
     {
         std::cerr << "[LLMClient] POST request failed after retries\n";
-        context.buffer = "{}";
+        return "{}";
     }
 
     if (stream) active_requests.erase(std::remove(active_requests.begin(), active_requests.end(), cancel_flag), active_requests.end());
     delete cancel_flag;
 
-    return context.buffer;
+    if (stream) {
+        return concatenator.get_result_json();
+    } else {
+        return response_buffer;
+    }
 }
 
 //================ LLMClient ================//
@@ -250,7 +216,7 @@ std::vector<float> LLMClient::embeddings(const std::string &query)
     if (is_remote())
     {
         return parse_embeddings_json(json::parse(
-            post_request("embeddings", build_embeddings_json(query))));
+            post_request("v1/embeddings", build_embeddings_json(query))));
     }
     else
     {
@@ -293,18 +259,6 @@ std::string LLMClient::apply_template(const json &messages)
     else
     {
         return llm->apply_template(messages);
-    }
-}
-
-std::string LLMClient::get_template()
-{
-    if (is_remote())
-    {
-        return post_request("get-template", {});
-    }
-    else
-    {
-        return llm->get_template();
     }
 }
 

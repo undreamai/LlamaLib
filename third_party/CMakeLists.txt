@@ -13,6 +13,8 @@ SET(LLAMA_BUILD_EXAMPLES OFF)
 SET(LLAMA_CURL OFF)
 SET(GGML_NATIVE OFF)
 SET(LLAMA_SERVER_SSL ON)
+SET(LLAMA_OPENSSL ON)
+SET(LLAMA_HTTPLIB ON)
 
 if(ARCHITECTURE MATCHES "noavx")
     SET(GGML_AVX OFF)
@@ -122,6 +124,13 @@ endforeach()
 add_custom_target(generate_assets ALL DEPENDS ${GENERATED_HEADERS})
 
 ################################################ BUILD ################################################
+
+execute_process(
+    COMMAND git rev-list --count HEAD
+    WORKING_DIRECTORY ${LLAMA_CPP_ROOT}
+    OUTPUT_VARIABLE LLAMA_BUILD_NUMBER
+)
+set(LLAMA_INSTALL_VERSION 0.0.${LLAMA_BUILD_NUMBER})
 
 add_subdirectory("llama.cpp")
 add_subdirectory("llama.cpp/tools/mtmd")

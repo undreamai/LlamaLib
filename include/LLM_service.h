@@ -7,12 +7,16 @@
 #pragma once
 
 #include "LLM.h"
+#include "completion_processor.h"
 
 /// @brief Info-level logging macro for LLama library
 #define LLAMALIB_INF(...) LOG_TMPL(GGML_LOG_LEVEL_INFO, -1, __VA_ARGS__)
 
 struct common_params;  ///< Forward declaration of llama.cpp parameters structure
 struct server_context; ///< Forward declaration of server context structure
+struct server_http_context; ///< Forward declaration of server http context structure
+struct server_routes;
+struct server_http_req;
 
 /// @brief Concrete implementation of LLMProvider with server capabilities
 /// @details This class provides a full-featured LLM service with HTTP server,
@@ -86,6 +90,7 @@ public:
     std::string get_command() { return command; }
 
     //=================================== LLM METHODS START ===================================//
+
     /// @brief Tokenize text
     /// @param query Text string to tokenize
     /// @return Vector of token IDs
@@ -112,14 +117,6 @@ public:
     /// @param messages JSON array of chat messages
     /// @return Formatted chat string
     std::string apply_template(const json &messages) override;
-
-    /// @brief Get template JSON (override)
-    /// @return JSON string with template information
-    std::string get_template() override;
-
-    /// @brief Set chat template
-    /// @param chat_template Template string to set
-    void set_template(std::string chat_template) override;
 
     /// @brief Configure LoRA weights
     /// @param loras Vector of LoRA adapters with their scales
@@ -198,9 +195,9 @@ private:
     common_params *params;                ///< Backend parameters structure
     bool llama_backend_has_init;          ///< Whether backend is initialized
     server_context *ctx_server = nullptr; ///< Server context pointer
+    server_http_context* ctx_http = nullptr;
+    server_routes* routes = nullptr;
     std::unique_ptr<httplib::Server> svr; ///< HTTP server instance
-    std::string SSL_cert = "";            ///< SSL certificate path
-    std::string SSL_key = "";             ///< SSL private key path
 
     std::mutex start_stop_mutex;                ///< Mutex for start/stop operations
     std::thread service_thread;                 ///< Service worker thread
@@ -222,23 +219,6 @@ private:
     /// @return Detected chat template string
     /// @details Analyzes the model to determine the best chat template format
     const std::string detect_chat_template();
-
-    /// @brief Handle streaming completion generation
-    /// @param id_tasks Set of task IDs for the completion
-    /// @param callback Optional streaming callback function
-    /// @param callbackWithJSON Whether callback receives JSON format
-    /// @param return_tokens Whether to return token information
-    /// @param sink HTTP data sink for streaming responses
-    /// @param is_connection_closed Function to check connection status
-    /// @return Generated completion string
-    /// @details Internal method for handling streaming text generation
-    std::string completion_streaming(
-        std::unordered_set<int> id_tasks,
-        CharArrayFn callback = nullptr,
-        bool callbackWithJSON = true,
-        bool return_tokens = false,
-        httplib::DataSink *sink = nullptr,
-        std::function<bool()> is_connection_closed = always_false);
 
     /// @brief Validate API key middleware
     /// @param req HTTP request object
@@ -267,30 +247,15 @@ private:
     std::string embeddings_json(const json &data, httplib::Response *res = nullptr, std::function<bool()> is_connection_closed = always_false);
 
     /// @brief Escape reasoning by adding think tokens
-    /// @param prompt original prompt
-    /// @return prompt with think tokens
-    std::string escape_reasoning(std::string prompt);
-
-    /// @brief Generate completion with HTTP response support
-    /// @param data JSON object with completion request
-    /// @param callback Optional streaming callback function
-    /// @param callbackWithJSON Whether callback receives JSON format
-    /// @param res HTTP response object (for server mode)
-    /// @param is_connection_closed Function to check connection status
-    /// @param oaicompat OpenAI compatibility mode flag
-    /// @return Generated completion text or JSON
-    /// @details Protected method used internally for server-based completion generation
-    std::string completion_json(const json &data, CharArrayFn callback, bool callbackWithJSON, httplib::Response *res, std::function<bool()> is_connection_closed = always_false, int oaicompat = 0);
+    /// @param server_http_req request with original prompt
+    /// @return request with prompt including think tokens
+    server_http_req escape_reasoning(server_http_req prompt);
 
     /// @brief Apply a chat template to message data
     /// @param data JSON object containing messages to format
     /// @return Formatted string with template applied
     /// @details Pure virtual method for applying chat templates to conversation data
     std::string apply_template_json(const json &data);
-
-    /// @brief Set chat template from JSON
-    /// @param data JSON object containing template specification
-    void set_template_json(const json &data);
 
     /// @brief Configure LoRA weights with HTTP response support
     /// @param data JSON object with LoRA configuration

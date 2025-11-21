@@ -92,28 +92,6 @@ static bool AmIBeingDebugged(void)
 
 //============================= LLMService IMPLEMENTATION =============================//
 
-EVP_PKEY *load_key(const std::string &key_str)
-{
-    BIO *bio = BIO_new_mem_buf(key_str.data(), (int)key_str.size());
-    if (!bio)
-        return NULL;
-    EVP_PKEY *key = PEM_read_bio_PrivateKey(bio, NULL, 0, NULL);
-    BIO_free(bio);
-    return key;
-}
-
-X509 *load_cert(const std::string &cert_str)
-{
-    BIO *bio = BIO_new_mem_buf(cert_str.data(), (int)cert_str.size());
-    if (!bio)
-        return NULL;
-    X509 *cert = (cert_str[0] == '-')
-                     ? PEM_read_bio_X509(bio, NULL, NULL, NULL)
-                     : d2i_X509_bio(bio, NULL);
-    BIO_free(bio);
-    return cert;
-}
-
 LLMService::LLMService() {}
 
 LLMService::LLMService(const std::string &model_path, int num_slots, int num_threads, int num_GPU_layers, bool flash_attention, int context_size, int batch_size, bool embedding_only, const std::vector<std::string> &lora_paths)
@@ -300,7 +278,19 @@ void LLMService::init(int argc, char **argv)
             throw std::runtime_error("Invalid parameters!");
         }
 
+        // TODO: should we have a separate n_parallel parameter for the server?
+        //       https://github.com/ggml-org/llama.cpp/pull/16736#discussion_r2483763177
+        // TODO: this is a common configuration that is suitable for most local use cases
+        //       however, overriding the parameters is a bit confusing - figure out something more intuitive
+        if (params->n_parallel == 1 && params->kv_unified == false && !params->has_speculative()) {
+            params->n_parallel = 4;
+            params->kv_unified = true;
+        }
+
         common_init();
+
+        // Necessary similarity of prompt for slot selection
+        ctx_server->slot_prompt_similarity = params->slot_prompt_similarity;
 
         llama_backend_init();
         llama_backend_has_init = true;
@@ -316,11 +306,11 @@ void LLMService::init(int argc, char **argv)
         {
             throw std::runtime_error("Error loading the model!");
         }
-        else
-        {
-            ctx_server->init();
-        }
+        ctx_server->init();
         LLAMALIB_INF("model loaded\n");
+
+        ctx_http = new server_http_context();
+        routes = new server_routes(*params, *ctx_server, *ctx_http);
 
         params->chat_template = detect_chat_template();
         LLAMALIB_INF("chat_template: %s\n", params->chat_template.c_str());
@@ -377,24 +367,25 @@ const json handle_post(const httplib::Request &req, httplib::Response &res)
 
 void res_ok(httplib::Response &res, std::string data)
 {
-    res.set_content(data, MIMETYPE_JSON);
+    res.set_content(data, "application/json; charset=utf-8");
     res.status = 200;
 };
 
 void handle_error(httplib::Response &res, const json error_data)
 {
     json final_response{{"error", error_data}};
-    res.set_content(final_response.dump(), MIMETYPE_JSON);
+    res.set_content(final_response.dump(), "application/json; charset=utf-8");
     res.status = 500;
 }
 
 void release_slot(server_slot &slot)
 {
-    if (slot.task_type == SERVER_TASK_TYPE_COMPLETION)
+    if (slot.task->type == SERVER_TASK_TYPE_COMPLETION)
     {
         slot.i_batch = -1;
-        slot.params.n_predict = 0;
+        // slot.task->params.n_predict = 0;
         slot.stop = STOP_TYPE_LIMIT;
+        slot.has_next_token = false;
     }
     else
     {
@@ -423,238 +414,46 @@ void LLMService::start_server(const std::string &host, int port, const std::stri
         params->api_keys.push_back(API_key);
 
     std::lock_guard<std::mutex> lock(start_stop_mutex);
-    if (params->ssl_file_key != "" && params->ssl_file_cert != "")
-    {
-        LLAMALIB_INF("Running with SSL: key = %s, cert = %s\n", params->ssl_file_key.c_str(), params->ssl_file_cert.c_str());
-        svr.reset(
-            new httplib::SSLServer(params->ssl_file_cert.c_str(), params->ssl_file_key.c_str()));
-    }
-    else if (SSL_cert != "" && SSL_key != "")
-    {
-        LLAMALIB_INF("Running with SSL\n");
-        svr.reset(
-            new httplib::SSLServer(load_cert(SSL_cert), load_key(SSL_key)));
-    }
-    else
-    {
-        LLAMALIB_INF("Running without SSL\n");
-        svr.reset(new httplib::Server());
+
+    if (!ctx_http->init(*params)) {
+        throw std::runtime_error("Failed to initialize HTTP server!");
     }
 
-    svr->set_default_headers({{"Server", "llama.cpp"}});
-
-    svr->set_logger(log_server_request);
-
-    auto res_error = [](httplib::Response &res, json error_data)
-    {
-        handle_error(res, error_data);
-    };
-
-    svr->set_exception_handler([&res_error](const httplib::Request &, httplib::Response &res, const std::exception_ptr &ep)
-                               {
-        std::string message;
-        try {
-            std::rethrow_exception(ep);
-        } catch (const std::exception & e) {
-            message = e.what();
-        } catch (...) {
-            message = "Unknown Exception";
+    server_http_context::handler_t completions_handler = ex_wrapper(
+        [this](const server_http_req & req) {
+            return routes->post_completions(escape_reasoning(req));
         }
-
-        try {
-            json formatted_error = format_error_response(message, ERROR_TYPE_SERVER);
-            LOG_WRN("got exception: %s\n", formatted_error.dump().c_str());
-            res_error(res, formatted_error);
-        } catch (const std::exception & e) {
-            LOG_ERR("got exception: %s\n", e.what());
-        } });
-
-    svr->set_error_handler([&res_error](const httplib::Request &, httplib::Response &res)
-                           {
-                               if (res.status == 404)
-                               {
-                                   res_error(res, format_error_response("File Not Found", ERROR_TYPE_NOT_FOUND));
-                               }
-                               // for other error codes, we skip processing here because it's already done by res_error()
-                           });
-
-    // set timeouts and change hostname and port
-    svr->set_read_timeout(params->timeout_read);
-    svr->set_write_timeout(params->timeout_write);
-
-    bool was_bound = false;
-    bool is_sock = false;
-    if (string_ends_with(std::string(params->hostname), ".sock"))
-    {
-        is_sock = true;
-        LOG_INF("%s: setting address family to AF_UNIX\n", __func__);
-        svr->set_address_family(AF_UNIX);
-        // bind_to_port requires a second arg, any value other than 0 should
-        // simply get ignored
-        was_bound = svr->bind_to_port(params->hostname, 8080);
-    }
-    else
-    {
-        LOG_INF("%s: binding port with default address family\n", __func__);
-        // bind HTTP listen port
-        if (params->port == 0)
-        {
-            int bound_port = svr->bind_to_any_port(params->hostname);
-            if ((was_bound = (bound_port >= 0)))
-            {
-                params->port = bound_port;
-            }
+    );
+    server_http_context::handler_t chat_completions_handler = ex_wrapper(
+        [this](const server_http_req & req) {
+            return routes->post_chat_completions(escape_reasoning(req));
         }
-        else
-        {
-            was_bound = svr->bind_to_port(params->hostname, params->port);
-        }
-    }
-
-    if (!was_bound)
-    {
-        throw std::runtime_error("couldn't bind to server socket: hostname=" + params->hostname + " port=" + std::to_string(params->port));
-    }
-
-    std::unordered_map<std::string, std::string> log_data;
-
-    log_data["hostname"] = params->hostname;
-    log_data["port"] = std::to_string(params->port);
-
-    if (params->api_keys.size() == 1)
-    {
-        auto key = params->api_keys[0];
-        log_data["api_key"] = "api_key: ****" + key.substr(std::max((int)(key.length() - 4), 0));
-    }
-    else if (params->api_keys.size() > 1)
-    {
-        log_data["api_key"] = "api_key: " + std::to_string(params->api_keys.size()) + " keys loaded";
-    }
-
-    // register server middlewares
-    svr->set_pre_routing_handler([this](const httplib::Request &req, httplib::Response &res)
-                                 {
-        res.set_header("Access-Control-Allow-Origin", req.get_header_value("Origin"));
-        // If this is OPTIONS request, skip validation because browsers don't include Authorization header
-        if (req.method == "OPTIONS") {
-            res.set_header("Access-Control-Allow-Credentials", "true");
-            res.set_header("Access-Control-Allow-Methods",     "GET, POST");
-            res.set_header("Access-Control-Allow-Headers",     "*");
-            res.set_content("", "text/html"); // blank response, no data
-            return httplib::Server::HandlerResponse::Handled; // skip further processing
-        }
-        if (!middleware_validate_api_key(req, res)) {
-            return httplib::Server::HandlerResponse::Handled;
-        }
-        return httplib::Server::HandlerResponse::Unhandled; });
-
-    const auto handle_health = [this](const httplib::Request &, httplib::Response & res) {
-        json health = {{"status", "ok"}};
-        return res_ok(res, health.dump());
-    };
-
-    const auto completion_post = [this, &res_error](const httplib::Request &req, httplib::Response &res)
-    {
-        json data = handle_post(req, res);
-        completion_json(data, nullptr, true, &res, req.is_connection_closed, OAICOMPAT_TYPE_NONE);
-    };
-
-    const auto chat_completion_post = [this, &res_error](const httplib::Request &req, httplib::Response &res)
-    {
-        json body = handle_post(req, res);
-        json data = oaicompat_completion_params_parse(body);
-        LOG_DBG("formatted prompt: %s\n", data.dump().c_str());
-        completion_json(data, nullptr, true, &res, req.is_connection_closed, OAICOMPAT_TYPE_CHAT);
-    };
-
-    const auto get_template_post = [this](const httplib::Request &req, httplib::Response &res)
-    {
-        return res_ok(res, get_template());
-    };
-
-    const auto apply_template_post = [this](const httplib::Request &req, httplib::Response &res)
-    {
-        return res_ok(res, apply_template_json(handle_post(req, res)));
-    };
-
-    const auto tokenize_post = [this](const httplib::Request &req, httplib::Response &res)
-    {
-        return res_ok(res, tokenize_json(handle_post(req, res)));
-    };
-
-    const auto detokenize_post = [this](const httplib::Request &req, httplib::Response &res)
-    {
-        return res_ok(res, detokenize_json(handle_post(req, res)));
-    };
-
-    const auto embeddings_post = [this](const httplib::Request &req, httplib::Response &res)
-    {
-        return embeddings_json(handle_post(req, res), &res, req.is_connection_closed);
-    };
-
-    const auto lora_list_post = [this](const httplib::Request &req, httplib::Response &res)
-    {
-        return res_ok(res, lora_list_json());
-    };
-
-    const auto lora_weight_post = [this](const httplib::Request &req, httplib::Response &res)
-    {
-        return lora_weight_json(handle_post(req, res), &res);
-    };
-
-    const auto slots_post = [this](const httplib::Request &req, httplib::Response &res)
-    {
-        return slot_json(handle_post(req, res), &res);
-    };
-
-    //
-    // Router
-    //
+    );
 
     // register API routes
-    svr->Post (params->api_prefix + "/health",  handle_health); // public endpoint (no API key check)
-    svr->Post (params->api_prefix + "/v1/health", handle_health); // public endpoint (no API key check)
-    svr->Post(params->api_prefix + "/completion", completion_post); // legacy
-    svr->Post(params->api_prefix + "/completions", completion_post);
-    svr->Post(params->api_prefix + "/chat/completions", chat_completion_post);
-    svr->Post(params->api_prefix + "/v1/chat/completions", chat_completion_post);
-    svr->Post(params->api_prefix + "/tokenize", tokenize_post);
-    svr->Post(params->api_prefix + "/detokenize", detokenize_post);
-    svr->Post(params->api_prefix + "/apply-template", apply_template_post);
-    svr->Post(params->api_prefix + "/embedding", embeddings_post); // legacy
-    svr->Post(params->api_prefix + "/embeddings", embeddings_post);
-    svr->Post(params->api_prefix + "/get-template", get_template_post);
-    // svr->Get ("/lora-adapters",       lora_list_post);
-    // svr->Post(params->api_prefix + "/lora-adapters-list",  lora_list_post);
-    // svr->Post(params->api_prefix + "/lora-adapters",       lora_weight_post);
-    // svr->Post(params->api_prefix + "/slots",               slots_post);
+    ctx_http->post("/health",  ex_wrapper(routes->get_health)); // public endpoint (no API key check)
+    ctx_http->post("/v1/health", ex_wrapper(routes->get_health)); // public endpoint (no API key check)
+    ctx_http->post("/completion", completions_handler); // legacy
+    ctx_http->post("/completions", completions_handler);
+    ctx_http->post("/chat/completions", chat_completions_handler);
+    ctx_http->post("/v1/chat/completions", chat_completions_handler);
+    ctx_http->post("/tokenize", ex_wrapper(routes->post_tokenize));
+    ctx_http->post("/detokenize", ex_wrapper(routes->post_detokenize));
+    ctx_http->post("/apply-template", ex_wrapper(routes->post_apply_template));
+    ctx_http->post("/embedding", ex_wrapper(routes->post_embeddings)); // legacy
+    ctx_http->post("/embeddings", ex_wrapper(routes->post_embeddings));
+    // ctx_http->post("/v1/embeddings", ex_wrapper(routes->post_embeddings_oai));
 
-    //
-    // Start the server
-    //
-    if (params->n_threads_http < 1)
-    {
-        // +2 threads for monitoring endpoints
-        params->n_threads_http = std::max(params->n_parallel + 2, (int32_t)std::thread::hardware_concurrency() - 1);
+
+    // start the HTTP server before loading the model to be able to serve /health requests
+    if (!ctx_http->start()) {
+        stop();
+        throw std::runtime_error("Exiting due to HTTP server error\n");
     }
-    log_data["n_threads_http"] = std::to_string(params->n_threads_http);
-    svr->new_task_queue = [this]
-    { return new httplib::ThreadPool(params->n_threads_http); };
 
-    // run the HTTP server in a thread - see comment below
-    server_thread = std::thread([&]()
-                                {
-        if (!svr->listen_after_bind()) {
-            return 1;
-        }
-
-        return 0; });
-    svr->wait_until_ready();
-
-    LLAMALIB_INF("%s: server is listening on %s - starting the main loop\n", __func__,
-                 is_sock ? string_format("unix://%s", params->hostname.c_str()).c_str() :
-                 string_format("http://%s:%d", params->hostname.c_str(), params->port).c_str());
+    ctx_http->is_ready.store(true);
 }
+
 
 void LLMService::stop_server()
 {
@@ -662,14 +461,8 @@ void LLMService::stop_server()
         return;
     std::lock_guard<std::mutex> lock(start_stop_mutex);
     LLAMALIB_INF("stopping server\n");
-    if (svr.get() != nullptr)
-    {
-        svr->stop();
-        if (server_thread.joinable())
-        {
-            server_thread.join();
-        }
-    }
+    ctx_http->stop();
+    if (ctx_http->thread.joinable()) ctx_http->thread.join();
     server_stopped = true;
     server_stopped_cv.notify_all();
     LLAMALIB_INF("stopped server\n");
@@ -714,7 +507,8 @@ void LLMService::stop()
 
         // hack completion slots to think task is completed
         for (server_slot &slot : ctx_server->slots)
-            release_slot(slot);
+            slot.release();
+            // release_slot(slot);
 
         // wait until tasks have completed
         if((!ctx_server->queue_tasks.queue_tasks.empty()))
@@ -728,6 +522,7 @@ void LLMService::stop()
             LLAMALIB_INF("Tasks have finished\n");
         }
 
+        ctx_http->stop();
         ctx_server->queue_tasks.terminate();
         if (llama_backend_has_init)
             llama_backend_free();
@@ -764,8 +559,8 @@ bool LLMService::started()
 
 void LLMService::set_SSL(const std::string &SSL_cert_str, const std::string &SSL_key_str)
 {
-    SSL_cert = SSL_cert_str;
-    SSL_key = SSL_key_str;
+    params->ssl_cert = SSL_cert_str;
+    params->ssl_key = SSL_key_str;
 }
 
 bool LLMService::middleware_validate_api_key(const httplib::Request &req, httplib::Response &res)
@@ -808,31 +603,6 @@ bool LLMService::middleware_validate_api_key(const httplib::Request &req, httpli
     LOG_WRN("Unauthorized: Invalid API Key\n");
 
     return false;
-}
-
-std::string LLMService::get_template()
-{
-    if (setjmp(get_jump_point(true)) != 0)
-        return "";
-    return params->chat_template;
-}
-
-void LLMService::set_template(std::string chat_template)
-{
-    if (setjmp(get_jump_point(true)) != 0)
-        return;
-    ctx_server->chat_templates = common_chat_templates_init(ctx_server->model, chat_template);
-    params->chat_template = detect_chat_template();
-    ctx_server->oai_parser_opt = {
-        /* use_jinja             */ params->use_jinja,
-        /* prefill_assistant     */ params->prefill_assistant,
-        /* reasoning_format      */ params->reasoning_format,
-        /* chat_template_kwargs  */ params->default_template_kwargs,
-        /* common_chat_templates */ ctx_server->chat_templates.get(),
-        /* allow_image           */ false,
-        /* allow_audio           */ false,
-        /* enable_thinking       */ params->reasoning_budget != 0,
-    };
 }
 
 std::string LLMService::apply_template(const json &messages)
@@ -955,116 +725,21 @@ std::string LLMService::embeddings_json(
 {
     if (setjmp(get_jump_point(true)) != 0)
         return "";
-    oaicompat_type oaicompat = OAICOMPAT_TYPE_EMBEDDING;
-    // an input prompt can be a string or a list of tokens (integer)
-    json prompt;
-    if (body.count("input") != 0)
-    {
-        prompt = body.at("input");
-    }
-    else if (body.contains("content"))
-    {
-        prompt = body.at("content");
-    }
-    else
-    {
-        std::string error = "\"input\" or \"content\" must be provided";
-        LOG_ERR("%s\n", error.c_str());
-        if (res != nullptr)
-            handle_error(*res, format_error_response(error, ERROR_TYPE_INVALID_REQUEST));
-        return "";
-    }
 
-    bool use_base64 = false;
-    if (body.count("encoding_format") != 0)
-    {
-        const std::string &format = body.at("encoding_format");
-        if (format == "base64")
-        {
-            use_base64 = true;
-        }
-        else if (format != "float")
-        {
-            if (res != nullptr)
-                handle_error(*res, format_error_response("The format to return the embeddings in. Can be either float or base64", ERROR_TYPE_INVALID_REQUEST));
-            return "";
-        }
-    }
-
-    std::vector<server_tokens> tokenized_prompts = tokenize_input_prompts(ctx_server->vocab, ctx_server->mctx, prompt, true, true);
-    for (const auto &tokens : tokenized_prompts)
-    {
-        // this check is necessary for models that do not add BOS token to the input
-        if (tokens.empty())
-        {
-            if (res != nullptr)
-                handle_error(*res, format_error_response("Input content cannot be empty", ERROR_TYPE_INVALID_REQUEST));
-            return "";
-        }
-    }
-
-    int embd_normalize = 2; // default to Euclidean/L2 norm
-    if (body.count("embd_normalize") != 0) {
-        embd_normalize = body.at("embd_normalize");
-        if (llama_pooling_type(ctx_server->ctx) == LLAMA_POOLING_TYPE_NONE) {
-            SRV_DBG("embd_normalize is not supported by pooling type %d, ignoring it\n", llama_pooling_type(ctx_server->ctx));
-        }
-    }
-
-    // create and queue the task
-    json responses = json::array();
-    bool error = false;
-    {
-        std::vector<server_task> tasks;
-        for (size_t i = 0; i < tokenized_prompts.size(); i++)
-        {
-            server_task task = server_task(SERVER_TASK_TYPE_EMBEDDING);
-
-            task.id = ctx_server->queue_tasks.get_new_id();
-            task.index = i;
-            task.prompt_tokens = std::move(tokenized_prompts[i]);
-
-            // OAI-compat
-            task.params.oaicompat = oaicompat;
-            task.params.embd_normalize = embd_normalize;
-
-            tasks.push_back(std::move(task));
-        }
-
-        ctx_server->queue_results.add_waiting_tasks(tasks);
-        ctx_server->queue_tasks.post(std::move(tasks));
-
-        // get the result
-        std::unordered_set<int> task_ids = server_task::get_list_id(tasks);
-        ctx_server->receive_multi_results(task_ids, [&](std::vector<server_task_result_ptr> &results)
-                                          {
-            for (auto & res : results) {
-                server_task_result_embd* res_embd = dynamic_cast<server_task_result_embd*>(res.get());
-                GGML_ASSERT(res_embd != nullptr);
-                responses.push_back(res->to_json());
-            } }, [&](const json &error_data)
-                                          {
-            if(res != nullptr) handle_error(*res, error_data);
-            error = true; }, is_connection_closed);
-
-        ctx_server->queue_results.remove_waiting_task_ids(task_ids);
-    }
-
-    if (error)
-    {
-        return "";
-    }
-
-    // write JSON response
-    json root = oaicompat == OAICOMPAT_TYPE_EMBEDDING
-                    ? format_embeddings_response_oaicompat(body, responses, use_base64)
-                    : json(responses);
-
+    server_http_req req {
+        .body = body.dump(),
+        .should_stop = is_connection_closed
+    };
+    std::unique_ptr<server_http_res> result = routes->post_embeddings(req);
+    // std::unique_ptr<server_http_res> result = routes->post_embeddings_oai(req);
+    std::cout << "result->data: " << result->data<<std::endl;
+    // return json::parse(result->data);
+    return result->data;
     // take the pooled data
-    std::string result = safe_json_to_str(root["data"][0]);
-    if (res != nullptr)
-        res_ok(*res, result);
-    return result;
+    // std::string result = safe_json_to_str(root["data"][0]);
+    // if (res != nullptr)
+    //     res_ok(*res, result);
+    // return result;
 };
 
 bool LLMService::lora_weight(const std::vector<LoraIdScale> &loras)
@@ -1210,41 +885,7 @@ static void server_sent_event_with_stringswrapper(
     }
 }
 
-std::string LLMService::completion_streaming(
-    std::unordered_set<int> task_ids,
-    CharArrayFn callback,
-    bool callbackWithJSON,
-    bool return_tokens,
-    httplib::DataSink *sink,
-    std::function<bool()> is_connection_closed)
-{
-    std::string concat_string = "";
-    std::vector<int> concat_tokens;
-    json result_data;
-
-    ctx_server->receive_cmpl_results_stream(task_ids, [&](server_task_result_ptr &result) -> bool {
-        json res_json = result->to_json();
-        if (res_json.is_array()) {
-            for (const auto & res : res_json) {
-                server_sent_event_with_stringswrapper(callback, callbackWithJSON, sink, "data", res, concat_string, concat_tokens, return_tokens);
-                result_data = res;
-            }
-        } else {
-            server_sent_event_with_stringswrapper(callback, callbackWithJSON, sink, "data", res_json, concat_string, concat_tokens, return_tokens);
-            result_data = res_json;
-        }
-        return true; }, [&](const json &error_data) {
-            server_sent_event_with_stringswrapper(callback, callbackWithJSON, sink, "error", error_data, concat_string, concat_tokens, return_tokens);
-        }, is_connection_closed
-    );
-    if (sink != nullptr)
-        sink->done();
-    result_data["content"] = concat_string;
-    result_data["tokens"] = concat_tokens;
-    return safe_json_to_str(result_data);
-}
-
-std::string LLMService::escape_reasoning(std::string prompt)
+server_http_req LLMService::escape_reasoning(server_http_req req)
 {
     if (!reasoning_enabled)
     {
@@ -1261,166 +902,50 @@ std::string LLMService::escape_reasoning(std::string prompt)
         } else if (src.find("<|channel|>") != std::string::npos) {
             escape_suffix = "<|channel|>analysis<|message|>\n<|start|>assistant<|channel|>final<|message|>\n";
         }
-        if (escape_suffix != "") prompt += "\n" + escape_suffix + "\n";
+        if (escape_suffix != "")
+        {
+            json body = json::parse(req.body);
+            std::string prompt = body.at("prompt");
+            body["prompt"] = prompt + "\n" + escape_suffix + "\n";
+            req.body = body.dump();
+        } 
     }
-    return prompt;
+    return req;
 }
 
-std::string LLMService::completion_json(const json &data, CharArrayFn callback, bool callbackWithJSON)
-{
-    return completion_json(data, callback, callbackWithJSON, nullptr);
-}
-
-std::string LLMService::completion_json(
-    const json &data,
-    CharArrayFn callback,
-    bool callbackWithJSON,
-    httplib::Response *res,
-    std::function<bool()> is_connection_closed,
-    int oaicompat_int)
+std::string LLMService::completion_json(const json &data_in, CharArrayFn callback, bool callbackWithJSON)
 {
     if (setjmp(get_jump_point(true)) != 0)
         return "";
+    
+    bool stream = json_value(data_in, "stream", callback != nullptr);
+    json data = data_in;
+    data["stream"] = stream;
 
-    std::string prompt = escape_reasoning(data.at("prompt"));
-    std::string result_data = "";
-    try
+    server_http_req req {
+        .body = data.dump(),
+        .should_stop = always_false
+    };
+
+    auto result = routes->post_completions(escape_reasoning(req));
+    if (stream)
     {
-        server_task_type type = SERVER_TASK_TYPE_COMPLETION;
-        oaicompat_type oaicompat = static_cast<oaicompat_type>(oaicompat_int);
-        bool stream = json_value(data, "stream", callback != nullptr);
-        bool return_tokens = json_value(data, "return_tokens", false);
-
-        // GGML_ASSERT(type == SERVER_TASK_TYPE_COMPLETION || type == SERVER_TASK_TYPE_INFILL);
-
-        if (ctx_server->params_base.embedding)
-        {
-            if (res != nullptr)
-                handle_error(*res, format_error_response("This server does not support completions. Start it without `--embeddings`", ERROR_TYPE_NOT_SUPPORTED));
-            return "";
-        }
-
-        auto completion_id = gen_chatcmplid();
-        std::unordered_set<int> task_ids;
-        std::vector<server_task> tasks;
-        try
-        {
-            std::vector<server_tokens> inputs = tokenize_input_prompts(ctx_server->vocab, ctx_server->mctx, prompt, true, true);
-            tasks.reserve(inputs.size());
-            for (size_t i = 0; i < inputs.size(); i++)
-            {
-                server_task task = server_task(type);
-
-                task.id = ctx_server->queue_tasks.get_new_id();
-                task.index = i;
-
-                task.prompt_tokens    = std::move(inputs[i]);
-                task.params = server_task::params_from_json_cmpl(
-                    ctx_server->ctx,
-                    ctx_server->params_base,
-                    data);
-                task.params.stream = stream;
-                task.id_selected_slot = (res == nullptr) ? json_value(data, "id_slot", -1) : -1;
-
-                // OAI-compat
-                task.params.oaicompat = oaicompat;
-                task.params.oaicompat_cmpl_id = completion_id;
-                // oaicompat_model is already populated by params_from_json_cmpl
-
-                tasks.push_back(std::move(task));
+        ResponseConcatenator concatenator;
+        if (callback) concatenator.set_callback(callback, callbackWithJSON);
+        while (!concatenator.is_complete()) {
+            std::string chunk;
+            bool has_next = result->next(chunk);
+            if (!chunk.empty()) {
+                if (!concatenator.process_chunk(chunk)) break;
             }
-
-            task_ids = server_task::get_list_id(tasks);
-            ctx_server->queue_results.add_waiting_tasks(tasks);
-            ctx_server->queue_tasks.post(std::move(tasks));
+            if (!has_next) break;
         }
-        catch (const std::exception &e)
-        {
-            if (res != nullptr)
-                handle_error(*res, format_error_response(e.what(), ERROR_TYPE_INVALID_REQUEST));
-            return "";
-        }
-
-        ctx_server->queue_results.add_waiting_tasks(tasks);
-        ctx_server->queue_tasks.post(std::move(tasks));
-
-        if (!stream)
-        {
-            ctx_server->receive_multi_results(task_ids, [&](std::vector<server_task_result_ptr> &results)
-                                              {
-                json result_json;
-                if (results.size() == 1) {
-                    // single result
-                    result_json = results[0]->to_json();
-                } else {
-                    // multiple results (multitask)
-                    result_json = json::array();
-                    for (auto & res : results) {
-                        result_json.push_back(res->to_json());
-                    }
-                }
-                result_data = safe_json_to_str(result_json);
-                if (res != nullptr) res_ok(*res, result_data);
-                if (callback)
-                {
-                    if (callbackWithJSON) callback(result_data.c_str());
-                    else callback(json_value(result_data, "content", std::string("")).c_str());
-                } }, [&](const json &error_data)
-                                              {
-                if(res != nullptr) handle_error(*res, error_data); }, is_connection_closed);
-
-            ctx_server->queue_results.remove_waiting_task_ids(task_ids);
-        }
-        else
-        {
-            auto on_complete = [task_ids, this](bool)
-            {
-                ctx_server->queue_results.remove_waiting_task_ids(task_ids);
-            };
-            if (res == nullptr)
-            {
-                result_data = completion_streaming(task_ids, callback, callbackWithJSON, return_tokens, nullptr);
-                on_complete(true);
-            }
-            else
-            {
-                const auto chunked_content_provider = [task_ids, this, oaicompat, callbackWithJSON, return_tokens](size_t, httplib::DataSink &sink)
-                {
-                    bool ok = true;
-                    try
-                    {
-                        completion_streaming(task_ids, nullptr, callbackWithJSON, return_tokens, &sink, [&sink]()
-                                             { return !sink.is_writable(); });
-                        if (oaicompat != OAICOMPAT_TYPE_NONE)
-                        {
-                            static const std::string ev_done = "data: [DONE]\n\n";
-                            sink.write(ev_done.data(), ev_done.size());
-                        }
-                    }
-                    catch (const SinkException &e)
-                    {
-                        ok = false;
-                    }
-                    // ctx_server->queue_results.remove_waiting_task_ids(task_ids);
-                    try
-                    {
-                        sink.done();
-                    }
-                    catch (...)
-                    {
-                    }
-                    return ok;
-                };
-                res->set_chunked_content_provider("text/event-stream", chunked_content_provider, on_complete);
-            }
-        }
+        return concatenator.get_result_json();
+    } else {
+        return result->data;
     }
-    catch (...)
-    {
-        handle_exception();
-    }
-    return result_data;
 }
+
 
 std::string LLMService::slot(int id_slot, const std::string &action, const std::string &filepath)
 {

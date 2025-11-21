@@ -192,7 +192,12 @@ std::vector<float> LLM::parse_embeddings_json(const json &result)
 {
     try
     {
-        return result.at("embedding").get<std::vector<float>>();
+        const json& emb = result.at(0).at("embedding");
+        if (emb.is_array() && !emb.empty())
+        {
+            if (emb[0].is_number()) return emb.get<std::vector<float>>();
+            if (emb[0].is_array()) return emb.at(0).get<std::vector<float>>();
+        }
     }
     catch (const std::exception &)
     {

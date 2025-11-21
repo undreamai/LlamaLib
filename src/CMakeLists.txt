@@ -1,4 +1,4 @@
-add_library(llamalib_common OBJECT LLM.cpp LLM_client.cpp LLM_agent.cpp error_handling.cpp)
+add_library(llamalib_common OBJECT LLM.cpp LLM_client.cpp LLM_agent.cpp completion_processor.cpp error_handling.cpp)
 LLAMALIB_COMPILE_DEFS(llamalib_common)
 
 # build architecture library
@@ -8,12 +8,16 @@ else()
     set(ARCHITECTURE_LIBRARY_TYPE SHARED)
 endif()
 
-add_library(${LLAMALIB_ARCHITECTURE_LIBRARY} ${ARCHITECTURE_LIBRARY_TYPE} LLM_service.cpp $<TARGET_OBJECTS:llamalib_common>)
+add_library(
+    ${LLAMALIB_ARCHITECTURE_LIBRARY}
+    ${ARCHITECTURE_LIBRARY_TYPE}
+    LLM_service.cpp $<TARGET_OBJECTS:llamalib_common> ${LLAMA_CPP_ROOT}/tools/server/server-http.cpp
+)
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_link_options(${LLAMALIB_ARCHITECTURE_LIBRARY} PRIVATE -Wl,--no-undefined)
 endif()
 LLAMALIB_COMPILE_DEFS(${LLAMALIB_ARCHITECTURE_LIBRARY})
-target_include_directories(${LLAMALIB_ARCHITECTURE_LIBRARY} PRIVATE "${LLAMA_CPP_ROOT}/src" "${LLAMA_CPP_ROOT}/ggml/include" "${LLAMA_CPP_ROOT}/tools/server" "${LLAMA_CPP_ROOT}/tools/mtmd")
+target_include_directories(${LLAMALIB_ARCHITECTURE_LIBRARY} PRIVATE "${LLAMA_CPP_ROOT}/src" "${LLAMA_CPP_ROOT}/ggml/include" "${LLAMA_CPP_ROOT}/tools/server" "${LLAMA_CPP_ROOT}/tools/mtmd" "${LLAMA_CPP_ROOT}/common")
 target_link_libraries(${LLAMALIB_ARCHITECTURE_LIBRARY} PRIVATE common mtmd)
 install(TARGETS ${LLAMALIB_ARCHITECTURE_LIBRARY} LIBRARY)
 
