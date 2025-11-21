@@ -51,8 +51,6 @@ endfunction()
 if (NOT WIN32)
     set(STATIC_FLAGS "-fPIC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${STATIC_FLAGS}")
-else()
-    add_compile_definitions(WIN32_LEAN_AND_MEAN NOMINMAX)
 endif()
 
 string(REGEX MATCH "^[^_]+" PLATFORM "${ARCHITECTURE}")
