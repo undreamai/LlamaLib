@@ -478,11 +478,6 @@ extern "C"
     /// @return Current grammar string
     UNDREAMAI_API const char *LLM_Get_Grammar(LLM *llm);
 
-    /// @brief Get chat template (C API)
-    /// @param llm LLM instance pointer
-    /// @return Chat template string
-    UNDREAMAI_API const char *LLM_Get_Template(LLM *llm);
-
     /// @brief Apply chat template (C API)
     /// @param llm LLM instance pointer
     /// @param messages_as_json JSON string with messages
@@ -534,11 +529,6 @@ extern "C"
     /// @param llm LLMLocal instance pointer
     /// @param id_slot Slot ID to cancel
     UNDREAMAI_API void LLM_Cancel(LLMLocal *llm, int id_slot);
-
-    /// @brief Set chat template (C API)
-    /// @param llm LLMProvider instance pointer
-    /// @param chat_template Template string
-    UNDREAMAI_API void LLM_Set_Template(LLMProvider *llm, const char *chat_template);
 
     /// @brief Configure LoRA weights (C API)
     /// @param llm LLMProvider instance pointer

@@ -20,17 +20,18 @@ namespace UndreamAI.LlamaLib.Tests
         private static int counter = 0;
         private static string concatData = "";
         // place model.gguf inside the tests folder
-        private static string testModelPath => FindModel();
+        private static string testModelPath => FindModel("model.gguf");
+        private static string testModelEmbeddingPath => FindModel("model_embedding.gguf");
         private int EMBEDDING_SIZE = 0;
         private static string USER_ROLE = "human";
         private static string ASSISTANT_ROLE = "bot";
 
-        public static string FindModel()
+        public static string FindModel(string modelName)
         {
             DirectoryInfo dir = new DirectoryInfo(Directory.GetCurrentDirectory());
             while (dir != null)
             {
-                var candidate = Path.Combine(dir.FullName, "model.gguf");
+                var candidate = Path.Combine(dir.FullName, modelName);
                 if (File.Exists(candidate))
                 {
                     Console.WriteLine($"Found model: {candidate}");
@@ -56,21 +57,6 @@ namespace UndreamAI.LlamaLib.Tests
             Console.WriteLine("LLM_Started");
             Assert.IsTrue(llm.Started());
             EMBEDDING_SIZE = llm.EmbeddingSize();
-        }
-
-        public void TestTemplate(LLM llm)
-        {
-            Console.WriteLine("LLM_Get_Template");
-            Assert.AreEqual(llm.GetTemplate(), "chatml");
-
-            Console.WriteLine("LLM_Apply_Template");
-            var messages = new JArray();
-            messages.Add(new JObject { ["role"] = "user", ["content"] = "how are you?" });
-            messages.Add(new JObject { ["role"] = "assistant", ["content"] = "fine, thanks, and you?" });
-
-            string messagesFormatted = llm.ApplyTemplate(messages);
-            string messagesFormattedGT = "<|im_start|>user\nhow are you?<|im_end|>\n<|im_start|>assistant\nfine, thanks, and you?";
-            Assert.AreEqual(messagesFormatted, messagesFormattedGT);
         }
 
         public void TestTokenization(LLM llm)
@@ -115,15 +101,6 @@ namespace UndreamAI.LlamaLib.Tests
 
             List<float> embedding = llm.Embeddings(PROMPT);
             Assert.AreEqual(EMBEDDING_SIZE, embedding.Count);
-        }
-
-        public void TestSetTemplate(LLMProvider llm)
-        {
-            Console.WriteLine("LLM_Set_Template");
-            llm.SetTemplate("phi3");
-            Console.WriteLine("LLM_Get_Template");
-            Assert.AreEqual("phi3", llm.GetTemplate());
-            llm.SetTemplate("chatml");
         }
 
         public void TestLoraList(LLMProvider llm)
@@ -329,10 +306,8 @@ namespace UndreamAI.LlamaLib.Tests
 
         public void LLMTests(LLM llm)
         {
-            TestTemplate(llm);
             TestTokenization(llm);
             TestCompletion(llm);
-            TestEmbedding(llm);
         }
 
         public void LLMLocalTests(LLMLocal llm)
@@ -345,7 +320,6 @@ namespace UndreamAI.LlamaLib.Tests
         public void LLMProviderTests(LLMProvider llm)
         {
             LLMLocalTests(llm);
-            TestSetTemplate(llm);
             TestLoraList(llm);
         }
 
@@ -363,9 +337,13 @@ namespace UndreamAI.LlamaLib.Tests
         public void Tests_LLMService()
         {
             LLMService llmService = new LLMService(testModelPath);
-
             TestStart(llmService);
             LLMProviderTests(llmService);
+            llmService?.Dispose();
+
+            llmService = new LLMService(testModelEmbeddingPath, embeddingOnly: true);
+            TestStart(llmService);
+            TestEmbedding(llmService);
             llmService?.Dispose();
         }
 

@@ -83,13 +83,6 @@ namespace UndreamAI.LlamaLib
             Dispose();
         }
 
-        public string GetTemplate()
-        {
-            CheckLlamaLib();
-            IntPtr result = llamaLib.LLM_Get_Template(llm);
-            return Marshal.PtrToStringAnsi(result) ?? string.Empty;
-        }
-
         public string ApplyTemplate(JArray messages = null)
         {
             if (messages == null)
@@ -253,13 +246,6 @@ namespace UndreamAI.LlamaLib
         protected LLMProvider() : base() { }
 
         protected LLMProvider(LlamaLib llamaLibInstance) : base(llamaLibInstance) { }
-
-
-        public void SetTemplate(string template)
-        {
-            CheckLlamaLib();
-            llamaLib.LLM_Set_Template(llm, template ?? string.Empty);
-        }
 
         public void EnableReasoning(bool enableReasoning)
         {
