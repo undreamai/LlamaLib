@@ -30,7 +30,8 @@ jobs:
           name: Dependencies
           run: |
             sudo apt-get update
-            sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
+            sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl libgomp1
+            sudo rm -f /usr/lib/gcc/x86_64-linux-gnu/11/libgomp.a
 
         - id: checkout
           name: Clone
@@ -149,7 +150,8 @@ jobs:
           name: Dependencies
           run: |
             sudo apt-get update
-            sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
+            sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl libgomp1
+            sudo rm -f /usr/lib/gcc/x86_64-linux-gnu/11/libgomp.a
 
         - id: checkout
           name: Clone
@@ -688,7 +690,8 @@ jobs:
           name: Dependencies
           run: |
             sudo apt-get update
-            sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl
+            sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl libgomp1
+            sudo rm -f /usr/lib/gcc/x86_64-linux-gnu/11/libgomp.a
 
         - id: checkout
           name: Clone
