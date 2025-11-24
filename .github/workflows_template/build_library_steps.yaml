@@ -54,12 +54,11 @@ jobs:
         shell: bash
         run: |
           cd build
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            ./libs/Release/llamalib_tests.exe
-            ./libs/Release/llamalib_tests_runtime.exe
-          else
+
+          flag=0
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
             flag=1
-            if [[ "$RUNNER_OS" == "Linux" ]]; then
+          else
               CPU_FLAGS=$(grep -o 'avx[^ ]*' /proc/cpuinfo | sort -u | tr '\n' ' ')
               ARCH="${{ matrix.arch }}"
               FEATURE="${ARCH##*_}"
@@ -67,11 +66,14 @@ jobs:
               if echo "$CPU_FLAGS" | grep -qw "$FEATURE"; then
                 flag=1
               fi
-            fi
-            if [[ "$flag" == "1" ]]; then
-              ./libs/llamalib_tests
-              ./libs/llamalib_tests_runtime
-            fi
+          fi
+
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            ./libs/Release/llamalib_tests.exe
+            ./libs/Release/llamalib_tests_runtime.exe
+          else
+            ./libs/llamalib_tests
+            ./libs/llamalib_tests_runtime
           fi
 
       - name: Pack artifacts
