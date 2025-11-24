@@ -99,18 +99,19 @@ jobs:
                 CPU_FLAGS=$(grep -o 'avx[^ ]*' /proc/cpuinfo | sort -u | tr '\n' ' ')
                 ARCH="${{ matrix.arch }}"
                 FEATURE="${ARCH##*_}"
-                flag=0
                 if echo "$CPU_FLAGS" | grep -qw "$FEATURE"; then
                   flag=1
                 fi
             fi
         
-            if [[ "$RUNNER_OS" == "Windows" ]]; then
-              ./libs/Release/llamalib_tests.exe
-              ./libs/Release/llamalib_tests_runtime.exe
-            else
-              ./libs/llamalib_tests
-              ./libs/llamalib_tests_runtime
+            if [[ "$flag" == "1" ]]; then
+              if [[ "$RUNNER_OS" == "Windows" ]]; then
+                ./libs/Release/llamalib_tests.exe
+                ./libs/Release/llamalib_tests_runtime.exe
+              else
+                ./libs/llamalib_tests
+                ./libs/llamalib_tests_runtime
+              fi
             fi
           shell: bash
 
@@ -290,18 +291,19 @@ jobs:
                 CPU_FLAGS=$(grep -o 'avx[^ ]*' /proc/cpuinfo | sort -u | tr '\n' ' ')
                 ARCH="${{ matrix.arch }}"
                 FEATURE="${ARCH##*_}"
-                flag=0
                 if echo "$CPU_FLAGS" | grep -qw "$FEATURE"; then
                   flag=1
                 fi
             fi
         
-            if [[ "$RUNNER_OS" == "Windows" ]]; then
-              ./libs/Release/llamalib_tests.exe
-              ./libs/Release/llamalib_tests_runtime.exe
-            else
-              ./libs/llamalib_tests
-              ./libs/llamalib_tests_runtime
+            if [[ "$flag" == "1" ]]; then
+              if [[ "$RUNNER_OS" == "Windows" ]]; then
+                ./libs/Release/llamalib_tests.exe
+                ./libs/Release/llamalib_tests_runtime.exe
+              else
+                ./libs/llamalib_tests
+                ./libs/llamalib_tests_runtime
+              fi
             fi
           shell: bash
 
@@ -393,18 +395,19 @@ jobs:
                 CPU_FLAGS=$(grep -o 'avx[^ ]*' /proc/cpuinfo | sort -u | tr '\n' ' ')
                 ARCH="${{ matrix.arch }}"
                 FEATURE="${ARCH##*_}"
-                flag=0
                 if echo "$CPU_FLAGS" | grep -qw "$FEATURE"; then
                   flag=1
                 fi
             fi
         
-            if [[ "$RUNNER_OS" == "Windows" ]]; then
-              ./libs/Release/llamalib_tests.exe
-              ./libs/Release/llamalib_tests_runtime.exe
-            else
-              ./libs/llamalib_tests
-              ./libs/llamalib_tests_runtime
+            if [[ "$flag" == "1" ]]; then
+              if [[ "$RUNNER_OS" == "Windows" ]]; then
+                ./libs/Release/llamalib_tests.exe
+                ./libs/Release/llamalib_tests_runtime.exe
+              else
+                ./libs/llamalib_tests
+                ./libs/llamalib_tests_runtime
+              fi
             fi
           shell: bash
 
@@ -575,18 +578,19 @@ jobs:
                 CPU_FLAGS=$(grep -o 'avx[^ ]*' /proc/cpuinfo | sort -u | tr '\n' ' ')
                 ARCH="${{ matrix.arch }}"
                 FEATURE="${ARCH##*_}"
-                flag=0
                 if echo "$CPU_FLAGS" | grep -qw "$FEATURE"; then
                   flag=1
                 fi
             fi
         
-            if [[ "$RUNNER_OS" == "Windows" ]]; then
-              ./libs/Release/llamalib_tests.exe
-              ./libs/Release/llamalib_tests_runtime.exe
-            else
-              ./libs/llamalib_tests
-              ./libs/llamalib_tests_runtime
+            if [[ "$flag" == "1" ]]; then
+              if [[ "$RUNNER_OS" == "Windows" ]]; then
+                ./libs/Release/llamalib_tests.exe
+                ./libs/Release/llamalib_tests_runtime.exe
+              else
+                ./libs/llamalib_tests
+                ./libs/llamalib_tests_runtime
+              fi
             fi
           shell: bash
 
