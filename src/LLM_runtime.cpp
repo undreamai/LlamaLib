@@ -60,9 +60,9 @@ const std::vector<std::string> available_architectures(bool gpu)
     }
     if (has_avx512())
         add_library("avx512");
-    else if (has_avx2())
+    if (has_avx2())
         add_library("avx2");
-    else if (has_avx())
+    if (has_avx())
         add_library("avx");
     add_library("noavx");
 #elif defined(__APPLE__)
