@@ -569,9 +569,7 @@ std::string LLMService::encapsulate_route(const json &body, server_http_context:
 
     try
     {
-        server_http_req req;
-        req.body = body.dump();
-        req.should_stop = always_false;
+        server_http_req req{ {}, {}, "", body.dump(), always_false };
         return route_handler(req)->data;
     }
     catch (...)
@@ -691,10 +689,7 @@ std::string LLMService::completion_json(const json &data_in, CharArrayFn callbac
         json data = data_in;
         data["stream"] = stream;
 
-        server_http_req req;
-        req.body = data.dump();
-        req.should_stop = always_false;
-
+        server_http_req req{ {}, {}, "", data.dump(), always_false };
         auto result = routes->post_completions(escape_reasoning(req));
         if (stream)
         {
