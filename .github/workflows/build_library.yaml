@@ -88,7 +88,6 @@ jobs:
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
         - id: test_build
-          if: contains(matrix.arch, 'noavx') || contains(matrix.arch, 'avx2') || contains(matrix.arch, 'osx')
           name: Test
           run: |
             cd build
@@ -96,8 +95,20 @@ jobs:
               ./libs/Release/llamalib_tests.exe
               ./libs/Release/llamalib_tests_runtime.exe
             else
-              ./libs/llamalib_tests
-              ./libs/llamalib_tests_runtime
+              flag=1
+              if [[ "$RUNNER_OS" == "Linux" ]]; then
+                CPU_FLAGS=$(grep -o 'avx[^ ]*' /proc/cpuinfo | sort -u | tr '\n' ' ')
+                ARCH="${{ matrix.arch }}"
+                FEATURE="${ARCH##*_}"
+                flag=0
+                if echo "$CPU_FLAGS" | grep -qw "$FEATURE"; then
+                  flag=1
+                fi
+              fi
+              if [[ "$flag" == "1" ]]; then
+                ./libs/llamalib_tests
+                ./libs/llamalib_tests_runtime
+              fi
             fi
           shell: bash
 
@@ -266,7 +277,6 @@ jobs:
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
         - id: test_build
-          if: contains(matrix.arch, 'noavx') || contains(matrix.arch, 'avx2') || contains(matrix.arch, 'osx')
           name: Test
           run: |
             cd build
@@ -274,8 +284,20 @@ jobs:
               ./libs/Release/llamalib_tests.exe
               ./libs/Release/llamalib_tests_runtime.exe
             else
-              ./libs/llamalib_tests
-              ./libs/llamalib_tests_runtime
+              flag=1
+              if [[ "$RUNNER_OS" == "Linux" ]]; then
+                CPU_FLAGS=$(grep -o 'avx[^ ]*' /proc/cpuinfo | sort -u | tr '\n' ' ')
+                ARCH="${{ matrix.arch }}"
+                FEATURE="${ARCH##*_}"
+                flag=0
+                if echo "$CPU_FLAGS" | grep -qw "$FEATURE"; then
+                  flag=1
+                fi
+              fi
+              if [[ "$flag" == "1" ]]; then
+                ./libs/llamalib_tests
+                ./libs/llamalib_tests_runtime
+              fi
             fi
           shell: bash
 
@@ -356,7 +378,6 @@ jobs:
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
         - id: test_build
-          if: contains(matrix.arch, 'noavx') || contains(matrix.arch, 'avx2') || contains(matrix.arch, 'osx')
           name: Test
           run: |
             cd build
@@ -364,8 +385,20 @@ jobs:
               ./libs/Release/llamalib_tests.exe
               ./libs/Release/llamalib_tests_runtime.exe
             else
-              ./libs/llamalib_tests
-              ./libs/llamalib_tests_runtime
+              flag=1
+              if [[ "$RUNNER_OS" == "Linux" ]]; then
+                CPU_FLAGS=$(grep -o 'avx[^ ]*' /proc/cpuinfo | sort -u | tr '\n' ' ')
+                ARCH="${{ matrix.arch }}"
+                FEATURE="${ARCH##*_}"
+                flag=0
+                if echo "$CPU_FLAGS" | grep -qw "$FEATURE"; then
+                  flag=1
+                fi
+              fi
+              if [[ "$flag" == "1" ]]; then
+                ./libs/llamalib_tests
+                ./libs/llamalib_tests_runtime
+              fi
             fi
           shell: bash
 
@@ -525,7 +558,6 @@ jobs:
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
         - id: test_build
-          if: contains(matrix.arch, 'noavx') || contains(matrix.arch, 'avx2') || contains(matrix.arch, 'osx')
           name: Test
           run: |
             cd build
@@ -533,8 +565,20 @@ jobs:
               ./libs/Release/llamalib_tests.exe
               ./libs/Release/llamalib_tests_runtime.exe
             else
-              ./libs/llamalib_tests
-              ./libs/llamalib_tests_runtime
+              flag=1
+              if [[ "$RUNNER_OS" == "Linux" ]]; then
+                CPU_FLAGS=$(grep -o 'avx[^ ]*' /proc/cpuinfo | sort -u | tr '\n' ' ')
+                ARCH="${{ matrix.arch }}"
+                FEATURE="${ARCH##*_}"
+                flag=0
+                if echo "$CPU_FLAGS" | grep -qw "$FEATURE"; then
+                  flag=1
+                fi
+              fi
+              if [[ "$flag" == "1" ]]; then
+                ./libs/llamalib_tests
+                ./libs/llamalib_tests_runtime
+              fi
             fi
           shell: bash
 
