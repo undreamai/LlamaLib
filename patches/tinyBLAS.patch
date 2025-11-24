@@ -76,7 +76,7 @@ index 25e9308d7..e2e23cc92 100644
  #endif // !defined(GGML_CUDA_NO_FA) && !(defined(GGML_USE_MUSA) && __MUSA_ARCH__ < 220)
  
 diff --git a/ggml/src/ggml-cuda/ggml-cuda.cu b/ggml/src/ggml-cuda/ggml-cuda.cu
-index 7d792e60c..da2d8d845 100644
+index 889801cb5..494ea63a8 100644
 --- a/ggml/src/ggml-cuda/ggml-cuda.cu
 +++ b/ggml/src/ggml-cuda/ggml-cuda.cu
 @@ -23,9 +23,13 @@
@@ -141,7 +141,25 @@ index 7d792e60c..da2d8d845 100644
          case GGML_TYPE_F16:
              ggml_cuda_mul_mat_batched_cublas_impl<GGML_TYPE_F16>(ctx, src0, src1, dst);
              break;
-@@ -2206,16 +2217,20 @@ static void ggml_cuda_mul_mat(ggml_backend_cuda_context & ctx, const ggml_tensor
+@@ -2101,6 +2112,9 @@ static bool ggml_cuda_should_fuse_mul_mat(const ggml_tensor * ffn_up,
+ }
+ 
+ static bool ggml_cuda_should_fuse_mul_mat_vec_f(const ggml_tensor * tensor) {
++#ifdef GGML_USE_TINYBLAS
++    return false;
++#else
+     ggml_tensor *       src0 = tensor->src[0];
+     ggml_tensor *       src1 = tensor->src[1];
+     const ggml_tensor * dst  = tensor;
+@@ -2133,6 +2147,7 @@ static bool ggml_cuda_should_fuse_mul_mat_vec_f(const ggml_tensor * tensor) {
+ 
+ 
+     return use_mul_mat_vec_f;
++#endif
+ }
+ 
+ static bool ggml_cuda_should_fuse_mul_mat_vec_q(const ggml_tensor * tensor) {
+@@ -2206,16 +2221,20 @@ static void ggml_cuda_mul_mat(ggml_backend_cuda_context & ctx, const ggml_tensor
              const int cc            = ggml_cuda_info().devices[id].cc;
              const int warp_size     = ggml_cuda_info().devices[id].warp_size;
              use_mul_mat_q           = use_mul_mat_q             && ggml_cuda_should_use_mmq(src0->type, cc, src1->ne[1]);
@@ -162,7 +180,7 @@ index 7d792e60c..da2d8d845 100644
          any_gpus_with_slow_fp16 = any_gpus_with_slow_fp16   || !fast_fp16_hardware_available(cc);
      }
  
-@@ -2236,9 +2251,13 @@ static void ggml_cuda_mul_mat(ggml_backend_cuda_context & ctx, const ggml_tensor
+@@ -2236,9 +2255,13 @@ static void ggml_cuda_mul_mat(ggml_backend_cuda_context & ctx, const ggml_tensor
      if (!split && use_mul_mat_vec_f) {
          // the custom F16 vector kernel can be used over batched cuBLAS GEMM
          // but this is only faster for GPUs without tensor cores or with a thin src0 matrix (particularly KQV in attention)
@@ -176,7 +194,7 @@ index 7d792e60c..da2d8d845 100644
      } else if (!split && use_mul_mat_vec_q) {
          ggml_cuda_mul_mat_vec_q(ctx, src0, src1, nullptr, dst);
      } else if (!split && use_mul_mat_q) {
-@@ -2248,7 +2267,11 @@ static void ggml_cuda_mul_mat(ggml_backend_cuda_context & ctx, const ggml_tensor
+@@ -2248,7 +2271,11 @@ static void ggml_cuda_mul_mat(ggml_backend_cuda_context & ctx, const ggml_tensor
          // general KQ + KQV multi-batch without FlashAttention
          ggml_cuda_mul_mat_batched_cublas(ctx, src0, src1, dst);
      } else if (use_mul_mat_vec_f) {
@@ -188,7 +206,7 @@ index 7d792e60c..da2d8d845 100644
      } else if (use_mul_mat_vec_q) {
          ggml_cuda_op_mul_mat(ctx, src0, src1, dst, ggml_cuda_op_mul_mat_vec_q, quantize_row_q8_1_cuda);
      } else if (use_mul_mat_q) {
-@@ -2276,7 +2299,11 @@ static void ggml_cuda_mul_mat_id(ggml_backend_cuda_context & ctx, ggml_tensor *
+@@ -2276,7 +2303,11 @@ static void ggml_cuda_mul_mat_id(ggml_backend_cuda_context & ctx, ggml_tensor *
              if (ggml_is_quantized(src0->type)) {
                  ggml_cuda_mul_mat_vec_q(ctx, src0, src1, ids, dst);
              } else {
@@ -200,7 +218,21 @@ index 7d792e60c..da2d8d845 100644
              }
              return;
          }
-@@ -2693,9 +2720,11 @@ static bool ggml_cuda_compute_forward(ggml_backend_cuda_context & ctx, struct gg
+@@ -2285,11 +2316,12 @@ static void ggml_cuda_mul_mat_id(ggml_backend_cuda_context & ctx, ggml_tensor *
+             ggml_cuda_mul_mat_q(ctx, src0, src1, ids, dst);
+             return;
+         }
+-
++#ifndef GGML_USE_TINYBLAS
+         if (ggml_cuda_should_use_mmf(src0->type, cc, WARP_SIZE, src0->ne, src0->nb, src1->ne[2], /*mul_mat_id=*/true)) {
+             ggml_cuda_mul_mat_f(ctx, src0, src1, ids, dst);
+             return;
+         }
++#endif
+     }
+ 
+     cudaStream_t stream = ctx.stream();
+@@ -2693,9 +2725,11 @@ static bool ggml_cuda_compute_forward(ggml_backend_cuda_context & ctx, struct gg
          case GGML_OP_ARGSORT:
              ggml_cuda_op_argsort(ctx, dst);
              break;
@@ -212,6 +244,57 @@ index 7d792e60c..da2d8d845 100644
          case GGML_OP_CROSS_ENTROPY_LOSS:
              ggml_cuda_cross_entropy_loss(ctx, dst);
              break;
+@@ -3344,6 +3378,7 @@ static void evaluate_and_capture_cuda_graph(ggml_backend_cuda_context * cuda_ctx
+                             const ggml_tensor * src1 = up_n->src[1];
+                             const ggml_tensor * ids  = up_n->src[2];
+ 
++#ifndef GGML_USE_TINYBLAS
+                             if (ggml_cuda_should_fuse_mul_mat_vec_f(up_n)) {
+                                 ggml_cuda_mm_fusion_args_host fusion_data{};
+                                 fusion_data.gate      = gate_n->src[0];
+@@ -3356,7 +3391,7 @@ static void evaluate_and_capture_cuda_graph(ggml_backend_cuda_context * cuda_ctx
+                                 fused_node_count = 5;
+                                 break;
+                             }
+-
++#endif
+                             if (ggml_cuda_should_fuse_mul_mat_vec_q(up_n)) {
+                                 ggml_cuda_mm_fusion_args_host fusion_data{};
+                                 fusion_data.gate      = gate_n->src[0];
+@@ -3383,6 +3418,7 @@ static void evaluate_and_capture_cuda_graph(ggml_backend_cuda_context * cuda_ctx
+                             const ggml_tensor * src1 = up->src[1];
+                             const ggml_tensor * ids  = up->src[2];
+ 
++#ifndef GGML_USE_TINYBLAS
+                             if (ggml_cuda_should_fuse_mul_mat_vec_f(up)) {
+                                 ggml_cuda_mm_fusion_args_host fusion_data{};
+                                 fusion_data.gate   = gate->src[0];
+@@ -3393,7 +3429,7 @@ static void evaluate_and_capture_cuda_graph(ggml_backend_cuda_context * cuda_ctx
+                                 fused_node_count = 3;
+                                 break;
+                             }
+-
++#endif
+                             if (ggml_cuda_should_fuse_mul_mat_vec_q(up)) {
+                                 ggml_cuda_mm_fusion_args_host fusion_data{};
+                                 fusion_data.gate   = gate->src[0];
+@@ -3455,14 +3491,14 @@ static void evaluate_and_capture_cuda_graph(ggml_backend_cuda_context * cuda_ctx
+ 
+                         ggml_cuda_mm_fusion_args_host fusion_data{};
+                         fusion_data.x_bias = bias_tensor;
+-
++#ifndef GGML_USE_TINYBLAS
+                         if (ggml_cuda_should_fuse_mul_mat_vec_f(mm_node)) {
+                             ggml_cuda_mul_mat_vec_f(*cuda_ctx, src0, src1, ids, bias_node, &fusion_data);
+                             fused_mul_mat_vec = true;
+                             fused_node_count = 2;
+                             break;
+                         }
+-
++#endif
+                         if (ggml_cuda_should_fuse_mul_mat_vec_q(mm_node)) {
+                             ggml_cuda_mul_mat_vec_q(*cuda_ctx, src0, src1, ids, bias_node, &fusion_data);
+                             fused_mul_mat_vec = true;
 diff --git a/ggml/src/ggml-cuda/mmq.cu b/ggml/src/ggml-cuda/mmq.cu
 index a2c8760ab..58fc1e7b6 100644
 --- a/ggml/src/ggml-cuda/mmq.cu
