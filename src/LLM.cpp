@@ -49,8 +49,7 @@ std::string LLM::LLM_args_to_command(const std::string &model_path, int num_slot
 
     if (num_GPU_layers > 0)
         command += " -ngl " + std::to_string(num_GPU_layers);
-    if (flash_attention)
-        command += " --flash-attn";
+    command += " -fa " + flash_attention? "on": "off";
     if (embedding_only)
         command += " --embedding";
     for (const auto &lora_path : lora_paths)
