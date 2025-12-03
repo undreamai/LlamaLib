@@ -79,6 +79,21 @@ index 628db3fd6..b5e81530a 100644
  endif()
  
  add_library(ggml-base
+diff --git a/ggml/src/ggml-metal/ggml-metal-context.m b/ggml/src/ggml-metal/ggml-metal-context.m
+index e66646284..4275b93ef 100644
+--- a/ggml/src/ggml-metal/ggml-metal-context.m
++++ b/ggml/src/ggml-metal/ggml-metal-context.m
+@@ -315,6 +315,10 @@ void ggml_metal_set_tensor_async(ggml_metal_t ctx, struct ggml_tensor * tensor,
+ 
+ void ggml_metal_get_tensor_async(ggml_metal_t ctx, const struct ggml_tensor * tensor, void * data, size_t offset, size_t size) {
+     @autoreleasepool {
++        if (size == 0 || data == NULL) {
++            return;
++        }
++
+         id<MTLBuffer> buf_dst = [ctx->device newBufferWithBytesNoCopy:data
+                                                                length:size
+                                                               options:MTLResourceStorageModeShared
 diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 index f83dfdaef..cced4fbbe 100644
 --- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
@@ -178,9 +193,29 @@ index bebe0b49c..b6d8ffdae 100644
          LOG_INF("Running without SSL\n");
          srv.reset(new httplib::Server());
 diff --git a/tools/server/server.cpp b/tools/server/server.cpp
-index 3750c8fdb..8883ac24e 100644
+index 3750c8fdb..bb6139be9 100644
 --- a/tools/server/server.cpp
 +++ b/tools/server/server.cpp
+@@ -1635,8 +1635,8 @@ struct server_slot {
+ 
+     common_speculative * spec = nullptr;
+ 
+-    std::unique_ptr<const server_task> task;
+-    std::unique_ptr<const server_task> task_prev; // used for debugging
++    std::unique_ptr<server_task> task;
++    std::unique_ptr<server_task> task_prev; // used for debugging
+ 
+     // used to determine the slot that has been used the longest
+     int64_t t_last_used = -1;
+@@ -2858,7 +2858,7 @@ struct server_context {
+             slot.batch_spec = llama_batch_init(task.params.speculative.n_max + 1, 0, 1);
+         }
+ 
+-        slot.task = std::make_unique<const server_task>(std::move(task));
++        slot.task = std::make_unique<server_task>(std::move(task));
+ 
+         slot.state = SLOT_STATE_STARTED;
+ 
 @@ -5502,7 +5502,7 @@ static server_http_context::handler_t ex_wrapper(server_http_context::handler_t
      };
  }

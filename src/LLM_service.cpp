@@ -383,7 +383,7 @@ void release_slot(server_slot &slot)
     if (slot.task && slot.task->type == SERVER_TASK_TYPE_COMPLETION)
     {
         slot.i_batch = -1;
-        // slot.task->params.n_predict = 0;
+        slot.task->params.n_predict = 0;
         slot.stop = STOP_TYPE_LIMIT;
         slot.has_next_token = false;
     }
