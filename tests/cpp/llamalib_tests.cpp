@@ -92,6 +92,11 @@ void test_completion_reply(const std::string &reply, const std::string &replyGT,
     int totalWords = std::max(words1.size(), words2.size());
 
     double ratio = totalWords > 0 ? static_cast<double>(commonWords) / totalWords : 1.0;
+    if (ratio < threshold)
+    {
+        std::cout<<"--------- prediction ---------\n"<<reply<<std::endl;
+        std::cout<<"--------- ground truth ---------\n"<<replyGT<<std::endl;
+    }
     ASSERT(ratio >= threshold);
 }
 
@@ -825,8 +830,6 @@ void run_mock_tests()
 
 void run_LLM_embedding_tests(LLM *llm)
 {
-    llm->set_completion_params({{"seed", 0}, {"n_predict", 30}});
-
     for (bool use_api : {true, false})
     {
         std::cout << "*** USE_C_API: " << use_api << " ***" << std::endl;
@@ -836,7 +839,7 @@ void run_LLM_embedding_tests(LLM *llm)
 
 void run_LLM_tests(LLM *llm)
 {
-    llm->set_completion_params({{"seed", 0}, {"n_predict", 30}});
+    llm->set_completion_params({{"seed", 0}, {"n_predict", 30}, {"temperature", 0}});
 
     for (bool use_api : {true, false})
     {
