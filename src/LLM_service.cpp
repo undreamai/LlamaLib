@@ -306,7 +306,9 @@ void LLMService::init(int argc, char **argv)
         {
             throw std::runtime_error("Error loading the model!");
         }
+        ctx_server->params_base.use_jinja = true;
         ctx_server->init();
+        enable_reasoning(reasoning_enabled);
         LLAMALIB_INF("model loaded\n");
 
         ctx_http = new server_http_context();
@@ -324,6 +326,11 @@ void LLMService::init(int argc, char **argv)
     {
         handle_exception(1);
     }
+}
+
+void LLMService::enable_reasoning(bool reasoning) {
+    LLMProvider::enable_reasoning(reasoning);
+    if (ctx_server != nullptr) ctx_server->oai_parser_opt.enable_thinking = reasoning_enabled;
 }
 
 const std::string LLMService::detect_chat_template()
@@ -419,24 +426,13 @@ void LLMService::start_server(const std::string &host, int port, const std::stri
         throw std::runtime_error("Failed to initialize HTTP server!");
     }
 
-    server_http_context::handler_t completions_handler = ex_wrapper(
-        [this](const server_http_req & req) {
-            return routes->post_completions(escape_reasoning(req));
-        }
-    );
-    server_http_context::handler_t chat_completions_handler = ex_wrapper(
-        [this](const server_http_req & req) {
-            return routes->post_chat_completions(escape_reasoning(req));
-        }
-    );
-
     // register API routes
     ctx_http->post("/health",  ex_wrapper(routes->get_health)); // public endpoint (no API key check)
     ctx_http->post("/v1/health", ex_wrapper(routes->get_health)); // public endpoint (no API key check)
-    ctx_http->post("/completion", completions_handler); // legacy
-    ctx_http->post("/completions", completions_handler);
-    ctx_http->post("/chat/completions", chat_completions_handler);
-    ctx_http->post("/v1/chat/completions", chat_completions_handler);
+    ctx_http->post("/completion", ex_wrapper(routes->post_completions)); // legacy
+    ctx_http->post("/completions", ex_wrapper(routes->post_completions));
+    ctx_http->post("/chat/completions", ex_wrapper(routes->post_chat_completions));
+    ctx_http->post("/v1/chat/completions", ex_wrapper(routes->post_chat_completions));
     ctx_http->post("/tokenize", ex_wrapper(routes->post_tokenize));
     ctx_http->post("/detokenize", ex_wrapper(routes->post_detokenize));
     ctx_http->post("/apply-template", ex_wrapper(routes->post_apply_template));
@@ -650,34 +646,6 @@ std::string LLMService::lora_list_json()
     return encapsulate_route({}, routes->get_lora_adapters);
 }
 
-server_http_req LLMService::escape_reasoning(server_http_req req)
-{
-    if (!reasoning_enabled)
-    {
-        std::string escape_suffix = "";
-        const std::string src = std::string(common_chat_templates_source(ctx_server->oai_parser_opt.tmpls));
-        if (
-            (src.find("<｜tool▁calls▁begin｜>") != std::string::npos) ||
-            (src.find("<tool_call>") != std::string::npos) ||
-            (src.find("elif thinking") != std::string::npos && src.find("<|tool_call|>") != std::string::npos)
-        ) {
-            escape_suffix = "<think>\n</think>\n";
-        } else if (src.find("<|END_THINKING|><|START_ACTION|>") != std::string::npos) {
-            escape_suffix = "<|START_THINKING|>\n<|END_THINKING|>\n";
-        } else if (src.find("<|channel|>") != std::string::npos) {
-            escape_suffix = "<|channel|>analysis<|message|>\n<|start|>assistant<|channel|>final<|message|>\n";
-        }
-        if (escape_suffix != "")
-        {
-            json body = json::parse(req.body);
-            std::string prompt = body.at("prompt");
-            body["prompt"] = prompt + "\n" + escape_suffix + "\n";
-            req.body = body.dump();
-        } 
-    }
-    return req;
-}
-
 std::string LLMService::completion_json(const json &data_in, CharArrayFn callback, bool callbackWithJSON)
 {
     if (setjmp(get_jump_point(true)) != 0)
@@ -690,7 +658,7 @@ std::string LLMService::completion_json(const json &data_in, CharArrayFn callbac
         data["stream"] = stream;
 
         server_http_req req{ {}, {}, "", data.dump(), always_false };
-        auto result = routes->post_completions(escape_reasoning(req));
+        auto result = routes->post_completions(req);
         if (stream)
         {
             ResponseConcatenator concatenator;

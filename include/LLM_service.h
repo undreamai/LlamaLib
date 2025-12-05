@@ -93,9 +93,11 @@ public:
     /// @brief Returns the construct command
     std::string get_command() { return command; }
 
+    std::string encapsulate_route(const json &body, handler_t route_handler);
+
     //=================================== LLM METHODS START ===================================//
 
-    std::string encapsulate_route(const json &body, handler_t route_handler);
+    void enable_reasoning(bool reasoning) override;
 
     /// @brief Tokenize text
     /// @param query Text string to tokenize
