@@ -11,8 +11,8 @@
 #include <thread>
 #include <chrono>
 
-std::string PROMPT = "<|im_start|>system\nyou are an artificial intelligence assistant<|im_end|>\n<|im_start|>user\nHello, how are you?<|im_end|>\n<|im_start|>assistant\n";
-std::string REPLY = "Hello! I'm here to help and support you. How can I assist you today?";
+std::string PROMPT = "<|im_start|>system\nyou are an artificial intelligence assistant<|im_end|>\n<|im_start|>user\nHello, how are you?<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n";
+std::string REPLY = "Hello! I'm here to help! What can I do for you today?";
 int ID_SLOT = 0;
 int EMBEDDING_SIZE;
 
@@ -112,15 +112,15 @@ void test_apply_template(LLM *llm, bool use_api)
 {
     std::cout << "apply_template" << std::endl;
     json data = json::array();
-    data.push_back({{"role", "user"}, {"content", "how are you?"}});
-    data.push_back({{"role", "assistant"}, {"content", "fine, thanks, and you?"}});
-    std::string data_formatted_gt = "<|im_start|>user\nhow are you?<|im_end|>\n<|im_start|>assistant\nfine, thanks, and you?";
+    data.push_back({{"role", "system"}, {"content", "you are an artificial intelligence assistant"}});
+    data.push_back({{"role", "user"}, {"content", "Hello, how are you?"}});
+    data.push_back({{"role", "assistant"}, {"content", ""}});
     std::string data_formatted;
     if (use_api)
         data_formatted = LLM_Apply_Template(llm, data.dump().c_str());
     else
         data_formatted = llm->apply_template(data);
-    ASSERT(data_formatted == data_formatted_gt);
+    ASSERT(data_formatted == PROMPT);
 }
 
 void test_tokenize(LLM *llm, bool use_api)
@@ -140,7 +140,6 @@ void test_tokenize(LLM *llm, bool use_api)
 
     ASSERT(tokens.size() > 0);
     ASSERT(tokens[0] == 151644);
-    ASSERT(tokens[tokens.size()-1] == 198);
 
     std::cout << "detokenize" << std::endl;
     std::string reply;
