@@ -258,5 +258,6 @@ jobs:
         @@create_release@@
         @@test_cmake@@
         @@pack_nuget@@
+        @@clean_up_release@@
         @@test_nuget@@
         @@release@@
