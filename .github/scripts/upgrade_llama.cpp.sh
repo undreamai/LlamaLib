@@ -46,8 +46,8 @@ save_patches()
     rm `find . -name *.orig` `find . -name *.rej`
     git add common tools ggml
     git status
-    git diff --cached  ggml/src/ggml-cuda  ggml/src/ggml-hip > ../../patches/tinyBLAS.patch
-    git diff --cached ':!ggml/src/ggml-cuda'  ':!ggml/src/ggml-hip' > ../../patches/llama.cpp.patch
+    git diff --cached  ggml/src/ggml-cuda > ../../patches/tinyBLAS.patch
+    git diff --cached ':!ggml/src/ggml-cuda' > ../../patches/llama.cpp.patch
 }
 
 
