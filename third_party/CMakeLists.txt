@@ -69,6 +69,15 @@ endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     SET(LLAMA_FATAL_WARNINGS ON)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    if(NOT DEFINED GGML_OPENMP OR GGML_OPENMP)
+        execute_process(
+            COMMAND ${CMAKE_C_COMPILER} -print-file-name=libgomp.so
+            OUTPUT_VARIABLE GOMP_LIB
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        set(OpenMP_gomp_LIBRARY ${GOMP_LIB})
+    endif()
 endif()
 
 ################################################ SETUP LLAMA.CPP ################################################
