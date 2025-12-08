@@ -201,6 +201,20 @@ index 622505714..0e3743983 100644
      } else {
          LOG_INF("Running without SSL\n");
          srv.reset(new httplib::Server());
+diff --git a/tools/server/server-queue.h b/tools/server/server-queue.h
+index a5c3179d8..ca5e1d876 100644
+--- a/tools/server/server-queue.h
++++ b/tools/server/server-queue.h
+@@ -65,6 +65,9 @@ public:
+         return queue_tasks_deferred.size();
+     }
+ 
++    bool is_empty() { return queue_tasks.empty(); }
++    bool is_running() { return running; }
++
+ private:
+     void cleanup_pending_task(int id_target);
+ };
 diff --git a/tools/server/server.cpp b/tools/server/server.cpp
 index d5bef3df4..3813779b8 100644
 --- a/tools/server/server.cpp

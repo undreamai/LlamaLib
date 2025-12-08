@@ -3,9 +3,10 @@
 #include "common.h"
 #include "llama-chat.h"
 #include "log.h"
+
 #ifndef SERVER_H
 #define SERVER_H
-#include "server.cpp"
+#include "server-context.cpp"
 #endif // SERVER_H
 
 #ifdef _DEBUG
@@ -269,7 +270,7 @@ void LLMService::init(int argc, char **argv)
         logging_callback(registry.get_log_callback());
 
         ctx_server = new server_context();
-        ctx_server->batch = {0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+        // ctx_server->impl->batch = {0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
         params = new common_params();
         params->port = 0;
@@ -287,10 +288,12 @@ void LLMService::init(int argc, char **argv)
             params->kv_unified = true;
         }
 
-        common_init();
+        // for consistency between server router mode and single-model mode, we set the same model name as alias
+        if (params->model_alias.empty() && !params->model.name.empty()) {
+            params->model_alias = params->model.name;
+        }
 
-        // Necessary similarity of prompt for slot selection
-        ctx_server->slot_prompt_similarity = params->slot_prompt_similarity;
+        common_init();
 
         llama_backend_init();
         llama_backend_has_init = true;
@@ -298,29 +301,26 @@ void LLMService::init(int argc, char **argv)
 
         LLAMALIB_INF("system info: n_threads = %d, n_threads_batch = %d, total_threads = %d\n", params->cpuparams.n_threads, params->cpuparams_batch.n_threads, std::thread::hardware_concurrency());
 
-        // Necessary similarity of prompt for slot selection
-        ctx_server->slot_prompt_similarity = params->slot_prompt_similarity;
-
         // load the model
         if (!ctx_server->load_model(*params))
         {
             throw std::runtime_error("Error loading the model!");
         }
-        ctx_server->params_base.use_jinja = true;
+        ctx_server->impl->params_base.use_jinja = true;
         ctx_server->init();
         enable_reasoning(reasoning_enabled);
         LLAMALIB_INF("model loaded\n");
 
         ctx_http = new server_http_context();
-        routes = new server_routes(*params, *ctx_server, *ctx_http);
+        routes = new server_routes(*params, *ctx_server);
 
         params->chat_template = detect_chat_template();
         LLAMALIB_INF("chat_template: %s\n", params->chat_template.c_str());
 
-        ctx_server->queue_tasks.on_new_task([this](server_task && task)
-                                            { this->ctx_server->process_single_task(std::move(task)); });
-        ctx_server->queue_tasks.on_update_slots([this]()
-                                                { this->ctx_server->update_slots(); });
+        ctx_server->impl->queue_tasks.on_new_task([this](server_task && task)
+                                            { this->ctx_server->impl->process_single_task(std::move(task)); });
+        ctx_server->impl->queue_tasks.on_update_slots([this]()
+                                                { this->ctx_server->impl->update_slots(); });
     }
     catch (...)
     {
@@ -330,12 +330,13 @@ void LLMService::init(int argc, char **argv)
 
 void LLMService::enable_reasoning(bool reasoning) {
     LLMProvider::enable_reasoning(reasoning);
-    if (ctx_server != nullptr) ctx_server->oai_parser_opt.enable_thinking = reasoning_enabled;
+    if (ctx_server != nullptr) ctx_server->impl->oai_parser_opt.enable_thinking = reasoning_enabled;
+    std::cout<<"enable_reasoning: "<<ctx_server->impl->oai_parser_opt.enable_thinking<<std::endl;
 }
 
 const std::string LLMService::detect_chat_template()
 {
-    const char *chat_template_jinja = common_chat_templates_source(ctx_server->chat_templates.get());
+    const char *chat_template_jinja = common_chat_templates_source(ctx_server->impl->chat_templates.get());
     int chat_template_value = llm_chat_detect_template(chat_template_jinja);
     std::vector<const char *> supported_tmpl;
     int res = llama_chat_builtin_templates(nullptr, 0);
@@ -404,9 +405,45 @@ int LLMService::get_next_available_slot()
 {
     if (setjmp(get_jump_point(true)) != 0)
         return -1;
-    if (ctx_server->slots.size() == 0)
+    if (ctx_server->impl->slots.size() == 0)
         return -1;
-    return next_available_slot++ % ctx_server->slots.size();
+    return next_available_slot++ % ctx_server->impl->slots.size();
+}
+
+// wrapper function that handles exceptions and logs errors
+// this is to make sure handler_t never throws exceptions; instead, it returns an error response
+static server_http_context::handler_t ex_wrapper(server_http_context::handler_t func) {
+    return [func = std::move(func)](const server_http_req & req) -> server_http_res_ptr {
+        std::string message;
+        error_type error;
+        try {
+            return func(req);
+        } catch (const std::invalid_argument & e) {
+            // treat invalid_argument as invalid request (400)
+            error = ERROR_TYPE_INVALID_REQUEST;
+            message = e.what();
+        } catch (const std::exception & e) {
+            // treat other exceptions as server error (500)
+            error = ERROR_TYPE_SERVER;
+            message = e.what();
+        } catch (...) {
+            error = ERROR_TYPE_SERVER;
+            message = "unknown error";
+        }
+
+        auto res = std::make_unique<server_http_res>();
+        res->status = 500;
+        try {
+            json error_data = format_error_response(message, error);
+            res->status = json_value(error_data, "code", 500);
+            res->data = safe_json_to_str({{ "error", error_data }});
+            SRV_WRN("got exception: %s\n", res->data.c_str());
+        } catch (const std::exception & e) {
+            SRV_ERR("got another exception: %s | while handling exception: %s\n", e.what(), message.c_str());
+            res->data = "Internal Server Error";
+        }
+        return res;
+    };
 }
 
 void LLMService::start_server(const std::string &host, int port, const std::string &API_key)
@@ -480,7 +517,7 @@ void LLMService::start()
     service_thread = std::thread([&]()
                                  {
         LLAMALIB_INF("starting service\n");
-        ctx_server->queue_tasks.start_loop();
+        ctx_server->impl->queue_tasks.start_loop();
         LLAMALIB_INF("stopped service loop\n");
         return 1; });
     while (!started())
@@ -501,16 +538,16 @@ void LLMService::stop()
         LLAMALIB_INF("shutting down tasks\n");
 
         // hack completion slots to think task is completed
-        for (server_slot &slot : ctx_server->slots)
+        for (server_slot &slot : ctx_server->impl->slots)
             slot.release();
             // release_slot(slot);
 
         // wait until tasks have completed
-        if((!ctx_server->queue_tasks.queue_tasks.empty()))
+        if((!ctx_server->impl->queue_tasks.is_empty()))
         {
             LLAMALIB_INF("Wait until tasks have finished\n");
             int grace = 10;
-            while (!ctx_server->queue_tasks.queue_tasks.empty() && grace-- > 0)
+            while (!ctx_server->impl->queue_tasks.is_empty() && grace-- > 0)
             {
                 std::this_thread::sleep_for(std::chrono::milliseconds(50));
             }
@@ -518,7 +555,7 @@ void LLMService::stop()
         }
 
         ctx_http->stop();
-        ctx_server->queue_tasks.terminate();
+        ctx_server->impl->queue_tasks.terminate();
         if (llama_backend_has_init)
             llama_backend_free();
 
@@ -549,7 +586,7 @@ void LLMService::join_service()
 
 bool LLMService::started()
 {
-    return ctx_server != nullptr && ctx_server->queue_tasks.running;
+    return ctx_server != nullptr && ctx_server->impl->queue_tasks.is_running();
 }
 
 void LLMService::set_SSL(const std::string &SSL_cert_str, const std::string &SSL_key_str)
@@ -588,7 +625,7 @@ std::string LLMService::apply_template_json(const json &body)
     json copy = body;
     json data = oaicompat_chat_params_parse(
         copy,
-        ctx_server->oai_parser_opt,
+        ctx_server->impl->oai_parser_opt,
         files);
     return safe_json_to_str({{"prompt", std::move(data.at("prompt"))}});
 }
@@ -720,7 +757,7 @@ std::string LLMService::slot_json(
         int id_slot = json_value(data, "id_slot", 0);
 
         server_task task(task_type);
-        task.id = ctx_server->queue_tasks.get_new_id();
+        task.id = ctx_server->impl->queue_tasks.get_new_id();
         task.slot_action.slot_id = id_slot;
 
         if (action == "save" || action == "restore")
@@ -730,11 +767,11 @@ std::string LLMService::slot_json(
             task.slot_action.filepath = filepath;
         }
 
-        ctx_server->queue_results.add_waiting_task_id(task.id);
-        ctx_server->queue_tasks.post(std::move(task));
+        ctx_server->impl->queue_results.add_waiting_task_id(task.id);
+        ctx_server->impl->queue_tasks.post(std::move(task));
 
-        server_task_result_ptr result = ctx_server->queue_results.recv(task.id);
-        ctx_server->queue_results.remove_waiting_task_id(task.id);
+        server_task_result_ptr result = ctx_server->impl->queue_results.recv(task.id);
+        ctx_server->impl->queue_results.remove_waiting_task_id(task.id);
 
         json result_json = result->to_json();
         result_data = result_json.dump();
@@ -763,7 +800,7 @@ void LLMService::cancel(int id_slot)
         return;
     try
     {
-        for (auto &slot : ctx_server->slots)
+        for (auto &slot : ctx_server->impl->slots)
         {
             if (slot.id == id_slot)
             {
@@ -782,7 +819,7 @@ int LLMService::embedding_size()
 {
     if (setjmp(get_jump_point(true)) != 0)
         return 0;
-    return ctx_server->model_meta()["n_embd"];
+    return ctx_server->impl->model_meta()["n_embd"];
 }
 
 //=========================== API ===========================//

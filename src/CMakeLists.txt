@@ -11,7 +11,11 @@ endif()
 add_library(
     ${LLAMALIB_ARCHITECTURE_LIBRARY}
     ${ARCHITECTURE_LIBRARY_TYPE}
-    LLM_service.cpp $<TARGET_OBJECTS:llamalib_common> ${LLAMA_CPP_ROOT}/tools/server/server-http.cpp
+    LLM_service.cpp $<TARGET_OBJECTS:llamalib_common>
+     ${LLAMA_CPP_ROOT}/tools/server/server-queue.cpp
+     ${LLAMA_CPP_ROOT}/tools/server/server-common.cpp
+     ${LLAMA_CPP_ROOT}/tools/server/server-task.cpp
+     ${LLAMA_CPP_ROOT}/tools/server/server-http.cpp
 )
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_link_options(${LLAMALIB_ARCHITECTURE_LIBRARY} PRIVATE -Wl,--no-undefined)
