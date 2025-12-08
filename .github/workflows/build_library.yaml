@@ -336,7 +336,7 @@ jobs:
 
 
   osx-x64-build:
-    runs-on: macos-13
+    runs-on: macos-15-intel
 
     strategy:
       matrix:
@@ -440,7 +440,7 @@ jobs:
 
 
   osx-universal-build:
-    runs-on: macos-14
+    runs-on: macos-15
     needs:
       - osx-arm64-build
       - osx-x64-build
