@@ -99,20 +99,28 @@ public:
 
     void enable_reasoning(bool reasoning) override;
 
-    /// @brief Tokenize text
-    /// @param query Text string to tokenize
-    /// @return Vector of token IDs
-    std::vector<int> tokenize(const std::string &query) override;
+    /// @brief Tokenize input (override)
+    /// @param data JSON object containing text to tokenize
+    /// @return JSON string with token data
+    std::string tokenize_json(const json &data) override;
 
-    /// @brief Convert tokens to text
-    /// @param tokens Vector of token IDs to convert
-    /// @return Detokenized text string
-    std::string detokenize(const std::vector<int32_t> &tokens) override;
+    /// @brief Convert tokens back to text
+    /// @param data JSON object containing token IDs
+    /// @return JSON string containing detokenized text
+    /// @details Pure virtual method for converting token sequences back to text
+    std::string detokenize_json(const json &data) override;
 
-    /// @brief Generate embeddings
-    /// @param query Text string to embed
-    /// @return Vector of embedding values
-    std::vector<float> embeddings(const std::string &query) override;
+    /// @brief Generate embeddings with HTTP response support
+    /// @param data JSON object containing embedding request
+    /// @return JSON string with embedding data
+    /// @details Protected method used internally for server-based embedding generation
+    std::string embeddings_json(const json &data) override;
+
+    /// @brief Apply a chat template to message data
+    /// @param data JSON object containing messages to format
+    /// @return Formatted string with template applied
+    /// @details Pure virtual method for applying chat templates to conversation data
+    std::string apply_template_json(const json &data) override;
 
     /// @brief Generate completion (override)
     /// @param data JSON object with prompt and parameters
@@ -121,19 +129,21 @@ public:
     /// @return Generated completion text or JSON
     std::string completion_json(const json &data, CharArrayFn callback = nullptr, bool callbackWithJSON = true) override;
 
-    /// @brief Apply template to messages
-    /// @param messages JSON array of chat messages
-    /// @return Formatted chat string
-    std::string apply_template(const json &messages) override;
+    /// @brief Manage slots with HTTP response support
+    /// @param data JSON object with slot operation
+    /// @return JSON response string
+    /// @details Protected method used internally for server-based slot management
+    std::string slot_json(const json &data) override;
 
-    /// @brief Configure LoRA weights
-    /// @param loras Vector of LoRA adapters with their scales
-    /// @return true if configuration was successful, false otherwise
-    bool lora_weight(const std::vector<LoraIdScale> &loras) override;
+    /// @brief Configure LoRA weights with HTTP response support
+    /// @param data JSON object with LoRA configuration
+    /// @return JSON response string
+    /// @details Protected method used internally for server-based LoRA configuration
+    std::string lora_weight_json(const json &data) override;
 
     /// @brief List available LoRA adapters
-    /// @return Vector of available LoRA adapters with paths
-    std::vector<LoraIdScalePath> lora_list() override;
+    /// @return JSON string containing list of available LoRA adapters
+    std::string lora_list_json() override;
 
     /// @brief Cancel running request (override)
     /// @param data JSON object with cancellation parameters
@@ -188,16 +198,6 @@ public:
     std::string debug_implementation() override { return "standalone"; }
     //=================================== LLM METHODS END ===================================//
 
-protected:
-    //=================================== LLM METHODS START ===================================//
-    /// @brief Perform slot operation
-    /// @param id_slot Slot ID to operate on
-    /// @param action Action to perform ("save" or "restore")
-    /// @param filepath Path for save/load operation
-    /// @return Operation result string
-    std::string slot(int id_slot, const std::string &action, const std::string &filepath) override;
-    //=================================== LLM METHODS END ===================================//
-
 private:
     std::string command = "";             ///< constructor command
     common_params *params;                ///< Backend parameters structure
@@ -228,53 +228,10 @@ private:
     /// @details Analyzes the model to determine the best chat template format
     const std::string detect_chat_template();
 
-    /// @brief Tokenize input (override)
-    /// @param data JSON object containing text to tokenize
-    /// @return JSON string with token data
-    std::string tokenize_json(const json &data);
-
-    /// @brief Convert tokens back to text
-    /// @param data JSON object containing token IDs
-    /// @return JSON string containing detokenized text
-    /// @details Pure virtual method for converting token sequences back to text
-    std::string detokenize_json(const json &data);
-
-    /// @brief Generate embeddings with HTTP response support
-    /// @param data JSON object containing embedding request
-    /// @param res HTTP response object (for server mode)
-    /// @param is_connection_closed Function to check connection status
-    /// @return JSON string with embedding data
-    /// @details Protected method used internally for server-based embedding generation
-    std::string embeddings_json(const json &data, httplib::Response *res = nullptr, std::function<bool()> is_connection_closed = always_false);
-
     /// @brief Escape reasoning by adding think tokens
     /// @param server_http_req request with original prompt
     /// @return request with prompt including think tokens
     server_http_req escape_reasoning(server_http_req prompt);
-
-    /// @brief Apply a chat template to message data
-    /// @param data JSON object containing messages to format
-    /// @return Formatted string with template applied
-    /// @details Pure virtual method for applying chat templates to conversation data
-    std::string apply_template_json(const json &data);
-
-    /// @brief Configure LoRA weights with HTTP response support
-    /// @param data JSON object with LoRA configuration
-    /// @param res HTTP response object (for server mode)
-    /// @return JSON response string
-    /// @details Protected method used internally for server-based LoRA configuration
-    std::string lora_weight_json(const json &data, httplib::Response *res = nullptr);
-
-    /// @brief List available LoRA adapters
-    /// @return JSON string containing list of available LoRA adapters
-    std::string lora_list_json();
-
-    /// @brief Manage slots with HTTP response support
-    /// @param data JSON object with slot operation
-    /// @param res HTTP response object (for server mode)
-    /// @return JSON response string
-    /// @details Protected method used internally for server-based slot management
-    std::string slot_json(const json &data, httplib::Response *res = nullptr);
 };
 
 /// @ingroup c_api

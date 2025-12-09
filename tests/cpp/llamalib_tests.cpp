@@ -12,7 +12,7 @@
 #include <chrono>
 
 std::string PROMPT = "<|im_start|>system\nyou are an artificial intelligence assistant<|im_end|>\n<|im_start|>user\nHello, how are you?<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n";
-std::string REPLY = "Hello! I'm here to help! What can I do for you today?";
+std::string REPLY = "Hello! I'm here to help you with anything! How can I assist you today?";
 int ID_SLOT = 0;
 int EMBEDDING_SIZE;
 
@@ -584,19 +584,22 @@ public:
     void debug(int debug_level) override {}
     void logging_callback(CharArrayFn callback) override {}
 
-    std::vector<int> tokenize(const std::string &query)
-    {
-        return TOKENS;
+    std::string tokenize_json(const json &data) override {
+        json result;
+        result["tokens"] = TOKENS;
+        return result.dump();
     }
 
-    std::string detokenize(const std::vector<int32_t> &tokens) override
-    {
-        return CONTENT;
+    std::string detokenize_json(const json &data) override {
+        json result;
+        result["content"] = CONTENT;
+        return result.dump();
     }
 
-    std::vector<float> embeddings(const std::string &query) override
-    {
-        return EMBEDDING;
+    std::string embeddings_json(const json &data) override {
+        json result = json::array();
+        result.push_back({{"embedding", EMBEDDING}});
+        return result.dump();
     }
 
     std::string completion_json(const json &data, CharArrayFn callback = nullptr, bool callbackWithJSON = true) override
@@ -606,9 +609,14 @@ public:
         return result.dump();
     }
 
-    std::string slot(int id_slot, const std::string &action, const std::string &filepath) override
-    {
-        return SAVE_PATH;
+    std::string apply_template_json(const json &data) override {
+        return data.at("messages")[0].at("message").get<std::string>();
+    }
+
+    std::string slot_json(const json &data) override {
+        json result;
+        result["filename"] = SAVE_PATH;
+        return result.dump();
     }
 
     void cancel(int id_slot) override
@@ -616,19 +624,16 @@ public:
         cancelled_slot = id_slot;
     }
 
-    bool lora_weight(const std::vector<LoraIdScale> &loras) override
+    std::string lora_weight_json(const json &data) override
     {
-        return true;
+        json result;
+        result["success"] = true;
+        return result;
     }
 
-    std::vector<LoraIdScalePath> lora_list()
+    std::string lora_list_json() override
     {
-        return LORAS;
-    }
-
-    std::string apply_template(const json &messages) override
-    {
-        return messages[0].at("message");
+        return build_lora_list_json(LORAS);
     }
 
     std::string debug_implementation() override { return "standalone"; }

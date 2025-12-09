@@ -9,22 +9,6 @@ LLMAgent::LLMAgent(LLMLocal *llm_, const std::string &system_prompt_, const std:
     clear_history();
 }
 
-std::string LLMAgent::slot(int id_slot, const std::string &action, const std::string &filepath)
-{
-    if (action == "save")
-    {
-        return llm->save_slot(id_slot, filepath);
-    }
-    else if (action == "restore")
-    {
-        return llm->load_slot(id_slot, filepath);
-    }
-    else
-    {
-        throw std::runtime_error("Invalid action" + action);
-    }
-}
-
 void LLMAgent::set_slot(int id_slot_)
 {
     if (id_slot != -1)

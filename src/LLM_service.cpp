@@ -613,11 +613,6 @@ std::string LLMService::encapsulate_route(const json &body, server_http_context:
     return "";
 }
 
-std::string LLMService::apply_template(const json &messages)
-{
-    return parse_apply_template_json(json::parse(apply_template_json(build_apply_template_json(messages))));
-}
-
 std::string LLMService::apply_template_json(const json &body)
 {
     if (setjmp(get_jump_point(true)) != 0)
@@ -631,19 +626,9 @@ std::string LLMService::apply_template_json(const json &body)
     return safe_json_to_str({{"prompt", std::move(data.at("prompt"))}});
 }
 
-std::vector<int> LLMService::tokenize(const std::string &input)
-{
-    return parse_tokenize_json(json::parse(tokenize_json(build_tokenize_json(input))));
-}
-
 std::string LLMService::tokenize_json(const json &body)
 {
     return encapsulate_route(body, routes->post_tokenize);
-}
-
-std::string LLMService::detokenize(const std::vector<int32_t> &tokens)
-{
-    return parse_detokenize_json(json::parse(detokenize_json(build_detokenize_json(tokens))));
 }
 
 std::string LLMService::detokenize_json(const json &body)
@@ -651,33 +636,15 @@ std::string LLMService::detokenize_json(const json &body)
     return encapsulate_route(body, routes->post_detokenize);
 }
 
-std::vector<float> LLMService::embeddings(const std::string &query)
-{
-    return parse_embeddings_json(json::parse(embeddings_json(build_embeddings_json(query))));
-}
-
-std::string LLMService::embeddings_json(
-    const json &body,
-    httplib::Response *res,
-    std::function<bool()> is_connection_closed)
+std::string LLMService::embeddings_json(const json &body)
 {
     return encapsulate_route(body, routes->post_embeddings);
 };
 
-bool LLMService::lora_weight(const std::vector<LoraIdScale> &loras)
-{
-    return parse_lora_weight_json(json::parse(lora_weight_json(build_lora_weight_json(loras))));
-}
-
-std::string LLMService::lora_weight_json(const json &body, httplib::Response *res)
+std::string LLMService::lora_weight_json(const json &body)
 {
     return safe_json_to_str(encapsulate_route(body, routes->post_lora_adapters));
 };
-
-std::vector<LoraIdScalePath> LLMService::lora_list()
-{
-    return parse_lora_list_json(json::parse(lora_list_json()));
-}
 
 std::string LLMService::lora_list_json()
 {
@@ -721,15 +688,7 @@ std::string LLMService::completion_json(const json &data_in, CharArrayFn callbac
     return "";
 }
 
-
-std::string LLMService::slot(int id_slot, const std::string &action, const std::string &filepath)
-{
-    return parse_slot_json(json::parse(slot_json(build_slot_json(id_slot, action, filepath))));
-}
-
-std::string LLMService::slot_json(
-    const json &data,
-    httplib::Response *res)
+std::string LLMService::slot_json(const json &data)
 {
     if (setjmp(get_jump_point(true)) != 0)
         return "";
@@ -776,17 +735,6 @@ std::string LLMService::slot_json(
 
         json result_json = result->to_json();
         result_data = result_json.dump();
-        if (result->is_error())
-        {
-            LOG_ERR("Error processing slots: %s\n", result_data.c_str());
-            if (res != nullptr)
-                handle_error(*res, result_json);
-        }
-        else
-        {
-            if (res != nullptr)
-                res_ok(*res, result_json);
-        }
     }
     catch (...)
     {

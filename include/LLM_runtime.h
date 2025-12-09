@@ -109,20 +109,23 @@ public:
     bool create_LLM_library(const std::string &command);
 
     //=================================== LLM METHODS START ===================================//
-    /// @brief Tokenize text
-    /// @param query Text string to tokenize
-    /// @return Vector of token IDs
-    std::vector<int> tokenize(const std::string &query) override { return ((LLMProvider *)llm)->tokenize(query); }
 
-    /// @brief Convert tokens to text
-    /// @param tokens Vector of token IDs to convert
-    /// @return Detokenized text string
-    std::string detokenize(const std::vector<int32_t> &tokens) override { return ((LLMProvider *)llm)->detokenize(tokens); }
+    /// @brief Tokenize input (override)
+    /// @param data JSON object containing text to tokenize
+    /// @return JSON string with token data
+    std::string tokenize_json(const json &data) override { return ((LLMProvider *)llm)->tokenize_json(data); }
 
-    /// @brief Generate embeddings
-    /// @param query Text string to embed
-    /// @return Vector of embedding values
-    std::vector<float> embeddings(const std::string &query) override { return ((LLMProvider *)llm)->embeddings(query); }
+    /// @brief Convert tokens back to text
+    /// @param data JSON object containing token IDs
+    /// @return JSON string containing detokenized text
+    /// @details Pure virtual method for converting token sequences back to text
+    std::string detokenize_json(const json &data) override { return ((LLMProvider *)llm)->detokenize_json(data); }
+
+    /// @brief Generate embeddings with HTTP response support
+    /// @param data JSON object containing embedding request
+    /// @return JSON string with embedding data
+    /// @details Protected method used internally for server-based embedding generation
+    std::string embeddings_json(const json &data) override { return ((LLMProvider *)llm)->embeddings_json(data); }
 
     /// @brief Generate completion (override - delegates to loaded library)
     /// @param data JSON completion request
@@ -131,23 +134,31 @@ public:
     /// @return Generated completion
     std::string completion_json(const json &data, CharArrayFn callback = nullptr, bool callbackWithJSON = true) override { return ((LLMProvider *)llm)->completion_json(data, callback, callbackWithJSON); }
 
-    /// @brief Apply template to messages
-    /// @param messages JSON array of chat messages
-    /// @return Formatted chat string
-    std::string apply_template(const json &messages) override { return ((LLMProvider *)llm)->apply_template(messages); }
+    /// @brief Apply a chat template to message data
+    /// @param data JSON object containing messages to format
+    /// @return Formatted string with template applied
+    /// @details Pure virtual method for applying chat templates to conversation data
+    std::string apply_template_json(const json &data) override { return ((LLMProvider *)llm)->apply_template_json(data); }
 
     /// @brief Cancel request (override - delegates to loaded library)
     /// @param data JSON cancellation request
     void cancel(int id_slot) override { ((LLMProvider *)llm)->cancel(id_slot); }
 
-    /// @brief Configure LoRA weights
-    /// @param loras Vector of LoRA adapters with their scales
-    /// @return true if configuration was successful, false otherwise
-    bool lora_weight(const std::vector<LoraIdScale> &loras) override { return ((LLMProvider *)llm)->lora_weight(loras); }
+    /// @brief Configure LoRA weights with HTTP response support
+    /// @param data JSON object with LoRA configuration
+    /// @return JSON response string
+    /// @details Protected method used internally for server-based LoRA configuration
+    std::string lora_weight_json(const json &data) override { return ((LLMProvider *)llm)->lora_weight_json(data); };
 
     /// @brief List available LoRA adapters
-    /// @return Vector of available LoRA adapters with paths
-    std::vector<LoraIdScalePath> lora_list() override { return ((LLMProvider *)llm)->lora_list(); }
+    /// @return JSON string containing list of available LoRA adapters
+    std::string lora_list_json() override { return ((LLMProvider *)llm)->lora_list_json(); }
+
+    /// @brief Manage slots with HTTP response support
+    /// @param data JSON object with slot operation
+    /// @return JSON response string
+    /// @details Protected method used internally for server-based slot management
+    std::string slot_json(const json &data) override { return ((LLMProvider *)llm)->slot_json(data); }
 
     /// @brief Start HTTP server (override - delegates to loaded library)
     /// @param host Host address (default: "0.0.0.0")
@@ -217,15 +228,6 @@ protected:
     /// @return true if library loaded successfully, false otherwise
     /// @details Internal method for loading specific library files
     bool create_LLM_library_backend(const std::string &command, const std::string &llm_lib_filename);
-
-    //=================================== LLM METHODS START ===================================//
-    /// @brief Perform slot operation
-    /// @param id_slot Slot ID to operate on
-    /// @param action Action to perform ("save" or "restore")
-    /// @param filepath Path for save/load operation
-    /// @return Operation result string
-    std::string slot(int id_slot, const std::string &action, const std::string &filepath) override;
-    //=================================== LLM METHODS END ===================================//
 };
 
 /// @brief Get OS-specific library directory

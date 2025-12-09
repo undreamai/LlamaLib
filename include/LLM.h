@@ -69,17 +69,34 @@ public:
     /// @brief Tokenize text
     /// @param query Text string to tokenize
     /// @return Vector of token IDs
-    virtual std::vector<int> tokenize(const std::string &query) = 0;
+    virtual std::vector<int> tokenize(const std::string &query);
+
+    /// @brief Tokenize input (override)
+    /// @param data JSON object containing text to tokenize
+    /// @return JSON string with token data
+    virtual std::string tokenize_json(const json &data) = 0;
 
     /// @brief Convert tokens to text
     /// @param tokens Vector of token IDs to convert
     /// @return Detokenized text string
-    virtual std::string detokenize(const std::vector<int32_t> &tokens) = 0;
+    virtual std::string detokenize(const std::vector<int32_t> &tokens);
+
+    /// @brief Convert tokens back to text
+    /// @param data JSON object containing token IDs
+    /// @return JSON string containing detokenized text
+    /// @details Pure virtual method for converting token sequences back to text
+    virtual std::string detokenize_json(const json &data) = 0;
 
     /// @brief Generate embeddings
     /// @param query Text string to embed
     /// @return Vector of embedding values
-    virtual std::vector<float> embeddings(const std::string &query) = 0;
+    virtual std::vector<float> embeddings(const std::string &query);
+
+    /// @brief Generate embeddings with HTTP response support
+    /// @param data JSON object containing embedding request
+    /// @return JSON string with embedding data
+    /// @details Protected method used internally for server-based embedding generation
+    virtual std::string embeddings_json(const json &data) = 0;
 
     /// @brief Set completion parameters
     /// @param completion_params_ JSON object containing completion parameters
@@ -119,7 +136,13 @@ public:
     /// @brief Apply template to messages
     /// @param messages JSON array of chat messages
     /// @return Formatted chat string
-    virtual std::string apply_template(const json &messages) = 0;
+    virtual std::string apply_template(const json &messages);
+
+    /// @brief Apply a chat template to message data
+    /// @param data JSON object containing messages to format
+    /// @return Formatted string with template applied
+    /// @details Pure virtual method for applying chat templates to conversation data
+    virtual std::string apply_template_json(const json &data) = 0;
 
     /// @brief Check if command line arguments specify GPU layers
     /// @param command Command line string to analyze
@@ -218,13 +241,19 @@ public:
     /// @param id_slot Slot ID to cancel
     virtual void cancel(int id_slot) = 0;
 
+    /// @brief Manage slots with HTTP response support
+    /// @param data JSON object with slot operation
+    /// @return JSON response string
+    /// @details Protected method used internally for server-based slot management
+    virtual std::string slot_json(const json &data) = 0;
+
 protected:
     /// @brief Perform slot operation
     /// @param id_slot Slot ID to operate on
     /// @param action Action to perform ("save" or "restore")
     /// @param filepath Path for save/load operation
     /// @return Operation result string
-    virtual std::string slot(int id_slot, const std::string &action, const std::string &filepath) = 0;
+    virtual std::string slot(int id_slot, const std::string &action, const std::string &filepath);
 
     /// @brief Build JSON for slot operations
     /// @param id_slot Slot ID to operate on
@@ -251,11 +280,21 @@ public:
     /// @brief Configure LoRA weights
     /// @param loras Vector of LoRA adapters with their scales
     /// @return true if configuration was successful, false otherwise
-    virtual bool lora_weight(const std::vector<LoraIdScale> &loras) = 0;
+    virtual bool lora_weight(const std::vector<LoraIdScale> &loras);
+
+    /// @brief Configure LoRA weights with HTTP response support
+    /// @param data JSON object with LoRA configuration
+    /// @return JSON response string
+    /// @details Protected method used internally for server-based LoRA configuration
+    virtual std::string lora_weight_json(const json &data) = 0;
 
     /// @brief List available LoRA adapters
     /// @return Vector of available LoRA adapters with paths
-    virtual std::vector<LoraIdScalePath> lora_list() = 0;
+    virtual std::vector<LoraIdScalePath> lora_list();
+
+    /// @brief List available LoRA adapters
+    /// @return JSON string containing list of available LoRA adapters
+    virtual std::string lora_list_json() = 0;
 
     /// @brief enable reasoning
     /// @param reasoning whether to enable reasoning
@@ -327,6 +366,11 @@ protected:
     /// @param result JSON response from lora_list_json
     /// @return Vector of available LoRA adapters with paths
     virtual std::vector<LoraIdScalePath> parse_lora_list_json(const json &result);
+
+    /// @brief Build JSON for LoRA list result
+    /// @param loras Vector of LoRA adapters with their scales and paths
+    /// @return JSON object ready for lora_list_json
+    virtual json build_lora_list_json(const std::vector<LoraIdScalePath> &loras);
 };
 
 /// @brief Registry for managing LLM provider instances

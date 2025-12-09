@@ -50,20 +50,23 @@ public:
     bool is_remote() const { return !url.empty() && port > -1; }
 
     //=================================== LLM METHODS START ===================================//
-    /// @brief Tokenize text
-    /// @param query Text string to tokenize
-    /// @return Vector of token IDs
-    std::vector<int> tokenize(const std::string &query) override;
 
-    /// @brief Convert tokens to text
-    /// @param tokens Vector of token IDs to convert
-    /// @return Detokenized text string
-    std::string detokenize(const std::vector<int32_t> &tokens) override;
+    /// @brief Tokenize input (override)
+    /// @param data JSON object containing text to tokenize
+    /// @return JSON string with token data
+    std::string tokenize_json(const json &data) override;
 
-    /// @brief Generate embeddings
-    /// @param query Text string to embed
-    /// @return Vector of embedding values
-    std::vector<float> embeddings(const std::string &query) override;
+    /// @brief Convert tokens back to text
+    /// @param data JSON object containing token IDs
+    /// @return JSON string containing detokenized text
+    /// @details Pure virtual method for converting token sequences back to text
+    std::string detokenize_json(const json &data) override;
+
+    /// @brief Generate embeddings with HTTP response support
+    /// @param data JSON object containing embedding request
+    /// @return JSON string with embedding data
+    /// @details Protected method used internally for server-based embedding generation
+    std::string embeddings_json(const json &data) override;
 
     /// @brief Generate text completion (override)
     /// @param data JSON object with prompt and parameters
@@ -72,10 +75,17 @@ public:
     /// @return Generated completion text or JSON
     std::string completion_json(const json &data, CharArrayFn callback = nullptr, bool callbackWithJSON = true) override;
 
-    /// @brief Apply template to messages
-    /// @param messages JSON array of chat messages
-    /// @return Formatted chat string
-    std::string apply_template(const json &messages) override;
+    /// @brief Apply a chat template to message data
+    /// @param data JSON object containing messages to format
+    /// @return Formatted string with template applied
+    /// @details Pure virtual method for applying chat templates to conversation data
+    std::string apply_template_json(const json &data) override;
+
+    /// @brief Manage slots with HTTP response support
+    /// @param data JSON object with slot operation
+    /// @return JSON response string
+    /// @details Protected method used internally for server-based slot management
+    std::string slot_json(const json &data) override;
 
     /// @brief Cancel running request (override)
     /// @param data JSON object with cancellation parameters
@@ -84,16 +94,6 @@ public:
     /// @brief Get available processing slot (override)
     /// @return Available slot ID or -1 if none available
     int get_next_available_slot() override;
-    //=================================== LLM METHODS END ===================================//
-
-protected:
-    //=================================== LLM METHODS START ===================================//
-    /// @brief Perform slot operation
-    /// @param id_slot Slot ID to operate on
-    /// @param action Action to perform ("save" or "restore")
-    /// @param filepath Path for save/load operation
-    /// @return Operation result string
-    std::string slot(int id_slot, const std::string &action, const std::string &filepath) override;
     //=================================== LLM METHODS END ===================================//
 
 private:
