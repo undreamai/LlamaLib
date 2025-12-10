@@ -324,6 +324,7 @@ void LLMService::init(int argc, char **argv)
     }
     catch (...)
     {
+        LLMProviderRegistry::instance().unregister_instance(this);
         handle_exception(1);
     }
 }
@@ -450,46 +451,56 @@ void LLMService::start_server(const std::string &host, int port, const std::stri
 {
     if (setjmp(get_jump_point(true)) != 0)
         return;
-    params->hostname = host.empty() ? "0.0.0.0" : host;
-    if (port >= 0)
-        params->port = port;
-    params->api_keys.clear();
-    if (!API_key.empty())
-        params->api_keys.push_back(API_key);
 
-    std::lock_guard<std::mutex> lock(start_stop_mutex);
+    try
+    {
+        params->hostname = host.empty() ? "0.0.0.0" : host;
+        if (port >= 0)
+            params->port = port;
+        params->api_keys.clear();
+        if (!API_key.empty())
+            params->api_keys.push_back(API_key);
 
-    if (!ctx_http->init(*params)) {
-        throw std::runtime_error("Failed to initialize HTTP server!");
+        std::lock_guard<std::mutex> lock(start_stop_mutex);
+
+        if (!ctx_http->init(*params)) {
+            throw std::runtime_error("Failed to initialize HTTP server!");
+        }
+
+        // register API routes
+        ctx_http->post("/health",  ex_wrapper(routes->get_health)); // public endpoint (no API key check)
+        ctx_http->post("/v1/health", ex_wrapper(routes->get_health)); // public endpoint (no API key check)
+        ctx_http->post("/completion", ex_wrapper(routes->post_completions)); // legacy
+        ctx_http->post("/completions", ex_wrapper(routes->post_completions));
+        ctx_http->post("/chat/completions", ex_wrapper(routes->post_chat_completions));
+        ctx_http->post("/v1/chat/completions", ex_wrapper(routes->post_chat_completions));
+        ctx_http->post("/tokenize", ex_wrapper(routes->post_tokenize));
+        ctx_http->post("/detokenize", ex_wrapper(routes->post_detokenize));
+        ctx_http->post("/apply-template", ex_wrapper(routes->post_apply_template));
+        ctx_http->post("/embedding", ex_wrapper(routes->post_embeddings)); // legacy
+        ctx_http->post("/embeddings", ex_wrapper(routes->post_embeddings));
+
+
+        // start the HTTP server before loading the model to be able to serve /health requests
+        if (!ctx_http->start()) {
+            stop();
+            throw std::runtime_error("Exiting due to HTTP server error\n");
+        }
+
+        ctx_http->is_ready.store(true);
     }
-
-    // register API routes
-    ctx_http->post("/health",  ex_wrapper(routes->get_health)); // public endpoint (no API key check)
-    ctx_http->post("/v1/health", ex_wrapper(routes->get_health)); // public endpoint (no API key check)
-    ctx_http->post("/completion", ex_wrapper(routes->post_completions)); // legacy
-    ctx_http->post("/completions", ex_wrapper(routes->post_completions));
-    ctx_http->post("/chat/completions", ex_wrapper(routes->post_chat_completions));
-    ctx_http->post("/v1/chat/completions", ex_wrapper(routes->post_chat_completions));
-    ctx_http->post("/tokenize", ex_wrapper(routes->post_tokenize));
-    ctx_http->post("/detokenize", ex_wrapper(routes->post_detokenize));
-    ctx_http->post("/apply-template", ex_wrapper(routes->post_apply_template));
-    ctx_http->post("/embedding", ex_wrapper(routes->post_embeddings)); // legacy
-    ctx_http->post("/embeddings", ex_wrapper(routes->post_embeddings));
-
-
-    // start the HTTP server before loading the model to be able to serve /health requests
-    if (!ctx_http->start()) {
-        stop();
-        throw std::runtime_error("Exiting due to HTTP server error\n");
+    catch (...)
+    {
+        handle_exception();
     }
-
-    ctx_http->is_ready.store(true);
 }
 
 
 void LLMService::stop_server()
 {
     if (setjmp(get_jump_point(true)) != 0)
+        return;
+    if (ctx_http == nullptr)
         return;
     std::lock_guard<std::mutex> lock(start_stop_mutex);
     LLAMALIB_INF("stopping server\n");
@@ -788,21 +799,35 @@ LLMService *LLMService_Construct(const char *model_path, int num_slots, int num_
             lora_paths_vector.push_back(std::string(lora_paths[i]));
         }
     }
-    return new LLMService(model_path, num_slots, num_threads, num_GPU_layers, flash_attention, context_size, batch_size, embedding_only, lora_paths_vector);
+    LLMService* llmService = new LLMService(model_path, num_slots, num_threads, num_GPU_layers, flash_attention, context_size, batch_size, embedding_only, lora_paths_vector);
+    if (get_status_code() != 0)
+    {
+        if (llmService != nullptr) delete llmService;
+        return nullptr;
+    }
+    return llmService;
 }
 
 LLMService *LLMService_From_Command(const char *params_string_arr)
 {
+    LLMService* llmService;
     std::string params_string(params_string_arr);
     try
     {
         json j = json::parse(params_string);
-        return LLMService::from_params(j);
+        llmService = LLMService::from_params(j);
     }
     catch (const json::parse_error &)
     {
-        return LLMService::from_command(params_string);
+        llmService = LLMService::from_command(params_string);
     }
+
+    if (get_status_code() != 0)
+    {
+        if (llmService != nullptr) delete llmService;
+        return nullptr;
+    }
+    return llmService;
 }
 
 const char *LLMService_Command(LLMService *llm_service)
