@@ -332,7 +332,6 @@ void LLMService::init(int argc, char **argv)
 void LLMService::enable_reasoning(bool reasoning) {
     LLMProvider::enable_reasoning(reasoning);
     if (ctx_server != nullptr) ctx_server->impl->oai_parser_opt.enable_thinking = reasoning_enabled;
-    std::cout<<"enable_reasoning: "<<ctx_server->impl->oai_parser_opt.enable_thinking<<std::endl;
 }
 
 const std::string LLMService::detect_chat_template()

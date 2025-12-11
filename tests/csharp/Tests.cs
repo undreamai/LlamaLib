@@ -23,8 +23,6 @@ namespace UndreamAI.LlamaLib.Tests
         private static string testModelPath => FindModel("model.gguf");
         private static string testModelEmbeddingPath => FindModel("model_embedding.gguf");
         private int EMBEDDING_SIZE = 0;
-        private static string USER_ROLE = "human";
-        private static string ASSISTANT_ROLE = "bot";
 
         public static string FindModel(string modelName)
         {
@@ -138,12 +136,7 @@ namespace UndreamAI.LlamaLib.Tests
 
         public void TestLLMAgentProperties(LLMAgent agent)
         {
-            agent.UserRole = "new_user";
-            agent.AssistantRole = "new_assistant";
             agent.SystemPrompt = "New system prompt";
-
-            Assert.AreEqual("new_user", agent.UserRole);
-            Assert.AreEqual("new_assistant", agent.AssistantRole);
             Assert.AreEqual("New system prompt", agent.SystemPrompt);
 
             // Test SlotId property
@@ -153,8 +146,6 @@ namespace UndreamAI.LlamaLib.Tests
             agent.SlotId = originalSlot + 1;
             Assert.AreEqual(originalSlot + 1, agent.SlotId);
 
-            agent.UserRole = USER_ROLE;
-            agent.AssistantRole = ASSISTANT_ROLE;
             agent.SystemPrompt = SYSTEM_PROMPT;
             agent.SlotId = originalSlot;
         }
@@ -166,8 +157,8 @@ namespace UndreamAI.LlamaLib.Tests
             Assert.AreEqual(0, agent.GetHistorySize());
 
             // Test adding messages
-            agent.AddMessage("user", "Test user message");
-            agent.AddMessage("assistant", "Test assistant response");
+            agent.AddUserMessage("Test user message");
+            agent.AddAssistantMessage("Test assistant response");
 
             Assert.AreEqual(2, agent.GetHistorySize());
             var history = agent.GetHistory();
@@ -183,19 +174,12 @@ namespace UndreamAI.LlamaLib.Tests
 
             Assert.AreEqual(4, agent.GetHistorySize());
             history = agent.GetHistory();
-            Assert.AreEqual(USER_ROLE, history[2].role);
             Assert.AreEqual("User message via shortcut", history[2].content);
-            Assert.AreEqual(ASSISTANT_ROLE, history[3].role);
             Assert.AreEqual("Assistant message via shortcut", history[3].content);
-
-            // Test AddMessage with ChatMessage struct
-            var chatMsg = new ChatMessage("user", "Message via struct");
-            agent.AddMessage(chatMsg);
-            Assert.AreEqual(5, agent.GetHistorySize());
 
             // Test removing last message
             agent.RemoveLastMessage();
-            Assert.AreEqual(4, agent.GetHistorySize());
+            Assert.AreEqual(3, agent.GetHistorySize());
 
             // Test clearing history
             agent.ClearHistory();
@@ -246,10 +230,10 @@ namespace UndreamAI.LlamaLib.Tests
             try
             {
                 // Add some test messages
-                agent.AddMessage("user", "Test message 1");
-                agent.AddMessage("assistant", "Test response 1");
-                agent.AddMessage("user", "Test message 2");
-                agent.AddMessage("assistant", "Test response 2");
+                agent.AddUserMessage("Test message 1");
+                agent.AddAssistantMessage("Test response 1");
+                agent.AddUserMessage("Test message 2");
+                agent.AddAssistantMessage("Test response 2");
                 int originalSize = agent.GetHistorySize();
 
                 // Test saving to file
@@ -281,8 +265,6 @@ namespace UndreamAI.LlamaLib.Tests
         {
             Console.WriteLine("Chat Functionality Tests");
 
-            agent.UserRole = USER_ROLE;
-            agent.AssistantRole = ASSISTANT_ROLE;
             agent.ClearHistory();
 
             string userPrompt = "Hello, how are you?";
@@ -293,9 +275,9 @@ namespace UndreamAI.LlamaLib.Tests
             Assert.AreEqual(2, agent.GetHistorySize());
 
             var history = agent.GetHistory();
-            Assert.AreEqual(USER_ROLE, history[0].role);
+            Assert.AreEqual("user", history[0].role);
             Assert.AreEqual(userPrompt, history[0].content);
-            Assert.AreEqual(ASSISTANT_ROLE, history[1].role);
+            Assert.AreEqual("assistant", history[1].role);
             Assert.AreEqual(response1, history[1].content);
 
             // Test chat without history addition
@@ -376,7 +358,7 @@ namespace UndreamAI.LlamaLib.Tests
             LLMService llmService = new LLMService(testModelPath);
             TestStart(llmService);
 
-            LLMAgent llmAgent = new LLMAgent(llmService, SYSTEM_PROMPT, USER_ROLE, ASSISTANT_ROLE);
+            LLMAgent llmAgent = new LLMAgent(llmService, SYSTEM_PROMPT);
             LLMAgentTests(llmAgent);
             llmService?.Dispose();
         }

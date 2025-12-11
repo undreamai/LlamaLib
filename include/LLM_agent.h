@@ -31,7 +31,7 @@ struct UNDREAMAI_API ChatMessage
     /// @details Serializes the message for storage or transmission
     json to_json() const
     {
-        return json{{"role", role}, {"content", content}};
+        return json{{"role", role}, {"content", content.empty() ? " " : content}};
     }
 
     /// @brief Create message from JSON representation
@@ -59,13 +59,14 @@ struct UNDREAMAI_API ChatMessage
 class UNDREAMAI_API LLMAgent : public LLMLocal
 {
 public:
+    const std::string USER_ROLE = "user";
+    const std::string ASSISTANT_ROLE = "assistant";
+
     /// @brief Constructor for LLM agent
     /// @param llm Pointer to LLMLocal instance to wrap
     /// @param system_prompt Initial system prompt for conversation context
-    /// @param user_role Role identifier for user messages (default: "user")
-    /// @param assistant_role Role identifier for assistant messages (default: "assistant")
     /// @details Creates an agent that manages conversations with the specified LLM backend
-    LLMAgent(LLMLocal *llm, const std::string &system_prompt = "", const std::string &user_role = "user", const std::string &assistant_role = "assistant");
+    LLMAgent(LLMLocal *llm, const std::string &system_prompt = "");
 
     //=================================== LLM METHOD DELEGATES ===================================//
     /// @brief Tokenize input (override)
@@ -166,23 +167,7 @@ public:
     /// @details Assigns a specific slot for this agent's processing (not available for remote LLMClient)
     void set_slot(int id_slot);
 
-    // Role and prompt configuration methods
-
-    /// @brief Set user role identifier
-    /// @param user_role_ New user role string
-    void set_user_role(const std::string &user_role_) { user_role = user_role_; }
-
-    /// @brief Get current user role identifier
-    /// @return Current user role
-    std::string get_user_role() const { return user_role; }
-
-    /// @brief Set assistant role
-    /// @param assistant_role_ New assistant role string
-    void set_assistant_role(const std::string &assistant_role_) { assistant_role = assistant_role_; }
-
-    /// @brief Get current assistant role identifier
-    /// @return Current assistant role
-    std::string get_assistant_role() const { return assistant_role; }
+    // Prompt configuration methods
 
     /// @brief Set system prompt
     /// @param system_prompt_ New system prompt text
@@ -205,21 +190,15 @@ public:
 
     // History management methods
 
-    /// @brief Add a message to conversation history
-    /// @param role Message role identifier
-    /// @param content Message content text
-    /// @details Appends a new message to the conversation history
-    void add_message(const std::string &role, const std::string &content);
-
     /// @brief Add a user message to conversation history
     /// @param content User message content
     /// @details Convenience method for adding user messages
-    void add_user_message(const std::string &content) { add_message(user_role, content); }
+    void add_user_message(const std::string &content) { add_message(USER_ROLE, content); }
 
     /// @brief Add an assistant message to conversation history
     /// @param content Assistant message content
     /// @details Convenience method for adding assistant messages
-    void add_assistant_message(const std::string &content) { add_message(assistant_role, content); }
+    void add_assistant_message(const std::string &content) { add_message(ASSISTANT_ROLE, content); }
 
     /// @brief Clear all conversation history
     /// @details Removes all messages from the conversation history
@@ -259,12 +238,16 @@ public:
 protected:
     void set_n_keep();
 
+    /// @brief Add a message to conversation history
+    /// @param role Message role identifier
+    /// @param content Message content text
+    /// @details Appends a new message to the conversation history
+    virtual void add_message(const std::string &role, const std::string &content);
+
 private:
     LLMLocal *llm = nullptr;                  ///< Wrapped LLM instance
     int id_slot = -1;                         ///< Assigned processing slot ID
     std::string system_prompt = "";           ///< System prompt for conversation context
-    std::string user_role = "user";           ///< Role identifier for user messages
-    std::string assistant_role = "assistant"; ///< Role identifier for assistant messages
     std::string system_role = "system";       ///< Role identifier for system messages
     json history;                             ///< Conversation history as JSON array
 };
@@ -277,31 +260,9 @@ extern "C"
     /// @brief Construct LLMAgent (C API)
     /// @param llm LLMLocal instance to wrap
     /// @param system_prompt Initial system prompt (default: "")
-    /// @param user_role User role identifier (default: "user")
-    /// @param assistant_role Assistant role identifier (default: "assistant")
     /// @return Pointer to new LLMAgent instance
     /// @details Creates a conversational agent with the specified configuration
-    UNDREAMAI_API LLMAgent *LLMAgent_Construct(LLMLocal *llm, const char *system_prompt = "", const char *user_role = "user", const char *assistant_role = "assistant");
-
-    /// @brief Set user role (C API)
-    /// @param llm LLMAgent instance pointer
-    /// @param user_role New user role string
-    UNDREAMAI_API void LLMAgent_Set_User_Role(LLMAgent *llm, const char *user_role);
-
-    /// @brief Get user role (C API)
-    /// @param llm LLMAgent instance pointer
-    /// @return Current user role string
-    UNDREAMAI_API const char *LLMAgent_Get_User_Role(LLMAgent *llm);
-
-    /// @brief Set assistant role (C API)
-    /// @param llm LLMAgent instance pointer
-    /// @param assistant_role New assistant role string
-    UNDREAMAI_API void LLMAgent_Set_Assistant_Role(LLMAgent *llm, const char *assistant_role);
-
-    /// @brief Get assistant role (C API)
-    /// @param llm LLMAgent instance pointer
-    /// @return Current assistant role string
-    UNDREAMAI_API const char *LLMAgent_Get_Assistant_Role(LLMAgent *llm);
+    UNDREAMAI_API LLMAgent *LLMAgent_Construct(LLMLocal *llm, const char *system_prompt = "");
 
     /// @brief Set system prompt (C API)
     /// @param llm LLMAgent instance pointer
@@ -350,12 +311,17 @@ extern "C"
     /// @details Replaces current history with provided JSON data
     UNDREAMAI_API void LLMAgent_Set_History(LLMAgent *llm, const char *history_json);
 
-    /// @brief Add message to history (C API)
+    /// @brief Add user message to history (C API)
     /// @param llm LLMAgent instance pointer
-    /// @param role Message role identifier
     /// @param content Message content text
     /// @details Appends a new message to conversation history
-    UNDREAMAI_API void LLMAgent_Add_Message(LLMAgent *llm, const char *role, const char *content);
+    UNDREAMAI_API void LLMAgent_Add_User_Message(LLMAgent *llm, const char *content);
+
+    /// @brief Add assistant message to history (C API)
+    /// @param llm LLMAgent instance pointer
+    /// @param content Message content text
+    /// @details Appends a new message to conversation history
+    UNDREAMAI_API void LLMAgent_Add_Assistant_Message(LLMAgent *llm, const char *content);
 
     /// @brief Remove last message from history (C API)
     /// @param llm LLMAgent instance pointer

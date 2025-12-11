@@ -2,8 +2,7 @@
 #include <fstream>
 #include <iostream>
 
-LLMAgent::LLMAgent(LLMLocal *llm_, const std::string &system_prompt_, const std::string &user_role_, const std::string &assistant_role_)
-    : llm(llm_), system_prompt(system_prompt_), user_role(user_role_), assistant_role(assistant_role_)
+LLMAgent::LLMAgent(LLMLocal *llm_, const std::string &system_prompt_) : llm(llm_), system_prompt(system_prompt_)
 {
     id_slot = llm->get_next_available_slot();
     clear_history();
@@ -37,7 +36,7 @@ void LLMAgent::set_n_keep()
     {
         json working_history = json::array();
         working_history.push_back(ChatMessage(system_role, system_prompt).to_json());
-        working_history.push_back(ChatMessage(user_role, "").to_json());
+        working_history.push_back(ChatMessage(USER_ROLE, "").to_json());
         n_keep = tokenize(apply_template(working_history)).size();
     } catch(...){ }
 }
@@ -51,7 +50,7 @@ std::string LLMAgent::chat(const std::string &user_prompt, bool add_to_history, 
     working_history.push_back(ChatMessage(system_role, system_prompt).to_json());
     for (auto &m : history)
         working_history.push_back(m);
-    ChatMessage user_msg(user_role, user_prompt);
+    ChatMessage user_msg(USER_ROLE, user_prompt);
     working_history.push_back(user_msg.to_json());
 
     // Apply template to get the formatted prompt
@@ -66,7 +65,7 @@ std::string LLMAgent::chat(const std::string &user_prompt, bool add_to_history, 
     if (add_to_history)
     {
         history.push_back(user_msg.to_json());
-        ChatMessage assistant_msg(assistant_role, assistant_content);
+        ChatMessage assistant_msg(ASSISTANT_ROLE, assistant_content);
         history.push_back(assistant_msg.to_json());
     }
 
@@ -141,12 +140,10 @@ void LLMAgent::load_history(const std::string &filepath)
 
 //================ C API ================//
 
-LLMAgent *LLMAgent_Construct(LLMLocal *llm, const char *system_prompt_, const char *user_role_, const char *assistant_role_)
+LLMAgent *LLMAgent_Construct(LLMLocal *llm, const char *system_prompt_)
 {
     std::string system_prompt = system_prompt_ ? system_prompt_ : "";
-    std::string user_role = user_role_ ? user_role_ : "user";
-    std::string assistant_role = assistant_role_ ? assistant_role_ : "assistant";
-    return new LLMAgent(llm, system_prompt, user_role, assistant_role);
+    return new LLMAgent(llm, system_prompt);
 }
 
 const char *LLMAgent_Chat(LLMAgent *llm, const char *user_prompt, bool add_to_history, CharArrayFn callback, bool return_response_json)
@@ -169,28 +166,6 @@ void LLMAgent_Set_System_Prompt(LLMAgent *llm, const char *system_prompt)
 const char *LLMAgent_Get_System_Prompt(LLMAgent *llm)
 {
     return stringToCharArray(llm->get_system_prompt());
-}
-
-void LLMAgent_Set_User_Role(LLMAgent *llm, const char *user_role_)
-{
-    std::string user_role = user_role_ ? user_role_ : "user";
-    llm->set_user_role(user_role);
-}
-
-const char *LLMAgent_Get_User_Role(LLMAgent *llm)
-{
-    return stringToCharArray(llm->get_user_role());
-}
-
-void LLMAgent_Set_Assistant_Role(LLMAgent *llm, const char *assistant_role_)
-{
-    std::string assistant_role = assistant_role_ ? assistant_role_ : "assistant";
-    llm->set_assistant_role(assistant_role);
-}
-
-const char *LLMAgent_Get_Assistant_Role(LLMAgent *llm)
-{
-    return stringToCharArray(llm->get_assistant_role());
 }
 
 const char *LLMAgent_Get_History(LLMAgent *llm)
@@ -224,11 +199,14 @@ void LLMAgent_Set_History(LLMAgent *llm, const char *history_json)
     }
 }
 
-void LLMAgent_Add_Message(LLMAgent *llm, const char *role, const char *content)
+void LLMAgent_Add_User_Message(LLMAgent *llm, const char *content)
 {
-    std::string role_str = role ? role : "";
-    std::string content_str = content ? content : "";
-    llm->add_message(role_str, content_str);
+    llm->add_user_message(content ? content : "");
+}
+
+void LLMAgent_Add_Assistant_Message(LLMAgent *llm, const char *content)
+{
+    llm->add_assistant_message(content ? content : "");
 }
 
 void LLMAgent_Remove_Last_Message(LLMAgent *llm)

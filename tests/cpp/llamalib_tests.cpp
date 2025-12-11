@@ -319,23 +319,6 @@ void test_agent_chat(LLMAgent *agent, bool stream, bool use_api)
         std::cout << "no ";
     std::cout << "streaming )" << std::endl;
 
-    std::string user_role = "random_person";
-    std::string assistant_role = "random_bot";
-    if (use_api)
-    {
-        agent->set_user_role(user_role);
-        agent->set_assistant_role(assistant_role);
-        ASSERT(agent->get_user_role() == user_role);
-        ASSERT(agent->get_assistant_role() == assistant_role);
-    }
-    else
-    {
-        LLMAgent_Set_User_Role(agent, user_role.c_str());
-        LLMAgent_Set_Assistant_Role(agent, assistant_role.c_str());
-        ASSERT(LLMAgent_Get_User_Role(agent) == user_role);
-        ASSERT(LLMAgent_Get_Assistant_Role(agent) == assistant_role);
-    }
-
     std::string user_prompt = "Hello, how are you?";
     std::string reply;
 
@@ -387,8 +370,8 @@ void test_agent_chat(LLMAgent *agent, bool stream, bool use_api)
         ASSERT(history_size == 2);
 
         json history = agent->get_history();
-        ASSERT(history[0]["role"] == user_role);
-        ASSERT(history[1]["role"] == assistant_role);
+        ASSERT(history[0]["role"] == "user");
+        ASSERT(history[1]["role"] == "assistant");
         ASSERT(history[0]["content"] == user_prompt);
     }
 
@@ -417,13 +400,13 @@ void test_history(LLMAgent *agent, bool use_api)
     // Test adding messages
     if (use_api)
     {
-        LLMAgent_Add_Message(agent, "user", "Test user message");
-        LLMAgent_Add_Message(agent, "assistant", "Test assistant response");
+        LLMAgent_Add_User_Message(agent, "Test user message");
+        LLMAgent_Add_Assistant_Message(agent, "Test assistant response");
     }
     else
     {
-        agent->add_message("user", "Test user message");
-        agent->add_message("assistant", "Test assistant response");
+        agent->add_user_message("Test user message");
+        agent->add_assistant_message("Test assistant response");
     }
 
     size_t history_size;
@@ -498,10 +481,10 @@ void test_save_history(LLMAgent *agent, bool use_api)
     std::cout << "LLMAgent File Operations" << std::endl;
 
     // Add some test messages
-    agent->add_message("user", "Test message 1");
-    agent->add_message("assistant", "Test response 1");
-    agent->add_message("user", "Test message 2");
-    agent->add_message("assistant", "Test response 2");
+    agent->add_user_message("Test message 1");
+    agent->add_assistant_message("Test response 1");
+    agent->add_user_message("Test message 2");
+    agent->add_assistant_message("Test response 2");
     size_t original_size = agent->get_history_size();
 
     // Test saving to file
