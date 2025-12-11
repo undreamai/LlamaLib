@@ -675,6 +675,11 @@ std::string LLMService::completion_json(const json &data_in, CharArrayFn callbac
 
         server_http_req req{ {}, {}, "", data.dump(), always_false };
         auto result = routes->post_completions(req);
+        if (result->status != 200)
+        {
+            return result->data;
+        }
+
         if (stream)
         {
             ResponseConcatenator concatenator;

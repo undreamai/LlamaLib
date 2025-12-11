@@ -261,6 +261,13 @@ std::string LLM::parse_completion_json(const json &result)
 {
     try
     {
+        if (result.contains("error")) {
+            json error = result.at("error");
+            int code = error.at("code").get<int>();
+            std::string message = error.at("message").get<std::string>();
+            fail(message, code);
+            return "";
+        }
         return result.at("content").get<std::string>();
     }
     catch (const std::exception &)
