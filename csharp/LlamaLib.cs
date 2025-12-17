@@ -575,8 +575,8 @@ namespace UndreamAI.LlamaLib
             LLM_Status_Code_Internal = () => LLM_Status_Code_Static();
             LLM_Status_Message_Internal = () => LLM_Status_Message_Static();
             LLM_Embedding_Size_Internal = (llm) => LLM_Embedding_Size_Static(llm);
-            LLMService_Construct_Internal = (modelPath, numSlots, numThreads, numGpuLayers, flashAttention, contextSize, batchSize, embeddingOnly, loraCount, loraPaths) => LLMService_Construct_With_Fallback(modelPath, numSlots, numThreads, numGpuLayers, flashAttention, contextSize, batchSize, embeddingOnly, loraCount, loraPaths);
-            LLMService_From_Command_Internal = (paramsString) => LLMService_From_Command_With_Fallback(paramsString);
+            LLMService_Construct_Internal = (modelPath, numSlots, numThreads, numGpuLayers, flashAttention, contextSize, batchSize, embeddingOnly, loraCount, loraPaths) => LLMService_Construct_Static(modelPath, numSlots, numThreads, numGpuLayers, flashAttention, contextSize, batchSize, embeddingOnly, loraCount, loraPaths);
+            LLMService_From_Command_Internal = (paramsString) => LLMService_From_Command_Static(paramsString);
             LLMService_Command_Internal = (llm) => LLMService_Command_Static(llm);
             LLMClient_Construct_Internal = (llm) => LLMClient_Construct_Static(llm);
             LLMClient_Construct_Remote_Internal = (url, port, apiKey, numRetries) => LLMClient_Construct_Remote_Static(url, port, apiKey, numRetries);
