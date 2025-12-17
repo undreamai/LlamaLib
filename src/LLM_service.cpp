@@ -289,6 +289,13 @@ void LLMService::init(int argc, char **argv)
             params->n_batch = params->n_ubatch;
         }
 
+        if (params->n_parallel < 0) {
+            LOG_INF("%s: n_parallel is set to auto, using n_parallel = 4 and kv_unified = true\n", __func__);
+
+            params->n_parallel = 4;
+            params->kv_unified = true;
+        }
+
         // for consistency between server router mode and single-model mode, we set the same model name as alias
         if (params->model_alias.empty() && !params->model.name.empty()) {
             params->model_alias = params->model.name;
