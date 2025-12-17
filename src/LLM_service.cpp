@@ -316,7 +316,7 @@ void LLMService::init(int argc, char **argv)
         routes = new server_routes(*params, *ctx_server);
 
         params->chat_template = detect_chat_template();
-        LLAMALIB_INF("chat_template: %s\n", params->chat_template.c_str());
+        LOG_INF("chat_template: %s\n", params->chat_template.c_str());
 
         ctx_server->impl->queue_tasks.on_new_task([this](server_task && task)
                                             { this->ctx_server->impl->process_single_task(std::move(task)); });
