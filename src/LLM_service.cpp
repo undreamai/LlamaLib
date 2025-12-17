@@ -274,6 +274,7 @@ void LLMService::init(int argc, char **argv)
 
         params = new common_params();
         params->port = 0;
+        params->verbosity = common_log_verbosity_thold;
         if (!common_params_parse(argc, argv, *params, LLAMA_EXAMPLE_SERVER))
         {
             throw std::runtime_error("Invalid parameters!");
