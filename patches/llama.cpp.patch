@@ -79,6 +79,19 @@ index 262d78a4c..bc2649c9d 100644
  endif()
  
  add_library(ggml-base
+diff --git a/ggml/src/ggml-hip/CMakeLists.txt b/ggml/src/ggml-hip/CMakeLists.txt
+index 23b688991..820bb4887 100644
+--- a/ggml/src/ggml-hip/CMakeLists.txt
++++ b/ggml/src/ggml-hip/CMakeLists.txt
+@@ -132,7 +132,7 @@ else()
+ endif()
+ 
+ if (GGML_STATIC)
+-    message(FATAL_ERROR "Static linking not supported for HIP/ROCm")
++    message(WARNING "Static linking not supported for HIP/ROCm")
+ endif()
+ 
+ target_link_libraries(ggml-hip PRIVATE ggml-base hip::host roc::rocblas roc::hipblas)
 diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 index 34ec09d40..ba289dc3b 100644
 --- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
