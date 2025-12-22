@@ -40,32 +40,6 @@ jobs:
         @@pack_artifacts@@
         @@upload_llamalib@@
 
-
-  linux-hip-build:
-    runs-on: ubuntu-22.04
-    container: rocm/dev-ubuntu-22.04:5.5
-
-    strategy:
-      matrix:
-        include:
-          - arch: linux-x64_hip
-
-    defaults:
-      run:
-        working-directory: /home/runner/work/LlamaLib/LlamaLib
-
-    steps:
-        @@setup_libs_linux@@
-        @@checkout@@
-        @@preparation@@
-        @@setup_hip_linux@@
-
-        @@cpu-cores@@
-        @@cmake_build@@
-
-        @@pack_artifacts@@
-        @@upload_llamalib@@
-
 ################################ macOS ################################
 
   osx-arm64-build:
@@ -161,29 +135,6 @@ jobs:
         @@pack_artifacts@@
         @@upload_llamalib@@
 
-  windows-hip-build:
-    runs-on: windows-2022
-
-    env:
-      PLATFORM: windows
-    
-    strategy:
-      matrix:
-        include:
-          - arch: win-x64_hip
-
-    steps:
-        @@checkout@@
-        @@preparation@@
-        @@setup_openssl_windows@@
-        @@setup_hip_windows@@
-
-        @@cpu-cores@@
-        @@cmake_build_hip_windows@@
-
-        @@pack_artifacts@@
-        @@upload_llamalib@@
-
 ################################ Android ################################
 
   android-build:
@@ -242,12 +193,10 @@ jobs:
     runs-on: ubuntu-22.04
     needs:
       - linux-build
-      - linux-hip-build
       - osx-arm64-build
       - osx-x64-build
       - osx-universal-build
       - windows-build
-      - windows-hip-build
       - android-build
       - ios-build
     steps:
