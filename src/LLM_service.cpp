@@ -310,17 +310,17 @@ void LLMService::init(int argc, char **argv)
         LLAMALIB_INF("system info: n_threads = %d, n_threads_batch = %d, total_threads = %d\n", params->cpuparams.n_threads, params->cpuparams_batch.n_threads, std::thread::hardware_concurrency());
 
         // load the model
+        params->use_jinja = true;
         if (!ctx_server->load_model(*params))
         {
             throw std::runtime_error("Error loading the model!");
         }
-        ctx_server->impl->params_base.use_jinja = true;
-        ctx_server->init();
         enable_reasoning(reasoning_enabled);
         LLAMALIB_INF("model loaded\n");
 
         ctx_http = new server_http_context();
         routes = new server_routes(*params, *ctx_server);
+        routes->update_meta(*ctx_server);
 
         params->chat_template = detect_chat_template();
         LOG_INF("chat_template: %s\n", params->chat_template.c_str());
@@ -791,7 +791,10 @@ int LLMService::embedding_size()
 {
     if (setjmp(get_jump_point(true)) != 0)
         return 0;
-    return ctx_server->impl->model_meta()["n_embd"];
+
+    int n_embd = 0;
+    if (ctx_server == nullptr) return 0;
+    return ctx_server->get_meta().model_n_embd_inp;
 }
 
 //=========================== API ===========================//
