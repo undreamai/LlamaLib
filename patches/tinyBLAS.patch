@@ -1,5 +1,5 @@
 diff --git a/ggml/src/ggml-cuda/CMakeLists.txt b/ggml/src/ggml-cuda/CMakeLists.txt
-index 67af1d8cc..2e961c006 100644
+index 67af1d8cc..41d495f32 100644
 --- a/ggml/src/ggml-cuda/CMakeLists.txt
 +++ b/ggml/src/ggml-cuda/CMakeLists.txt
 @@ -44,13 +44,22 @@ if (CUDAToolkit_FOUND)
@@ -29,7 +29,7 @@ index 67af1d8cc..2e961c006 100644
      list(APPEND GGML_SOURCES_CUDA ${SRCS})
  
      if (GGML_CUDA_FA_ALL_QUANTS)
-@@ -66,6 +75,12 @@ if (CUDAToolkit_FOUND)
+@@ -66,6 +75,18 @@ if (CUDAToolkit_FOUND)
          list(APPEND GGML_SOURCES_CUDA ${SRCS})
      endif()
  
@@ -39,10 +39,16 @@ index 67af1d8cc..2e961c006 100644
 +        list(REMOVE_ITEM GGML_HEADERS_CUDA ${REMOVE_SOURCES_CUDA})
 +    endif()
 +
++    if (GGML_USE_TINYBLAS)
++        file(GLOB REMOVE_SOURCES_CUDA "solve_tri.cu*")
++        list(REMOVE_ITEM GGML_SOURCES_CUDA ${REMOVE_SOURCES_CUDA})
++        list(REMOVE_ITEM GGML_HEADERS_CUDA ${REMOVE_SOURCES_CUDA})
++    endif()
++
      ggml_add_backend_library(ggml-cuda
                               ${GGML_HEADERS_CUDA}
                               ${GGML_SOURCES_CUDA}
-@@ -93,6 +108,10 @@ if (CUDAToolkit_FOUND)
+@@ -93,6 +114,10 @@ if (CUDAToolkit_FOUND)
          add_compile_definitions(GGML_CUDA_NO_FA)
      endif()
  
@@ -85,10 +91,20 @@ index 9fcb2f9fd..eab046efb 100644
  #endif // !defined(GGML_CUDA_NO_FA) && !(defined(GGML_USE_MUSA) && __MUSA_ARCH__ < 220)
  
 diff --git a/ggml/src/ggml-cuda/ggml-cuda.cu b/ggml/src/ggml-cuda/ggml-cuda.cu
-index ab0f6fe9c..9e37244cb 100644
+index 55fa2e6a7..a1ce76067 100644
 --- a/ggml/src/ggml-cuda/ggml-cuda.cu
 +++ b/ggml/src/ggml-cuda/ggml-cuda.cu
-@@ -1253,7 +1253,9 @@ static void ggml_cuda_op_mul_mat_cublas(
+@@ -54,7 +54,9 @@
+ #include "ggml-cuda/set.cuh"
+ #include "ggml-cuda/set-rows.cuh"
+ #include "ggml-cuda/pad_reflect_1d.cuh"
++#ifndef GGML_USE_TINYBLAS
+ #include "ggml-cuda/solve_tri.cuh"
++#endif
+ #include "ggml-cuda/tri.cuh"
+ #include "ggml-cuda/cumsum.cuh"
+ #include "ggml-cuda/fill.cuh"
+@@ -1253,7 +1255,9 @@ static void ggml_cuda_op_mul_mat_cublas(
          (GGML_CUDA_CC_IS_MTHREADS(cc) && cc >= GGML_CUDA_CC_QY2);
  
      const bool use_fp16 = (src0->type == GGML_TYPE_F16 || ggml_is_quantized(src0->type)) && ggml_is_contiguous(src0) && row_diff == src0->ne[1] && dst->op_params[0] == GGML_PREC_DEFAULT;
@@ -99,7 +115,7 @@ index ab0f6fe9c..9e37244cb 100644
      if (supports_bf16 && src0->type == GGML_TYPE_BF16 && ggml_is_contiguous(src0) && row_diff == src0->ne[1]) {
          ggml_cuda_pool_alloc<nv_bfloat16> src1_as_bf16(ctx.pool(id));
          if (src1->type != GGML_TYPE_BF16) {
-@@ -1282,6 +1284,7 @@ static void ggml_cuda_op_mul_mat_cublas(
+@@ -1282,6 +1286,7 @@ static void ggml_cuda_op_mul_mat_cublas(
  
          const to_fp32_cuda_t to_fp32_cuda = ggml_get_to_fp32_cuda(GGML_TYPE_BF16);
          to_fp32_cuda(dst_bf16.get(), dst_dd_i, row_diff*src1_ncols, stream);
@@ -107,7 +123,7 @@ index ab0f6fe9c..9e37244cb 100644
      } else if (fast_fp16_hardware_available(cc) && use_fp16) {
          // convert src0 and src1 to fp16, multiply as fp16, convert dst to fp32
          ggml_cuda_pool_alloc<half> src0_as_f16(ctx.pool(id));
-@@ -1809,6 +1812,7 @@ struct batched_mul_mat_traits<GGML_TYPE_F32> {
+@@ -1809,6 +1814,7 @@ struct batched_mul_mat_traits<GGML_TYPE_F32> {
      static inline auto get_nc_converter(ggml_type src_type) { return ggml_get_to_fp32_nc_cuda(src_type); }
  };
  
@@ -115,7 +131,7 @@ index ab0f6fe9c..9e37244cb 100644
  template<>
  struct batched_mul_mat_traits<GGML_TYPE_BF16> {
      using cuda_type = nv_bfloat16;
-@@ -1821,6 +1825,7 @@ struct batched_mul_mat_traits<GGML_TYPE_BF16> {
+@@ -1821,6 +1827,7 @@ struct batched_mul_mat_traits<GGML_TYPE_BF16> {
      static inline const void* get_beta() { static const float val = beta; return &val; }
      static inline auto get_nc_converter(ggml_type src_type) { return ggml_get_to_bf16_nc_cuda(src_type); }
  };
@@ -123,7 +139,7 @@ index ab0f6fe9c..9e37244cb 100644
  
  template<>
  struct batched_mul_mat_traits<GGML_TYPE_F16> {
-@@ -2010,9 +2015,11 @@ static void ggml_cuda_mul_mat_batched_cublas(ggml_backend_cuda_context & ctx, co
+@@ -2010,9 +2017,11 @@ static void ggml_cuda_mul_mat_batched_cublas(ggml_backend_cuda_context & ctx, co
          case GGML_TYPE_F32:
              ggml_cuda_mul_mat_batched_cublas_impl<GGML_TYPE_F32>(ctx, src0, src1, dst);
              break;
@@ -135,7 +151,7 @@ index ab0f6fe9c..9e37244cb 100644
          case GGML_TYPE_F16:
              ggml_cuda_mul_mat_batched_cublas_impl<GGML_TYPE_F16>(ctx, src0, src1, dst);
              break;
-@@ -2242,9 +2249,11 @@ static void ggml_cuda_mul_mat(ggml_backend_cuda_context & ctx, const ggml_tensor
+@@ -2242,9 +2251,11 @@ static void ggml_cuda_mul_mat(ggml_backend_cuda_context & ctx, const ggml_tensor
      if (!split && use_mul_mat_vec_f) {
          // the custom F16 vector kernel can be used over batched cuBLAS GEMM
          // but this is only faster for GPUs without tensor cores or with a thin src0 matrix (particularly KQV in attention)
@@ -147,7 +163,7 @@ index ab0f6fe9c..9e37244cb 100644
      } else if (!split && use_mul_mat_vec_q) {
          ggml_cuda_mul_mat_vec_q(ctx, src0, src1, nullptr, dst);
      } else if (!split && use_mul_mat_q) {
-@@ -2291,7 +2300,6 @@ static void ggml_cuda_mul_mat_id(ggml_backend_cuda_context & ctx, ggml_tensor *
+@@ -2291,7 +2302,6 @@ static void ggml_cuda_mul_mat_id(ggml_backend_cuda_context & ctx, ggml_tensor *
              ggml_cuda_mul_mat_q(ctx, src0, src1, ids, dst);
              return;
          }
@@ -155,7 +171,7 @@ index ab0f6fe9c..9e37244cb 100644
          if (ggml_cuda_should_use_mmf(src0->type, cc, WARP_SIZE, src0->ne, src0->nb, src1->ne[2], /*mul_mat_id=*/true)) {
              ggml_cuda_mul_mat_f(ctx, src0, src1, ids, dst);
              return;
-@@ -2702,9 +2710,11 @@ static bool ggml_cuda_compute_forward(ggml_backend_cuda_context & ctx, struct gg
+@@ -2702,9 +2712,11 @@ static bool ggml_cuda_compute_forward(ggml_backend_cuda_context & ctx, struct gg
          case GGML_OP_ARGSORT:
              ggml_cuda_op_argsort(ctx, dst);
              break;
@@ -167,7 +183,19 @@ index ab0f6fe9c..9e37244cb 100644
          case GGML_OP_CROSS_ENTROPY_LOSS:
              ggml_cuda_cross_entropy_loss(ctx, dst);
              break;
-@@ -3495,7 +3505,6 @@ static void evaluate_and_capture_cuda_graph(ggml_backend_cuda_context * cuda_ctx
+@@ -2732,9 +2744,11 @@ static bool ggml_cuda_compute_forward(ggml_backend_cuda_context & ctx, struct gg
+         case GGML_OP_OPT_STEP_SGD:
+             ggml_cuda_opt_step_sgd(ctx, dst);
+             break;
++#ifndef GGML_USE_TINYBLAS
+         case GGML_OP_SOLVE_TRI:
+             ggml_cuda_op_solve_tri(ctx, dst);
+             break;
++#endif
+         case GGML_OP_FILL:
+             ggml_cuda_op_fill(ctx, dst);
+             break;
+@@ -3505,7 +3519,6 @@ static void evaluate_and_capture_cuda_graph(ggml_backend_cuda_context * cuda_ctx
                                  fused_node_count = 5;
                                  break;
                              }
@@ -175,7 +203,7 @@ index ab0f6fe9c..9e37244cb 100644
                              if (ggml_cuda_should_fuse_mul_mat_vec_q(up_n)) {
                                  ggml_cuda_mm_fusion_args_host fusion_data{};
                                  fusion_data.gate      = gate_n->src[0];
-@@ -3532,7 +3541,6 @@ static void evaluate_and_capture_cuda_graph(ggml_backend_cuda_context * cuda_ctx
+@@ -3542,7 +3555,6 @@ static void evaluate_and_capture_cuda_graph(ggml_backend_cuda_context * cuda_ctx
                                  fused_node_count = 3;
                                  break;
                              }
@@ -183,7 +211,7 @@ index ab0f6fe9c..9e37244cb 100644
                              if (ggml_cuda_should_fuse_mul_mat_vec_q(up)) {
                                  ggml_cuda_mm_fusion_args_host fusion_data{};
                                  fusion_data.gate   = gate->src[0];
-@@ -3594,14 +3602,12 @@ static void evaluate_and_capture_cuda_graph(ggml_backend_cuda_context * cuda_ctx
+@@ -3604,14 +3616,12 @@ static void evaluate_and_capture_cuda_graph(ggml_backend_cuda_context * cuda_ctx
  
                          ggml_cuda_mm_fusion_args_host fusion_data{};
                          fusion_data.x_bias = bias_tensor;
@@ -198,7 +226,7 @@ index ab0f6fe9c..9e37244cb 100644
                          if (ggml_cuda_should_fuse_mul_mat_vec_q(mm_node)) {
                              ggml_cuda_mul_mat_vec_q(*cuda_ctx, src0, src1, ids, bias_node, &fusion_data);
                              fused_mul_mat_vec = true;
-@@ -4620,8 +4626,10 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
+@@ -4630,8 +4640,10 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
          case GGML_OP_GATED_LINEAR_ATTN:
          case GGML_OP_RWKV_WKV7:
              return true;

@@ -1,8 +1,8 @@
 diff --git a/common/common.h b/common/common.h
-index 334372073..4155b9f3d 100644
+index d28e48991..775c6d76c 100644
 --- a/common/common.h
 +++ b/common/common.h
-@@ -481,7 +481,9 @@ struct common_params {
+@@ -471,7 +471,9 @@ struct common_params {
      std::vector<std::string> api_keys;
  
      std::string ssl_file_key  = "";                                                                         // NOLINT
@@ -14,7 +14,7 @@ index 334372073..4155b9f3d 100644
      std::map<std::string, std::string> default_template_kwargs;
  
 diff --git a/common/log.cpp b/common/log.cpp
-index b17d2b62c..f33876340 100644
+index 00a03f158..a02a024db 100644
 --- a/common/log.cpp
 +++ b/common/log.cpp
 @@ -21,7 +21,8 @@
@@ -36,7 +36,7 @@ index b17d2b62c..f33876340 100644
          if (level == GGML_LOG_LEVEL_WARN || level == GGML_LOG_LEVEL_ERROR || level == GGML_LOG_LEVEL_DEBUG) {
              fprintf(fcur, "%s", g_col[COMMON_LOG_COL_DEFAULT]);
 diff --git a/common/log.h b/common/log.h
-index f0f8471b5..c1eb92d7e 100644
+index b24f5f000..91ffa2d19 100644
 --- a/common/log.h
 +++ b/common/log.h
 @@ -36,6 +36,7 @@ enum log_colors {
@@ -48,7 +48,7 @@ index f0f8471b5..c1eb92d7e 100644
  // set via common_log_set_verbosity()
  extern int common_log_verbosity_thold;
 diff --git a/ggml/src/CMakeLists.txt b/ggml/src/CMakeLists.txt
-index 262d78a4c..bc2649c9d 100644
+index 4c04c3300..ed133e43d 100644
 --- a/ggml/src/CMakeLists.txt
 +++ b/ggml/src/CMakeLists.txt
 @@ -136,18 +136,6 @@ endif()
@@ -79,21 +79,8 @@ index 262d78a4c..bc2649c9d 100644
  endif()
  
  add_library(ggml-base
-diff --git a/ggml/src/ggml-hip/CMakeLists.txt b/ggml/src/ggml-hip/CMakeLists.txt
-index 23b688991..820bb4887 100644
---- a/ggml/src/ggml-hip/CMakeLists.txt
-+++ b/ggml/src/ggml-hip/CMakeLists.txt
-@@ -132,7 +132,7 @@ else()
- endif()
- 
- if (GGML_STATIC)
--    message(FATAL_ERROR "Static linking not supported for HIP/ROCm")
-+    message(WARNING "Static linking not supported for HIP/ROCm")
- endif()
- 
- target_link_libraries(ggml-hip PRIVATE ggml-base hip::host roc::rocblas roc::hipblas)
 diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-index c2adca9cb..8faf378b6 100644
+index c6f5809cc..0f1ecc1c3 100644
 --- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 +++ b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 @@ -103,7 +103,7 @@ static bool is_pow2(uint32_t x) { return x > 1 && (x & (x-1)) == 0; }
@@ -106,10 +93,10 @@ index c2adca9cb..8faf378b6 100644
      } while (0)
  
 diff --git a/ggml/src/ggml.c b/ggml/src/ggml.c
-index eb3ae72ea..d717f31e2 100644
+index 9f5cdc139..60573447d 100644
 --- a/ggml/src/ggml.c
 +++ b/ggml/src/ggml.c
-@@ -251,7 +251,12 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {
+@@ -230,7 +230,12 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {
          ggml_print_backtrace();
      }
  
@@ -124,12 +111,12 @@ index eb3ae72ea..d717f31e2 100644
  
  // ggml_print_backtrace is registered with std::set_terminate by ggml.cpp
 diff --git a/tools/mtmd/CMakeLists.txt b/tools/mtmd/CMakeLists.txt
-index 317d5f19f..b86ca410d 100644
+index f640ae2a6..b574b8091 100644
 --- a/tools/mtmd/CMakeLists.txt
 +++ b/tools/mtmd/CMakeLists.txt
-@@ -77,17 +77,3 @@ if (TARGET mtmd)
-                             "It must not link against common")
-     endif()
+@@ -51,17 +51,3 @@ if (TARGET BUILD_INFO)
+     add_dependencies(mtmd        BUILD_INFO)
+     add_dependencies(mtmd-helper BUILD_INFO)
  endif()
 -
 -add_executable(llama-llava-cli    deprecation-warning.cpp)
@@ -146,7 +133,7 @@ index 317d5f19f..b86ca410d 100644
 -target_link_libraries  (${TARGET} PRIVATE common mtmd Threads::Threads)
 -target_compile_features(${TARGET} PRIVATE cxx_std_17)
 diff --git a/tools/server/server-context.cpp b/tools/server/server-context.cpp
-index a132b87c8..42b2cc0f9 100644
+index 12a4e94e5..678110971 100644
 --- a/tools/server/server-context.cpp
 +++ b/tools/server/server-context.cpp
 @@ -81,8 +81,8 @@ struct server_slot {
@@ -160,15 +147,7 @@ index a132b87c8..42b2cc0f9 100644
  
      // used to determine the slot that has been used the longest
      int64_t t_last_used = -1;
-@@ -531,7 +531,6 @@ public:
-         }
-     }
- 
--private:
-     // note: accessing these fields outside of this class is not thread-safe
-     // use server_context methods instead
- 
-@@ -1157,7 +1156,7 @@ private:
+@@ -1041,7 +1041,7 @@ struct server_context_impl {
              slot.batch_spec = llama_batch_init(task.params.speculative.n_max + 1, 0, 1);
          }
  
@@ -178,7 +157,7 @@ index a132b87c8..42b2cc0f9 100644
          slot.state = slot.is_child()
              ? SLOT_STATE_WAIT_OTHER // wait for the parent to process prompt
 diff --git a/tools/server/server-http.cpp b/tools/server/server-http.cpp
-index 5d67e5722..5baec7c11 100644
+index 622505714..0e3743983 100644
 --- a/tools/server/server-http.cpp
 +++ b/tools/server/server-http.cpp
 @@ -16,6 +16,29 @@
@@ -223,11 +202,11 @@ index 5d67e5722..5baec7c11 100644
          LOG_INF("Running without SSL\n");
          srv.reset(new httplib::Server());
 diff --git a/tools/server/server-queue.h b/tools/server/server-queue.h
-index 3798aa299..e22e3fcb1 100644
+index a5c3179d8..ca5e1d876 100644
 --- a/tools/server/server-queue.h
 +++ b/tools/server/server-queue.h
-@@ -101,6 +101,9 @@ public:
-         callback_sleeping_state = std::move(callback);
+@@ -65,6 +65,9 @@ public:
+         return queue_tasks_deferred.size();
      }
  
 +    bool is_empty() { return queue_tasks.empty(); }
@@ -237,10 +216,10 @@ index 3798aa299..e22e3fcb1 100644
      void cleanup_pending_task(int id_target);
  };
 diff --git a/tools/server/server.cpp b/tools/server/server.cpp
-index 0fbc7b6d3..31e81ec44 100644
+index d5bef3df4..3813779b8 100644
 --- a/tools/server/server.cpp
 +++ b/tools/server/server.cpp
-@@ -66,7 +66,7 @@ static server_http_context::handler_t ex_wrapper(server_http_context::handler_t
+@@ -65,7 +65,7 @@ static server_http_context::handler_t ex_wrapper(server_http_context::handler_t
      };
  }
  
