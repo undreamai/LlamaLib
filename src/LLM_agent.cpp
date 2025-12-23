@@ -41,7 +41,7 @@ void LLMAgent::set_n_keep()
     } catch(...){ }
 }
 
-std::string LLMAgent::chat(const std::string &user_prompt, bool add_to_history, CharArrayFn callback, bool return_response_json)
+std::string LLMAgent::chat(const std::string &user_prompt, bool add_to_history, CharArrayFn callback, bool return_response_json, bool debug_prompt)
 {
     if (n_keep == -1) set_n_keep();
 
@@ -55,6 +55,12 @@ std::string LLMAgent::chat(const std::string &user_prompt, bool add_to_history, 
 
     // Apply template to get the formatted prompt
     std::string query_prompt = apply_template(working_history);
+    if (debug_prompt)
+    {
+        LLMProviderRegistry &registry = LLMProviderRegistry::instance();
+        auto log_callback = registry.get_log_callback();
+        if (log_callback != nullptr) log_callback(query_prompt.c_str());
+    }
 
     // Call completion with the formatted prompt
     std::string response = completion(query_prompt, callback, return_response_json);
@@ -146,9 +152,9 @@ LLMAgent *LLMAgent_Construct(LLMLocal *llm, const char *system_prompt_)
     return new LLMAgent(llm, system_prompt);
 }
 
-const char *LLMAgent_Chat(LLMAgent *llm, const char *user_prompt, bool add_to_history, CharArrayFn callback, bool return_response_json)
+const char *LLMAgent_Chat(LLMAgent *llm, const char *user_prompt, bool add_to_history, CharArrayFn callback, bool return_response_json, bool debug_prompt)
 {
-    return stringToCharArray(llm->chat(user_prompt, add_to_history, callback, return_response_json));
+    return stringToCharArray(llm->chat(user_prompt, add_to_history, callback, return_response_json, debug_prompt));
 }
 
 // History management C API implementations

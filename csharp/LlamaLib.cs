@@ -155,7 +155,8 @@ namespace UndreamAI.LlamaLib
             [MarshalAs(UnmanagedType.LPStr)] string userPrompt,
             [MarshalAs(UnmanagedType.I1)] bool addToHistory = true,
             CharArrayCallback callback = null,
-            [MarshalAs(UnmanagedType.I1)] bool returnResponseJson = false);
+            [MarshalAs(UnmanagedType.I1)] bool returnResponseJson = false,
+            [MarshalAs(UnmanagedType.I1)] bool debugPrompt = false);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void LLMAgent_Clear_History_Delegate(IntPtr llm);
@@ -316,8 +317,8 @@ namespace UndreamAI.LlamaLib
         public IntPtr LLM_Get_Grammar(IntPtr llm) => CallWithStatus(() => LLM_Get_Grammar_Internal(llm));
         public void LLMAgent_Set_Slot(IntPtr llm, int slotId) => CallWithStatus(() => LLMAgent_Set_Slot_Internal(llm, slotId));
         public int LLMAgent_Get_Slot(IntPtr llm) => CallWithStatus(() => LLMAgent_Get_Slot_Internal(llm));
-        public IntPtr LLMAgent_Chat(IntPtr llm, string userPrompt, bool addToHistory = true, CharArrayCallback callback = null, bool returnResponseJson = false)
-            => CallWithStatus(() => LLMAgent_Chat_Internal(llm, userPrompt, addToHistory, callback, returnResponseJson));
+        public IntPtr LLMAgent_Chat(IntPtr llm, string userPrompt, bool addToHistory = true, CharArrayCallback callback = null, bool returnResponseJson = false, bool debugPrompt = false)
+            => CallWithStatus(() => LLMAgent_Chat_Internal(llm, userPrompt, addToHistory, callback, returnResponseJson, debugPrompt));
         public void LLMAgent_Clear_History(IntPtr llm) => CallWithStatus(() => LLMAgent_Clear_History_Internal(llm));
         public IntPtr LLMAgent_Get_History(IntPtr llm) => CallWithStatus(() => LLMAgent_Get_History_Internal(llm));
         public void LLMAgent_Set_History(IntPtr llm, string historyJson) => CallWithStatus(() => LLMAgent_Set_History_Internal(llm, historyJson));
@@ -506,7 +507,8 @@ namespace UndreamAI.LlamaLib
             [MarshalAs(UnmanagedType.LPStr)] string userPrompt,
             [MarshalAs(UnmanagedType.I1)] bool addToHistory = true,
             CharArrayCallback callback = null,
-            [MarshalAs(UnmanagedType.I1)] bool returnResponseJson = false);
+            [MarshalAs(UnmanagedType.I1)] bool returnResponseJson = false,
+            [MarshalAs(UnmanagedType.I1)] bool debugPrompt = false);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "LLMAgent_Clear_History")]
         public static extern void LLMAgent_Clear_History_Static(IntPtr llm);
@@ -591,7 +593,7 @@ namespace UndreamAI.LlamaLib
             LLM_Get_Grammar_Internal = (llm) => LLM_Get_Grammar_Static(llm);
             LLMAgent_Set_Slot_Internal = (llm, slotId) => LLMAgent_Set_Slot_Static(llm, slotId);
             LLMAgent_Get_Slot_Internal = (llm) => LLMAgent_Get_Slot_Static(llm);
-            LLMAgent_Chat_Internal = (llm, userPrompt, addToHistory, callback, returnResponseJson) => LLMAgent_Chat_Static(llm, userPrompt, addToHistory, callback, returnResponseJson);
+            LLMAgent_Chat_Internal = (llm, userPrompt, addToHistory, callback, returnResponseJson, debugPrompt) => LLMAgent_Chat_Static(llm, userPrompt, addToHistory, callback, returnResponseJson, debugPrompt);
             LLMAgent_Clear_History_Internal = (llm) => LLMAgent_Clear_History_Static(llm);
             LLMAgent_Get_History_Internal = (llm) => LLMAgent_Get_History_Static(llm);
             LLMAgent_Set_History_Internal = (llm, historyJson) => LLMAgent_Set_History_Static(llm, historyJson);

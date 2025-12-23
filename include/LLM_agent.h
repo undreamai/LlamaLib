@@ -230,10 +230,11 @@ public:
     /// @param add_to_history Whether to add messages to conversation history
     /// @param callback Optional callback for streaming responses
     /// @param return_response_json Whether to return full JSON response
+    /// @param debug_prompt Whether to display the complete prompt (default: false)
     /// @return Assistant's response text or JSON
     /// @details Main chat method that processes user input, applies conversation context,
     /// generates a response, and optionally updates conversation history
-    std::string chat(const std::string &user_prompt, bool add_to_history = true, CharArrayFn callback = nullptr, bool return_response_json = false);
+    std::string chat(const std::string &user_prompt, bool add_to_history = true, CharArrayFn callback = nullptr, bool return_response_json = false, bool debug_prompt = false);
 
 protected:
     void set_n_keep();
@@ -291,9 +292,10 @@ extern "C"
     /// @param add_to_history Whether to save messages to history (default: true)
     /// @param callback Optional streaming callback function
     /// @param return_response_json Whether to return JSON response (default: false)
+    /// @param debug_prompt Whether to display the complete prompt (default: false)
     /// @return Generated assistant response
     /// @details Main chat method for conversational interactions
-    UNDREAMAI_API const char *LLMAgent_Chat(LLMAgent *llm, const char *user_prompt, bool add_to_history = true, CharArrayFn callback = nullptr, bool return_response_json = false);
+    UNDREAMAI_API const char *LLMAgent_Chat(LLMAgent *llm, const char *user_prompt, bool add_to_history = true, CharArrayFn callback = nullptr, bool return_response_json = false, bool debug_prompt = false);
 
     /// @brief Clear conversation history (C API)
     /// @param llm LLMAgent instance pointer
