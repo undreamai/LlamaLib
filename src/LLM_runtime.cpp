@@ -220,6 +220,16 @@ bool LLMService::create_LLM_library_backend(const std::string &command, const st
     if (setjmp(get_jump_point()) != 0)
     {
         std::cerr << "Error occurred while loading the library" << std::endl;
+        // Clean up the handle if it was partially loaded
+        if (handle)
+        {
+            try { unload_library(handle); } catch (...) {}
+            handle = nullptr;
+        }
+        
+        // Clear error state for next attempt
+        fail("", 0);
+        
         return false;
     }
     auto load_sym = [&](auto &fn_ptr, const char *name)
@@ -259,6 +269,13 @@ bool LLMService::create_LLM_library_backend(const std::string &command, const st
             if (llm == nullptr || get_status_code() != 0)
             {
                 std::cerr << "Failed to construct LLM (error: " << get_status_code() << "): " << get_status_message() << std::endl;
+                // Clean up before trying next backend
+                if (handle)
+                {
+                    unload_library(handle);
+                    handle = nullptr;
+                }
+                fail("", 0);  // Clear error state
                 return false;
             }
             return true;
@@ -272,6 +289,7 @@ bool LLMService::create_LLM_library(const std::string &command)
     bool gpu = has_gpu_layers(command);
     for (const auto &llm_lib_filename : available_architectures(gpu))
     {
+        fail("", 0);
         bool success = create_LLM_library_backend(command, llm_lib_filename);
         if (success)
         {
