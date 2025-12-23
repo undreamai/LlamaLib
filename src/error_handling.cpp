@@ -53,11 +53,10 @@ void handle_exception(int code)
     }
 }
 
-sigjmp_buf &get_jump_point(bool clear_status)
+sigjmp_buf &get_jump_point()
 {
     sigjmp_buf &sigjmp_buf_point = get_sigjmp_buf_point();
-    if (clear_status)
-        fail("", 0);
+    fail("", 0);
     return sigjmp_buf_point;
 }
 

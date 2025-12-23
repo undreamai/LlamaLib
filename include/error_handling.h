@@ -59,7 +59,7 @@ std::vector<Hook> &get_sigint_hooks();
 
 void fail(std::string message, int code = 1);
 void handle_exception(int code = -1);
-sigjmp_buf &get_jump_point(bool clear_status = false);
+sigjmp_buf &get_jump_point();
 #ifdef _WIN32
 BOOL WINAPI console_ctrl_handler(DWORD ctrl_type);
 #else

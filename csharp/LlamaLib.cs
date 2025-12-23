@@ -237,10 +237,10 @@ namespace UndreamAI.LlamaLib
 
         //################################################## STATUS CHECKING WRAPPER ##################################################//
 
-        public void CheckStatus()
+        public void CheckStatus(bool crashesOnly = false)
         {
             int status = LLM_Status_Code_Internal();
-            if (status != 0)
+            if (status > 0 || (status < 0 && !crashesOnly))
             {
                 string msg = Marshal.PtrToStringAnsi(LLM_Status_Message_Internal()) ?? "";
                 throw new InvalidOperationException($"LlamaLib error {status}: {msg}");
@@ -249,7 +249,7 @@ namespace UndreamAI.LlamaLib
 
         private T CallWithStatus<T>(Func<T> f)
         {
-            CheckStatus();
+            CheckStatus(true);
             T r = f();
             CheckStatus();
             return r;
@@ -257,7 +257,7 @@ namespace UndreamAI.LlamaLib
 
         private void CallWithStatus(Action a)
         {
-            CheckStatus();
+            CheckStatus(true);
             a();
             CheckStatus();
         }

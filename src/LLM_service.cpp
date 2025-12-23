@@ -124,10 +124,13 @@ LLMService *LLMService::from_command(int argc, char **argv)
 
 LLMService::~LLMService()
 {
-    stop_server();
-    stop();
     if (ctx_server != nullptr)
     {
+        if (ctx_http != nullptr)
+        {
+            stop_server();
+            stop();
+        }
         delete ctx_server;
         ctx_server = nullptr;
     }
@@ -411,7 +414,7 @@ void release_slot(server_slot &slot)
 
 int LLMService::get_next_available_slot()
 {
-    if (setjmp(get_jump_point(true)) != 0)
+    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
         return -1;
     if (ctx_server->impl->slots.size() == 0)
         return -1;
@@ -456,7 +459,7 @@ static server_http_context::handler_t ex_wrapper(server_http_context::handler_t 
 
 void LLMService::start_server(const std::string &host, int port, const std::string &API_key)
 {
-    if (setjmp(get_jump_point(true)) != 0)
+    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
         return;
 
     try
@@ -505,7 +508,7 @@ void LLMService::start_server(const std::string &host, int port, const std::stri
 
 void LLMService::stop_server()
 {
-    if (setjmp(get_jump_point(true)) != 0)
+    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
         return;
     if (ctx_http == nullptr)
         return;
@@ -520,7 +523,7 @@ void LLMService::stop_server()
 
 void LLMService::join_server()
 {
-    if (setjmp(get_jump_point(true)) != 0)
+    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
         return;
     std::unique_lock<std::mutex> lock(start_stop_mutex);
     server_stopped_cv.wait(lock, [this]
@@ -529,7 +532,7 @@ void LLMService::join_server()
 
 void LLMService::start()
 {
-    if (setjmp(get_jump_point(true)) != 0)
+    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
         return;
     std::lock_guard<std::mutex> lock(start_stop_mutex);
     service_thread = std::thread([&]()
@@ -546,7 +549,7 @@ void LLMService::start()
 
 void LLMService::stop()
 {
-    if (setjmp(get_jump_point(true)) != 0)
+    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
         return;
     try
     {
@@ -596,7 +599,7 @@ void LLMService::stop()
 
 void LLMService::join_service()
 {
-    if (setjmp(get_jump_point(true)) != 0)
+    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
         return;
     std::unique_lock<std::mutex> lock(start_stop_mutex);
     service_stopped_cv.wait(lock, [this]
@@ -616,7 +619,7 @@ void LLMService::set_SSL(const std::string &SSL_cert_str, const std::string &SSL
 
 std::string LLMService::encapsulate_route(const json &body, server_http_context::handler_t route_handler)
 {
-    if (setjmp(get_jump_point(true)) != 0)
+    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
         return "";
 
     try
@@ -633,7 +636,7 @@ std::string LLMService::encapsulate_route(const json &body, server_http_context:
 
 std::string LLMService::apply_template_json(const json &body)
 {
-    if (setjmp(get_jump_point(true)) != 0)
+    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
         return "";
     std::vector<raw_buffer> files; // dummy, unused
     json copy = body;
@@ -671,7 +674,7 @@ std::string LLMService::lora_list_json()
 
 std::string LLMService::completion_json(const json &data_in, CharArrayFn callback, bool callbackWithJSON)
 {
-    if (setjmp(get_jump_point(true)) != 0)
+    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
         return "";
     
     try
@@ -713,7 +716,7 @@ std::string LLMService::completion_json(const json &data_in, CharArrayFn callbac
 
 std::string LLMService::slot_json(const json &data)
 {
-    if (setjmp(get_jump_point(true)) != 0)
+    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
         return "";
     std::string result_data = "";
     try
@@ -768,7 +771,7 @@ std::string LLMService::slot_json(const json &data)
 
 void LLMService::cancel(int id_slot)
 {
-    if (setjmp(get_jump_point(true)) != 0)
+    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
         return;
     try
     {
@@ -789,7 +792,7 @@ void LLMService::cancel(int id_slot)
 
 int LLMService::embedding_size()
 {
-    if (setjmp(get_jump_point(true)) != 0)
+    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
         return 0;
 
     int n_embd = 0;
