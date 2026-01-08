@@ -674,11 +674,6 @@ jobs:
           name: Get number of CPU cores
           uses: SimenB/github-actions-cpu-cores@v2
 
-        - id: build_openssl
-          name: Build OpenSSL
-          run: |
-            .github/scripts/build_openssl.sh ${{ matrix.arch }}
-
         - id: cmake_build
           name: Build
           run: |

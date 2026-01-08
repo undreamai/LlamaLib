@@ -179,7 +179,6 @@ jobs:
         @@preparation@@
 
         @@cpu-cores@@
-        @@build_openssl@@
         @@cmake_build@@
         @@link_libraries_ios@@
 
