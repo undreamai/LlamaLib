@@ -1,34 +1,33 @@
 #import <Foundation/Foundation.h>
-#import <Security/Security.h>
 #import "ios_http_transport.h"
 
 // ---- StreamDelegate: Handles NSURLSession callbacks ----
 @interface StreamDelegate : NSObject <NSURLSessionDataDelegate>
 @property(nonatomic, assign) bool *cancel_flag;
-@property(nonatomic, copy) CharArrayFn callback;
+@property(nonatomic, assign) CharArrayFnWithContext callback;
+@property(nonatomic, assign) void *callbackContext;
 @property(nonatomic, strong) NSMutableData *buffer;
 @property(nonatomic, strong) dispatch_semaphore_t sema;
 @property(nonatomic, assign) int *status_code;
 @property(nonatomic, strong) NSString *error_message;
-@property(nonatomic, assign) bool validate_cert;
-@property(nonatomic, strong) NSData *pinned_cert_data;
 @end
 
 @implementation StreamDelegate
 
-- (instancetype)initWithCallback:(CharArrayFn)callback
-                      cancelFlag:(bool*)cancel_flag
-                      statusCode:(int*)status_code
-                           sema:(dispatch_semaphore_t)sema
+- (instancetype)initWithCallback:(CharArrayFnWithContext)callback
+                  callbackContext:(void*)callbackContext
+                       cancelFlag:(bool*)cancel_flag
+                       statusCode:(int*)status_code
+                             sema:(dispatch_semaphore_t)sema
 {
     self = [super init];
     if (self) {
         self.callback = callback;
+        self.callbackContext = callbackContext;
         self.cancel_flag = cancel_flag;
         self.status_code = status_code;
         self.buffer = [NSMutableData data];
         self.sema = sema;
-        self.validate_cert = YES;
         self.error_message = nil;
     }
     return self;
@@ -54,75 +53,29 @@ didReceiveResponse:(NSURLResponse *)response
           dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveData:(NSData *)data
 {
-    // Check cancellation
+    // Check cancellation BEFORE processing
     if (self.cancel_flag && *self.cancel_flag) {
         [dataTask cancel];
         return;
     }
     
     if (self.callback) {
-        // Stream data to callback
-        const char *bytes = (const char *)data.bytes;
-        size_t len = data.length;
-        bool cont = self.callback(bytes, len);
-        if (!cont) {
-            [dataTask cancel];
-        }
-    } else {
-        // Buffer data for non-streaming requests
-        [self.buffer appendData:data];
-    }
-}
-
-// SSL Certificate validation with optional pinning
-- (void)URLSession:(NSURLSession *)session
-              task:(NSURLSessionTask *)task
-didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
- completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential *))completionHandler
-{
-    if (!self.validate_cert) {
-        // Skip validation if disabled
-        NSURLCredential *credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
-        completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
-        return;
-    }
-    
-    if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
-        SecTrustRef serverTrust = challenge.protectionSpace.serverTrust;
-        
-        // Certificate pinning (if configured)
-        if (self.pinned_cert_data) {
-            SecCertificateRef pinnedCert = SecCertificateCreateWithData(
-                kCFAllocatorDefault,
-                (__bridge CFDataRef)self.pinned_cert_data
-            );
+        // Streaming mode: Call callback with each chunk as null-terminated string
+        NSString *chunk = [[NSString alloc] initWithData:data 
+                                                encoding:NSUTF8StringEncoding];
+        if (chunk) {
+            // Call the callback with null-terminated C string and context
+            const char *cString = [chunk UTF8String];
+            self.callback(cString, self.callbackContext);
             
-            if (pinnedCert) {
-                // Get server certificate
-                SecCertificateRef serverCert = SecTrustGetCertificateAtIndex(serverTrust, 0);
-                NSData *serverCertData = (__bridge_transfer NSData *)SecCertificateCopyData(serverCert);
-                
-                // Compare certificates
-                if ([serverCertData isEqualToData:self.pinned_cert_data]) {
-                    NSURLCredential *credential = [NSURLCredential credentialForTrust:serverTrust];
-                    completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
-                    CFRelease(pinnedCert);
-                    return;
-                }
-                CFRelease(pinnedCert);
+            // Check cancellation AFTER callback
+            if (self.cancel_flag && *self.cancel_flag) {
+                [dataTask cancel];
             }
-            
-            // Pinning failed
-            self.error_message = @"Certificate pinning validation failed";
-            completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
-            return;
         }
-        
-        // Standard system validation
-        NSURLCredential *credential = [NSURLCredential credentialForTrust:serverTrust];
-        completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
     } else {
-        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+        // Non-streaming mode: Buffer all data
+        [self.buffer appendData:data];
     }
 }
 
@@ -149,13 +102,10 @@ public:
     int port;
     bool use_ssl;
     double timeout_seconds;
-    std::string pinned_cert_pem;
-    bool validate_certificates;
     std::string last_error;
     
     Impl(const std::string &h, bool ssl, int p)
-        : host(h), port(p), use_ssl(ssl), timeout_seconds(60.0),
-          validate_certificates(true) {}
+        : host(h), port(p), use_ssl(ssl), timeout_seconds(60.0) {}
 };
 
 // ---- IOSHttpTransport Implementation ----
@@ -170,19 +120,6 @@ void IOSHttpTransport::set_timeout(double timeout_seconds) {
     pImpl->timeout_seconds = timeout_seconds;
 }
 
-void IOSHttpTransport::set_certificate_pinning(const std::string &cert_pem) {
-    pImpl->pinned_cert_pem = cert_pem;
-}
-
-void IOSHttpTransport::enable_certificate_validation(bool enable) {
-    pImpl->validate_certificates = enable;
-}
-
-bool IOSHttpTransport::is_connected() {
-    // Could implement a simple health check here
-    return true;
-}
-
 std::string IOSHttpTransport::get_last_error() const {
     return pImpl->last_error;
 }
@@ -191,7 +128,8 @@ HttpResult IOSHttpTransport::post_request(
     const std::string &path,
     const std::string &body,
     const std::vector<std::pair<std::string, std::string>> &headers,
-    CharArrayFn callback,
+    CharArrayFnWithContext callback,
+    void* callback_context,
     bool *cancel_flag)
 {
     @autoreleasepool {
@@ -211,6 +149,7 @@ HttpResult IOSHttpTransport::post_request(
         NSURL *url = [NSURL URLWithString:urlStr];
         if (!url) {
             result.error_message = "Invalid URL: " + std::string([urlStr UTF8String]);
+            pImpl->last_error = result.error_message;
             return result;
         }
         
@@ -232,25 +171,10 @@ HttpResult IOSHttpTransport::post_request(
         
         int status_code = 0;
         StreamDelegate *delegate = [[StreamDelegate alloc] initWithCallback:callback
+                                                            callbackContext:callback_context
                                                                  cancelFlag:cancel_flag
                                                                  statusCode:&status_code
                                                                        sema:sema];
-        delegate.validate_cert = pImpl->validate_certificates;
-        
-        // Configure certificate pinning if provided
-        if (!pImpl->pinned_cert_pem.empty()) {
-            // Convert PEM to DER
-            NSString *pemStr = [NSString stringWithUTF8String:pImpl->pinned_cert_pem.c_str()];
-            NSString *base64 = [pemStr stringByReplacingOccurrencesOfString:@"-----BEGIN CERTIFICATE-----" withString:@""];
-            base64 = [base64 stringByReplacingOccurrencesOfString:@"-----END CERTIFICATE-----" withString:@""];
-            base64 = [base64 stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-            base64 = [base64 stringByReplacingOccurrencesOfString:@"\r" withString:@""];
-            
-            NSData *certData = [[NSData alloc] initWithBase64EncodedString:base64 options:0];
-            if (certData) {
-                delegate.pinned_cert_data = certData;
-            }
-        }
         
         // Configure session - USE BACKGROUND QUEUE (NOT MAIN QUEUE!)
         NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
@@ -262,6 +186,7 @@ HttpResult IOSHttpTransport::post_request(
         queue.maxConcurrentOperationCount = 1;
         queue.qualityOfService = NSQualityOfServiceUserInitiated;
         
+        // Create session with system TLS (no custom certificate handling)
         NSURLSession *session = [NSURLSession sessionWithConfiguration:config
                                                               delegate:delegate
                                                          delegateQueue:queue];
@@ -279,6 +204,7 @@ HttpResult IOSHttpTransport::post_request(
             [task cancel];
             [session invalidateAndCancel];
             result.error_message = "Request timeout";
+            pImpl->last_error = result.error_message;
             return result;
         }
         
@@ -293,6 +219,7 @@ HttpResult IOSHttpTransport::post_request(
             pImpl->last_error = result.error_message;
         }
         
+        // Return buffered data if not streaming
         if (!callback && delegate.buffer.length > 0) {
             result.body = std::string((const char*)delegate.buffer.bytes, 
                                      delegate.buffer.length);

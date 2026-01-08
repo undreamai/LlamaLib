@@ -8,6 +8,7 @@
 
 #include "defs.h"
 #include "error_handling.h"
+#include <sstream>
 
 /// @brief Structure representing a LoRA adapter with ID and scale
 /// @details Used for configuring Low-Rank Adaptation layers in language models

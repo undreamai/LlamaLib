@@ -1,12 +1,11 @@
 #pragma once
 #include <string>
-#include <functional>
 #include <vector>
 #include <memory>
 
-using CharArrayFn = std::function<bool(const char*, size_t)>;
+typedef void (*CharArrayFnWithContext)(const char *, void* context);
 
-// Result structure for better error handling
+// Result structure
 struct HttpResult {
     std::string body;
     int status_code;
@@ -21,21 +20,21 @@ public:
     IOSHttpTransport(const std::string &host, bool use_ssl, int port = -1);
     ~IOSHttpTransport();
     
-    // Streaming POST request with improved error handling
+    // POST request with context support
+    // callback: receives null-terminated strings with context
+    // cancel_flag: pointer to bool that can be set to true to cancel
     HttpResult post_request(
         const std::string &path,
         const std::string &body,
         const std::vector<std::pair<std::string, std::string>> &headers,
-        CharArrayFn callback = nullptr,
+        CharArrayFnWithContext callback = nullptr,
+        void* callback_context = nullptr,
         bool *cancel_flag = nullptr);
     
-    // Configuration methods
+    // Configuration
     void set_timeout(double timeout_seconds);
-    void set_certificate_pinning(const std::string &cert_pem);
-    void enable_certificate_validation(bool enable);
     
-    // Utility methods
-    bool is_connected();
+    // Utility
     std::string get_last_error() const;
     
 private:

@@ -43,6 +43,29 @@ X509_STORE *load_client_cert(const std::string &cert_str)
     BIO_free(mem);
     return cts;
 }
+#else
+struct IOSCallbackContext {
+    ResponseConcatenator* concatenator;
+    bool* cancel_flag;
+};
+
+// Static callback for iOS that receives context
+static void ios_callback_with_context(const char* data, void* ctx) {
+    auto* context = static_cast<IOSCallbackContext*>(ctx);
+    
+    if (!context || !context->concatenator || !context->cancel_flag) {
+        return;
+    }
+    
+    if (*context->cancel_flag) {
+        return;
+    }
+    
+    std::string chunk_str(data);
+    if (!context->concatenator->process_chunk(chunk_str)) {
+        *context->cancel_flag = true;
+    }
+}
 #endif
 
 bool LLMClient::is_server_alive()
@@ -96,25 +119,19 @@ std::string LLMClient::post_request(
     }
 
 #if TARGET_OS_IOS || TARGET_OS_VISION
-    // iOS Native Implementation
-    CharArrayFn ios_callback;
-    if (stream) {
-        ios_callback = [&](const char* data, size_t length) -> bool {
-            std::string chunk_str(data, length);
-            if (!concatenator.process_chunk(chunk_str)) {
-                return false;
-            }
-            if (*cancel_flag) {
-                std::cerr << "[LLMClient] Streaming cancelled\n";
-                return false;
-            }
-            return true;
-        };
-    }
-
+    // iOS Native Implementation with context
+    IOSCallbackContext ios_context = {&concatenator, cancel_flag};
+    
     HttpResult result;
     for (int attempt = 0; attempt <= max_retries; attempt++) {
-        result = transport->post_request(path, body.dump(), headers, ios_callback, cancel_flag);
+        result = transport->post_request(
+            path, 
+            body.dump(), 
+            headers, 
+            stream ? ios_callback_with_context : nullptr,
+            stream ? &ios_context : nullptr,
+            cancel_flag
+        );
 
         if (result.success || *cancel_flag) break;
 
@@ -142,6 +159,7 @@ std::string LLMClient::post_request(
     return stream ? concatenator.get_result_json() : result.body;
     
 #else
+    // cpp-httplib implementation (unchanged)
     httplib::Headers Headers;
     for (const auto& h : headers) Headers.insert(h);
 
