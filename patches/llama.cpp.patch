@@ -206,14 +206,14 @@ index 33635a158..83a9c5c33 100644
          slot.state = slot.is_child()
              ? SLOT_STATE_WAIT_OTHER // wait for the parent to process prompt
 diff --git a/tools/server/server-http.cpp b/tools/server/server-http.cpp
-index 5d67e5722..5baec7c11 100644
+index 5d67e5722..f0bccd73d 100644
 --- a/tools/server/server-http.cpp
 +++ b/tools/server/server-http.cpp
-@@ -16,6 +16,29 @@
+@@ -16,6 +16,30 @@
  // HTTP implementation using cpp-httplib
  //
  
-+
++#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
 +EVP_PKEY *load_key(const std::string &key_str)
 +{
 +    BIO *bio = BIO_new_mem_buf(key_str.data(), (int)key_str.size());
@@ -235,11 +235,12 @@ index 5d67e5722..5baec7c11 100644
 +    BIO_free(bio);
 +    return cert;
 +}
++#endif
 +
  class server_http_context::Impl {
  public:
      std::unique_ptr<httplib::Server> srv;
-@@ -54,6 +77,10 @@ bool server_http_context::init(const common_params & params) {
+@@ -54,6 +78,10 @@ bool server_http_context::init(const common_params & params) {
          srv.reset(
              new httplib::SSLServer(params.ssl_file_cert.c_str(), params.ssl_file_key.c_str())
          );
