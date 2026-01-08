@@ -1,8 +1,8 @@
 diff --git a/common/common.h b/common/common.h
-index 334372073..4155b9f3d 100644
+index d6fd0d37a..ea2777d20 100644
 --- a/common/common.h
 +++ b/common/common.h
-@@ -481,7 +481,9 @@ struct common_params {
+@@ -489,7 +489,9 @@ struct common_params {
      std::vector<std::string> api_keys;
  
      std::string ssl_file_key  = "";                                                                         // NOLINT
@@ -48,7 +48,7 @@ index f0f8471b5..c1eb92d7e 100644
  // set via common_log_set_verbosity()
  extern int common_log_verbosity_thold;
 diff --git a/ggml/src/CMakeLists.txt b/ggml/src/CMakeLists.txt
-index 262d78a4c..bc2649c9d 100644
+index 6192a8704..e5c03ff28 100644
 --- a/ggml/src/CMakeLists.txt
 +++ b/ggml/src/CMakeLists.txt
 @@ -136,18 +136,6 @@ endif()
@@ -93,7 +93,7 @@ index 23b688991..820bb4887 100644
  
  target_link_libraries(ggml-hip PRIVATE ggml-base hip::host roc::rocblas roc::hipblas)
 diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-index c2adca9cb..8faf378b6 100644
+index d68735a04..56f342c9b 100644
 --- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 +++ b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 @@ -103,7 +103,7 @@ static bool is_pow2(uint32_t x) { return x > 1 && (x & (x-1)) == 0; }
@@ -106,10 +106,10 @@ index c2adca9cb..8faf378b6 100644
      } while (0)
  
 diff --git a/ggml/src/ggml.c b/ggml/src/ggml.c
-index eb3ae72ea..d717f31e2 100644
+index 09b8eb466..b8293b203 100644
 --- a/ggml/src/ggml.c
 +++ b/ggml/src/ggml.c
-@@ -251,7 +251,12 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {
+@@ -253,7 +253,12 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {
          ggml_print_backtrace();
      }
  
@@ -124,10 +124,10 @@ index eb3ae72ea..d717f31e2 100644
  
  // ggml_print_backtrace is registered with std::set_terminate by ggml.cpp
 diff --git a/tools/mtmd/CMakeLists.txt b/tools/mtmd/CMakeLists.txt
-index 317d5f19f..b86ca410d 100644
+index 4b9022cb5..26fc1391f 100644
 --- a/tools/mtmd/CMakeLists.txt
 +++ b/tools/mtmd/CMakeLists.txt
-@@ -77,17 +77,3 @@ if (TARGET mtmd)
+@@ -78,17 +78,3 @@ if (TARGET mtmd)
                              "It must not link against common")
      endif()
  endif()
@@ -146,7 +146,7 @@ index 317d5f19f..b86ca410d 100644
 -target_link_libraries  (${TARGET} PRIVATE common mtmd Threads::Threads)
 -target_compile_features(${TARGET} PRIVATE cxx_std_17)
 diff --git a/tools/server/server-context.cpp b/tools/server/server-context.cpp
-index a132b87c8..f7d0b4095 100644
+index 33635a158..83a9c5c33 100644
 --- a/tools/server/server-context.cpp
 +++ b/tools/server/server-context.cpp
 @@ -18,6 +18,7 @@
@@ -196,7 +196,7 @@ index a132b87c8..f7d0b4095 100644
          vocab = llama_model_get_vocab(model);
  
          n_ctx = llama_n_ctx(ctx);
-@@ -1157,7 +1161,7 @@ private:
+@@ -1178,7 +1182,7 @@ private:
              slot.batch_spec = llama_batch_init(task.params.speculative.n_max + 1, 0, 1);
          }
  
@@ -265,15 +265,15 @@ index 3798aa299..e22e3fcb1 100644
      void cleanup_pending_task(int id_target);
  };
 diff --git a/tools/server/server.cpp b/tools/server/server.cpp
-index 0fbc7b6d3..31e81ec44 100644
+index 1d9abf605..8c0d6b03d 100644
 --- a/tools/server/server.cpp
 +++ b/tools/server/server.cpp
 @@ -66,7 +66,7 @@ static server_http_context::handler_t ex_wrapper(server_http_context::handler_t
      };
  }
  
--int main(int argc, char ** argv, char ** envp) {
-+int main_server(int argc, char ** argv, char ** envp) {
+-int main(int argc, char ** argv) {
++int main_server(int argc, char ** argv) {
      // own arguments required by this example
      common_params params;
  
