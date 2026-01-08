@@ -14,6 +14,20 @@
 #include "LLM.h"
 #include "completion_processor.h"
 
+#ifdef __APPLE__
+    #include <TargetConditionals.h>
+#endif
+
+#if TARGET_OS_IOS || TARGET_OS_VISION
+    #include "IOSHttpTransport.h"
+#else
+    // increase max payload length to allow use of larger context size
+    #define CPPHTTPLIB_FORM_URL_ENCODED_PAYLOAD_MAX_LENGTH 1048576
+    // disable Nagle's algorithm
+    #define CPPHTTPLIB_TCP_NODELAY true
+    #include "httplib.h"
+#endif
+
 /// @brief Client for accessing LLM functionality locally or remotely
 /// @details Provides a unified interface that can connect to either local LLMProvider
 /// instances or remote LLM services via HTTP. Supports all standard LLM operations
@@ -99,8 +113,12 @@ public:
 private:
     // Local LLM members
     LLMProvider *llm = nullptr; ///< Pointer to local LLM provider (null for remote clients)
+#if TARGET_OS_IOS || TARGET_OS_VISION
+    IOSHttpTransport *transport = nullptr;
+#else
     httplib::Client *client = nullptr;
     httplib::SSLClient *sslClient = nullptr;
+#endif
     bool use_ssl = false;
 
     // Remote LLM members

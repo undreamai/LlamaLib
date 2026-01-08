@@ -6,6 +6,9 @@
 
 #pragma once
 
+#include <thread>
+#include <condition_variable>
+
 #include "LLM.h"
 #include "completion_processor.h"
 
@@ -205,7 +208,6 @@ private:
     server_context *ctx_server = nullptr; ///< Server context pointer
     server_http_context* ctx_http = nullptr;
     server_routes* routes = nullptr;
-    std::unique_ptr<httplib::Server> svr; ///< HTTP server instance
 
     std::mutex start_stop_mutex;                ///< Mutex for start/stop operations
     std::thread service_thread;                 ///< Service worker thread

@@ -47,11 +47,20 @@ bool LLMClient::is_server_alive()
 {
     if (!is_remote()) return true;
 
-    httplib::Headers headers;
-    if (!API_key.empty())
-        headers.insert({"Authorization", "Bearer " + API_key});
-    auto res = use_ssl ? sslClient->Post("/health", headers) : client->Post("/health", headers);
+    std::vector<std::pair<std::string, std::string>> headers;
+    if (!API_key.empty()) {
+        headers.push_back({"Authorization", "Bearer " + API_key});
+    }
+
+#if TARGET_OS_IOS || TARGET_OS_VISION
+    HttpResult result = transport->post_request("health", "{}", headers);
+    return result.success && result.status_code >= 200 && result.status_code < 300;
+#else
+    httplib::Headers Headers;
+    for (const auto& h : headers) Headers.insert(h);
+    auto res = use_ssl ? sslClient->Post("/health", Headers) : client->Post("/health", Headers);
     return res && res->status >= 200 && res->status < 300;
+#endif
 }
 
 std::string LLMClient::post_request(
@@ -70,22 +79,80 @@ std::string LLMClient::post_request(
     bool* cancel_flag = new bool(false);
     if (stream) active_requests.push_back(cancel_flag);
 
-    httplib::Headers headers = {
+    std::string response_buffer = "";
+    ResponseConcatenator concatenator;
+    if (stream && callback) concatenator.set_callback(callback, callbackWithJSON);
+
+    std::vector<std::pair<std::string, std::string>> headers = {
         {"Content-Type", "application/json"},
         {"Accept", stream ? "text/event-stream" : "application/json"},
-        {"Cache-Control", "no-cache"}};
-    if (!API_key.empty())
-        headers.insert({"Authorization", "Bearer " + API_key});
+        {"Cache-Control", "no-cache"}
+    };
+    
+    if (!API_key.empty()) {
+        headers.push_back({"Authorization", "Bearer " + API_key});
+    }
+
+#if TARGET_OS_IOS || TARGET_OS_VISION
+    // iOS Native Implementation
+    CharArrayFn ios_callback;
+    if (stream) {
+        ios_callback = [&](const char* data, size_t length) -> bool {
+            std::string chunk_str(data, length);
+            if (!concatenator.process_chunk(chunk_str)) {
+                return false;
+            }
+            if (*cancel_flag) {
+                std::cerr << "[LLMClient] Streaming cancelled\n";
+                return false;
+            }
+            return true;
+        };
+    }
+    
+    HttpResult result;
+    for (int attempt = 0; attempt <= max_retries; attempt++) {
+        result = transport->post_request(path, body.dump(), headers, 
+                                        ios_callback, cancel_flag);
+        
+        if (result.success || *cancel_flag) break;
+        
+        int delay_seconds = std::min(30, 1 << attempt);
+        std::cerr << "[LLMClient] POST failed: " << result.error_message 
+                  << ", retrying in " << delay_seconds << "s (attempt " 
+                  << attempt << "/" << max_retries << ")\n";
+        std::this_thread::sleep_for(std::chrono::seconds(delay_seconds));
+    }
+    
+    if (!result.success) {
+        std::cerr << "[LLMClient] POST request failed: " << result.error_message << "\n";
+        if (stream) {
+            active_requests.erase(std::remove(active_requests.begin(), 
+                                            active_requests.end(), cancel_flag), 
+                                active_requests.end());
+        }
+        delete cancel_flag;
+        return "{}";
+    }
+    
+    if (stream) {
+        active_requests.erase(std::remove(active_requests.begin(), 
+                                        active_requests.end(), cancel_flag), 
+                            active_requests.end());
+    }
+    delete cancel_flag;
+    
+    return stream ? concatenator.get_result_json() : result.body;
+    
+#else
+    httplib::Headers Headers;
+    for (const auto& h : headers) Headers.insert(h);
 
     httplib::Request req;
     req.method = "POST";
     req.path = "/" + path;
-    req.headers = headers;
+    req.headers = Headers;
     req.body = body.dump();
-
-    std::string response_buffer = "";
-    ResponseConcatenator concatenator;
-    if (stream && callback) concatenator.set_callback(callback, callbackWithJSON);
 
     req.content_receiver = [&](const char *data, size_t data_length, uint64_t /*offset*/, uint64_t /*total_length*/)
     {
@@ -135,6 +202,7 @@ std::string LLMClient::post_request(
     } else {
         return response_buffer;
     }
+#endif
 }
 
 //================ LLMClient ================//
@@ -157,6 +225,10 @@ LLMClient::LLMClient(const std::string &url_, const int port_, const std::string
         use_ssl = false;
     }
 
+#if TARGET_OS_IOS || TARGET_OS_VISION
+    transport = new IOSHttpTransport(host, use_ssl, port);
+    transport->set_timeout(60.0);
+#else
     if (use_ssl)
     {
         sslClient = new httplib::SSLClient(host.c_str(), port);
@@ -165,14 +237,21 @@ LLMClient::LLMClient(const std::string &url_, const int port_, const std::string
     {
         client = new httplib::Client(host.c_str(), port);
     }
+#endif
 }
 
 LLMClient::~LLMClient()
 {
+#if TARGET_OS_IOS || TARGET_OS_VISION
+    if (transport != nullptr) {
+        delete transport;
+    }
+#else
     if (client != nullptr)
         delete client;
     if (sslClient != nullptr)
         delete sslClient;
+#endif
 }
 
 void LLMClient::set_SSL(const char *SSL_cert_)

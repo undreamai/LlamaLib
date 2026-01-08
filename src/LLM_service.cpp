@@ -378,25 +378,6 @@ void LLMService::logging_callback(CharArrayFn callback)
     log_callback = callback;
 }
 
-const json handle_post(const httplib::Request &req, httplib::Response &res)
-{
-    res.set_header("Access-Control-Allow-Origin", req.get_header_value("Origin"));
-    return json::parse(req.body);
-};
-
-void res_ok(httplib::Response &res, std::string data)
-{
-    res.set_content(data, "application/json; charset=utf-8");
-    res.status = 200;
-};
-
-void handle_error(httplib::Response &res, const json error_data)
-{
-    json final_response{{"error", error_data}};
-    res.set_content(final_response.dump(), "application/json; charset=utf-8");
-    res.status = 500;
-}
-
 void release_slot(server_slot &slot)
 {
     if (slot.task && slot.task->type == SERVER_TASK_TYPE_COMPLETION)

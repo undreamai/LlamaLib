@@ -1,4 +1,8 @@
-add_library(llamalib_common OBJECT LLM.cpp LLM_client.cpp LLM_agent.cpp completion_processor.cpp error_handling.cpp)
+if(IOS_VISIONOS_HTTP)
+    set(IOS_SSL_FILES ios_http_transport.mm)
+    set_source_files_properties(ios_http_transport.mm PROPERTIES COMPILE_FLAGS "-x objective-c++")
+endif()
+add_library(llamalib_common OBJECT LLM.cpp LLM_client.cpp LLM_agent.cpp completion_processor.cpp error_handling.cpp ${IOS_SSL_FILES})
 LLAMALIB_COMPILE_DEFS(llamalib_common)
 
 # build architecture library
