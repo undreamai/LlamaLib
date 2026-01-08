@@ -2,6 +2,7 @@
 
 //================ Remote requests ================//
 
+#if !(TARGET_OS_IOS || TARGET_OS_VISION)
 X509_STORE *load_client_cert(const std::string &cert_str)
 {
     BIO *mem = BIO_new_mem_buf(cert_str.data(), (int)cert_str.size());
@@ -42,6 +43,7 @@ X509_STORE *load_client_cert(const std::string &cert_str)
     BIO_free(mem);
     return cts;
 }
+#endif
 
 bool LLMClient::is_server_alive()
 {
@@ -109,39 +111,34 @@ std::string LLMClient::post_request(
             return true;
         };
     }
-    
+
     HttpResult result;
     for (int attempt = 0; attempt <= max_retries; attempt++) {
-        result = transport->post_request(path, body.dump(), headers, 
-                                        ios_callback, cancel_flag);
-        
+        result = transport->post_request(path, body.dump(), headers, ios_callback, cancel_flag);
+
         if (result.success || *cancel_flag) break;
-        
+
         int delay_seconds = std::min(30, 1 << attempt);
-        std::cerr << "[LLMClient] POST failed: " << result.error_message 
-                  << ", retrying in " << delay_seconds << "s (attempt " 
+        std::cerr << "[LLMClient] POST failed: " << result.error_message
+                  << ", retrying in " << delay_seconds << "s (attempt "
                   << attempt << "/" << max_retries << ")\n";
         std::this_thread::sleep_for(std::chrono::seconds(delay_seconds));
     }
-    
+
     if (!result.success) {
         std::cerr << "[LLMClient] POST request failed: " << result.error_message << "\n";
         if (stream) {
-            active_requests.erase(std::remove(active_requests.begin(), 
-                                            active_requests.end(), cancel_flag), 
-                                active_requests.end());
+            active_requests.erase(std::remove(active_requests.begin(), active_requests.end(), cancel_flag), active_requests.end());
         }
         delete cancel_flag;
         return "{}";
     }
-    
+
     if (stream) {
-        active_requests.erase(std::remove(active_requests.begin(), 
-                                        active_requests.end(), cancel_flag), 
-                            active_requests.end());
+        active_requests.erase(std::remove(active_requests.begin(), active_requests.end(), cancel_flag), active_requests.end());
     }
     delete cancel_flag;
-    
+
     return stream ? concatenator.get_result_json() : result.body;
     
 #else
@@ -256,12 +253,14 @@ LLMClient::~LLMClient()
 
 void LLMClient::set_SSL(const char *SSL_cert_)
 {
+#if !(TARGET_OS_IOS || TARGET_OS_VISION)
     if (is_remote())
     {
         this->SSL_cert = SSL_cert_;
         if (sslClient != nullptr)
             sslClient->set_ca_cert_store(load_client_cert(SSL_cert));
     }
+#endif
 }
 
 std::string LLMClient::tokenize_json(const json &data)
