@@ -19,7 +19,7 @@
 #endif
 
 #if TARGET_OS_IOS || TARGET_OS_VISION
-    #include "IOSHttpTransport.h"
+    #include "ios_http_transport.h"
 #else
     // increase max payload length to allow use of larger context size
     #define CPPHTTPLIB_FORM_URL_ENCODED_PAYLOAD_MAX_LENGTH 1048576
