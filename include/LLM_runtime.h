@@ -23,10 +23,6 @@
 #include "archchecker.h"
 #endif
 
-#if defined(__APPLE__)
-#include <TargetConditionals.h>
-#endif
-
 // Platform-specific library loading definitions
 #if defined(_WIN32)
 #include <windows.h>

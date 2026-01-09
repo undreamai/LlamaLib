@@ -14,10 +14,6 @@
 #include "LLM.h"
 #include "completion_processor.h"
 
-#ifdef __APPLE__
-    #include <TargetConditionals.h>
-#endif
-
 #if TARGET_OS_IOS || TARGET_OS_VISION
     #include "ios_http_transport.h"
 #else
