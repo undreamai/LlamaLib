@@ -1,5 +1,6 @@
 #include "LLM.h"
 
+#if !(TARGET_OS_IOS || TARGET_OS_VISION)
 std::atomic_flag sigint_terminating = ATOMIC_FLAG_INIT;
 
 void llm_sigint_signal_handler(int sig)
@@ -18,6 +19,7 @@ void llm_sigint_signal_handler(int sig)
         inst->stop_server();
     }
 }
+#endif
 
 // Use a function to ensure the setup only happens once across all libraries
 void ensure_error_handlers_initialized()
@@ -25,10 +27,12 @@ void ensure_error_handlers_initialized()
     if (!LLMProviderRegistry::initialised)
     {
         static std::once_flag initialized;
-        std::call_once(initialized, []()
-                       {
+        std::call_once(initialized, [](){
             set_error_handlers();
-            register_sigint_hook(llm_sigint_signal_handler); });
+#if !(TARGET_OS_IOS || TARGET_OS_VISION)
+            register_sigint_hook(llm_sigint_signal_handler);
+#endif
+        });
     }
 }
 
