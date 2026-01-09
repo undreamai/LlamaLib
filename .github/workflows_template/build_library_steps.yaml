@@ -257,12 +257,10 @@ jobs:
 
       - id: link_libraries_ios
         name: Link libraries
-        run: |            
-          mkdir -p build/combo build/libs
-          cd build/combo
-          for f in `find .. -name "*.a"`;do ar -x $f;done
-          lib=../libs/libllamalib_${{ matrix.arch }}.a
-          ld -r -o $lib *.o
+        run: |
+          cd build
+          lib=libs/libllamalib_${{ matrix.arch }}.a
+          libtool -static -o $lib `find . -name "*.a"`
           nm -u $lib
 
 ################################ Release ################################
