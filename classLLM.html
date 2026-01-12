@@ -116,6 +116,7 @@ $(function(){initNavTree('classLLM.html',''); initResizable(); });
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="classLLM-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">LLM Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div></div>
 </div><!--header-->
@@ -133,100 +134,61 @@ Inheritance diagram for LLM:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:af27dd1f754a74e328750b1b50f13f27e" id="r_af27dd1f754a74e328750b1b50f13f27e"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af27dd1f754a74e328750b1b50f13f27e">get_template_json</a> ()=0</td></tr>
-<tr class="memdesc:af27dd1f754a74e328750b1b50f13f27e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the chat template in JSON format.  <br /></td></tr>
-<tr class="separator:af27dd1f754a74e328750b1b50f13f27e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4dabf05907391e76f5c25f57adc1bde0" id="r_a4dabf05907391e76f5c25f57adc1bde0"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4dabf05907391e76f5c25f57adc1bde0">apply_template_json</a> (const json &amp;data)=0</td></tr>
-<tr class="memdesc:a4dabf05907391e76f5c25f57adc1bde0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply a chat template to message data.  <br /></td></tr>
-<tr class="separator:a4dabf05907391e76f5c25f57adc1bde0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a535b20d75538e5bb7bca8e8f0e52ba8f" id="r_a535b20d75538e5bb7bca8e8f0e52ba8f"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a535b20d75538e5bb7bca8e8f0e52ba8f">tokenize_json</a> (const json &amp;data)=0</td></tr>
-<tr class="memdesc:a535b20d75538e5bb7bca8e8f0e52ba8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tokenize text input.  <br /></td></tr>
-<tr class="separator:a535b20d75538e5bb7bca8e8f0e52ba8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab21dca488bf1daf687960495280f059c" id="r_ab21dca488bf1daf687960495280f059c"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab21dca488bf1daf687960495280f059c">detokenize_json</a> (const json &amp;data)=0</td></tr>
-<tr class="memdesc:ab21dca488bf1daf687960495280f059c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert tokens back to text.  <br /></td></tr>
-<tr class="separator:ab21dca488bf1daf687960495280f059c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a180ad8f0dfd734e10042bc6a45bb3126" id="r_a180ad8f0dfd734e10042bc6a45bb3126"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a180ad8f0dfd734e10042bc6a45bb3126">embeddings_json</a> (const json &amp;data)=0</td></tr>
-<tr class="memdesc:a180ad8f0dfd734e10042bc6a45bb3126"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate embeddings for input text.  <br /></td></tr>
-<tr class="separator:a180ad8f0dfd734e10042bc6a45bb3126"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa123c478d02e4ecff9e73da5be2f771b" id="r_aa123c478d02e4ecff9e73da5be2f771b"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa123c478d02e4ecff9e73da5be2f771b">completion_json</a> (const json &amp;data, CharArrayFn callback, bool callbackWithJSON)=0</td></tr>
-<tr class="memdesc:aa123c478d02e4ecff9e73da5be2f771b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate text completion.  <br /></td></tr>
-<tr class="separator:aa123c478d02e4ecff9e73da5be2f771b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9b3756b3b29d2883101e34dae820f35a" id="r_a9b3756b3b29d2883101e34dae820f35a"><td class="memItemLeft" align="right" valign="top"><a id="a9b3756b3b29d2883101e34dae820f35a" name="a9b3756b3b29d2883101e34dae820f35a"></a>
 virtual&#160;</td><td class="memItemRight" valign="bottom"><b>~LLM</b> ()=default</td></tr>
 <tr class="memdesc:a9b3756b3b29d2883101e34dae820f35a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Virtual destructor. <br /></td></tr>
 <tr class="separator:a9b3756b3b29d2883101e34dae820f35a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7fabdf1237f2b537f82d0b6076e4efb1" id="r_a7fabdf1237f2b537f82d0b6076e4efb1"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7fabdf1237f2b537f82d0b6076e4efb1">set_grammar</a> (std::string grammar_)</td></tr>
-<tr class="memdesc:a7fabdf1237f2b537f82d0b6076e4efb1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set grammar for constrained generation.  <br /></td></tr>
-<tr class="separator:a7fabdf1237f2b537f82d0b6076e4efb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afd58a7096bdac18c26a74814899dcd89" id="r_afd58a7096bdac18c26a74814899dcd89"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afd58a7096bdac18c26a74814899dcd89">get_grammar</a> ()</td></tr>
-<tr class="memdesc:afd58a7096bdac18c26a74814899dcd89"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get current grammar specification.  <br /></td></tr>
-<tr class="separator:afd58a7096bdac18c26a74814899dcd89"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a625ad6e037e16cdc61282150ef465229" id="r_a625ad6e037e16cdc61282150ef465229"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a625ad6e037e16cdc61282150ef465229">tokenize</a> (const std::string &amp;query)</td></tr>
+<tr class="memdesc:a625ad6e037e16cdc61282150ef465229"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tokenize text.  <br /></td></tr>
+<tr class="separator:a625ad6e037e16cdc61282150ef465229"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a535b20d75538e5bb7bca8e8f0e52ba8f" id="r_a535b20d75538e5bb7bca8e8f0e52ba8f"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a535b20d75538e5bb7bca8e8f0e52ba8f">tokenize_json</a> (const json &amp;data)=0</td></tr>
+<tr class="memdesc:a535b20d75538e5bb7bca8e8f0e52ba8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tokenize input (override)  <br /></td></tr>
+<tr class="separator:a535b20d75538e5bb7bca8e8f0e52ba8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a57754f97f686c2f5a3e90c44c32243a8" id="r_a57754f97f686c2f5a3e90c44c32243a8"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a57754f97f686c2f5a3e90c44c32243a8">detokenize</a> (const std::vector&lt; int32_t &gt; &amp;tokens)</td></tr>
+<tr class="memdesc:a57754f97f686c2f5a3e90c44c32243a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert tokens to text.  <br /></td></tr>
+<tr class="separator:a57754f97f686c2f5a3e90c44c32243a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab21dca488bf1daf687960495280f059c" id="r_ab21dca488bf1daf687960495280f059c"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab21dca488bf1daf687960495280f059c">detokenize_json</a> (const json &amp;data)=0</td></tr>
+<tr class="memdesc:ab21dca488bf1daf687960495280f059c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert tokens back to text.  <br /></td></tr>
+<tr class="separator:ab21dca488bf1daf687960495280f059c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9fafb9791263bb1eb8458c731ea5c46b" id="r_a9fafb9791263bb1eb8458c731ea5c46b"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9fafb9791263bb1eb8458c731ea5c46b">embeddings</a> (const std::string &amp;query)</td></tr>
+<tr class="memdesc:a9fafb9791263bb1eb8458c731ea5c46b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate embeddings.  <br /></td></tr>
+<tr class="separator:a9fafb9791263bb1eb8458c731ea5c46b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a180ad8f0dfd734e10042bc6a45bb3126" id="r_a180ad8f0dfd734e10042bc6a45bb3126"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a180ad8f0dfd734e10042bc6a45bb3126">embeddings_json</a> (const json &amp;data)=0</td></tr>
+<tr class="memdesc:a180ad8f0dfd734e10042bc6a45bb3126"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate embeddings with HTTP response support.  <br /></td></tr>
+<tr class="separator:a180ad8f0dfd734e10042bc6a45bb3126"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a565cb67adaeb1300d0f3c10a1d6f4652" id="r_a565cb67adaeb1300d0f3c10a1d6f4652"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a565cb67adaeb1300d0f3c10a1d6f4652">set_completion_params</a> (json completion_params_)</td></tr>
 <tr class="memdesc:a565cb67adaeb1300d0f3c10a1d6f4652"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set completion parameters.  <br /></td></tr>
 <tr class="separator:a565cb67adaeb1300d0f3c10a1d6f4652"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a28f18e8277480b1a4944a5b25a6992ff" id="r_a28f18e8277480b1a4944a5b25a6992ff"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a28f18e8277480b1a4944a5b25a6992ff">get_completion_params</a> ()</td></tr>
 <tr class="memdesc:a28f18e8277480b1a4944a5b25a6992ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get current completion parameters.  <br /></td></tr>
 <tr class="separator:a28f18e8277480b1a4944a5b25a6992ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0f86be4be1a7b98fd959b6ed8046629d" id="r_a0f86be4be1a7b98fd959b6ed8046629d"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0f86be4be1a7b98fd959b6ed8046629d">parse_get_template_json</a> (const json &amp;result)</td></tr>
-<tr class="memdesc:a0f86be4be1a7b98fd959b6ed8046629d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse template JSON response.  <br /></td></tr>
-<tr class="separator:a0f86be4be1a7b98fd959b6ed8046629d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a448645ecd9e74a4a64cc1477350fa2bd" id="r_a448645ecd9e74a4a64cc1477350fa2bd"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a448645ecd9e74a4a64cc1477350fa2bd">get_template</a> ()</td></tr>
-<tr class="memdesc:a448645ecd9e74a4a64cc1477350fa2bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get chat template.  <br /></td></tr>
-<tr class="separator:a448645ecd9e74a4a64cc1477350fa2bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2c07dd3ece7427517b04887082caa97b" id="r_a2c07dd3ece7427517b04887082caa97b"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2c07dd3ece7427517b04887082caa97b">build_apply_template_json</a> (const json &amp;messages)</td></tr>
-<tr class="memdesc:a2c07dd3ece7427517b04887082caa97b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for template application.  <br /></td></tr>
-<tr class="separator:a2c07dd3ece7427517b04887082caa97b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a33112cbc41dcb6af5cb7e4a6cf185e94" id="r_a33112cbc41dcb6af5cb7e4a6cf185e94"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a33112cbc41dcb6af5cb7e4a6cf185e94">parse_apply_template_json</a> (const json &amp;result)</td></tr>
-<tr class="memdesc:a33112cbc41dcb6af5cb7e4a6cf185e94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse template application result.  <br /></td></tr>
-<tr class="separator:a33112cbc41dcb6af5cb7e4a6cf185e94"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a390a093c9b269c1c342034baced79106" id="r_a390a093c9b269c1c342034baced79106"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a390a093c9b269c1c342034baced79106">apply_template</a> (const json &amp;messages)</td></tr>
-<tr class="memdesc:a390a093c9b269c1c342034baced79106"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply template to messages.  <br /></td></tr>
-<tr class="separator:a390a093c9b269c1c342034baced79106"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a15a4fb3881c49f42bb1a9515a2593359" id="r_a15a4fb3881c49f42bb1a9515a2593359"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a15a4fb3881c49f42bb1a9515a2593359">build_tokenize_json</a> (const std::string &amp;query)</td></tr>
-<tr class="memdesc:a15a4fb3881c49f42bb1a9515a2593359"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for tokenization.  <br /></td></tr>
-<tr class="separator:a15a4fb3881c49f42bb1a9515a2593359"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a33d3ec109eef58997f40487ceab50d1a" id="r_a33d3ec109eef58997f40487ceab50d1a"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a33d3ec109eef58997f40487ceab50d1a">parse_tokenize_json</a> (const json &amp;result)</td></tr>
-<tr class="memdesc:a33d3ec109eef58997f40487ceab50d1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse tokenization result.  <br /></td></tr>
-<tr class="separator:a33d3ec109eef58997f40487ceab50d1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a625ad6e037e16cdc61282150ef465229" id="r_a625ad6e037e16cdc61282150ef465229"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a625ad6e037e16cdc61282150ef465229">tokenize</a> (const std::string &amp;query)</td></tr>
-<tr class="memdesc:a625ad6e037e16cdc61282150ef465229"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tokenize text.  <br /></td></tr>
-<tr class="separator:a625ad6e037e16cdc61282150ef465229"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a40b6013ca9ab63329b9c829878ea0a" id="r_a3a40b6013ca9ab63329b9c829878ea0a"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3a40b6013ca9ab63329b9c829878ea0a">build_detokenize_json</a> (const std::vector&lt; int32_t &gt; &amp;tokens)</td></tr>
-<tr class="memdesc:a3a40b6013ca9ab63329b9c829878ea0a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for detokenization.  <br /></td></tr>
-<tr class="separator:a3a40b6013ca9ab63329b9c829878ea0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad5b0cde299c465007acbd77125cbfcff" id="r_ad5b0cde299c465007acbd77125cbfcff"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad5b0cde299c465007acbd77125cbfcff">parse_detokenize_json</a> (const json &amp;result)</td></tr>
-<tr class="memdesc:ad5b0cde299c465007acbd77125cbfcff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse detokenization result.  <br /></td></tr>
-<tr class="separator:ad5b0cde299c465007acbd77125cbfcff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a57754f97f686c2f5a3e90c44c32243a8" id="r_a57754f97f686c2f5a3e90c44c32243a8"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a57754f97f686c2f5a3e90c44c32243a8">detokenize</a> (const std::vector&lt; int32_t &gt; &amp;tokens)</td></tr>
-<tr class="memdesc:a57754f97f686c2f5a3e90c44c32243a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert tokens to text.  <br /></td></tr>
-<tr class="separator:a57754f97f686c2f5a3e90c44c32243a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac9a89b18c9c14a15ecfabcee3914ad20" id="r_ac9a89b18c9c14a15ecfabcee3914ad20"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac9a89b18c9c14a15ecfabcee3914ad20">build_embeddings_json</a> (const std::string &amp;query)</td></tr>
-<tr class="memdesc:ac9a89b18c9c14a15ecfabcee3914ad20"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for embeddings generation.  <br /></td></tr>
-<tr class="separator:ac9a89b18c9c14a15ecfabcee3914ad20"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab8eeb0e041adeeafd3634cf66b32bbb2" id="r_ab8eeb0e041adeeafd3634cf66b32bbb2"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab8eeb0e041adeeafd3634cf66b32bbb2">parse_embeddings_json</a> (const json &amp;result)</td></tr>
-<tr class="memdesc:ab8eeb0e041adeeafd3634cf66b32bbb2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse embeddings result.  <br /></td></tr>
-<tr class="separator:ab8eeb0e041adeeafd3634cf66b32bbb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9fafb9791263bb1eb8458c731ea5c46b" id="r_a9fafb9791263bb1eb8458c731ea5c46b"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9fafb9791263bb1eb8458c731ea5c46b">embeddings</a> (const std::string &amp;query)</td></tr>
-<tr class="memdesc:a9fafb9791263bb1eb8458c731ea5c46b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate embeddings.  <br /></td></tr>
-<tr class="separator:a9fafb9791263bb1eb8458c731ea5c46b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4e1be3e304f1326d6a8c0d86510f0bd2" id="r_a4e1be3e304f1326d6a8c0d86510f0bd2"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4e1be3e304f1326d6a8c0d86510f0bd2">build_completion_json</a> (const std::string &amp;prompt, int id_slot=-1)</td></tr>
-<tr class="memdesc:a4e1be3e304f1326d6a8c0d86510f0bd2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for completion generation.  <br /></td></tr>
-<tr class="separator:a4e1be3e304f1326d6a8c0d86510f0bd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4ac51c5268e2af6d24e7ae6982cbe58f" id="r_a4ac51c5268e2af6d24e7ae6982cbe58f"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4ac51c5268e2af6d24e7ae6982cbe58f">parse_completion_json</a> (const json &amp;result)</td></tr>
-<tr class="memdesc:a4ac51c5268e2af6d24e7ae6982cbe58f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse completion result.  <br /></td></tr>
-<tr class="separator:a4ac51c5268e2af6d24e7ae6982cbe58f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7e9e25d61ebba558111a74dd136e8c61" id="r_a7e9e25d61ebba558111a74dd136e8c61"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7e9e25d61ebba558111a74dd136e8c61">completion</a> (const std::string &amp;prompt, CharArrayFn callback=nullptr, int id_slot=-1, bool return_response_json=false)</td></tr>
 <tr class="memdesc:a7e9e25d61ebba558111a74dd136e8c61"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate completion.  <br /></td></tr>
 <tr class="separator:a7e9e25d61ebba558111a74dd136e8c61"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa123c478d02e4ecff9e73da5be2f771b" id="r_aa123c478d02e4ecff9e73da5be2f771b"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa123c478d02e4ecff9e73da5be2f771b">completion_json</a> (const json &amp;data, CharArrayFn callback, bool callbackWithJSON)=0</td></tr>
+<tr class="memdesc:aa123c478d02e4ecff9e73da5be2f771b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate text completion.  <br /></td></tr>
+<tr class="separator:aa123c478d02e4ecff9e73da5be2f771b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7fabdf1237f2b537f82d0b6076e4efb1" id="r_a7fabdf1237f2b537f82d0b6076e4efb1"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7fabdf1237f2b537f82d0b6076e4efb1">set_grammar</a> (std::string grammar_)</td></tr>
+<tr class="memdesc:a7fabdf1237f2b537f82d0b6076e4efb1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set grammar for constrained generation.  <br /></td></tr>
+<tr class="separator:a7fabdf1237f2b537f82d0b6076e4efb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd58a7096bdac18c26a74814899dcd89" id="r_afd58a7096bdac18c26a74814899dcd89"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afd58a7096bdac18c26a74814899dcd89">get_grammar</a> ()</td></tr>
+<tr class="memdesc:afd58a7096bdac18c26a74814899dcd89"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get current grammar specification.  <br /></td></tr>
+<tr class="separator:afd58a7096bdac18c26a74814899dcd89"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a390a093c9b269c1c342034baced79106" id="r_a390a093c9b269c1c342034baced79106"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a390a093c9b269c1c342034baced79106">apply_template</a> (const json &amp;messages)</td></tr>
+<tr class="memdesc:a390a093c9b269c1c342034baced79106"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply template to messages.  <br /></td></tr>
+<tr class="separator:a390a093c9b269c1c342034baced79106"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4dabf05907391e76f5c25f57adc1bde0" id="r_a4dabf05907391e76f5c25f57adc1bde0"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4dabf05907391e76f5c25f57adc1bde0">apply_template_json</a> (const json &amp;data)=0</td></tr>
+<tr class="memdesc:a4dabf05907391e76f5c25f57adc1bde0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply a chat template to message data.  <br /></td></tr>
+<tr class="separator:a4dabf05907391e76f5c25f57adc1bde0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:aa01e69ad4fe82bf914183a38875e35e2" id="r_aa01e69ad4fe82bf914183a38875e35e2"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa01e69ad4fe82bf914183a38875e35e2">has_gpu_layers</a> (const std::string &amp;command)</td></tr>
 <tr class="memdesc:aa01e69ad4fe82bf914183a38875e35e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if command line arguments specify GPU layers.  <br /></td></tr>
 <tr class="separator:aa01e69ad4fe82bf914183a38875e35e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a04014c94c0062da5c0b87f46d0904c79" id="r_a04014c94c0062da5c0b87f46d0904c79"><td class="memItemLeft" align="right" valign="top">static std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a04014c94c0062da5c0b87f46d0904c79">LLM_args_to_command</a> (const std::string &amp;model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, const std::vector&lt; std::string &gt; &amp;lora_paths={})</td></tr>
-<tr class="memdesc:a04014c94c0062da5c0b87f46d0904c79"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> parameters to command line arguments.  <br /></td></tr>
-<tr class="separator:a04014c94c0062da5c0b87f46d0904c79"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93d91518d38588e69338de15a1ab6510" id="r_a93d91518d38588e69338de15a1ab6510"><td class="memItemLeft" align="right" valign="top">static std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a93d91518d38588e69338de15a1ab6510">LLM_args_to_command</a> (const std::string &amp;model_path, int num_slots=1, int num_threads=-1, int num_GPU_layers=0, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, const std::vector&lt; std::string &gt; &amp;lora_paths={})</td></tr>
+<tr class="memdesc:a93d91518d38588e69338de15a1ab6510"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> parameters to command line arguments.  <br /></td></tr>
+<tr class="separator:a93d91518d38588e69338de15a1ab6510"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -239,6 +201,39 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a610330354440100d70a110ee7af33108" id="r_a610330354440100d70a110ee7af33108"><td class="memItemLeft" align="right" valign="top">json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a610330354440100d70a110ee7af33108">completion_params</a></td></tr>
 <tr class="memdesc:a610330354440100d70a110ee7af33108"><td class="mdescLeft">&#160;</td><td class="mdescRight">JSON object containing completion parameters.  <br /></td></tr>
 <tr class="separator:a610330354440100d70a110ee7af33108"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:a2c07dd3ece7427517b04887082caa97b" id="r_a2c07dd3ece7427517b04887082caa97b"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2c07dd3ece7427517b04887082caa97b">build_apply_template_json</a> (const json &amp;messages)</td></tr>
+<tr class="memdesc:a2c07dd3ece7427517b04887082caa97b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for template application.  <br /></td></tr>
+<tr class="separator:a2c07dd3ece7427517b04887082caa97b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33112cbc41dcb6af5cb7e4a6cf185e94" id="r_a33112cbc41dcb6af5cb7e4a6cf185e94"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a33112cbc41dcb6af5cb7e4a6cf185e94">parse_apply_template_json</a> (const json &amp;result)</td></tr>
+<tr class="memdesc:a33112cbc41dcb6af5cb7e4a6cf185e94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse template application result.  <br /></td></tr>
+<tr class="separator:a33112cbc41dcb6af5cb7e4a6cf185e94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a15a4fb3881c49f42bb1a9515a2593359" id="r_a15a4fb3881c49f42bb1a9515a2593359"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a15a4fb3881c49f42bb1a9515a2593359">build_tokenize_json</a> (const std::string &amp;query)</td></tr>
+<tr class="memdesc:a15a4fb3881c49f42bb1a9515a2593359"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for tokenization.  <br /></td></tr>
+<tr class="separator:a15a4fb3881c49f42bb1a9515a2593359"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33d3ec109eef58997f40487ceab50d1a" id="r_a33d3ec109eef58997f40487ceab50d1a"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a33d3ec109eef58997f40487ceab50d1a">parse_tokenize_json</a> (const json &amp;result)</td></tr>
+<tr class="memdesc:a33d3ec109eef58997f40487ceab50d1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse tokenization result.  <br /></td></tr>
+<tr class="separator:a33d3ec109eef58997f40487ceab50d1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3a40b6013ca9ab63329b9c829878ea0a" id="r_a3a40b6013ca9ab63329b9c829878ea0a"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3a40b6013ca9ab63329b9c829878ea0a">build_detokenize_json</a> (const std::vector&lt; int32_t &gt; &amp;tokens)</td></tr>
+<tr class="memdesc:a3a40b6013ca9ab63329b9c829878ea0a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for detokenization.  <br /></td></tr>
+<tr class="separator:a3a40b6013ca9ab63329b9c829878ea0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5b0cde299c465007acbd77125cbfcff" id="r_ad5b0cde299c465007acbd77125cbfcff"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad5b0cde299c465007acbd77125cbfcff">parse_detokenize_json</a> (const json &amp;result)</td></tr>
+<tr class="memdesc:ad5b0cde299c465007acbd77125cbfcff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse detokenization result.  <br /></td></tr>
+<tr class="separator:ad5b0cde299c465007acbd77125cbfcff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac9a89b18c9c14a15ecfabcee3914ad20" id="r_ac9a89b18c9c14a15ecfabcee3914ad20"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac9a89b18c9c14a15ecfabcee3914ad20">build_embeddings_json</a> (const std::string &amp;query)</td></tr>
+<tr class="memdesc:ac9a89b18c9c14a15ecfabcee3914ad20"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for embeddings generation.  <br /></td></tr>
+<tr class="separator:ac9a89b18c9c14a15ecfabcee3914ad20"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab8eeb0e041adeeafd3634cf66b32bbb2" id="r_ab8eeb0e041adeeafd3634cf66b32bbb2"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab8eeb0e041adeeafd3634cf66b32bbb2">parse_embeddings_json</a> (const json &amp;result)</td></tr>
+<tr class="memdesc:ab8eeb0e041adeeafd3634cf66b32bbb2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse embeddings result.  <br /></td></tr>
+<tr class="separator:ab8eeb0e041adeeafd3634cf66b32bbb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e1be3e304f1326d6a8c0d86510f0bd2" id="r_a4e1be3e304f1326d6a8c0d86510f0bd2"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4e1be3e304f1326d6a8c0d86510f0bd2">build_completion_json</a> (const std::string &amp;prompt, int id_slot=-1)</td></tr>
+<tr class="memdesc:a4e1be3e304f1326d6a8c0d86510f0bd2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for completion generation.  <br /></td></tr>
+<tr class="separator:a4e1be3e304f1326d6a8c0d86510f0bd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ac51c5268e2af6d24e7ae6982cbe58f" id="r_a4ac51c5268e2af6d24e7ae6982cbe58f"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4ac51c5268e2af6d24e7ae6982cbe58f">parse_completion_json</a> (const json &amp;result)</td></tr>
+<tr class="memdesc:a4ac51c5268e2af6d24e7ae6982cbe58f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse completion result.  <br /></td></tr>
+<tr class="separator:a4ac51c5268e2af6d24e7ae6982cbe58f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Abstract base class for Large Language Model operations. </p>
@@ -278,11 +273,11 @@ Public Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Formatted chat string </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00159">159</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00144">144</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_a390a093c9b269c1c342034baced79106_icgraph.svg" width="626" height="183"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_a390a093c9b269c1c342034baced79106_icgraph.svg" width="547" height="134"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -324,7 +319,7 @@ Here is the caller graph for this function:</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_a4dabf05907391e76f5c25f57adc1bde0_icgraph.svg" width="938" height="208"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_a4dabf05907391e76f5c25f57adc1bde0_icgraph.svg" width="859" height="195"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -347,7 +342,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -361,11 +356,11 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>JSON object ready for apply_template_json </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00140">140</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00125">125</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_a2c07dd3ece7427517b04887082caa97b_icgraph.svg" width="904" height="183"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_a2c07dd3ece7427517b04887082caa97b_icgraph.svg" width="826" height="134"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -392,7 +387,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -407,7 +402,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>JSON object ready for completion_json </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00244">244</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00235">235</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -434,7 +429,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -448,7 +443,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>JSON object ready for detokenize_json </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00192">192</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00178">178</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -475,7 +470,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -489,7 +484,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>JSON object ready for embeddings_json </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00218">218</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00204">204</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -516,7 +511,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -530,11 +525,11 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>JSON object ready for tokenize_json </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00166">166</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00151">151</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_a15a4fb3881c49f42bb1a9515a2593359_icgraph.svg" width="810" height="146"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_a15a4fb3881c49f42bb1a9515a2593359_icgraph.svg" width="512" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -588,7 +583,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Generated completion text or JSON response </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00285">285</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00283">283</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -682,7 +677,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Detokenized text string </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00211">211</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00197">197</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -765,7 +760,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Vector of embedding values </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00237">237</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00228">228</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -797,15 +792,15 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Generate embeddings for input text. </p>
+<p>Generate embeddings with HTTP response support. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">data</td><td>JSON object containing text to embed </td></tr>
+    <tr><td class="paramname">data</td><td>JSON object containing embedding request </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>JSON string containing text embeddings</dd></dl>
-<p>Pure virtual method for generating vector representations of text </p>
+<dl class="section return"><dt>Returns</dt><dd>JSON string with embedding data</dd></dl>
+<p>Protected method used internally for server-based embedding generation </p>
 
 <p>Implemented in <a class="el" href="classLLMAgent.html#a79b429b5b4894047bcf937476a2a9123">LLMAgent</a>, <a class="el" href="classLLMClient.html#ad25a26b154b875a4e0f0fd7515e6f96f">LLMClient</a>, <a class="el" href="classLLMService.html#ab56eaa6cdee9253f44a5a4286b6ccca1">LLMService</a>, and <a class="el" href="classLLMService.html#ab56eaa6cdee9253f44a5a4286b6ccca1">LLMService</a>.</p>
 <div class="dynheader">
@@ -842,7 +837,7 @@ Here is the caller graph for this function:</div>
 <p>Get current completion parameters. </p>
 <dl class="section return"><dt>Returns</dt><dd>JSON string of current completion parameters </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8h_source.html#l00123">123</a> of file <a class="el" href="LLM_8h_source.html">LLM.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8h_source.html#l00109">109</a> of file <a class="el" href="LLM_8h_source.html">LLM.h</a>.</p>
 
 </div>
 </div>
@@ -872,78 +867,7 @@ Here is the caller graph for this function:</div>
 <p>Get current grammar specification. </p>
 <dl class="section return"><dt>Returns</dt><dd>Current grammar string </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8h_source.html#l00113">113</a> of file <a class="el" href="LLM_8h_source.html">LLM.h</a>.</p>
-
-</div>
-</div>
-<a id="a448645ecd9e74a4a64cc1477350fa2bd" name="a448645ecd9e74a4a64cc1477350fa2bd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a448645ecd9e74a4a64cc1477350fa2bd">&#9670;&#160;</a></span>get_template()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string LLM::get_template </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Get chat template. </p>
-<dl class="section return"><dt>Returns</dt><dd>Chat template string </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00133">133</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_a448645ecd9e74a4a64cc1477350fa2bd_icgraph.svg" width="347" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="af27dd1f754a74e328750b1b50f13f27e" name="af27dd1f754a74e328750b1b50f13f27e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af27dd1f754a74e328750b1b50f13f27e">&#9670;&#160;</a></span>get_template_json()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual std::string LLM::get_template_json </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Get the chat template in JSON format. </p>
-<dl class="section return"><dt>Returns</dt><dd>JSON string representing the chat template</dd></dl>
-<p>Pure virtual method that must be implemented by derived classes </p>
-
-<p>Implemented in <a class="el" href="classLLMAgent.html#afedeed3c7401d38f2255b342d9f2a502">LLMAgent</a>, <a class="el" href="classLLMClient.html#a83f45973cd16a07972613e38b481c8fc">LLMClient</a>, <a class="el" href="classLLMService.html#a47f2c4656e0efe39106c959e9344177f">LLMService</a>, and <a class="el" href="classLLMService.html#a47f2c4656e0efe39106c959e9344177f">LLMService</a>.</p>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_af27dd1f754a74e328750b1b50f13f27e_icgraph.svg" width="644" height="159"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
+<p class="definition">Definition at line <a class="el" href="LLM_8h_source.html#l00134">134</a> of file <a class="el" href="LLM_8h_source.html">LLM.h</a>.</p>
 
 </div>
 </div>
@@ -979,17 +903,17 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if GPU layers are specified, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00061">61</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00065">65</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_aa01e69ad4fe82bf914183a38875e35e2_icgraph.svg" width="875" height="156"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_aa01e69ad4fe82bf914183a38875e35e2_icgraph.svg" width="1088" height="167"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
 </div>
-<a id="a04014c94c0062da5c0b87f46d0904c79" name="a04014c94c0062da5c0b87f46d0904c79"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a04014c94c0062da5c0b87f46d0904c79">&#9670;&#160;</a></span>LLM_args_to_command()</h2>
+<a id="a93d91518d38588e69338de15a1ab6510" name="a93d91518d38588e69338de15a1ab6510"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a93d91518d38588e69338de15a1ab6510">&#9670;&#160;</a></span>LLM_args_to_command()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1005,17 +929,17 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>num_slots</em><span class="paramdefsep"> = </span><span class="paramdefval">1</span>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>num_threads</em><span class="paramdefsep"> = </span><span class="paramdefval">-1</span>, </span></td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>num_GPU_layers</em><span class="paramdefsep"> = </span><span class="paramdefval">0</span>, </span></td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>num_parallel</em><span class="paramdefsep"> = </span><span class="paramdefval">1</span>, </span></td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1054,9 +978,9 @@ Here is the caller graph for this function:</div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">model_path</td><td>Path to the model file </td></tr>
+    <tr><td class="paramname">num_slots</td><td>Number of parallel slots to use </td></tr>
     <tr><td class="paramname">num_threads</td><td>Number of CPU threads to use (-1 for auto) </td></tr>
     <tr><td class="paramname">num_GPU_layers</td><td>Number of layers to offload to GPU </td></tr>
-    <tr><td class="paramname">num_parallel</td><td>Number of parallel slots to use </td></tr>
     <tr><td class="paramname">flash_attention</td><td>Whether to use flash attention optimization </td></tr>
     <tr><td class="paramname">context_size</td><td>Maximum context length in tokens (default: 4096, 0 = loaded from model) </td></tr>
     <tr><td class="paramname">batch_size</td><td>Batch size for processing </td></tr>
@@ -1067,11 +991,11 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Command line string with all parameters </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00042">42</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00046">46</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_a04014c94c0062da5c0b87f46d0904c79_icgraph.svg" width="447" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_a93d91518d38588e69338de15a1ab6510_icgraph.svg" width="447" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -1094,7 +1018,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -1108,11 +1032,11 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Formatted chat string </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00147">147</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00132">132</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_a33112cbc41dcb6af5cb7e4a6cf185e94_icgraph.svg" width="908" height="183"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_a33112cbc41dcb6af5cb7e4a6cf185e94_icgraph.svg" width="830" height="134"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -1135,7 +1059,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -1149,7 +1073,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Generated completion text </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00273">273</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00264">264</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1176,7 +1100,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -1190,7 +1114,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Detokenized text string </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00199">199</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00185">185</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1217,7 +1141,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -1231,52 +1155,11 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Vector of embedding values </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00225">225</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00211">211</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_ab8eeb0e041adeeafd3634cf66b32bbb2_icgraph.svg" width="591" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="a0f86be4be1a7b98fd959b6ed8046629d" name="a0f86be4be1a7b98fd959b6ed8046629d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0f86be4be1a7b98fd959b6ed8046629d">&#9670;&#160;</a></span>parse_get_template_json()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string LLM::parse_get_template_json </td>
-          <td>(</td>
-          <td class="paramtype">const json &amp;</td>          <td class="paramname"><span class="paramname"><em>result</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Parse template JSON response. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">result</td><td>JSON response from get_template_json </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Parsed template string </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00121">121</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_a0f86be4be1a7b98fd959b6ed8046629d_icgraph.svg" width="615" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -1299,7 +1182,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -1313,11 +1196,11 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Vector of token IDs </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00173">173</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00158">158</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_a33d3ec109eef58997f40487ceab50d1a_icgraph.svg" width="814" height="146"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_a33d3ec109eef58997f40487ceab50d1a_icgraph.svg" width="516" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -1354,7 +1237,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <p>Parameters may include temperature, n_predict, etc., </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8h_source.html#l00119">119</a> of file <a class="el" href="LLM_8h_source.html">LLM.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8h_source.html#l00105">105</a> of file <a class="el" href="LLM_8h_source.html">LLM.h</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1395,7 +1278,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <p>See <a href="https://github.com/ggml-org/llama.cpp/tree/master/grammars">https://github.com/ggml-org/llama.cpp/tree/master/grammars</a> for format details </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8h_source.html#l00109">109</a> of file <a class="el" href="LLM_8h_source.html">LLM.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8h_source.html#l00130">130</a> of file <a class="el" href="LLM_8h_source.html">LLM.h</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1436,11 +1319,11 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Vector of token IDs </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00185">185</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00170">170</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_a625ad6e037e16cdc61282150ef465229_icgraph.svg" width="578" height="146"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_a625ad6e037e16cdc61282150ef465229_icgraph.svg" width="280" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -1468,21 +1351,20 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Tokenize text input. </p>
+<p>Tokenize input (override) </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">data</td><td>JSON object containing text to tokenize </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>JSON string containing token IDs</dd></dl>
-<p>Pure virtual method for converting text to token sequences </p>
+<dl class="section return"><dt>Returns</dt><dd>JSON string with token data </dd></dl>
 
 <p>Implemented in <a class="el" href="classLLMAgent.html#af731f579cad220648aa963a4a5d914de">LLMAgent</a>, <a class="el" href="classLLMClient.html#aedfc3267eeda5ae10fef18f614b5df0f">LLMClient</a>, <a class="el" href="classLLMService.html#a8c715eaf88cc6edd540554047afd3fc9">LLMService</a>, and <a class="el" href="classLLMService.html#a8c715eaf88cc6edd540554047afd3fc9">LLMService</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_a535b20d75538e5bb7bca8e8f0e52ba8f_icgraph.svg" width="843" height="207"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLM_a535b20d75538e5bb7bca8e8f0e52ba8f_icgraph.svg" width="546" height="159"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>

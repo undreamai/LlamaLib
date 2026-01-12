@@ -1,11 +1,12 @@
 var classLLMProvider =
 [
     [ "~LLMProvider", "classLLMProvider.html#ac778ad50369d60266e9e3a6799b443d4", null ],
+    [ "build_lora_list_json", "classLLMProvider.html#aedff32c168b7d5beb27feef24e79b65b", null ],
     [ "build_lora_weight_json", "classLLMProvider.html#a8461da56462534f7425e5ad1c79fdfbc", null ],
-    [ "build_set_template_json", "classLLMProvider.html#a178cf9298f0620c7c4fb48fd6707b56b", null ],
     [ "debug", "classLLMProvider.html#a548bbfcd949bf4f5ede7c05f52749923", null ],
     [ "debug_implementation", "classLLMProvider.html#a241049df792d1c4b3dbb5010d4f42cfb", null ],
     [ "embedding_size", "classLLMProvider.html#af119e46c52a25dedd008d4a869026666", null ],
+    [ "enable_reasoning", "classLLMProvider.html#a75886f91ec01357c59bac03ab56b45e3", null ],
     [ "join_server", "classLLMProvider.html#a6bef1ad6bc58ca4e509bf9dda4721fc4", null ],
     [ "join_service", "classLLMProvider.html#a4ea0347b67074cd7b73771d844f9f6a1", null ],
     [ "logging_callback", "classLLMProvider.html#a0e60fa8d17447deb91fa63cbff6bd0b9", null ],
@@ -17,11 +18,10 @@ var classLLMProvider =
     [ "parse_lora_list_json", "classLLMProvider.html#ad8da37c8c711256c2cb102ccd011a3b3", null ],
     [ "parse_lora_weight_json", "classLLMProvider.html#a6487ee5c99fc6d0cef6becf8a9ff7f73", null ],
     [ "set_SSL", "classLLMProvider.html#aa5e464523f6bfae26f7416f28c373516", null ],
-    [ "set_template", "classLLMProvider.html#a9429b5e0d4f56d8ebaefd44d7c7da3ef", null ],
-    [ "set_template_json", "classLLMProvider.html#acc5cb1075cbb557ea7ba2fe98e539932", null ],
     [ "start", "classLLMProvider.html#ad46fef01bca7adba1a4f30a5e6798903", null ],
-    [ "start_server", "classLLMProvider.html#a6b76feb7cb6cda5b9416f4c27fd6a301", null ],
+    [ "start_server", "classLLMProvider.html#a116cba73b2a964b7535b2e41d1ef160c", null ],
     [ "started", "classLLMProvider.html#a112eb69e831ffef73adb33730515e89d", null ],
     [ "stop", "classLLMProvider.html#a9bfbcfcdf09564a57fcbd75cd4a82e7e", null ],
-    [ "stop_server", "classLLMProvider.html#a5180d1e7bc34f67cd48c7f8d492bef36", null ]
+    [ "stop_server", "classLLMProvider.html#a5180d1e7bc34f67cd48c7f8d492bef36", null ],
+    [ "reasoning_enabled", "classLLMProvider.html#a22309652345d48c17f3abffd74656b30", null ]
 ];

@@ -1,8 +1,8 @@
 <map id="LLMProvider::lora_weight_json" name="LLMProvider::lora_weight_json">
-<area shape="rect" id="Node000001" title="Configure LoRA adapter weights." alt="" coords="240,55,460,80"/>
-<area shape="rect" id="Node000002" href="$LLM_8cpp.html#aa3678e9afd72bede2c330ffdb0561546" title="Configure LoRA weights (C API)" alt="" coords="31,29,166,55"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="226,58,166,51,167,46,227,52"/>
-<area shape="rect" id="Node000003" href="$classLLMProvider.html#a8c5dbd89d29d770d73ca1bd8c6f227d8" title="Configure LoRA weights." alt="" coords="5,79,192,104"/>
-<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="227,82,192,85,192,80,226,76"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="143,20,141,15,133,12,99,8,72,10,57,15,55,20,62,27,58,31,49,21,54,11,71,5,99,3,134,7,144,11,148,17"/>
+<area shape="rect" id="Node000001" title="Configure LoRA weights with HTTP response support." alt="" coords="423,29,643,55"/>
+<area shape="rect" id="Node000002" href="$classLLMProvider.html#a8c5dbd89d29d770d73ca1bd8c6f227d8" title="Configure LoRA weights." alt="" coords="188,29,375,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="409,45,375,45,375,39,409,39"/>
+<area shape="rect" id="Node000003" href="$LLM_8cpp.html#aa3678e9afd72bede2c330ffdb0561546" title="Configure LoRA weights (C API)" alt="" coords="5,29,140,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="174,45,140,45,140,39,174,39"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="110,20,100,11,73,8,51,10,39,15,36,20,43,28,39,31,31,21,35,11,49,5,73,3,102,6,113,15"/>
 </map>

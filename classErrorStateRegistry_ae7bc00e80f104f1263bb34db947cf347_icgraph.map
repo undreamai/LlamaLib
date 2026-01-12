@@ -1,0 +1,17 @@
+<map id="ErrorStateRegistry::get_error_state" name="ErrorStateRegistry::get_error_state">
+<area shape="rect" id="Node000001" title="Get the error state instance." alt="" coords="925,70,1067,110"/>
+<area shape="rect" id="Node000002" href="$classLLMService.html#a5aa62b2f1feb31a8977801c2bd2ed30d" title="Load LLM library backend." alt="" coords="712,70,877,110"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="912,93,877,93,877,87,912,87"/>
+<area shape="rect" id="Node000003" href="$classLLMService.html#ac194e3210642288e650ed9f9194a69ee" title="Loads LLM library dynamically according to underlying achitecture and creates a LLM based on the comm..." alt="" coords="519,41,664,81"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="698,79,664,74,665,69,699,73"/>
+<area shape="rect" id="Node000004" href="$classLLMService.html#afd5f58f0c3b9e3d64524ddb21cc8168a" title="Create runtime from command line string." alt="" coords="264,5,471,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="504,47,434,33,435,28,505,42"/>
+<area shape="rect" id="Node000007" href="$classLLMService.html#a982b997919be934d4c3d300bbbe7a971" title="Parameterized constructor." alt="" coords="278,55,457,80"/>
+<area shape="poly" id="edge8_Node000003_Node000007" title=" " alt="" coords="505,66,457,67,457,62,505,61"/>
+<area shape="rect" id="Node000005" href="$classLLMService.html#a8c646d7f7f81358417ed52359b10d583" title="Create runtime from argc/argv." alt="" coords="7,5,214,31"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="250,21,214,21,214,15,250,15"/>
+<area shape="rect" id="Node000006" href="$LLM__service_8cpp.html#abaea4e04e10d2f293565fc535746b240" title="Create LLMService from command string (C API)" alt="" coords="5,92,216,117"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="292,37,265,45,197,70,141,94,138,89,195,65,263,39,290,32"/>
+<area shape="poly" id="edge6_Node000006_Node000002" title=" " alt="" coords="230,99,712,89,712,94,230,105"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="156,83,154,78,145,74,111,71,83,73,68,78,66,83,73,90,69,94,60,84,65,74,82,67,111,65,147,69,157,74,161,80"/>
+</map>

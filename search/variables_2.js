@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['grammar_0',['grammar',['../classLLM.html#aaf48294e82599b5b60e1113a721fe8b6',1,'LLM']]]
+  ['handle_0',['handle',['../classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa',1,'LLMService']]]
 ];

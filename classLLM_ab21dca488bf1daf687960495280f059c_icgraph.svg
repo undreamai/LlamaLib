@@ -38,7 +38,7 @@
 <!-- Node4 -->
 <g id="Node000004" class="node">
 <title>Node4</title>
-<g id="a_Node000004"><a xlink:href="classLLMAgent.html#aca7212f7b9aaed0f2f4bc7562f594c90" target="_top" xlink:title="Detokenize tokens (delegate to wrapped LLM)">
+<g id="a_Node000004"><a xlink:href="classLLMAgent.html#aca7212f7b9aaed0f2f4bc7562f594c90" target="_top" xlink:title="Convert tokens back to text.">
 <polygon fill="white" stroke="#666666" points="281,-56 132,-56 132,-37 281,-37 281,-56"/>
 <text text-anchor="middle" x="206.5" y="-44" font-family="Helvetica,sans-Serif" font-size="10.00">LLMAgent::detokenize_json</text>
 </a>
@@ -56,7 +56,7 @@
 <!-- Node5 -->
 <g id="Node000005" class="node">
 <title>Node5</title>
-<g id="a_Node000005"><a xlink:href="classLLMClient.html#a67449d6548e6bf936bd0ebfc768a8c82" target="_top" xlink:title="Convert tokens to text (override)">
+<g id="a_Node000005"><a xlink:href="classLLMClient.html#a67449d6548e6bf936bd0ebfc768a8c82" target="_top" xlink:title="Convert tokens back to text.">
 <polygon fill="white" stroke="#666666" points="281,-19 132,-19 132,0 281,0 281,-19"/>
 <text text-anchor="middle" x="206.5" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">LLMClient::detokenize_json</text>
 </a>

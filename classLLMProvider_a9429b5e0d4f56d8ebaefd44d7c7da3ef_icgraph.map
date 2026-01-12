@@ -1,6 +1,0 @@
-<map id="LLMProvider::set_template" name="LLMProvider::set_template">
-<area shape="rect" id="Node000001" title="Set chat template." alt="" coords="196,29,392,55"/>
-<area shape="rect" id="Node000002" href="$LLM_8cpp.html#a192fcffd2a8ef13ed5ddc026b552f51f" title="Set chat template (C API)" alt="" coords="5,29,148,55"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,45,149,45,149,39,182,39"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="115,20,105,11,77,8,54,10,41,15,39,20,45,28,41,31,34,21,38,11,52,5,77,3,107,6,119,15"/>
-</map>

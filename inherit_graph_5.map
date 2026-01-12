@@ -1,5 +1,13 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" title=" " alt="" coords="5,5,120,31"/>
-<area shape="rect" id="Node000001" href="$classSinkException.html" title=" " alt="" coords="168,5,283,31"/>
-<area shape="poly" id="edge6_Node000000_Node000001" title=" " alt="" coords="134,15,168,15,168,21,134,21"/>
+<area shape="rect" id="Node000000" href="$classLLM.html" title="Abstract base class for Large Language Model operations." alt="" coords="5,55,53,80"/>
+<area shape="rect" id="Node000001" href="$classLLMLocal.html" title="Abstract class for local LLM operations with slot management." alt="" coords="101,55,184,80"/>
+<area shape="poly" id="edge1_Node000000_Node000001" title=" " alt="" coords="67,65,101,65,101,70,67,70"/>
+<area shape="rect" id="Node000002" href="$classLLMAgent.html" title="High&#45;level conversational agent for LLM interactions." alt="" coords="240,5,327,31"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="192,47,245,28,247,33,193,52"/>
+<area shape="rect" id="Node000003" href="$classLLMClient.html" title="Client for accessing LLM functionality locally or remotely." alt="" coords="240,55,327,80"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="198,65,240,65,240,70,198,70"/>
+<area shape="rect" id="Node000004" href="$classLLMProvider.html" title="Abstract class for LLM service providers." alt="" coords="232,104,335,129"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="193,82,247,101,245,106,192,87"/>
+<area shape="rect" id="Node000005" href="$classLLMService.html" title="Runtime loader for LLM libraries." alt="" coords="383,104,479,129"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="348,114,383,114,383,119,348,119"/>
 </map>

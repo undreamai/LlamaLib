@@ -143,9 +143,6 @@ $(function(){initNavTree('group__c__api.html',''); initResizable(); });
 <tr class="memitem:ga0d55599a4f2325b8b95d1bd9b6ebed57" id="r_ga0d55599a4f2325b8b95d1bd9b6ebed57"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga0d55599a4f2325b8b95d1bd9b6ebed57">LLM_Get_Grammar</a> (<a class="el" href="classLLM.html">LLM</a> *llm)</td></tr>
 <tr class="memdesc:ga0d55599a4f2325b8b95d1bd9b6ebed57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get grammar (C API)  <br /></td></tr>
 <tr class="separator:ga0d55599a4f2325b8b95d1bd9b6ebed57"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gabe829f0b11c3e8c475ba15ad4ab0a4a2" id="r_gabe829f0b11c3e8c475ba15ad4ab0a4a2"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gabe829f0b11c3e8c475ba15ad4ab0a4a2">LLM_Get_Template</a> (<a class="el" href="classLLM.html">LLM</a> *llm)</td></tr>
-<tr class="memdesc:gabe829f0b11c3e8c475ba15ad4ab0a4a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get chat template (C API)  <br /></td></tr>
-<tr class="separator:gabe829f0b11c3e8c475ba15ad4ab0a4a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga51b433682bf76ff935c8377a0980bfdb" id="r_ga51b433682bf76ff935c8377a0980bfdb"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga51b433682bf76ff935c8377a0980bfdb">LLM_Apply_Template</a> (<a class="el" href="classLLM.html">LLM</a> *llm, const char *messages_as_json)</td></tr>
 <tr class="memdesc:ga51b433682bf76ff935c8377a0980bfdb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply chat template (C API)  <br /></td></tr>
 <tr class="separator:ga51b433682bf76ff935c8377a0980bfdb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -170,12 +167,12 @@ $(function(){initNavTree('group__c__api.html',''); initResizable(); });
 <tr class="memitem:ga7416b59d7352c3a5c9198674c92dde24" id="r_ga7416b59d7352c3a5c9198674c92dde24"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga7416b59d7352c3a5c9198674c92dde24">LLM_Cancel</a> (<a class="el" href="classLLMLocal.html">LLMLocal</a> *llm, int id_slot)</td></tr>
 <tr class="memdesc:ga7416b59d7352c3a5c9198674c92dde24"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cancel request (C API)  <br /></td></tr>
 <tr class="separator:ga7416b59d7352c3a5c9198674c92dde24"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga192fcffd2a8ef13ed5ddc026b552f51f" id="r_ga192fcffd2a8ef13ed5ddc026b552f51f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga192fcffd2a8ef13ed5ddc026b552f51f">LLM_Set_Template</a> (<a class="el" href="classLLMProvider.html">LLMProvider</a> *llm, const char *chat_template)</td></tr>
-<tr class="memdesc:ga192fcffd2a8ef13ed5ddc026b552f51f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set chat template (C API)  <br /></td></tr>
-<tr class="separator:ga192fcffd2a8ef13ed5ddc026b552f51f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaa3678e9afd72bede2c330ffdb0561546" id="r_gaa3678e9afd72bede2c330ffdb0561546"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaa3678e9afd72bede2c330ffdb0561546">LLM_Lora_Weight</a> (<a class="el" href="classLLMProvider.html">LLMProvider</a> *llm, const char *loras_as_json)</td></tr>
 <tr class="memdesc:gaa3678e9afd72bede2c330ffdb0561546"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configure LoRA weights (C API)  <br /></td></tr>
 <tr class="separator:gaa3678e9afd72bede2c330ffdb0561546"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1f214a29cbe38a9a8702402e00d45047" id="r_ga1f214a29cbe38a9a8702402e00d45047"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga1f214a29cbe38a9a8702402e00d45047">LLM_Enable_Reasoning</a> (<a class="el" href="classLLMProvider.html">LLMProvider</a> *llm, bool enable_reasoning)</td></tr>
+<tr class="memdesc:ga1f214a29cbe38a9a8702402e00d45047"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enable reasoning (C API)  <br /></td></tr>
+<tr class="separator:ga1f214a29cbe38a9a8702402e00d45047"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga092b93933e9011afb41d24912ab76a4b" id="r_ga092b93933e9011afb41d24912ab76a4b"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga092b93933e9011afb41d24912ab76a4b">LLM_Lora_List</a> (<a class="el" href="classLLMProvider.html">LLMProvider</a> *llm)</td></tr>
 <tr class="memdesc:ga092b93933e9011afb41d24912ab76a4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">List LoRA adapters (C API)  <br /></td></tr>
 <tr class="separator:ga092b93933e9011afb41d24912ab76a4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -191,9 +188,9 @@ $(function(){initNavTree('group__c__api.html',''); initResizable(); });
 <tr class="memitem:ga16d0dc5636d272801e207276fc6e507b" id="r_ga16d0dc5636d272801e207276fc6e507b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga16d0dc5636d272801e207276fc6e507b">LLM_Stop</a> (<a class="el" href="classLLMProvider.html">LLMProvider</a> *llm)</td></tr>
 <tr class="memdesc:ga16d0dc5636d272801e207276fc6e507b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> service (C API)  <br /></td></tr>
 <tr class="separator:ga16d0dc5636d272801e207276fc6e507b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga3d6654577d12d8c3bd35e68aa08026e1" id="r_ga3d6654577d12d8c3bd35e68aa08026e1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga3d6654577d12d8c3bd35e68aa08026e1">LLM_Start_Server</a> (<a class="el" href="classLLMProvider.html">LLMProvider</a> *llm, const char *host=&quot;0.0.0.0&quot;, int port=0, const char *API_key=&quot;&quot;)</td></tr>
-<tr class="memdesc:ga3d6654577d12d8c3bd35e68aa08026e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start HTTP server (C API)  <br /></td></tr>
-<tr class="separator:ga3d6654577d12d8c3bd35e68aa08026e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafd467bf541db2514e793ed6a969dfc67" id="r_gafd467bf541db2514e793ed6a969dfc67"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gafd467bf541db2514e793ed6a969dfc67">LLM_Start_Server</a> (<a class="el" href="classLLMProvider.html">LLMProvider</a> *llm, const char *host=&quot;0.0.0.0&quot;, int port=-1, const char *API_key=&quot;&quot;)</td></tr>
+<tr class="memdesc:gafd467bf541db2514e793ed6a969dfc67"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start HTTP server (C API)  <br /></td></tr>
+<tr class="separator:gafd467bf541db2514e793ed6a969dfc67"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaf425acff4f701be4b0ac71f87167c96c" id="r_gaf425acff4f701be4b0ac71f87167c96c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaf425acff4f701be4b0ac71f87167c96c">LLM_Stop_Server</a> (<a class="el" href="classLLMProvider.html">LLMProvider</a> *llm)</td></tr>
 <tr class="memdesc:gaf425acff4f701be4b0ac71f87167c96c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop HTTP server (C API)  <br /></td></tr>
 <tr class="separator:gaf425acff4f701be4b0ac71f87167c96c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -215,21 +212,9 @@ $(function(){initNavTree('group__c__api.html',''); initResizable(); });
 <tr class="memitem:ga8fd7da1b0590ea0fc6de7e518740bc54" id="r_ga8fd7da1b0590ea0fc6de7e518740bc54"><td class="memItemLeft" align="right" valign="top">const int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga8fd7da1b0590ea0fc6de7e518740bc54">LLM_Embedding_Size</a> (<a class="el" href="classLLMProvider.html">LLMProvider</a> *llm)</td></tr>
 <tr class="memdesc:ga8fd7da1b0590ea0fc6de7e518740bc54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get embedding vector size (C API)  <br /></td></tr>
 <tr class="separator:ga8fd7da1b0590ea0fc6de7e518740bc54"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaa1bdf0d986b0c83ee696049a0740df13" id="r_gaa1bdf0d986b0c83ee696049a0740df13"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLLMAgent.html">LLMAgent</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaa1bdf0d986b0c83ee696049a0740df13">LLMAgent_Construct</a> (<a class="el" href="classLLMLocal.html">LLMLocal</a> *llm, const char *system_prompt=&quot;&quot;, const char *user_role=&quot;user&quot;, const char *assistant_role=&quot;assistant&quot;)</td></tr>
-<tr class="memdesc:gaa1bdf0d986b0c83ee696049a0740df13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct <a class="el" href="classLLMAgent.html" title="High-level conversational agent for LLM interactions.">LLMAgent</a> (C API)  <br /></td></tr>
-<tr class="separator:gaa1bdf0d986b0c83ee696049a0740df13"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga916d9ae32af4cac65a2e1729724c387d" id="r_ga916d9ae32af4cac65a2e1729724c387d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga916d9ae32af4cac65a2e1729724c387d">LLMAgent_Set_User_Role</a> (<a class="el" href="classLLMAgent.html">LLMAgent</a> *llm, const char *user_role)</td></tr>
-<tr class="memdesc:ga916d9ae32af4cac65a2e1729724c387d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set user role (C API)  <br /></td></tr>
-<tr class="separator:ga916d9ae32af4cac65a2e1729724c387d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga537a4e29fe1dbd58ced04836fd6dd2f8" id="r_ga537a4e29fe1dbd58ced04836fd6dd2f8"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga537a4e29fe1dbd58ced04836fd6dd2f8">LLMAgent_Get_User_Role</a> (<a class="el" href="classLLMAgent.html">LLMAgent</a> *llm)</td></tr>
-<tr class="memdesc:ga537a4e29fe1dbd58ced04836fd6dd2f8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get user role (C API)  <br /></td></tr>
-<tr class="separator:ga537a4e29fe1dbd58ced04836fd6dd2f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga77270f438bfe8ffb7e4c76780744adc5" id="r_ga77270f438bfe8ffb7e4c76780744adc5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga77270f438bfe8ffb7e4c76780744adc5">LLMAgent_Set_Assistant_Role</a> (<a class="el" href="classLLMAgent.html">LLMAgent</a> *llm, const char *assistant_role)</td></tr>
-<tr class="memdesc:ga77270f438bfe8ffb7e4c76780744adc5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set assistant role (C API)  <br /></td></tr>
-<tr class="separator:ga77270f438bfe8ffb7e4c76780744adc5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga00e058e9fecb98441f8d4ef81f578718" id="r_ga00e058e9fecb98441f8d4ef81f578718"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga00e058e9fecb98441f8d4ef81f578718">LLMAgent_Get_Assistant_Role</a> (<a class="el" href="classLLMAgent.html">LLMAgent</a> *llm)</td></tr>
-<tr class="memdesc:ga00e058e9fecb98441f8d4ef81f578718"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get assistant role (C API)  <br /></td></tr>
-<tr class="separator:ga00e058e9fecb98441f8d4ef81f578718"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3d0d11a65566e013d3bf96e7c3a80876" id="r_ga3d0d11a65566e013d3bf96e7c3a80876"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLLMAgent.html">LLMAgent</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga3d0d11a65566e013d3bf96e7c3a80876">LLMAgent_Construct</a> (<a class="el" href="classLLMLocal.html">LLMLocal</a> *llm, const char *system_prompt=&quot;&quot;)</td></tr>
+<tr class="memdesc:ga3d0d11a65566e013d3bf96e7c3a80876"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct <a class="el" href="classLLMAgent.html" title="High-level conversational agent for LLM interactions.">LLMAgent</a> (C API)  <br /></td></tr>
+<tr class="separator:ga3d0d11a65566e013d3bf96e7c3a80876"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaddaf48d1cea0709d3765e6ece7cea6f8" id="r_gaddaf48d1cea0709d3765e6ece7cea6f8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaddaf48d1cea0709d3765e6ece7cea6f8">LLMAgent_Set_System_Prompt</a> (<a class="el" href="classLLMAgent.html">LLMAgent</a> *llm, const char *system_prompt)</td></tr>
 <tr class="memdesc:gaddaf48d1cea0709d3765e6ece7cea6f8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set system prompt (C API)  <br /></td></tr>
 <tr class="separator:gaddaf48d1cea0709d3765e6ece7cea6f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -242,9 +227,9 @@ $(function(){initNavTree('group__c__api.html',''); initResizable(); });
 <tr class="memitem:ga7c91f0c927046a28df550d1ff0b9efe1" id="r_ga7c91f0c927046a28df550d1ff0b9efe1"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga7c91f0c927046a28df550d1ff0b9efe1">LLMAgent_Get_Slot</a> (<a class="el" href="classLLMAgent.html">LLMAgent</a> *llm)</td></tr>
 <tr class="memdesc:ga7c91f0c927046a28df550d1ff0b9efe1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get processing slot (C API)  <br /></td></tr>
 <tr class="separator:ga7c91f0c927046a28df550d1ff0b9efe1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga0c31e3a63e42e3636d5d525671129f33" id="r_ga0c31e3a63e42e3636d5d525671129f33"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga0c31e3a63e42e3636d5d525671129f33">LLMAgent_Chat</a> (<a class="el" href="classLLMAgent.html">LLMAgent</a> *llm, const char *user_prompt, bool add_to_history=true, CharArrayFn callback=nullptr, bool return_response_json=false)</td></tr>
-<tr class="memdesc:ga0c31e3a63e42e3636d5d525671129f33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Conduct chat interaction (C API)  <br /></td></tr>
-<tr class="separator:ga0c31e3a63e42e3636d5d525671129f33"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6ad321180ec6a42f0d8d2353ee686a7b" id="r_ga6ad321180ec6a42f0d8d2353ee686a7b"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga6ad321180ec6a42f0d8d2353ee686a7b">LLMAgent_Chat</a> (<a class="el" href="classLLMAgent.html">LLMAgent</a> *llm, const char *user_prompt, bool add_to_history=true, CharArrayFn callback=nullptr, bool return_response_json=false, bool debug_prompt=false)</td></tr>
+<tr class="memdesc:ga6ad321180ec6a42f0d8d2353ee686a7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Conduct chat interaction (C API)  <br /></td></tr>
+<tr class="separator:ga6ad321180ec6a42f0d8d2353ee686a7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5e0a07cda62c8ac7700f6c8414798ad5" id="r_ga5e0a07cda62c8ac7700f6c8414798ad5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga5e0a07cda62c8ac7700f6c8414798ad5">LLMAgent_Clear_History</a> (<a class="el" href="classLLMAgent.html">LLMAgent</a> *llm)</td></tr>
 <tr class="memdesc:ga5e0a07cda62c8ac7700f6c8414798ad5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear conversation history (C API)  <br /></td></tr>
 <tr class="separator:ga5e0a07cda62c8ac7700f6c8414798ad5"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -254,9 +239,12 @@ $(function(){initNavTree('group__c__api.html',''); initResizable(); });
 <tr class="memitem:ga5f747a2ecd730788d71b95a81a2bf6e0" id="r_ga5f747a2ecd730788d71b95a81a2bf6e0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga5f747a2ecd730788d71b95a81a2bf6e0">LLMAgent_Set_History</a> (<a class="el" href="classLLMAgent.html">LLMAgent</a> *llm, const char *history_json)</td></tr>
 <tr class="memdesc:ga5f747a2ecd730788d71b95a81a2bf6e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set conversation history (C API)  <br /></td></tr>
 <tr class="separator:ga5f747a2ecd730788d71b95a81a2bf6e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gad346fab0b6e0ec3b7af2b374de3dbae5" id="r_gad346fab0b6e0ec3b7af2b374de3dbae5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gad346fab0b6e0ec3b7af2b374de3dbae5">LLMAgent_Add_Message</a> (<a class="el" href="classLLMAgent.html">LLMAgent</a> *llm, const char *role, const char *content)</td></tr>
-<tr class="memdesc:gad346fab0b6e0ec3b7af2b374de3dbae5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add message to history (C API)  <br /></td></tr>
-<tr class="separator:gad346fab0b6e0ec3b7af2b374de3dbae5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab102a0bf9594499e6f1bf8f943d67a06" id="r_gab102a0bf9594499e6f1bf8f943d67a06"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gab102a0bf9594499e6f1bf8f943d67a06">LLMAgent_Add_User_Message</a> (<a class="el" href="classLLMAgent.html">LLMAgent</a> *llm, const char *content)</td></tr>
+<tr class="memdesc:gab102a0bf9594499e6f1bf8f943d67a06"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add user message to history (C API)  <br /></td></tr>
+<tr class="separator:gab102a0bf9594499e6f1bf8f943d67a06"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3350529fb8673422d3b31ed22926d34e" id="r_ga3350529fb8673422d3b31ed22926d34e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga3350529fb8673422d3b31ed22926d34e">LLMAgent_Add_Assistant_Message</a> (<a class="el" href="classLLMAgent.html">LLMAgent</a> *llm, const char *content)</td></tr>
+<tr class="memdesc:ga3350529fb8673422d3b31ed22926d34e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add assistant message to history (C API)  <br /></td></tr>
+<tr class="separator:ga3350529fb8673422d3b31ed22926d34e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gafcd7d80c2bfc85bc943aa516607a1871" id="r_gafcd7d80c2bfc85bc943aa516607a1871"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gafcd7d80c2bfc85bc943aa516607a1871">LLMAgent_Remove_Last_Message</a> (<a class="el" href="classLLMAgent.html">LLMAgent</a> *llm)</td></tr>
 <tr class="memdesc:gafcd7d80c2bfc85bc943aa516607a1871"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove last message from history (C API)  <br /></td></tr>
 <tr class="separator:gafcd7d80c2bfc85bc943aa516607a1871"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -269,27 +257,34 @@ $(function(){initNavTree('group__c__api.html',''); initResizable(); });
 <tr class="memitem:ga277940928041a33dc91e86f22715e518" id="r_ga277940928041a33dc91e86f22715e518"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga277940928041a33dc91e86f22715e518">LLMAgent_Get_History_Size</a> (<a class="el" href="classLLMAgent.html">LLMAgent</a> *llm)</td></tr>
 <tr class="memdesc:ga277940928041a33dc91e86f22715e518"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get conversation history size (C API)  <br /></td></tr>
 <tr class="separator:ga277940928041a33dc91e86f22715e518"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaaf9d2dbedf959642d816abc6af064e89" id="r_gaaf9d2dbedf959642d816abc6af064e89"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaaf9d2dbedf959642d816abc6af064e89">LLMClient_Is_Server_Alive</a> (<a class="el" href="classLLMClient.html">LLMClient</a> *llm)</td></tr>
+<tr class="separator:gaaf9d2dbedf959642d816abc6af064e89"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga76b46ac93bf8735a0e2bb0e2cc34f4d0" id="r_ga76b46ac93bf8735a0e2bb0e2cc34f4d0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga76b46ac93bf8735a0e2bb0e2cc34f4d0">LLMClient_Set_SSL</a> (<a class="el" href="classLLMClient.html">LLMClient</a> *llm, const char *SSL_cert)</td></tr>
 <tr class="memdesc:ga76b46ac93bf8735a0e2bb0e2cc34f4d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set SSL certificate (C API)  <br /></td></tr>
 <tr class="separator:ga76b46ac93bf8735a0e2bb0e2cc34f4d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6f2f5d43a4bf1ae52b05c602e6ee3a8f" id="r_ga6f2f5d43a4bf1ae52b05c602e6ee3a8f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLLMClient.html">LLMClient</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga6f2f5d43a4bf1ae52b05c602e6ee3a8f">LLMClient_Construct</a> (<a class="el" href="classLLMProvider.html">LLMProvider</a> *llm)</td></tr>
 <tr class="memdesc:ga6f2f5d43a4bf1ae52b05c602e6ee3a8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct local <a class="el" href="classLLMClient.html" title="Client for accessing LLM functionality locally or remotely.">LLMClient</a> (C API)  <br /></td></tr>
 <tr class="separator:ga6f2f5d43a4bf1ae52b05c602e6ee3a8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gad9daeffab1a9656b8ae3ee903ea384ad" id="r_gad9daeffab1a9656b8ae3ee903ea384ad"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLLMClient.html">LLMClient</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gad9daeffab1a9656b8ae3ee903ea384ad">LLMClient_Construct_Remote</a> (const char *url, const int port)</td></tr>
-<tr class="memdesc:gad9daeffab1a9656b8ae3ee903ea384ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct remote <a class="el" href="classLLMClient.html" title="Client for accessing LLM functionality locally or remotely.">LLMClient</a> (C API)  <br /></td></tr>
-<tr class="separator:gad9daeffab1a9656b8ae3ee903ea384ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae91722416d193cf4768f174b8b37aff7" id="r_gae91722416d193cf4768f174b8b37aff7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLLMClient.html">LLMClient</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gae91722416d193cf4768f174b8b37aff7">LLMClient_Construct_Remote</a> (const char *url, const int port, const char *API_key=&quot;&quot;)</td></tr>
+<tr class="memdesc:gae91722416d193cf4768f174b8b37aff7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct remote <a class="el" href="classLLMClient.html" title="Client for accessing LLM functionality locally or remotely.">LLMClient</a> (C API)  <br /></td></tr>
+<tr class="separator:gae91722416d193cf4768f174b8b37aff7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5b4db05f55ed6b70506bc17a93f7eb40" id="r_ga5b4db05f55ed6b70506bc17a93f7eb40"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga5b4db05f55ed6b70506bc17a93f7eb40">Available_Architectures</a> (bool gpu)</td></tr>
 <tr class="memdesc:ga5b4db05f55ed6b70506bc17a93f7eb40"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get available architectures (C API)  <br /></td></tr>
 <tr class="separator:ga5b4db05f55ed6b70506bc17a93f7eb40"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2685b20fe11a096ebd009f94d7c17164" id="r_ga2685b20fe11a096ebd009f94d7c17164"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga2685b20fe11a096ebd009f94d7c17164">LLMService_Registry</a> (<a class="el" href="classLLMProviderRegistry.html">LLMProviderRegistry</a> *existing_instance)</td></tr>
 <tr class="memdesc:ga2685b20fe11a096ebd009f94d7c17164"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set registry for <a class="el" href="classLLMService.html" title="Runtime loader for LLM libraries.">LLMService</a> (C API)  <br /></td></tr>
 <tr class="separator:ga2685b20fe11a096ebd009f94d7c17164"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gafdcd45a0e712d2e7f7feb3da176efdb4" id="r_gafdcd45a0e712d2e7f7feb3da176efdb4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLLMService.html">LLMService</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gafdcd45a0e712d2e7f7feb3da176efdb4">LLMService_Construct</a> (const char *model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, int lora_count=0, const char **lora_paths=nullptr)</td></tr>
-<tr class="memdesc:gafdcd45a0e712d2e7f7feb3da176efdb4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct <a class="el" href="classLLMService.html" title="Runtime loader for LLM libraries.">LLMService</a> instance (C API)  <br /></td></tr>
-<tr class="separator:gafdcd45a0e712d2e7f7feb3da176efdb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga06760df214abda8ef4f0773013a62626" id="r_ga06760df214abda8ef4f0773013a62626"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLLMService.html">LLMService</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga06760df214abda8ef4f0773013a62626">LLMService_Construct</a> (const char *model_path, int num_slots=1, int num_threads=-1, int num_GPU_layers=0, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, int lora_count=0, const char **lora_paths=nullptr)</td></tr>
+<tr class="memdesc:ga06760df214abda8ef4f0773013a62626"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct <a class="el" href="classLLMService.html" title="Runtime loader for LLM libraries.">LLMService</a> instance (C API)  <br /></td></tr>
+<tr class="separator:ga06760df214abda8ef4f0773013a62626"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gad23f3f7f87169600bd22bb9b28bcfd94" id="r_gad23f3f7f87169600bd22bb9b28bcfd94"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLLMService.html">LLMService</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gad23f3f7f87169600bd22bb9b28bcfd94">LLMService_From_Command</a> (const char *params_string)</td></tr>
 <tr class="memdesc:gad23f3f7f87169600bd22bb9b28bcfd94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create <a class="el" href="classLLMService.html" title="Runtime loader for LLM libraries.">LLMService</a> from command string (C API)  <br /></td></tr>
 <tr class="separator:gad23f3f7f87169600bd22bb9b28bcfd94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6d8365179d763a52aa41a6211caf3c3a" id="r_ga6d8365179d763a52aa41a6211caf3c3a"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga6d8365179d763a52aa41a6211caf3c3a">LLMService_Command</a> (<a class="el" href="classLLMService.html">LLMService</a> *llm_service)</td></tr>
+<tr class="memdesc:ga6d8365179d763a52aa41a6211caf3c3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the construct command (C API)  <br /></td></tr>
+<tr class="separator:ga6d8365179d763a52aa41a6211caf3c3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab35fc8c2fbc1902a127119073bf92491" id="r_gab35fc8c2fbc1902a127119073bf92491"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gab35fc8c2fbc1902a127119073bf92491">LLMService_InjectErrorState</a> (<a class="el" href="structErrorState.html">ErrorState</a> *error_state)</td></tr>
+<tr class="separator:gab35fc8c2fbc1902a127119073bf92491"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>C-compatible API functions. </p>
@@ -318,7 +313,7 @@ $(function(){initNavTree('group__c__api.html',''); initResizable(); });
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>JSON string containing available architectures </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8cpp_source.html#l00321">321</a> of file <a class="el" href="LLM__runtime_8cpp_source.html">LLM_runtime.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8cpp_source.html#l00346">346</a> of file <a class="el" href="LLM__runtime_8cpp_source.html">LLM_runtime.cpp</a>.</p>
 
 </div>
 </div>
@@ -346,7 +341,7 @@ $(function(){initNavTree('group__c__api.html',''); initResizable(); });
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if GPU layers are specified, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00416">416</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00398">398</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 
 </div>
 </div>
@@ -379,7 +374,7 @@ $(function(){initNavTree('group__c__api.html',''); initResizable(); });
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Formatted chat string </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00509">509</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00486">486</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -416,7 +411,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00529">529</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00506">506</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -472,7 +467,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Generated text or JSON response </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00478">478</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00460">460</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -504,7 +499,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00421">421</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00403">403</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -536,7 +531,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00545">545</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00542">542</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -574,7 +569,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Detokenized text </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00467">467</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00449">449</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -607,7 +602,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Number of dimensions in embeddings </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00604">604</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00601">601</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -645,11 +640,48 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>JSON string with embeddings </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00472">472</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00454">454</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_gae7301e94975fb7a9131d0a6f8feaf88b_icgraph.svg" width="146" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
+</div>
+</div>
+<a id="ga1f214a29cbe38a9a8702402e00d45047" name="ga1f214a29cbe38a9a8702402e00d45047"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga1f214a29cbe38a9a8702402e00d45047">&#9670;&#160;</a></span>LLM_Enable_Reasoning()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LLM_Enable_Reasoning </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classLLMProvider.html">LLMProvider</a> *</td>          <td class="paramname"><span class="paramname"><em>llm</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>enable_reasoning</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Enable reasoning (C API) </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">llm</td><td><a class="el" href="classLLMProvider.html" title="Abstract class for LLM service providers.">LLMProvider</a> instance pointer </td></tr>
+    <tr><td class="paramname">enable_reasoning</td><td>bool whether to enable reasoning </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00491">491</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_ga1f214a29cbe38a9a8702402e00d45047_icgraph.svg" width="186" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -678,7 +710,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>JSON string with current parameters </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00489">489</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00471">471</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -711,44 +743,11 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Current grammar string </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00499">499</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00481">481</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_ga0d55599a4f2325b8b95d1bd9b6ebed57_icgraph.svg" width="158" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="gabe829f0b11c3e8c475ba15ad4ab0a4a2" name="gabe829f0b11c3e8c475ba15ad4ab0a4a2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gabe829f0b11c3e8c475ba15ad4ab0a4a2">&#9670;&#160;</a></span>LLM_Get_Template()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char * LLM_Get_Template </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classLLM.html">LLM</a> *</td>          <td class="paramname"><span class="paramname"><em>llm</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get chat template (C API) </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">llm</td><td><a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> instance pointer </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Chat template string </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00504">504</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_gabe829f0b11c3e8c475ba15ad4ab0a4a2_icgraph.svg" width="156" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -776,7 +775,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00568">568</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00565">565</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -808,7 +807,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00563">563</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00560">560</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -852,7 +851,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Operation result string </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00524">524</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00501">501</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -884,7 +883,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00431">431</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00413">413</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -910,7 +909,7 @@ Here is the caller graph for this function:</div>
 
 <p>Stop global logging (C API) </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00441">441</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00423">423</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -943,7 +942,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>JSON string with LoRA list </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00539">539</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00530">530</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -981,7 +980,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if successful, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00534">534</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00511">511</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1025,7 +1024,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Operation result string </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00519">519</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00496">496</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1062,7 +1061,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00483">483</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00465">465</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1099,7 +1098,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00494">494</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00476">476</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1142,48 +1141,11 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00588">588</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00585">585</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_ga4559ff192f0ab196588c388ad79c6980_icgraph.svg" width="118" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="ga192fcffd2a8ef13ed5ddc026b552f51f" name="ga192fcffd2a8ef13ed5ddc026b552f51f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga192fcffd2a8ef13ed5ddc026b552f51f">&#9670;&#160;</a></span>LLM_Set_Template()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void LLM_Set_Template </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classLLMProvider.html">LLMProvider</a> *</td>          <td class="paramname"><span class="paramname"><em>llm</em>, </span></td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>chat_template</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Set chat template (C API) </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">llm</td><td><a class="el" href="classLLMProvider.html" title="Abstract class for LLM service providers.">LLMProvider</a> instance pointer </td></tr>
-    <tr><td class="paramname">chat_template</td><td>Template string </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00514">514</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_ga192fcffd2a8ef13ed5ddc026b552f51f_icgraph.svg" width="154" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -1211,7 +1173,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00573">573</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00570">570</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1220,8 +1182,8 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a id="ga3d6654577d12d8c3bd35e68aa08026e1" name="ga3d6654577d12d8c3bd35e68aa08026e1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga3d6654577d12d8c3bd35e68aa08026e1">&#9670;&#160;</a></span>LLM_Start_Server()</h2>
+<a id="gafd467bf541db2514e793ed6a969dfc67" name="gafd467bf541db2514e793ed6a969dfc67"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gafd467bf541db2514e793ed6a969dfc67">&#9670;&#160;</a></span>LLM_Start_Server()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1239,7 +1201,7 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>port</em><span class="paramdefsep"> = </span><span class="paramdefval">0</span>, </span></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>port</em><span class="paramdefsep"> = </span><span class="paramdefval">-1</span>, </span></td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1260,11 +1222,11 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00553">553</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00550">550</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_ga3d6654577d12d8c3bd35e68aa08026e1_icgraph.svg" width="146" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_gafd467bf541db2514e793ed6a969dfc67_icgraph.svg" width="146" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -1293,7 +1255,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if started, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00578">578</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00575">575</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1320,7 +1282,7 @@ Here is the caller graph for this function:</div>
 <p>Get last operation status code (C API) </p>
 <dl class="section return"><dt>Returns</dt><dd>Status code of last operation </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00593">593</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00590">590</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1347,7 +1309,7 @@ Here is the caller graph for this function:</div>
 <p>Get last operation status message (C API) </p>
 <dl class="section return"><dt>Returns</dt><dd>Status message of last operation </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00598">598</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00595">595</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1379,7 +1341,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00583">583</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00580">580</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1411,7 +1373,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00558">558</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00555">555</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1449,7 +1411,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>JSON string with token IDs </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00461">461</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00443">443</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1458,21 +1420,16 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a id="gad346fab0b6e0ec3b7af2b374de3dbae5" name="gad346fab0b6e0ec3b7af2b374de3dbae5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gad346fab0b6e0ec3b7af2b374de3dbae5">&#9670;&#160;</a></span>LLMAgent_Add_Message()</h2>
+<a id="ga3350529fb8673422d3b31ed22926d34e" name="ga3350529fb8673422d3b31ed22926d34e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3350529fb8673422d3b31ed22926d34e">&#9670;&#160;</a></span>LLMAgent_Add_Assistant_Message()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void LLMAgent_Add_Message </td>
+          <td class="memname">void LLMAgent_Add_Assistant_Message </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classLLMAgent.html">LLMAgent</a> *</td>          <td class="paramname"><span class="paramname"><em>llm</em>, </span></td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>role</em>, </span></td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1482,28 +1439,65 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p>Add message to history (C API) </p>
+<p>Add assistant message to history (C API) </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">llm</td><td><a class="el" href="classLLMAgent.html" title="High-level conversational agent for LLM interactions.">LLMAgent</a> instance pointer </td></tr>
-    <tr><td class="paramname">role</td><td>Message role identifier </td></tr>
     <tr><td class="paramname">content</td><td>Message content text</td></tr>
   </table>
   </dd>
 </dl>
 <p>Appends a new message to conversation history </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00217">217</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00213">213</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_gad346fab0b6e0ec3b7af2b374de3dbae5_icgraph.svg" width="194" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_ga3350529fb8673422d3b31ed22926d34e_icgraph.svg" width="196" height="75"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
 </div>
-<a id="ga0c31e3a63e42e3636d5d525671129f33" name="ga0c31e3a63e42e3636d5d525671129f33"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga0c31e3a63e42e3636d5d525671129f33">&#9670;&#160;</a></span>LLMAgent_Chat()</h2>
+<a id="gab102a0bf9594499e6f1bf8f943d67a06" name="gab102a0bf9594499e6f1bf8f943d67a06"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab102a0bf9594499e6f1bf8f943d67a06">&#9670;&#160;</a></span>LLMAgent_Add_User_Message()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LLMAgent_Add_User_Message </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classLLMAgent.html">LLMAgent</a> *</td>          <td class="paramname"><span class="paramname"><em>llm</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>content</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Add user message to history (C API) </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">llm</td><td><a class="el" href="classLLMAgent.html" title="High-level conversational agent for LLM interactions.">LLMAgent</a> instance pointer </td></tr>
+    <tr><td class="paramname">content</td><td>Message content text</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Appends a new message to conversation history </p>
+
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00208">208</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_gab102a0bf9594499e6f1bf8f943d67a06_icgraph.svg" width="231" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
+</div>
+</div>
+<a id="ga6ad321180ec6a42f0d8d2353ee686a7b" name="ga6ad321180ec6a42f0d8d2353ee686a7b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6ad321180ec6a42f0d8d2353ee686a7b">&#9670;&#160;</a></span>LLMAgent_Chat()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1531,7 +1525,12 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>return_response_json</em><span class="paramdefsep"> = </span><span class="paramdefval">false</span></span>&#160;)</td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>return_response_json</em><span class="paramdefsep"> = </span><span class="paramdefval">false</span>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>debug_prompt</em><span class="paramdefsep"> = </span><span class="paramdefval">false</span></span>&#160;)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -1544,17 +1543,18 @@ Here is the caller graph for this function:</div>
     <tr><td class="paramname">add_to_history</td><td>Whether to save messages to history (default: true) </td></tr>
     <tr><td class="paramname">callback</td><td>Optional streaming callback function </td></tr>
     <tr><td class="paramname">return_response_json</td><td>Whether to return JSON response (default: false) </td></tr>
+    <tr><td class="paramname">debug_prompt</td><td>Whether to display the complete prompt (default: false) </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Generated assistant response</dd></dl>
 <p>Main chat method for conversational interactions </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00142">142</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00155">155</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_ga0c31e3a63e42e3636d5d525671129f33_icgraph.svg" width="134" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_ga6ad321180ec6a42f0d8d2353ee686a7b_icgraph.svg" width="134" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -1583,7 +1583,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <p>Removes all messages from conversation history </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00148">148</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00161">161</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1592,8 +1592,8 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a id="gaa1bdf0d986b0c83ee696049a0740df13" name="gaa1bdf0d986b0c83ee696049a0740df13"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaa1bdf0d986b0c83ee696049a0740df13">&#9670;&#160;</a></span>LLMAgent_Construct()</h2>
+<a id="ga3d0d11a65566e013d3bf96e7c3a80876" name="ga3d0d11a65566e013d3bf96e7c3a80876"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3d0d11a65566e013d3bf96e7c3a80876">&#9670;&#160;</a></span>LLMAgent_Construct()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1606,17 +1606,7 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>system_prompt</em><span class="paramdefsep"> = </span><span class="paramdefval">&quot;&quot;</span>, </span></td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>user_role</em><span class="paramdefsep"> = </span><span class="paramdefval">&quot;user&quot;</span>, </span></td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>assistant_role</em><span class="paramdefsep"> = </span><span class="paramdefval">&quot;assistant&quot;</span></span>&#160;)</td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>system_prompt</em><span class="paramdefsep"> = </span><span class="paramdefval">&quot;&quot;</span></span>&#160;)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -1626,48 +1616,13 @@ Here is the caller graph for this function:</div>
   <table class="params">
     <tr><td class="paramname">llm</td><td><a class="el" href="classLLMLocal.html" title="Abstract class for local LLM operations with slot management.">LLMLocal</a> instance to wrap </td></tr>
     <tr><td class="paramname">system_prompt</td><td>Initial system prompt (default: "") </td></tr>
-    <tr><td class="paramname">user_role</td><td>User role identifier (default: "user") </td></tr>
-    <tr><td class="paramname">assistant_role</td><td>Assistant role identifier (default: "assistant") </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Pointer to new <a class="el" href="classLLMAgent.html" title="High-level conversational agent for LLM interactions.">LLMAgent</a> instance</dd></dl>
 <p>Creates a conversational agent with the specified configuration </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00134">134</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
-
-</div>
-</div>
-<a id="ga00e058e9fecb98441f8d4ef81f578718" name="ga00e058e9fecb98441f8d4ef81f578718"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga00e058e9fecb98441f8d4ef81f578718">&#9670;&#160;</a></span>LLMAgent_Get_Assistant_Role()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char * LLMAgent_Get_Assistant_Role </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classLLMAgent.html">LLMAgent</a> *</td>          <td class="paramname"><span class="paramname"><em>llm</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get assistant role (C API) </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">llm</td><td><a class="el" href="classLLMAgent.html" title="High-level conversational agent for LLM interactions.">LLMAgent</a> instance pointer </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Current assistant role string </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00181">181</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_ga00e058e9fecb98441f8d4ef81f578718_icgraph.svg" width="230" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00149">149</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
 
 </div>
 </div>
@@ -1695,7 +1650,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>JSON string containing conversation history </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00186">186</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00177">177</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1728,7 +1683,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Number of messages in conversation history </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00247">247</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00241">241</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1761,7 +1716,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Current slot ID </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00196">196</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00187">187</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1794,44 +1749,11 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Current system prompt string </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00159">159</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00172">172</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_gaec26b7774963dacf613d2bafe89877f5_icgraph.svg" width="183" height="75"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="ga537a4e29fe1dbd58ced04836fd6dd2f8" name="ga537a4e29fe1dbd58ced04836fd6dd2f8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga537a4e29fe1dbd58ced04836fd6dd2f8">&#9670;&#160;</a></span>LLMAgent_Get_User_Role()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char * LLMAgent_Get_User_Role </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classLLMAgent.html">LLMAgent</a> *</td>          <td class="paramname"><span class="paramname"><em>llm</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get user role (C API) </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">llm</td><td><a class="el" href="classLLMAgent.html" title="High-level conversational agent for LLM interactions.">LLMAgent</a> instance pointer </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Current user role string </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00170">170</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_ga537a4e29fe1dbd58ced04836fd6dd2f8_icgraph.svg" width="200" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -1865,7 +1787,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <p>Loads conversation history from JSON file </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00238">238</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00232">232</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1898,7 +1820,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <p>Removes the most recently added message from history </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00224">224</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00218">218</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1936,48 +1858,11 @@ Here is the caller graph for this function:</div>
 </dl>
 <p>Saves conversation history as JSON to specified file </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00229">229</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00223">223</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_ga0707f04e315abce3d3cb48a65bfef122_icgraph.svg" width="190" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="ga77270f438bfe8ffb7e4c76780744adc5" name="ga77270f438bfe8ffb7e4c76780744adc5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga77270f438bfe8ffb7e4c76780744adc5">&#9670;&#160;</a></span>LLMAgent_Set_Assistant_Role()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void LLMAgent_Set_Assistant_Role </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classLLMAgent.html">LLMAgent</a> *</td>          <td class="paramname"><span class="paramname"><em>llm</em>, </span></td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>assistant_role</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Set assistant role (C API) </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">llm</td><td><a class="el" href="classLLMAgent.html" title="High-level conversational agent for LLM interactions.">LLMAgent</a> instance pointer </td></tr>
-    <tr><td class="paramname">assistant_role</td><td>New assistant role string </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00175">175</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_ga77270f438bfe8ffb7e4c76780744adc5_icgraph.svg" width="228" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -2011,7 +1896,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <p>Replaces current history with provided JSON data </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00201">201</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00192">192</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2048,7 +1933,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00191">191</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00182">182</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2086,48 +1971,11 @@ Here is the caller graph for this function:</div>
 </dl>
 <p>Setting system prompt clears conversation history </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00153">153</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00166">166</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_gaddaf48d1cea0709d3765e6ece7cea6f8_icgraph.svg" width="182" height="75"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-
-</div>
-</div>
-<a id="ga916d9ae32af4cac65a2e1729724c387d" name="ga916d9ae32af4cac65a2e1729724c387d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga916d9ae32af4cac65a2e1729724c387d">&#9670;&#160;</a></span>LLMAgent_Set_User_Role()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void LLMAgent_Set_User_Role </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classLLMAgent.html">LLMAgent</a> *</td>          <td class="paramname"><span class="paramname"><em>llm</em>, </span></td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>user_role</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Set user role (C API) </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">llm</td><td><a class="el" href="classLLMAgent.html" title="High-level conversational agent for LLM interactions.">LLMAgent</a> instance pointer </td></tr>
-    <tr><td class="paramname">user_role</td><td>New user role string </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00164">164</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_ga916d9ae32af4cac65a2e1729724c387d_icgraph.svg" width="198" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -2157,7 +2005,7 @@ Here is the caller graph for this function:</div>
 <dl class="section return"><dt>Returns</dt><dd>Pointer to new <a class="el" href="classLLMClient.html" title="Client for accessing LLM functionality locally or remotely.">LLMClient</a> instance</dd></dl>
 <p>Creates a client for local <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> provider access </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__client_8cpp_source.html#l00298">298</a> of file <a class="el" href="LLM__client_8cpp_source.html">LLM_client.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__client_8cpp_source.html#l00394">394</a> of file <a class="el" href="LLM__client_8cpp_source.html">LLM_client.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2166,8 +2014,8 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a id="gad9daeffab1a9656b8ae3ee903ea384ad" name="gad9daeffab1a9656b8ae3ee903ea384ad"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gad9daeffab1a9656b8ae3ee903ea384ad">&#9670;&#160;</a></span>LLMClient_Construct_Remote()</h2>
+<a id="gae91722416d193cf4768f174b8b37aff7" name="gae91722416d193cf4768f174b8b37aff7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gae91722416d193cf4768f174b8b37aff7">&#9670;&#160;</a></span>LLMClient_Construct_Remote()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2180,7 +2028,12 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const int</td>          <td class="paramname"><span class="paramname"><em>port</em></span>&#160;)</td>
+          <td class="paramtype">const int</td>          <td class="paramname"><span class="paramname"><em>port</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>API_key</em><span class="paramdefsep"> = </span><span class="paramdefval">&quot;&quot;</span></span>&#160;)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -2196,12 +2049,31 @@ Here is the caller graph for this function:</div>
 <dl class="section return"><dt>Returns</dt><dd>Pointer to new <a class="el" href="classLLMClient.html" title="Client for accessing LLM functionality locally or remotely.">LLMClient</a> instance</dd></dl>
 <p>Creates a client for remote <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> server access </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__client_8cpp_source.html#l00303">303</a> of file <a class="el" href="LLM__client_8cpp_source.html">LLM_client.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__client_8cpp_source.html#l00399">399</a> of file <a class="el" href="LLM__client_8cpp_source.html">LLM_client.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_gad9daeffab1a9656b8ae3ee903ea384ad_icgraph.svg" width="166" height="75"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_gae91722416d193cf4768f174b8b37aff7_icgraph.svg" width="166" height="75"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
+
+</div>
+</div>
+<a id="gaaf9d2dbedf959642d816abc6af064e89" name="gaaf9d2dbedf959642d816abc6af064e89"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaaf9d2dbedf959642d816abc6af064e89">&#9670;&#160;</a></span>LLMClient_Is_Server_Alive()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool LLMClient_Is_Server_Alive </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classLLMClient.html">LLMClient</a> *</td>          <td class="paramname"><span class="paramname"><em>llm</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="LLM__client_8cpp_source.html#l00384">384</a> of file <a class="el" href="LLM__client_8cpp_source.html">LLM_client.cpp</a>.</p>
 
 </div>
 </div>
@@ -2234,12 +2106,49 @@ Here is the caller graph for this function:</div>
 </dl>
 <p>Configure SSL certificate for remote client connections </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__client_8cpp_source.html#l00293">293</a> of file <a class="el" href="LLM__client_8cpp_source.html">LLM_client.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__client_8cpp_source.html#l00389">389</a> of file <a class="el" href="LLM__client_8cpp_source.html">LLM_client.cpp</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_ga76b46ac93bf8735a0e2bb0e2cc34f4d0_icgraph.svg" width="155" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
 
 </div>
 </div>
-<a id="gafdcd45a0e712d2e7f7feb3da176efdb4" name="gafdcd45a0e712d2e7f7feb3da176efdb4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gafdcd45a0e712d2e7f7feb3da176efdb4">&#9670;&#160;</a></span>LLMService_Construct()</h2>
+<a id="ga6d8365179d763a52aa41a6211caf3c3a" name="ga6d8365179d763a52aa41a6211caf3c3a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6d8365179d763a52aa41a6211caf3c3a">&#9670;&#160;</a></span>LLMService_Command()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * LLMService_Command </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classLLMService.html">LLMService</a> *</td>          <td class="paramname"><span class="paramname"><em>llm_service</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the construct command (C API) </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">llm_service</td><td>the <a class="el" href="classLLMService.html" title="Runtime loader for LLM libraries.">LLMService</a> instance </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="LLM__service_8cpp_source.html#l00750">750</a> of file <a class="el" href="LLM__service_8cpp_source.html">LLM_service.cpp</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_ga6d8365179d763a52aa41a6211caf3c3a_icgraph.svg" width="182" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
+</div>
+</div>
+<a id="ga06760df214abda8ef4f0773013a62626" name="ga06760df214abda8ef4f0773013a62626"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga06760df214abda8ef4f0773013a62626">&#9670;&#160;</a></span>LLMService_Construct()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2252,17 +2161,17 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>num_slots</em><span class="paramdefsep"> = </span><span class="paramdefval">1</span>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>num_threads</em><span class="paramdefsep"> = </span><span class="paramdefval">-1</span>, </span></td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>num_GPU_layers</em><span class="paramdefsep"> = </span><span class="paramdefval">0</span>, </span></td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>num_parallel</em><span class="paramdefsep"> = </span><span class="paramdefval">1</span>, </span></td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -2301,9 +2210,9 @@ Here is the caller graph for this function:</div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">model_path</td><td>Path to model file </td></tr>
+    <tr><td class="paramname">num_slots</td><td>Number of parallel sequences </td></tr>
     <tr><td class="paramname">num_threads</td><td>Number of CPU threads (-1 for auto) </td></tr>
     <tr><td class="paramname">num_GPU_layers</td><td>Number of GPU layers </td></tr>
-    <tr><td class="paramname">num_parallel</td><td>Number of parallel sequences </td></tr>
     <tr><td class="paramname">flash_attention</td><td>Whether to use flash attention </td></tr>
     <tr><td class="paramname">context_size</td><td>Maximum context size </td></tr>
     <tr><td class="paramname">batch_size</td><td>Processing batch size </td></tr>
@@ -2315,11 +2224,11 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Pointer to new <a class="el" href="classLLMService.html" title="Runtime loader for LLM libraries.">LLMService</a> instance </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM__service_8cpp_source.html#l01435">1435</a> of file <a class="el" href="LLM__service_8cpp_source.html">LLM_service.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__service_8cpp_source.html#l00709">709</a> of file <a class="el" href="LLM__service_8cpp_source.html">LLM_service.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_gafdcd45a0e712d2e7f7feb3da176efdb4_icgraph.svg" width="176" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_ga06760df214abda8ef4f0773013a62626_icgraph.svg" width="176" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -2349,12 +2258,31 @@ Here is the caller graph for this function:</div>
 <dl class="section return"><dt>Returns</dt><dd>Pointer to new <a class="el" href="classLLMService.html" title="Runtime loader for LLM libraries.">LLMService</a> instance</dd></dl>
 <p>See <a href="https://github.com/ggml-org/llama.cpp/tree/master/tools/server#usage">https://github.com/ggml-org/llama.cpp/tree/master/tools/server#usage</a> for arguments. </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__service_8cpp_source.html#l01448">1448</a> of file <a class="el" href="LLM__service_8cpp_source.html">LLM_service.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__service_8cpp_source.html#l00728">728</a> of file <a class="el" href="LLM__service_8cpp_source.html">LLM_service.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_gad23f3f7f87169600bd22bb9b28bcfd94_icgraph.svg" width="222" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_gad23f3f7f87169600bd22bb9b28bcfd94_icgraph.svg" width="1138" height="98"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
+
+</div>
+</div>
+<a id="gab35fc8c2fbc1902a127119073bf92491" name="gab35fc8c2fbc1902a127119073bf92491"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab35fc8c2fbc1902a127119073bf92491">&#9670;&#160;</a></span>LLMService_InjectErrorState()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LLMService_InjectErrorState </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structErrorState.html">ErrorState</a> *</td>          <td class="paramname"><span class="paramname"><em>error_state</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="LLM__service_8cpp_source.html#l00755">755</a> of file <a class="el" href="LLM__service_8cpp_source.html">LLM_service.cpp</a>.</p>
 
 </div>
 </div>
@@ -2382,7 +2310,12 @@ Here is the caller graph for this function:</div>
 </dl>
 <p>Allows injection of custom registry for <a class="el" href="classLLMService.html" title="Runtime loader for LLM libraries.">LLMService</a> instances </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__service_8cpp_source.html#l01430">1430</a> of file <a class="el" href="LLM__service_8cpp_source.html">LLM_service.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__service_8cpp_source.html#l00704">704</a> of file <a class="el" href="LLM__service_8cpp_source.html">LLM_service.cpp</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__c__api_ga2685b20fe11a096ebd009f94d7c17164_icgraph.svg" width="1088" height="123"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
 
 </div>
 </div>

@@ -25,6 +25,7 @@
 var NAVTREE =
 [
   [ "LlamaLib", "index.html", [
+    [ "Overview", "index.html", "index" ],
     [ "Code↗", "^https://github.com/undreamai/LlamaLib", null ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],

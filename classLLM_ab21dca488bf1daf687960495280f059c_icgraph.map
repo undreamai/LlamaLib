@@ -2,9 +2,9 @@
 <area shape="rect" id="Node000001" title="Convert tokens back to text." alt="" coords="428,79,589,104"/>
 <area shape="rect" id="Node000002" href="$classLLM.html#a57754f97f686c2f5a3e90c44c32243a8" title="Convert tokens to text." alt="" coords="217,29,344,55"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="435,78,340,57,341,52,437,73"/>
-<area shape="rect" id="Node000004" href="$classLLMAgent.html#aca7212f7b9aaed0f2f4bc7562f594c90" title="Detokenize tokens (delegate to wrapped LLM)" alt="" coords="181,79,380,104"/>
+<area shape="rect" id="Node000004" href="$classLLMAgent.html#aca7212f7b9aaed0f2f4bc7562f594c90" title="Convert tokens back to text." alt="" coords="181,79,380,104"/>
 <area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="414,94,380,94,380,89,414,89"/>
-<area shape="rect" id="Node000005" href="$classLLMClient.html#a67449d6548e6bf936bd0ebfc768a8c82" title="Convert tokens to text (override)" alt="" coords="181,128,380,153"/>
+<area shape="rect" id="Node000005" href="$classLLMClient.html#a67449d6548e6bf936bd0ebfc768a8c82" title="Convert tokens back to text." alt="" coords="181,128,380,153"/>
 <area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="437,110,341,131,340,125,435,104"/>
 <area shape="rect" id="Node000003" href="$LLM_8cpp.html#af9563a4e76ca787962c550bb9bc4bb3c" title="Detokenize tokens (C API)" alt="" coords="5,29,133,55"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="203,45,134,45,134,39,203,39"/>

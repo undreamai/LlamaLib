@@ -1,8 +1,15 @@
 <map id="LLMService::from_command" name="LLMService::from_command">
-<area shape="rect" id="Node000001" title="Create runtime from command line string." alt="" coords="264,43,471,68"/>
-<area shape="rect" id="Node000002" href="$classLLMService.html#a8c646d7f7f81358417ed52359b10d583" title="Create runtime from argc/argv." alt="" coords="7,5,214,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="266,43,198,33,199,28,266,38"/>
-<area shape="rect" id="Node000003" href="$LLM__service_8cpp.html#abaea4e04e10d2f293565fc535746b240" title="Create LLMService from command string (C API)" alt="" coords="5,79,216,104"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="264,73,202,81,201,76,263,67"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="156,69,154,65,145,61,111,57,83,59,68,64,66,70,73,77,69,80,60,70,65,60,82,54,111,52,147,56,157,61,161,66"/>
+<area shape="rect" id="Node000001" title="Create runtime from command line string." alt="" coords="897,79,1104,104"/>
+<area shape="rect" id="Node000002" href="$classLLMService.html#a8c646d7f7f81358417ed52359b10d583" title="Create runtime from argc/argv." alt="" coords="641,5,847,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="950,77,849,45,804,33,806,28,850,39,952,72"/>
+<area shape="rect" id="Node000003" href="$LLM__service_8cpp.html#abaea4e04e10d2f293565fc535746b240" title="Create LLMService from command string (C API)" alt="" coords="639,79,849,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="884,94,849,94,849,89,884,89"/>
+<area shape="poly" id="edge7_Node000003_Node000003" title=" " alt="" coords="786,70,775,61,744,57,719,59,705,64,703,70,710,77,706,80,698,70,702,60,718,54,744,52,777,56,790,65"/>
+<area shape="rect" id="Node000004" href="$classLLMService.html#a5aa62b2f1feb31a8977801c2bd2ed30d" title="Load LLM library backend." alt="" coords="425,67,591,107"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="625,92,591,91,591,86,625,87"/>
+<area shape="rect" id="Node000005" href="$classLLMService.html#ac194e3210642288e650ed9f9194a69ee" title="Loads LLM library dynamically according to underlying achitecture and creates a LLM based on the comm..." alt="" coords="232,97,377,137"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="412,104,378,109,377,104,411,99"/>
+<area shape="poly" id="edge5_Node000005_Node000001" title=" " alt="" coords="391,119,600,124,725,121,849,114,937,101,938,107,850,119,725,127,600,129,391,124"/>
+<area shape="rect" id="Node000006" href="$classLLMService.html#a982b997919be934d4c3d300bbbe7a971" title="Parameterized constructor." alt="" coords="5,104,184,129"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="218,119,184,119,184,114,218,114"/>
 </map>

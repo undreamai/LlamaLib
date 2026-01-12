@@ -1,20 +1,13 @@
 <map id="LLM::parse_apply_template_json" name="LLM::parse_apply_template_json">
-<area shape="rect" id="Node000001" title="Parse template application result." alt="" coords="668,79,903,104"/>
-<area shape="rect" id="Node000002" href="$classLLM.html#a390a093c9b269c1c342034baced79106" title="Apply template to messages." alt="" coords="461,79,620,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="655,94,620,94,620,89,655,89"/>
-<area shape="rect" id="Node000003" href="$classLLMAgent.html#afa0fcd26e7cae3e81626bd9f61fc96d0" title="Conduct a chat interaction." alt="" coords="263,29,385,55"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="471,78,380,57,381,52,472,73"/>
-<area shape="rect" id="Node000005" href="$classLLMAgent.html#af4939eaa37cfbadc86672d06fe86739a" title="Clear all conversation history." alt="" coords="235,79,413,104"/>
-<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="447,94,414,94,414,89,447,89"/>
-<area shape="rect" id="Node000008" href="$LLM_8cpp.html#a51b433682bf76ff935c8377a0980bfdb" title="Apply chat template (C API)" alt="" coords="245,152,403,177"/>
-<area shape="poly" id="edge9_Node000002_Node000008" title=" " alt="" coords="490,111,363,154,362,149,488,106"/>
-<area shape="rect" id="Node000004" href="$LLM__agent_8cpp.html#ab8450c34bcec75882fbb979d8c078116" title="Conduct chat interaction (C API)" alt="" coords="35,29,157,55"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="249,45,157,45,157,39,249,39"/>
-<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="137,20,126,11,96,8,72,10,59,15,56,20,63,27,59,31,51,21,55,11,71,5,96,3,128,7,140,16"/>
-<area shape="rect" id="Node000006" href="$classLLMAgent.html#a6937b028ea9592487e2c809c5ac64e6c" title="Constructor for LLM agent." alt="" coords="17,79,175,104"/>
-<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="221,94,176,94,176,89,221,89"/>
-<area shape="rect" id="Node000007" href="$LLM__agent_8cpp.html#a5e0a07cda62c8ac7700f6c8414798ad5" title="Clear conversation history (C API)" alt="" coords="5,152,187,177"/>
-<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="261,110,235,118,131,154,130,149,234,113,259,105"/>
-<area shape="poly" id="edge8_Node000007_Node000007" title=" " alt="" coords="137,143,126,134,96,131,72,133,59,138,56,143,63,150,59,154,51,144,55,134,71,128,96,125,128,129,140,139"/>
-<area shape="poly" id="edge10_Node000008_Node000008" title=" " alt="" coords="363,142,352,134,324,131,301,133,289,138,286,143,293,150,289,154,281,144,285,134,300,128,324,125,354,129,366,138"/>
+<area shape="rect" id="Node000001" title="Parse template application result." alt="" coords="589,67,824,92"/>
+<area shape="rect" id="Node000002" href="$classLLM.html#a390a093c9b269c1c342034baced79106" title="Apply template to messages." alt="" coords="383,67,541,92"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="576,82,541,82,541,77,576,77"/>
+<area shape="rect" id="Node000003" href="$classLLMAgent.html#aecac08f1cbc4ed079cc75bc98f08d4ce" title="Conduct a chat interaction." alt="" coords="194,29,317,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="377,67,316,56,317,50,378,62"/>
+<area shape="rect" id="Node000005" href="$LLM_8cpp.html#a51b433682bf76ff935c8377a0980bfdb" title="Apply chat template (C API)" alt="" coords="176,103,335,128"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="376,97,329,105,328,100,375,92"/>
+<area shape="rect" id="Node000004" href="$LLM__agent_8cpp.html#ae783925557d9588c8e4f16e58ba116b2" title="Conduct chat interaction (C API)" alt="" coords="5,29,128,55"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="180,45,128,45,128,39,180,39"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="100,19,90,11,67,8,47,10,37,15,34,20,40,28,36,31,29,21,33,11,45,5,67,3,92,6,103,15"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="288,92,279,84,255,81,236,83,225,88,223,94,229,101,224,104,218,94,221,84,234,78,255,76,281,80,292,88"/>
 </map>

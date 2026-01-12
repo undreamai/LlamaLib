@@ -1,5 +1,8 @@
 <map id="LLMProvider::parse_lora_list_json" name="LLMProvider::parse_lora_list_json">
-<area shape="rect" id="Node000001" title="Parse LoRA list result." alt="" coords="216,5,363,45"/>
-<area shape="rect" id="Node000002" href="$classLLMProvider.html#a98c1986579d44789dd79444039fbdb37" title="List available LoRA adapters." alt="" coords="5,13,168,38"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,28,168,28,168,23,202,23"/>
+<area shape="rect" id="Node000001" title="Parse LoRA list result." alt="" coords="377,22,524,62"/>
+<area shape="rect" id="Node000002" href="$classLLMProvider.html#a98c1986579d44789dd79444039fbdb37" title="List available LoRA adapters." alt="" coords="167,29,329,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="364,45,330,45,330,39,364,39"/>
+<area shape="rect" id="Node000003" href="$LLM_8cpp.html#a092b93933e9011afb41d24912ab76a4b" title="List LoRA adapters (C API)" alt="" coords="5,29,119,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="153,45,119,45,119,39,153,39"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="95,19,85,11,62,8,43,10,32,15,30,20,36,28,31,31,25,21,28,11,41,5,62,3,87,6,98,15"/>
 </map>

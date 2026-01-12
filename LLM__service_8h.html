@@ -114,18 +114,22 @@ $(function(){initNavTree('LLM__service_8h.html',''); initResizable(); });
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#define-members">Macros</a>  </div>
+<a href="#define-members">Macros</a> &#124;
+<a href="#typedef-members">Typedefs</a>  </div>
   <div class="headertitle"><div class="title">LLM_service.h File Reference<div class="ingroups"><a class="el" href="group__llm.html">LLM</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
 <p><a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> service implementation with server capabilities.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="LLM_8h_source.html">LLM.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &lt;thread&gt;</code><br />
+<code>#include &lt;condition_variable&gt;</code><br />
+<code>#include &quot;<a class="el" href="LLM_8h_source.html">LLM.h</a>&quot;</code><br />
+<code>#include &quot;completion_processor.h&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for LLM_service.h:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="LLM__service_8h__incl.svg" width="871" height="256"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="LLM__service_8h__incl.svg" width="872" height="256"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div><div class="textblock"><div class="dynheader">
 This graph shows which files directly or indirectly include this file:</div>
@@ -147,18 +151,30 @@ Macros</h2></td></tr>
 <tr class="memdesc:a53110183f98f5d1064e914a703dfff68"><td class="mdescLeft">&#160;</td><td class="mdescRight">Info-level logging macro for LLama library.  <br /></td></tr>
 <tr class="separator:a53110183f98f5d1064e914a703dfff68"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:ab6cf804752c86a8425f9da120b4a24c4" id="r_ab6cf804752c86a8425f9da120b4a24c4"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab6cf804752c86a8425f9da120b4a24c4">server_http_res_ptr</a> = std::unique_ptr&lt;server_http_res&gt;</td></tr>
+<tr class="separator:ab6cf804752c86a8425f9da120b4a24c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a929e3d81ba4af4539094ea63fc4281e9" id="r_a929e3d81ba4af4539094ea63fc4281e9"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a929e3d81ba4af4539094ea63fc4281e9">handler_t</a> = std::function&lt;server_http_res_ptr(const server_http_req &amp; req)&gt;</td></tr>
+<tr class="separator:a929e3d81ba4af4539094ea63fc4281e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr><td colspan="2"><div class="groupHeader"></div></td></tr>
 <tr class="memitem:ga2685b20fe11a096ebd009f94d7c17164" id="r_ga2685b20fe11a096ebd009f94d7c17164"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__c__api.html#ga2685b20fe11a096ebd009f94d7c17164">LLMService_Registry</a> (<a class="el" href="classLLMProviderRegistry.html">LLMProviderRegistry</a> *existing_instance)</td></tr>
 <tr class="memdesc:ga2685b20fe11a096ebd009f94d7c17164"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set registry for <a class="el" href="classLLMService.html" title="Runtime loader for LLM libraries.">LLMService</a> (C API)  <br /></td></tr>
 <tr class="separator:ga2685b20fe11a096ebd009f94d7c17164"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gafdcd45a0e712d2e7f7feb3da176efdb4" id="r_gafdcd45a0e712d2e7f7feb3da176efdb4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLLMService.html">LLMService</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__c__api.html#gafdcd45a0e712d2e7f7feb3da176efdb4">LLMService_Construct</a> (const char *model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, int lora_count=0, const char **lora_paths=nullptr)</td></tr>
-<tr class="memdesc:gafdcd45a0e712d2e7f7feb3da176efdb4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct <a class="el" href="classLLMService.html" title="Runtime loader for LLM libraries.">LLMService</a> instance (C API)  <br /></td></tr>
-<tr class="separator:gafdcd45a0e712d2e7f7feb3da176efdb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga06760df214abda8ef4f0773013a62626" id="r_ga06760df214abda8ef4f0773013a62626"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLLMService.html">LLMService</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__c__api.html#ga06760df214abda8ef4f0773013a62626">LLMService_Construct</a> (const char *model_path, int num_slots=1, int num_threads=-1, int num_GPU_layers=0, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, int lora_count=0, const char **lora_paths=nullptr)</td></tr>
+<tr class="memdesc:ga06760df214abda8ef4f0773013a62626"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct <a class="el" href="classLLMService.html" title="Runtime loader for LLM libraries.">LLMService</a> instance (C API)  <br /></td></tr>
+<tr class="separator:ga06760df214abda8ef4f0773013a62626"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gad23f3f7f87169600bd22bb9b28bcfd94" id="r_gad23f3f7f87169600bd22bb9b28bcfd94"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLLMService.html">LLMService</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__c__api.html#gad23f3f7f87169600bd22bb9b28bcfd94">LLMService_From_Command</a> (const char *params_string)</td></tr>
 <tr class="memdesc:gad23f3f7f87169600bd22bb9b28bcfd94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create <a class="el" href="classLLMService.html" title="Runtime loader for LLM libraries.">LLMService</a> from command string (C API)  <br /></td></tr>
 <tr class="separator:gad23f3f7f87169600bd22bb9b28bcfd94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6d8365179d763a52aa41a6211caf3c3a" id="r_ga6d8365179d763a52aa41a6211caf3c3a"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__c__api.html#ga6d8365179d763a52aa41a6211caf3c3a">LLMService_Command</a> (<a class="el" href="classLLMService.html">LLMService</a> *llm_service)</td></tr>
+<tr class="memdesc:ga6d8365179d763a52aa41a6211caf3c3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the construct command (C API)  <br /></td></tr>
+<tr class="separator:ga6d8365179d763a52aa41a6211caf3c3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab35fc8c2fbc1902a127119073bf92491" id="r_gab35fc8c2fbc1902a127119073bf92491"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__c__api.html#gab35fc8c2fbc1902a127119073bf92491">LLMService_InjectErrorState</a> (<a class="el" href="structErrorState.html">ErrorState</a> *error_state)</td></tr>
+<tr class="separator:gab35fc8c2fbc1902a127119073bf92491"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p><a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> service implementation with server capabilities. </p>
@@ -183,7 +199,40 @@ Functions</h2></td></tr>
 
 <p>Info-level logging macro for LLama library. </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__service_8h_source.html#l00012">12</a> of file <a class="el" href="LLM__service_8h_source.html">LLM_service.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__service_8h_source.html#l00016">16</a> of file <a class="el" href="LLM__service_8h_source.html">LLM_service.h</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Typedef Documentation</h2>
+<a id="a929e3d81ba4af4539094ea63fc4281e9" name="a929e3d81ba4af4539094ea63fc4281e9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a929e3d81ba4af4539094ea63fc4281e9">&#9670;&#160;</a></span>handler_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using handler_t = std::function&lt;server_http_res_ptr(const server_http_req &amp; req)&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="LLM__service_8h_source.html#l00026">26</a> of file <a class="el" href="LLM__service_8h_source.html">LLM_service.h</a>.</p>
+
+</div>
+</div>
+<a id="ab6cf804752c86a8425f9da120b4a24c4" name="ab6cf804752c86a8425f9da120b4a24c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab6cf804752c86a8425f9da120b4a24c4">&#9670;&#160;</a></span>server_http_res_ptr</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using server_http_res_ptr = std::unique_ptr&lt;server_http_res&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="LLM__service_8h_source.html#l00025">25</a> of file <a class="el" href="LLM__service_8h_source.html">LLM_service.h</a>.</p>
 
 </div>
 </div>

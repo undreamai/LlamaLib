@@ -1,14 +1,30 @@
 <map id="LLMProviderRegistry::get_log_callback" name="LLMProviderRegistry::get_log_callback">
-<area shape="rect" id="Node000001" title="Get current log callback." alt="" coords="676,71,832,111"/>
-<area shape="rect" id="Node000002" href="$classLLMService.html#a053905b510fcb7755f5d9a39c8a6e03d" title="Initialize from argc/argv parameters." alt="" coords="503,79,628,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="662,94,628,94,628,89,662,89"/>
-<area shape="rect" id="Node000003" href="$classLLMService.html#ad557a4449167b041276f41d6189d5d38" title="Create LLMService from JSON parameters." alt="" coords="264,29,455,55"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="498,78,413,57,414,52,499,73"/>
-<area shape="rect" id="Node000005" href="$classLLMService.html#a1ff5d7b3af982950017a8ce344a891bf" title="Initialize from C&#45;style parameter string." alt="" coords="297,79,422,104"/>
-<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="489,94,422,94,422,89,489,89"/>
-<area shape="rect" id="Node000006" href="$classLLMService.html#a5cc0e5d9aa86162065d60e75a462a2c3" title="Initialize from parameter string." alt="" coords="297,128,422,153"/>
-<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="499,110,414,131,413,125,498,105"/>
-<area shape="rect" id="Node000004" href="$LLM__service_8cpp.html#abaea4e04e10d2f293565fc535746b240" title="Create LLMService from command string (C API)" alt="" coords="5,29,216,55"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="250,45,216,45,216,39,250,39"/>
-<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="155,20,152,15,144,12,111,8,84,10,70,15,67,20,74,27,70,31,62,21,66,11,83,5,111,3,146,7,156,11,159,17"/>
+<area shape="rect" id="Node000001" title="Get current log callback." alt="" coords="1592,73,1748,113"/>
+<area shape="rect" id="Node000002" href="$classLLMAgent.html#aecac08f1cbc4ed079cc75bc98f08d4ce" title="Conduct a chat interaction." alt="" coords="1420,43,1543,68"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1578,77,1542,70,1543,65,1579,72"/>
+<area shape="rect" id="Node000004" href="$classLLMService.html#a053905b510fcb7755f5d9a39c8a6e03d" title="Initialize from argc/argv parameters." alt="" coords="1419,104,1544,129"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="1579,107,1545,111,1544,106,1578,102"/>
+<area shape="rect" id="Node000003" href="$LLM__agent_8cpp.html#ae783925557d9588c8e4f16e58ba116b2" title="Conduct chat interaction (C API)" alt="" coords="1214,29,1337,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1406,53,1337,49,1337,43,1406,48"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="1312,20,1302,11,1275,8,1253,10,1242,15,1240,20,1246,28,1242,31,1234,21,1238,11,1252,5,1275,3,1304,6,1315,15"/>
+<area shape="rect" id="Node000005" href="$classLLMService.html#ad557a4449167b041276f41d6189d5d38" title="Create LLMService from JSON parameters." alt="" coords="1180,79,1371,104"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="1405,110,1371,106,1371,100,1405,105"/>
+<area shape="rect" id="Node000012" href="$classLLMService.html#a1ff5d7b3af982950017a8ce344a891bf" title="Initialize from C&#45;style parameter string." alt="" coords="1213,128,1338,153"/>
+<area shape="poly" id="edge14_Node000004_Node000012" title=" " alt="" coords="1405,128,1338,136,1338,131,1405,123"/>
+<area shape="rect" id="Node000013" href="$classLLMService.html#a5cc0e5d9aa86162065d60e75a462a2c3" title="Initialize from parameter string." alt="" coords="1213,177,1338,203"/>
+<area shape="poly" id="edge15_Node000004_Node000013" title=" " alt="" coords="1443,138,1372,167,1330,180,1329,175,1370,162,1441,133"/>
+<area shape="rect" id="Node000006" href="$LLM__service_8cpp.html#abaea4e04e10d2f293565fc535746b240" title="Create LLMService from command string (C API)" alt="" coords="921,79,1132,104"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="1166,94,1132,94,1132,89,1166,89"/>
+<area shape="poly" id="edge13_Node000006_Node000006" title=" " alt="" coords="1069,70,1058,61,1027,57,1002,59,988,64,985,70,992,77,989,80,980,70,985,60,1000,54,1027,52,1060,56,1072,65"/>
+<area shape="rect" id="Node000007" href="$classLLMService.html#a5aa62b2f1feb31a8977801c2bd2ed30d" title="Load LLM library backend." alt="" coords="708,42,873,82"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="910,80,873,75,874,70,911,74"/>
+<area shape="rect" id="Node000008" href="$classLLMService.html#ac194e3210642288e650ed9f9194a69ee" title="Loads LLM library dynamically according to underlying achitecture and creates a LLM based on the comm..." alt="" coords="515,42,660,82"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="694,65,661,65,661,59,694,59"/>
+<area shape="rect" id="Node000009" href="$classLLMService.html#afd5f58f0c3b9e3d64524ddb21cc8168a" title="Create runtime from command line string." alt="" coords="260,103,467,128"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="502,85,418,105,417,100,500,80"/>
+<area shape="rect" id="Node000011" href="$classLLMService.html#a982b997919be934d4c3d300bbbe7a971" title="Parameterized constructor." alt="" coords="274,49,453,75"/>
+<area shape="poly" id="edge12_Node000008_Node000011" title=" " alt="" coords="501,65,453,65,453,59,501,59"/>
+<area shape="poly" id="edge11_Node000009_Node000006" title=" " alt="" coords="480,108,921,92,921,98,481,114"/>
+<area shape="rect" id="Node000010" href="$classLLMService.html#a8c646d7f7f81358417ed52359b10d583" title="Create runtime from argc/argv." alt="" coords="5,103,212,128"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="247,118,212,118,212,113,247,113"/>
 </map>

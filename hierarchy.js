@@ -1,9 +1,10 @@
 var hierarchy =
 [
     [ "ChatMessage", "structChatMessage.html", null ],
-    [ "std::exception", null, [
-      [ "SinkException", "classSinkException.html", null ]
-    ] ],
+    [ "ErrorState", "structErrorState.html", null ],
+    [ "ErrorStateRegistry", "classErrorStateRegistry.html", null ],
+    [ "HttpResult", "structHttpResult.html", null ],
+    [ "IOSHttpTransport", "classIOSHttpTransport.html", null ],
     [ "LLM", "classLLM.html", [
       [ "LLMLocal", "classLLMLocal.html", [
         [ "LLMAgent", "classLLMAgent.html", null ],
@@ -17,5 +18,5 @@ var hierarchy =
     [ "LLMProviderRegistry", "classLLMProviderRegistry.html", null ],
     [ "LoraIdScale", "structLoraIdScale.html", null ],
     [ "LoraIdScalePath", "structLoraIdScalePath.html", null ],
-    [ "StreamingContext", "structStreamingContext.html", null ]
+    [ "ResponseConcatenator", "classResponseConcatenator.html", null ]
 ];

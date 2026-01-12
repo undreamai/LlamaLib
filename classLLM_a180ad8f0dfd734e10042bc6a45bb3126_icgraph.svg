@@ -11,7 +11,7 @@
 <!-- Node1 -->
 <g id="Node000001" class="node">
 <title>Node1</title>
-<g id="a_Node000001"><a xlink:title="Generate embeddings for input text.">
+<g id="a_Node000001"><a xlink:title="Generate embeddings with HTTP response support.">
 <polygon fill="#999999" stroke="#666666" points="457,-56 329,-56 329,-37 457,-37 457,-56"/>
 <text text-anchor="middle" x="393" y="-44" font-family="Helvetica,sans-Serif" font-size="10.00">LLM::embeddings_json</text>
 </a>
@@ -38,7 +38,7 @@
 <!-- Node4 -->
 <g id="Node000004" class="node">
 <title>Node4</title>
-<g id="a_Node000004"><a xlink:href="classLLMAgent.html#a79b429b5b4894047bcf937476a2a9123" target="_top" xlink:title="Generate embeddings (delegate to wrapped LLM)">
+<g id="a_Node000004"><a xlink:href="classLLMAgent.html#a79b429b5b4894047bcf937476a2a9123" target="_top" xlink:title="Generate embeddings with HTTP response support.">
 <polygon fill="white" stroke="#666666" points="293,-56 137,-56 137,-37 293,-37 293,-56"/>
 <text text-anchor="middle" x="215" y="-44" font-family="Helvetica,sans-Serif" font-size="10.00">LLMAgent::embeddings_json</text>
 </a>
@@ -56,7 +56,7 @@
 <!-- Node5 -->
 <g id="Node000005" class="node">
 <title>Node5</title>
-<g id="a_Node000005"><a xlink:href="classLLMClient.html#ad25a26b154b875a4e0f0fd7515e6f96f" target="_top" xlink:title="Generate embeddings (override)">
+<g id="a_Node000005"><a xlink:href="classLLMClient.html#ad25a26b154b875a4e0f0fd7515e6f96f" target="_top" xlink:title="Generate embeddings with HTTP response support.">
 <polygon fill="white" stroke="#666666" points="293,-19 137,-19 137,0 293,0 293,-19"/>
 <text text-anchor="middle" x="215" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">LLMClient::embeddings_json</text>
 </a>

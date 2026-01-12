@@ -20,7 +20,7 @@
 <!-- Node2 -->
 <g id="Node000002" class="node">
 <title>Node2</title>
-<g id="a_Node000002"><a xlink:href="classLLMAgent.html#afa0fcd26e7cae3e81626bd9f61fc96d0" target="_top" xlink:title="Conduct a chat interaction.">
+<g id="a_Node000002"><a xlink:href="classLLMAgent.html#aecac08f1cbc4ed079cc75bc98f08d4ce" target="_top" xlink:title="Conduct a chat interaction.">
 <polygon fill="white" stroke="#666666" points="220,-19 128,-19 128,0 220,0 220,-19"/>
 <text text-anchor="middle" x="174" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">LLMAgent::chat</text>
 </a>
@@ -38,7 +38,7 @@
 <!-- Node3 -->
 <g id="Node000003" class="node">
 <title>Node3</title>
-<g id="a_Node000003"><a xlink:href="LLM__agent_8cpp.html#ab8450c34bcec75882fbb979d8c078116" target="_top" xlink:title="Conduct chat interaction (C API)">
+<g id="a_Node000003"><a xlink:href="LLM__agent_8cpp.html#ae783925557d9588c8e4f16e58ba116b2" target="_top" xlink:title="Conduct chat interaction (C API)">
 <polygon fill="white" stroke="#666666" points="92,-19 0,-19 0,0 92,0 92,-19"/>
 <text text-anchor="middle" x="46" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">LLMAgent_Chat</text>
 </a>

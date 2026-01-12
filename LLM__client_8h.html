@@ -113,7 +113,8 @@ $(function(){initNavTree('LLM__client_8h.html',''); initResizable(); });
 
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a>  </div>
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#define-members">Macros</a>  </div>
   <div class="headertitle"><div class="title">LLM_client.h File Reference<div class="ingroups"><a class="el" href="group__llm.html">LLM</a></div></div></div>
 </div><!--header-->
 <div class="contents">
@@ -126,10 +127,12 @@ $(function(){initNavTree('LLM__client_8h.html',''); initResizable(); });
 <code>#include &lt;iostream&gt;</code><br />
 <code>#include &lt;sstream&gt;</code><br />
 <code>#include &quot;<a class="el" href="LLM_8h_source.html">LLM.h</a>&quot;</code><br />
+<code>#include &quot;completion_processor.h&quot;</code><br />
+<code>#include &quot;httplib.h&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for LLM_client.h:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="LLM__client_8h__incl.svg" width="1078" height="256"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="LLM__client_8h__incl.svg" width="871" height="256"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div><div class="textblock"><div class="dynheader">
 This graph shows which files directly or indirectly include this file:</div>
@@ -141,32 +144,71 @@ This graph shows which files directly or indirectly include this file:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structStreamingContext.html">StreamingContext</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Context structure for streaming operations.  <a href="structStreamingContext.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMClient.html">LLMClient</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Client for accessing <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> functionality locally or remotely.  <a href="classLLMClient.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a630a43aa7f6e1b4ab8c4b0fe1955998a" id="r_a630a43aa7f6e1b4ab8c4b0fe1955998a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a630a43aa7f6e1b4ab8c4b0fe1955998a">CPPHTTPLIB_FORM_URL_ENCODED_PAYLOAD_MAX_LENGTH</a>&#160;&#160;&#160;1048576</td></tr>
+<tr class="separator:a630a43aa7f6e1b4ab8c4b0fe1955998a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5781dce6ebcf4a66364011bcdcaea4c" id="r_ae5781dce6ebcf4a66364011bcdcaea4c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae5781dce6ebcf4a66364011bcdcaea4c">CPPHTTPLIB_TCP_NODELAY</a>&#160;&#160;&#160;true</td></tr>
+<tr class="separator:ae5781dce6ebcf4a66364011bcdcaea4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr><td colspan="2"><div class="groupHeader"></div></td></tr>
+<tr class="memitem:gaaf9d2dbedf959642d816abc6af064e89" id="r_gaaf9d2dbedf959642d816abc6af064e89"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__c__api.html#gaaf9d2dbedf959642d816abc6af064e89">LLMClient_Is_Server_Alive</a> (<a class="el" href="classLLMClient.html">LLMClient</a> *llm)</td></tr>
+<tr class="separator:gaaf9d2dbedf959642d816abc6af064e89"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga76b46ac93bf8735a0e2bb0e2cc34f4d0" id="r_ga76b46ac93bf8735a0e2bb0e2cc34f4d0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__c__api.html#ga76b46ac93bf8735a0e2bb0e2cc34f4d0">LLMClient_Set_SSL</a> (<a class="el" href="classLLMClient.html">LLMClient</a> *llm, const char *SSL_cert)</td></tr>
 <tr class="memdesc:ga76b46ac93bf8735a0e2bb0e2cc34f4d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set SSL certificate (C API)  <br /></td></tr>
 <tr class="separator:ga76b46ac93bf8735a0e2bb0e2cc34f4d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6f2f5d43a4bf1ae52b05c602e6ee3a8f" id="r_ga6f2f5d43a4bf1ae52b05c602e6ee3a8f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLLMClient.html">LLMClient</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__c__api.html#ga6f2f5d43a4bf1ae52b05c602e6ee3a8f">LLMClient_Construct</a> (<a class="el" href="classLLMProvider.html">LLMProvider</a> *llm)</td></tr>
 <tr class="memdesc:ga6f2f5d43a4bf1ae52b05c602e6ee3a8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct local <a class="el" href="classLLMClient.html" title="Client for accessing LLM functionality locally or remotely.">LLMClient</a> (C API)  <br /></td></tr>
 <tr class="separator:ga6f2f5d43a4bf1ae52b05c602e6ee3a8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gad9daeffab1a9656b8ae3ee903ea384ad" id="r_gad9daeffab1a9656b8ae3ee903ea384ad"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLLMClient.html">LLMClient</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__c__api.html#gad9daeffab1a9656b8ae3ee903ea384ad">LLMClient_Construct_Remote</a> (const char *url, const int port)</td></tr>
-<tr class="memdesc:gad9daeffab1a9656b8ae3ee903ea384ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct remote <a class="el" href="classLLMClient.html" title="Client for accessing LLM functionality locally or remotely.">LLMClient</a> (C API)  <br /></td></tr>
-<tr class="separator:gad9daeffab1a9656b8ae3ee903ea384ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae91722416d193cf4768f174b8b37aff7" id="r_gae91722416d193cf4768f174b8b37aff7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLLMClient.html">LLMClient</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__c__api.html#gae91722416d193cf4768f174b8b37aff7">LLMClient_Construct_Remote</a> (const char *url, const int port, const char *API_key=&quot;&quot;)</td></tr>
+<tr class="memdesc:gae91722416d193cf4768f174b8b37aff7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct remote <a class="el" href="classLLMClient.html" title="Client for accessing LLM functionality locally or remotely.">LLMClient</a> (C API)  <br /></td></tr>
+<tr class="separator:gae91722416d193cf4768f174b8b37aff7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Client interface for local and remote <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> access. </p>
 <p>Provides a unified interface for accessing <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> functionality both locally (in-process) and remotely (via HTTP), with support for streaming responses </p>
 
 <p class="definition">Definition in file <a class="el" href="LLM__client_8h_source.html">LLM_client.h</a>.</p>
-</div></div><!-- contents -->
+</div><h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a630a43aa7f6e1b4ab8c4b0fe1955998a" name="a630a43aa7f6e1b4ab8c4b0fe1955998a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a630a43aa7f6e1b4ab8c4b0fe1955998a">&#9670;&#160;</a></span>CPPHTTPLIB_FORM_URL_ENCODED_PAYLOAD_MAX_LENGTH</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CPPHTTPLIB_FORM_URL_ENCODED_PAYLOAD_MAX_LENGTH&#160;&#160;&#160;1048576</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="LLM__client_8h_source.html#l00021">21</a> of file <a class="el" href="LLM__client_8h_source.html">LLM_client.h</a>.</p>
+
+</div>
+</div>
+<a id="ae5781dce6ebcf4a66364011bcdcaea4c" name="ae5781dce6ebcf4a66364011bcdcaea4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae5781dce6ebcf4a66364011bcdcaea4c">&#9670;&#160;</a></span>CPPHTTPLIB_TCP_NODELAY</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CPPHTTPLIB_TCP_NODELAY&#160;&#160;&#160;true</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="LLM__client_8h_source.html#l00023">23</a> of file <a class="el" href="LLM__client_8h_source.html">LLM_client.h</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->

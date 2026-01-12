@@ -1,8 +1,8 @@
 <map id="LLMAgent::completion" name="LLMAgent::completion">
 <area shape="rect" id="Node000001" title="Generate completion with agent&#39;s slot." alt="" coords="347,29,513,55"/>
-<area shape="rect" id="Node000002" href="$classLLMAgent.html#afa0fcd26e7cae3e81626bd9f61fc96d0" title="Conduct a chat interaction." alt="" coords="176,29,299,55"/>
+<area shape="rect" id="Node000002" href="$classLLMAgent.html#aecac08f1cbc4ed079cc75bc98f08d4ce" title="Conduct a chat interaction." alt="" coords="176,29,299,55"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="333,45,299,45,299,39,333,39"/>
-<area shape="rect" id="Node000003" href="$LLM__agent_8cpp.html#ab8450c34bcec75882fbb979d8c078116" title="Conduct chat interaction (C API)" alt="" coords="5,29,128,55"/>
+<area shape="rect" id="Node000003" href="$LLM__agent_8cpp.html#ae783925557d9588c8e4f16e58ba116b2" title="Conduct chat interaction (C API)" alt="" coords="5,29,128,55"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="162,45,128,45,128,39,162,39"/>
 <area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="97,19,88,11,67,8,49,10,39,15,37,20,43,28,38,31,32,21,35,11,47,5,67,3,90,6,100,15"/>
 </map>

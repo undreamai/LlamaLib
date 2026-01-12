@@ -1,20 +1,10 @@
 <map id="ChatMessage::to_json" name="ChatMessage::to_json">
-<area shape="rect" id="Node000001" title="Convert message to JSON representation." alt="" coords="468,103,633,128"/>
-<area shape="rect" id="Node000002" href="$classLLMAgent.html#a61db559b8f31d3c5d52632139b184780" title="Add a message to conversation history." alt="" coords="236,41,420,67"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="490,102,374,69,376,64,492,96"/>
-<area shape="rect" id="Node000004" href="$classLLMAgent.html#afa0fcd26e7cae3e81626bd9f61fc96d0" title="Conduct a chat interaction." alt="" coords="267,103,389,128"/>
-<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="454,118,390,118,390,113,454,113"/>
-<area shape="rect" id="Node000006" href="$classLLMAgent.html#af4939eaa37cfbadc86672d06fe86739a" title="Clear all conversation history." alt="" coords="239,152,417,177"/>
-<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="480,134,387,155,386,149,479,128"/>
-<area shape="rect" id="Node000003" href="$LLM__agent_8cpp.html#ad346fab0b6e0ec3b7af2b374de3dbae5" title="Add message to history (C API)" alt="" coords="5,29,188,55"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="222,51,188,49,188,44,222,46"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="138,20,127,11,97,8,72,10,59,15,56,20,63,27,59,31,51,21,55,11,71,5,97,3,129,7,141,16"/>
-<area shape="rect" id="Node000005" href="$LLM__agent_8cpp.html#ab8450c34bcec75882fbb979d8c078116" title="Conduct chat interaction (C API)" alt="" coords="35,103,158,128"/>
-<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="253,118,158,118,158,113,253,113"/>
-<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="138,94,127,85,97,81,72,83,59,88,56,94,63,101,59,104,51,94,55,84,71,78,97,76,129,80,141,89"/>
-<area shape="rect" id="Node000007" href="$classLLMAgent.html#a6937b028ea9592487e2c809c5ac64e6c" title="Constructor for LLM agent." alt="" coords="17,152,176,177"/>
-<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="225,167,176,167,176,162,225,162"/>
-<area shape="rect" id="Node000008" href="$LLM__agent_8cpp.html#a5e0a07cda62c8ac7700f6c8414798ad5" title="Clear conversation history (C API)" alt="" coords="6,225,187,251"/>
-<area shape="poly" id="edge9_Node000006_Node000008" title=" " alt="" coords="275,184,139,228,137,223,273,179"/>
-<area shape="poly" id="edge10_Node000008_Node000008" title=" " alt="" coords="138,216,127,207,97,204,72,206,59,211,56,216,63,223,59,227,51,217,55,207,71,201,97,199,129,203,141,212"/>
+<area shape="rect" id="Node000001" title="Convert message to JSON representation." alt="" coords="408,31,573,56"/>
+<area shape="rect" id="Node000002" href="$classLLMAgent.html#a61db559b8f31d3c5d52632139b184780" title="Add a message to conversation history." alt="" coords="176,5,360,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="394,35,360,31,361,26,394,30"/>
+<area shape="rect" id="Node000003" href="$classLLMAgent.html#aecac08f1cbc4ed079cc75bc98f08d4ce" title="Conduct a chat interaction." alt="" coords="207,55,329,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="394,56,330,63,329,58,394,51"/>
+<area shape="rect" id="Node000004" href="$LLM__agent_8cpp.html#ae783925557d9588c8e4f16e58ba116b2" title="Conduct chat interaction (C API)" alt="" coords="5,55,128,80"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="193,70,128,70,128,65,193,65"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="102,45,92,37,67,33,45,35,34,40,32,46,38,53,34,56,27,46,30,36,44,30,67,28,95,32,106,41"/>
 </map>

@@ -1,4 +1,15 @@
 <map id="LLMService_From_Command" name="LLMService_From_Command">
-<area shape="rect" id="Node000001" title="Create LLMService from command string (C API)" alt="" coords="5,29,216,55"/>
-<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="148,20,138,11,111,8,89,10,77,15,74,20,81,28,77,31,69,21,73,11,87,5,111,3,140,6,151,15"/>
+<area shape="rect" id="Node000001" title="Create LLMService from command string (C API)" alt="" coords="921,42,1132,67"/>
+<area shape="poly" id="edge7_Node000001_Node000001" title=" " alt="" coords="1069,33,1058,24,1027,21,1002,23,988,28,985,33,992,40,989,44,980,34,985,24,1000,18,1027,15,1060,19,1072,29"/>
+<area shape="rect" id="Node000002" href="$classLLMService.html#a5aa62b2f1feb31a8977801c2bd2ed30d" title="Load LLM library backend." alt="" coords="708,5,873,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="910,43,873,38,874,33,911,38"/>
+<area shape="rect" id="Node000003" href="$classLLMService.html#ac194e3210642288e650ed9f9194a69ee" title="Loads LLM library dynamically according to underlying achitecture and creates a LLM based on the comm..." alt="" coords="515,5,660,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="694,28,661,28,661,23,694,23"/>
+<area shape="rect" id="Node000004" href="$classLLMService.html#afd5f58f0c3b9e3d64524ddb21cc8168a" title="Create runtime from command line string." alt="" coords="260,66,467,91"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="502,48,418,69,417,63,500,43"/>
+<area shape="rect" id="Node000006" href="$classLLMService.html#a982b997919be934d4c3d300bbbe7a971" title="Parameterized constructor." alt="" coords="274,13,453,38"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="501,28,453,28,453,23,501,23"/>
+<area shape="poly" id="edge5_Node000004_Node000001" title=" " alt="" coords="480,72,921,56,921,61,481,77"/>
+<area shape="rect" id="Node000005" href="$classLLMService.html#a8c646d7f7f81358417ed52359b10d583" title="Create runtime from argc/argv." alt="" coords="5,66,212,91"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="247,81,212,81,212,76,247,76"/>
 </map>

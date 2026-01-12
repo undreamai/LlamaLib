@@ -1,6 +1,10 @@
 var annotated_dup =
 [
     [ "ChatMessage", "structChatMessage.html", "structChatMessage" ],
+    [ "ErrorState", "structErrorState.html", null ],
+    [ "ErrorStateRegistry", "classErrorStateRegistry.html", null ],
+    [ "HttpResult", "structHttpResult.html", null ],
+    [ "IOSHttpTransport", "classIOSHttpTransport.html", null ],
     [ "LLM", "classLLM.html", "classLLM" ],
     [ "LLMAgent", "classLLMAgent.html", "classLLMAgent" ],
     [ "LLMClient", "classLLMClient.html", "classLLMClient" ],
@@ -10,6 +14,5 @@ var annotated_dup =
     [ "LLMService", "classLLMService.html", "classLLMService" ],
     [ "LoraIdScale", "structLoraIdScale.html", "structLoraIdScale" ],
     [ "LoraIdScalePath", "structLoraIdScalePath.html", "structLoraIdScalePath" ],
-    [ "SinkException", "classSinkException.html", null ],
-    [ "StreamingContext", "structStreamingContext.html", "structStreamingContext" ]
+    [ "ResponseConcatenator", "classResponseConcatenator.html", "classResponseConcatenator" ]
 ];

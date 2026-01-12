@@ -1,15 +1,8 @@
 <map id="LLM::build_tokenize_json" name="LLM::build_tokenize_json">
-<area shape="rect" id="Node000001" title="Build JSON for tokenization." alt="" coords="620,79,804,104"/>
-<area shape="rect" id="Node000002" href="$classLLM.html#a625ad6e037e16cdc61282150ef465229" title="Tokenize text." alt="" coords="461,79,572,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="607,94,572,94,572,89,607,89"/>
-<area shape="rect" id="Node000003" href="$classLLMAgent.html#af4939eaa37cfbadc86672d06fe86739a" title="Clear all conversation history." alt="" coords="235,41,413,67"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="447,81,389,69,390,64,448,75"/>
-<area shape="rect" id="Node000006" href="$LLM_8cpp.html#abd6f6e4fce851c75901a1807a9cbeb0f" title="Tokenize text (C API)" alt="" coords="269,115,379,140"/>
-<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="448,107,380,120,379,114,447,102"/>
-<area shape="rect" id="Node000004" href="$classLLMAgent.html#a6937b028ea9592487e2c809c5ac64e6c" title="Constructor for LLM agent." alt="" coords="17,5,175,31"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="229,42,175,33,176,28,230,37"/>
-<area shape="rect" id="Node000005" href="$LLM__agent_8cpp.html#a5e0a07cda62c8ac7700f6c8414798ad5" title="Clear conversation history (C API)" alt="" coords="5,79,187,104"/>
-<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="233,72,174,81,173,76,232,66"/>
-<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="137,69,126,61,96,57,72,59,59,64,56,70,63,77,59,80,51,70,55,60,71,54,96,52,128,56,140,65"/>
-<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="358,104,348,96,324,93,304,95,293,100,291,106,297,113,292,116,286,106,289,96,302,90,324,88,350,92,361,100"/>
+<area shape="rect" id="Node000001" title="Build JSON for tokenization." alt="" coords="323,29,507,55"/>
+<area shape="rect" id="Node000002" href="$classLLM.html#a625ad6e037e16cdc61282150ef465229" title="Tokenize text." alt="" coords="164,29,275,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="309,45,275,45,275,39,309,39"/>
+<area shape="rect" id="Node000003" href="$LLM_8cpp.html#abd6f6e4fce851c75901a1807a9cbeb0f" title="Tokenize text (C API)" alt="" coords="5,29,116,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="151,45,116,45,116,39,151,39"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="88,19,80,11,61,8,44,10,36,15,34,20,39,28,34,31,29,21,32,11,43,5,61,3,82,6,92,15"/>
 </map>

@@ -116,6 +116,8 @@ $(function(){initNavTree('classLLMService.html',''); initResizable(); });
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
+<a href="#pro-attribs">Protected Attributes</a> &#124;
 <a href="classLLMService-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">LLMService Class Reference</div></div>
 </div><!--header-->
@@ -136,93 +138,87 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a9ed3e1fb5b5bb7219afbf3acd2eeada3" id="r_a9ed3e1fb5b5bb7219afbf3acd2eeada3"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9ed3e1fb5b5bb7219afbf3acd2eeada3">LLMService</a> ()</td></tr>
 <tr class="memdesc:a9ed3e1fb5b5bb7219afbf3acd2eeada3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default constructor.  <br /></td></tr>
 <tr class="separator:a9ed3e1fb5b5bb7219afbf3acd2eeada3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa0908086b2dff047dd6f7fddf29eb180" id="r_aa0908086b2dff047dd6f7fddf29eb180"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa0908086b2dff047dd6f7fddf29eb180">LLMService</a> (const std::string &amp;model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, const std::vector&lt; std::string &gt; &amp;lora_paths={})</td></tr>
-<tr class="memdesc:aa0908086b2dff047dd6f7fddf29eb180"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parameterized constructor.  <br /></td></tr>
-<tr class="separator:aa0908086b2dff047dd6f7fddf29eb180"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a982b997919be934d4c3d300bbbe7a971" id="r_a982b997919be934d4c3d300bbbe7a971"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a982b997919be934d4c3d300bbbe7a971">LLMService</a> (const std::string &amp;model_path, int num_slots=1, int num_threads=-1, int num_GPU_layers=0, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, const std::vector&lt; std::string &gt; &amp;lora_paths={})</td></tr>
+<tr class="memdesc:a982b997919be934d4c3d300bbbe7a971"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parameterized constructor.  <br /></td></tr>
+<tr class="separator:a982b997919be934d4c3d300bbbe7a971"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2e4a6744af72dfc8edba8c91e827c68e" id="r_a2e4a6744af72dfc8edba8c91e827c68e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2e4a6744af72dfc8edba8c91e827c68e">~LLMService</a> ()</td></tr>
 <tr class="memdesc:a2e4a6744af72dfc8edba8c91e827c68e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <br /></td></tr>
 <tr class="separator:a2e4a6744af72dfc8edba8c91e827c68e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac194e3210642288e650ed9f9194a69ee" id="r_ac194e3210642288e650ed9f9194a69ee"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac194e3210642288e650ed9f9194a69ee">create_LLM_library</a> (const std::string &amp;command)</td></tr>
 <tr class="memdesc:ac194e3210642288e650ed9f9194a69ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> library dynamically according to underlying achitecture and creates a <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> based on the command.  <br /></td></tr>
 <tr class="separator:ac194e3210642288e650ed9f9194a69ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac4080b4e2a6ffaff05b8287726c24720" id="r_ac4080b4e2a6ffaff05b8287726c24720"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac4080b4e2a6ffaff05b8287726c24720">debug</a> (int debug_level) override</td></tr>
-<tr class="memdesc:ac4080b4e2a6ffaff05b8287726c24720"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set debug level (override - delegates to loaded library)  <br /></td></tr>
-<tr class="separator:ac4080b4e2a6ffaff05b8287726c24720"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a791e34a786131e8114e9e57608cbe0a8" id="r_a791e34a786131e8114e9e57608cbe0a8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a791e34a786131e8114e9e57608cbe0a8">logging_callback</a> (CharArrayFn callback) override</td></tr>
-<tr class="memdesc:a791e34a786131e8114e9e57608cbe0a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set logging callback (override - delegates to loaded library)  <br /></td></tr>
-<tr class="separator:a791e34a786131e8114e9e57608cbe0a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9dabfa2d3939f7b2eee682b89b5fe475" id="r_a9dabfa2d3939f7b2eee682b89b5fe475"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9dabfa2d3939f7b2eee682b89b5fe475">start_server</a> (const std::string &amp;host=&quot;0.0.0.0&quot;, int port=0, const std::string &amp;API_key=&quot;&quot;) override</td></tr>
-<tr class="memdesc:a9dabfa2d3939f7b2eee682b89b5fe475"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start HTTP server (override - delegates to loaded library)  <br /></td></tr>
-<tr class="separator:a9dabfa2d3939f7b2eee682b89b5fe475"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8c715eaf88cc6edd540554047afd3fc9" id="r_a8c715eaf88cc6edd540554047afd3fc9"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8c715eaf88cc6edd540554047afd3fc9">tokenize_json</a> (const json &amp;data) override</td></tr>
+<tr class="memdesc:a8c715eaf88cc6edd540554047afd3fc9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tokenize input (override)  <br /></td></tr>
+<tr class="separator:a8c715eaf88cc6edd540554047afd3fc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5169bc4aa066eff9b34db8f7a0f7055" id="r_ab5169bc4aa066eff9b34db8f7a0f7055"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab5169bc4aa066eff9b34db8f7a0f7055">detokenize_json</a> (const json &amp;data) override</td></tr>
+<tr class="memdesc:ab5169bc4aa066eff9b34db8f7a0f7055"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert tokens back to text.  <br /></td></tr>
+<tr class="separator:ab5169bc4aa066eff9b34db8f7a0f7055"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab56eaa6cdee9253f44a5a4286b6ccca1" id="r_ab56eaa6cdee9253f44a5a4286b6ccca1"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab56eaa6cdee9253f44a5a4286b6ccca1">embeddings_json</a> (const json &amp;data) override</td></tr>
+<tr class="memdesc:ab56eaa6cdee9253f44a5a4286b6ccca1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate embeddings with HTTP response support.  <br /></td></tr>
+<tr class="separator:ab56eaa6cdee9253f44a5a4286b6ccca1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add81f54b4e1d077338ed828bca5eb4f9" id="r_add81f54b4e1d077338ed828bca5eb4f9"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#add81f54b4e1d077338ed828bca5eb4f9">completion_json</a> (const json &amp;data, CharArrayFn callback=nullptr, bool callbackWithJSON=true) override</td></tr>
+<tr class="memdesc:add81f54b4e1d077338ed828bca5eb4f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate completion (override - delegates to loaded library)  <br /></td></tr>
+<tr class="separator:add81f54b4e1d077338ed828bca5eb4f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7167245f9acc0ab31c6bff6d307d5f7" id="r_ad7167245f9acc0ab31c6bff6d307d5f7"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad7167245f9acc0ab31c6bff6d307d5f7">apply_template_json</a> (const json &amp;data) override</td></tr>
+<tr class="memdesc:ad7167245f9acc0ab31c6bff6d307d5f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply a chat template to message data.  <br /></td></tr>
+<tr class="separator:ad7167245f9acc0ab31c6bff6d307d5f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5bf3245b4d1aee65db6dab3ba1540222" id="r_a5bf3245b4d1aee65db6dab3ba1540222"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5bf3245b4d1aee65db6dab3ba1540222">cancel</a> (int id_slot) override</td></tr>
+<tr class="memdesc:a5bf3245b4d1aee65db6dab3ba1540222"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cancel request (override - delegates to loaded library)  <br /></td></tr>
+<tr class="separator:a5bf3245b4d1aee65db6dab3ba1540222"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4eba5396a16c93591838ec0389cfe368" id="r_a4eba5396a16c93591838ec0389cfe368"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4eba5396a16c93591838ec0389cfe368">lora_weight_json</a> (const json &amp;data) override</td></tr>
+<tr class="memdesc:a4eba5396a16c93591838ec0389cfe368"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configure LoRA weights with HTTP response support.  <br /></td></tr>
+<tr class="separator:a4eba5396a16c93591838ec0389cfe368"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7155bcce67b4762326f3dc52b8e74b5d" id="r_a7155bcce67b4762326f3dc52b8e74b5d"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7155bcce67b4762326f3dc52b8e74b5d">lora_list_json</a> () override</td></tr>
+<tr class="memdesc:a7155bcce67b4762326f3dc52b8e74b5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">List available LoRA adapters.  <br /></td></tr>
+<tr class="separator:a7155bcce67b4762326f3dc52b8e74b5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa345caf67e8502ad75a7846336ccafa6" id="r_aa345caf67e8502ad75a7846336ccafa6"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa345caf67e8502ad75a7846336ccafa6">slot_json</a> (const json &amp;data) override</td></tr>
+<tr class="memdesc:aa345caf67e8502ad75a7846336ccafa6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Manage slots with HTTP response support.  <br /></td></tr>
+<tr class="separator:aa345caf67e8502ad75a7846336ccafa6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad98fd1abf189d95f2e5780e43b7f4fc0" id="r_ad98fd1abf189d95f2e5780e43b7f4fc0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad98fd1abf189d95f2e5780e43b7f4fc0">start_server</a> (const std::string &amp;host=&quot;0.0.0.0&quot;, int port=-1, const std::string &amp;API_key=&quot;&quot;) override</td></tr>
+<tr class="memdesc:ad98fd1abf189d95f2e5780e43b7f4fc0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start HTTP server (override - delegates to loaded library)  <br /></td></tr>
+<tr class="separator:ad98fd1abf189d95f2e5780e43b7f4fc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a09ac7b303c17ac938f9581bf4125b8fc" id="r_a09ac7b303c17ac938f9581bf4125b8fc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a09ac7b303c17ac938f9581bf4125b8fc">stop_server</a> () override</td></tr>
 <tr class="memdesc:a09ac7b303c17ac938f9581bf4125b8fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop HTTP server (override - delegates to loaded library)  <br /></td></tr>
 <tr class="separator:a09ac7b303c17ac938f9581bf4125b8fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac63e54f4b00ac4a5c630cf3522985a1a" id="r_ac63e54f4b00ac4a5c630cf3522985a1a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac63e54f4b00ac4a5c630cf3522985a1a">join_server</a> () override</td></tr>
-<tr class="memdesc:ac63e54f4b00ac4a5c630cf3522985a1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait for server completion (override - delegates to loaded library)  <br /></td></tr>
-<tr class="separator:ac63e54f4b00ac4a5c630cf3522985a1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a677511772c4657a66267697fdb2de6a5" id="r_a677511772c4657a66267697fdb2de6a5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a677511772c4657a66267697fdb2de6a5">start</a> () override</td></tr>
 <tr class="memdesc:a677511772c4657a66267697fdb2de6a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start service (override - delegates to loaded library)  <br /></td></tr>
 <tr class="separator:a677511772c4657a66267697fdb2de6a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e89d6cc1f17e40ce154d84ab8ce75e4" id="r_a5e89d6cc1f17e40ce154d84ab8ce75e4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5e89d6cc1f17e40ce154d84ab8ce75e4">started</a> () override</td></tr>
+<tr class="memdesc:a5e89d6cc1f17e40ce154d84ab8ce75e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check service status (override - delegates to loaded library)  <br /></td></tr>
+<tr class="separator:a5e89d6cc1f17e40ce154d84ab8ce75e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af9d9bc035f07d7237fe3571036590492" id="r_af9d9bc035f07d7237fe3571036590492"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af9d9bc035f07d7237fe3571036590492">stop</a> () override</td></tr>
 <tr class="memdesc:af9d9bc035f07d7237fe3571036590492"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop service (override - delegates to loaded library)  <br /></td></tr>
 <tr class="separator:af9d9bc035f07d7237fe3571036590492"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a52492fa89b5cbc7b8599e2dd0e19507d" id="r_a52492fa89b5cbc7b8599e2dd0e19507d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a52492fa89b5cbc7b8599e2dd0e19507d">join_service</a> () override</td></tr>
 <tr class="memdesc:a52492fa89b5cbc7b8599e2dd0e19507d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait for service completion (override - delegates to loaded library)  <br /></td></tr>
 <tr class="separator:a52492fa89b5cbc7b8599e2dd0e19507d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac63e54f4b00ac4a5c630cf3522985a1a" id="r_ac63e54f4b00ac4a5c630cf3522985a1a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac63e54f4b00ac4a5c630cf3522985a1a">join_server</a> () override</td></tr>
+<tr class="memdesc:ac63e54f4b00ac4a5c630cf3522985a1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait for server completion (override - delegates to loaded library)  <br /></td></tr>
+<tr class="separator:ac63e54f4b00ac4a5c630cf3522985a1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a258cd27ad8a00f3309886f8641bbdc30" id="r_a258cd27ad8a00f3309886f8641bbdc30"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a258cd27ad8a00f3309886f8641bbdc30">set_SSL</a> (const std::string &amp;cert, const std::string &amp;key) override</td></tr>
 <tr class="memdesc:a258cd27ad8a00f3309886f8641bbdc30"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set SSL configuration (override - delegates to loaded library)  <br /></td></tr>
 <tr class="separator:a258cd27ad8a00f3309886f8641bbdc30"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5e89d6cc1f17e40ce154d84ab8ce75e4" id="r_a5e89d6cc1f17e40ce154d84ab8ce75e4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5e89d6cc1f17e40ce154d84ab8ce75e4">started</a> () override</td></tr>
-<tr class="memdesc:a5e89d6cc1f17e40ce154d84ab8ce75e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check service status (override - delegates to loaded library)  <br /></td></tr>
-<tr class="separator:a5e89d6cc1f17e40ce154d84ab8ce75e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afc7773678786a2b749bcd514f530d666" id="r_afc7773678786a2b749bcd514f530d666"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afc7773678786a2b749bcd514f530d666">embedding_size</a> () override</td></tr>
 <tr class="memdesc:afc7773678786a2b749bcd514f530d666"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get embedding size (override - delegates to loaded library)  <br /></td></tr>
 <tr class="separator:afc7773678786a2b749bcd514f530d666"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba6e99d9b6898d51eef3b20eb7c10dcc" id="r_aba6e99d9b6898d51eef3b20eb7c10dcc"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aba6e99d9b6898d51eef3b20eb7c10dcc">get_next_available_slot</a> () override</td></tr>
 <tr class="memdesc:aba6e99d9b6898d51eef3b20eb7c10dcc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get available slot (override - delegates to loaded library)  <br /></td></tr>
 <tr class="separator:aba6e99d9b6898d51eef3b20eb7c10dcc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8c715eaf88cc6edd540554047afd3fc9" id="r_a8c715eaf88cc6edd540554047afd3fc9"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8c715eaf88cc6edd540554047afd3fc9">tokenize_json</a> (const json &amp;data) override</td></tr>
-<tr class="memdesc:a8c715eaf88cc6edd540554047afd3fc9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tokenize input (override - delegates to loaded library)  <br /></td></tr>
-<tr class="separator:a8c715eaf88cc6edd540554047afd3fc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab5169bc4aa066eff9b34db8f7a0f7055" id="r_ab5169bc4aa066eff9b34db8f7a0f7055"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab5169bc4aa066eff9b34db8f7a0f7055">detokenize_json</a> (const json &amp;data) override</td></tr>
-<tr class="memdesc:ab5169bc4aa066eff9b34db8f7a0f7055"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detokenize tokens (override - delegates to loaded library)  <br /></td></tr>
-<tr class="separator:ab5169bc4aa066eff9b34db8f7a0f7055"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab56eaa6cdee9253f44a5a4286b6ccca1" id="r_ab56eaa6cdee9253f44a5a4286b6ccca1"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab56eaa6cdee9253f44a5a4286b6ccca1">embeddings_json</a> (const json &amp;data) override</td></tr>
-<tr class="memdesc:ab56eaa6cdee9253f44a5a4286b6ccca1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate embeddings (override - delegates to loaded library)  <br /></td></tr>
-<tr class="separator:ab56eaa6cdee9253f44a5a4286b6ccca1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:add81f54b4e1d077338ed828bca5eb4f9" id="r_add81f54b4e1d077338ed828bca5eb4f9"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#add81f54b4e1d077338ed828bca5eb4f9">completion_json</a> (const json &amp;data, CharArrayFn callback=nullptr, bool callbackWithJSON=true) override</td></tr>
-<tr class="memdesc:add81f54b4e1d077338ed828bca5eb4f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate completion (override - delegates to loaded library)  <br /></td></tr>
-<tr class="separator:add81f54b4e1d077338ed828bca5eb4f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa345caf67e8502ad75a7846336ccafa6" id="r_aa345caf67e8502ad75a7846336ccafa6"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa345caf67e8502ad75a7846336ccafa6">slot_json</a> (const json &amp;data) override</td></tr>
-<tr class="memdesc:aa345caf67e8502ad75a7846336ccafa6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Manage slots (override - delegates to loaded library)  <br /></td></tr>
-<tr class="separator:aa345caf67e8502ad75a7846336ccafa6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a47f2c4656e0efe39106c959e9344177f" id="r_a47f2c4656e0efe39106c959e9344177f"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a47f2c4656e0efe39106c959e9344177f">get_template_json</a> () override</td></tr>
-<tr class="memdesc:a47f2c4656e0efe39106c959e9344177f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get template (override - delegates to loaded library)  <br /></td></tr>
-<tr class="separator:a47f2c4656e0efe39106c959e9344177f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a608e8e38aa54888b312060d6838e6c1b" id="r_a608e8e38aa54888b312060d6838e6c1b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a608e8e38aa54888b312060d6838e6c1b">set_template_json</a> (const json &amp;data) override</td></tr>
-<tr class="memdesc:a608e8e38aa54888b312060d6838e6c1b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set template (override - delegates to loaded library)  <br /></td></tr>
-<tr class="separator:a608e8e38aa54888b312060d6838e6c1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad7167245f9acc0ab31c6bff6d307d5f7" id="r_ad7167245f9acc0ab31c6bff6d307d5f7"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad7167245f9acc0ab31c6bff6d307d5f7">apply_template_json</a> (const json &amp;data) override</td></tr>
-<tr class="memdesc:ad7167245f9acc0ab31c6bff6d307d5f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply template (override - delegates to loaded library)  <br /></td></tr>
-<tr class="separator:ad7167245f9acc0ab31c6bff6d307d5f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6a64c858a2a81f67fbfde058df85bb6d" id="r_a6a64c858a2a81f67fbfde058df85bb6d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6a64c858a2a81f67fbfde058df85bb6d">cancel_json</a> (const json &amp;data) override</td></tr>
-<tr class="memdesc:a6a64c858a2a81f67fbfde058df85bb6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cancel request (override - delegates to loaded library)  <br /></td></tr>
-<tr class="separator:a6a64c858a2a81f67fbfde058df85bb6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4eba5396a16c93591838ec0389cfe368" id="r_a4eba5396a16c93591838ec0389cfe368"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4eba5396a16c93591838ec0389cfe368">lora_weight_json</a> (const json &amp;data) override</td></tr>
-<tr class="memdesc:a4eba5396a16c93591838ec0389cfe368"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configure LoRA weights (override - delegates to loaded library)  <br /></td></tr>
-<tr class="separator:a4eba5396a16c93591838ec0389cfe368"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7155bcce67b4762326f3dc52b8e74b5d" id="r_a7155bcce67b4762326f3dc52b8e74b5d"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7155bcce67b4762326f3dc52b8e74b5d">lora_list_json</a> () override</td></tr>
-<tr class="memdesc:a7155bcce67b4762326f3dc52b8e74b5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">List LoRA adapters (override - delegates to loaded library)  <br /></td></tr>
-<tr class="separator:a7155bcce67b4762326f3dc52b8e74b5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4080b4e2a6ffaff05b8287726c24720" id="r_ac4080b4e2a6ffaff05b8287726c24720"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac4080b4e2a6ffaff05b8287726c24720">debug</a> (int debug_level) override</td></tr>
+<tr class="memdesc:ac4080b4e2a6ffaff05b8287726c24720"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set debug level (override - delegates to loaded library)  <br /></td></tr>
+<tr class="separator:ac4080b4e2a6ffaff05b8287726c24720"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a791e34a786131e8114e9e57608cbe0a8" id="r_a791e34a786131e8114e9e57608cbe0a8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a791e34a786131e8114e9e57608cbe0a8">logging_callback</a> (CharArrayFn callback) override</td></tr>
+<tr class="memdesc:a791e34a786131e8114e9e57608cbe0a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set logging callback (override - delegates to loaded library)  <br /></td></tr>
+<tr class="separator:a791e34a786131e8114e9e57608cbe0a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a31018b05cf4e56b89614dfb7080f1ed6" id="r_a31018b05cf4e56b89614dfb7080f1ed6"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a31018b05cf4e56b89614dfb7080f1ed6">debug_implementation</a> () override</td></tr>
 <tr class="memdesc:a31018b05cf4e56b89614dfb7080f1ed6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Implementation debugging.  <br /></td></tr>
 <tr class="separator:a31018b05cf4e56b89614dfb7080f1ed6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9ed3e1fb5b5bb7219afbf3acd2eeada3" id="r_a9ed3e1fb5b5bb7219afbf3acd2eeada3"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9ed3e1fb5b5bb7219afbf3acd2eeada3">LLMService</a> ()</td></tr>
 <tr class="memdesc:a9ed3e1fb5b5bb7219afbf3acd2eeada3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default constructor.  <br /></td></tr>
 <tr class="separator:a9ed3e1fb5b5bb7219afbf3acd2eeada3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa0908086b2dff047dd6f7fddf29eb180" id="r_aa0908086b2dff047dd6f7fddf29eb180"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa0908086b2dff047dd6f7fddf29eb180">LLMService</a> (const std::string &amp;model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, const std::vector&lt; std::string &gt; &amp;lora_paths={})</td></tr>
-<tr class="memdesc:aa0908086b2dff047dd6f7fddf29eb180"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parameterized constructor.  <br /></td></tr>
-<tr class="separator:aa0908086b2dff047dd6f7fddf29eb180"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a982b997919be934d4c3d300bbbe7a971" id="r_a982b997919be934d4c3d300bbbe7a971"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a982b997919be934d4c3d300bbbe7a971">LLMService</a> (const std::string &amp;model_path, int num_slots=1, int num_threads=-1, int num_GPU_layers=0, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, const std::vector&lt; std::string &gt; &amp;lora_paths={})</td></tr>
+<tr class="memdesc:a982b997919be934d4c3d300bbbe7a971"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parameterized constructor.  <br /></td></tr>
+<tr class="separator:a982b997919be934d4c3d300bbbe7a971"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2e4a6744af72dfc8edba8c91e827c68e" id="r_a2e4a6744af72dfc8edba8c91e827c68e"><td class="memItemLeft" align="right" valign="top"><a id="a2e4a6744af72dfc8edba8c91e827c68e" name="a2e4a6744af72dfc8edba8c91e827c68e"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>~LLMService</b> ()</td></tr>
 <tr class="memdesc:a2e4a6744af72dfc8edba8c91e827c68e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor. <br /></td></tr>
@@ -236,75 +232,77 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a1ff5d7b3af982950017a8ce344a891bf" id="r_a1ff5d7b3af982950017a8ce344a891bf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1ff5d7b3af982950017a8ce344a891bf">init</a> (const char *params_string)</td></tr>
 <tr class="memdesc:a1ff5d7b3af982950017a8ce344a891bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize from C-style parameter string.  <br /></td></tr>
 <tr class="separator:a1ff5d7b3af982950017a8ce344a891bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac4080b4e2a6ffaff05b8287726c24720" id="r_ac4080b4e2a6ffaff05b8287726c24720"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac4080b4e2a6ffaff05b8287726c24720">debug</a> (int debug_level) override</td></tr>
-<tr class="memdesc:ac4080b4e2a6ffaff05b8287726c24720"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set debug level (override)  <br /></td></tr>
-<tr class="separator:ac4080b4e2a6ffaff05b8287726c24720"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a791e34a786131e8114e9e57608cbe0a8" id="r_a791e34a786131e8114e9e57608cbe0a8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a791e34a786131e8114e9e57608cbe0a8">logging_callback</a> (CharArrayFn callback) override</td></tr>
-<tr class="memdesc:a791e34a786131e8114e9e57608cbe0a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set logging callback (override)  <br /></td></tr>
-<tr class="separator:a791e34a786131e8114e9e57608cbe0a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a47f2c4656e0efe39106c959e9344177f" id="r_a47f2c4656e0efe39106c959e9344177f"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a47f2c4656e0efe39106c959e9344177f">get_template_json</a> () override</td></tr>
-<tr class="memdesc:a47f2c4656e0efe39106c959e9344177f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get template JSON (override)  <br /></td></tr>
-<tr class="separator:a47f2c4656e0efe39106c959e9344177f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a608e8e38aa54888b312060d6838e6c1b" id="r_a608e8e38aa54888b312060d6838e6c1b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a608e8e38aa54888b312060d6838e6c1b">set_template_json</a> (const json &amp;data) override</td></tr>
-<tr class="memdesc:a608e8e38aa54888b312060d6838e6c1b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set template from JSON (override)  <br /></td></tr>
-<tr class="separator:a608e8e38aa54888b312060d6838e6c1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad7167245f9acc0ab31c6bff6d307d5f7" id="r_ad7167245f9acc0ab31c6bff6d307d5f7"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad7167245f9acc0ab31c6bff6d307d5f7">apply_template_json</a> (const json &amp;data) override</td></tr>
-<tr class="memdesc:ad7167245f9acc0ab31c6bff6d307d5f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply template to data (override)  <br /></td></tr>
-<tr class="separator:ad7167245f9acc0ab31c6bff6d307d5f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adeccb201bdab1e5fe30e411fcd3790ac" id="r_adeccb201bdab1e5fe30e411fcd3790ac"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adeccb201bdab1e5fe30e411fcd3790ac">get_command</a> ()</td></tr>
+<tr class="memdesc:adeccb201bdab1e5fe30e411fcd3790ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the construct command.  <br /></td></tr>
+<tr class="separator:adeccb201bdab1e5fe30e411fcd3790ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf50823b7b0d12eb69ee357bce6b8b81" id="r_abf50823b7b0d12eb69ee357bce6b8b81"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abf50823b7b0d12eb69ee357bce6b8b81">encapsulate_route</a> (const json &amp;body, handler_t route_handler)</td></tr>
+<tr class="separator:abf50823b7b0d12eb69ee357bce6b8b81"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a303680807aba6210169bd64958d3d5d8" id="r_a303680807aba6210169bd64958d3d5d8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a303680807aba6210169bd64958d3d5d8">enable_reasoning</a> (bool reasoning) override</td></tr>
+<tr class="memdesc:a303680807aba6210169bd64958d3d5d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">enable reasoning  <br /></td></tr>
+<tr class="separator:a303680807aba6210169bd64958d3d5d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8c715eaf88cc6edd540554047afd3fc9" id="r_a8c715eaf88cc6edd540554047afd3fc9"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8c715eaf88cc6edd540554047afd3fc9">tokenize_json</a> (const json &amp;data) override</td></tr>
 <tr class="memdesc:a8c715eaf88cc6edd540554047afd3fc9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tokenize input (override)  <br /></td></tr>
 <tr class="separator:a8c715eaf88cc6edd540554047afd3fc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab5169bc4aa066eff9b34db8f7a0f7055" id="r_ab5169bc4aa066eff9b34db8f7a0f7055"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab5169bc4aa066eff9b34db8f7a0f7055">detokenize_json</a> (const json &amp;data) override</td></tr>
-<tr class="memdesc:ab5169bc4aa066eff9b34db8f7a0f7055"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detokenize tokens (override)  <br /></td></tr>
+<tr class="memdesc:ab5169bc4aa066eff9b34db8f7a0f7055"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert tokens back to text.  <br /></td></tr>
 <tr class="separator:ab5169bc4aa066eff9b34db8f7a0f7055"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab56eaa6cdee9253f44a5a4286b6ccca1" id="r_ab56eaa6cdee9253f44a5a4286b6ccca1"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab56eaa6cdee9253f44a5a4286b6ccca1">embeddings_json</a> (const json &amp;data) override</td></tr>
-<tr class="memdesc:ab56eaa6cdee9253f44a5a4286b6ccca1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate embeddings (override)  <br /></td></tr>
+<tr class="memdesc:ab56eaa6cdee9253f44a5a4286b6ccca1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate embeddings with HTTP response support.  <br /></td></tr>
 <tr class="separator:ab56eaa6cdee9253f44a5a4286b6ccca1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4eba5396a16c93591838ec0389cfe368" id="r_a4eba5396a16c93591838ec0389cfe368"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4eba5396a16c93591838ec0389cfe368">lora_weight_json</a> (const json &amp;data) override</td></tr>
-<tr class="memdesc:a4eba5396a16c93591838ec0389cfe368"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configure LoRA weights (override)  <br /></td></tr>
-<tr class="separator:a4eba5396a16c93591838ec0389cfe368"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7155bcce67b4762326f3dc52b8e74b5d" id="r_a7155bcce67b4762326f3dc52b8e74b5d"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7155bcce67b4762326f3dc52b8e74b5d">lora_list_json</a> () override</td></tr>
-<tr class="memdesc:a7155bcce67b4762326f3dc52b8e74b5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">List available LoRA adapters (override)  <br /></td></tr>
-<tr class="separator:a7155bcce67b4762326f3dc52b8e74b5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7167245f9acc0ab31c6bff6d307d5f7" id="r_ad7167245f9acc0ab31c6bff6d307d5f7"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad7167245f9acc0ab31c6bff6d307d5f7">apply_template_json</a> (const json &amp;data) override</td></tr>
+<tr class="memdesc:ad7167245f9acc0ab31c6bff6d307d5f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply a chat template to message data.  <br /></td></tr>
+<tr class="separator:ad7167245f9acc0ab31c6bff6d307d5f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:add81f54b4e1d077338ed828bca5eb4f9" id="r_add81f54b4e1d077338ed828bca5eb4f9"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#add81f54b4e1d077338ed828bca5eb4f9">completion_json</a> (const json &amp;data, CharArrayFn callback=nullptr, bool callbackWithJSON=true) override</td></tr>
 <tr class="memdesc:add81f54b4e1d077338ed828bca5eb4f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate completion (override)  <br /></td></tr>
 <tr class="separator:add81f54b4e1d077338ed828bca5eb4f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa345caf67e8502ad75a7846336ccafa6" id="r_aa345caf67e8502ad75a7846336ccafa6"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa345caf67e8502ad75a7846336ccafa6">slot_json</a> (const json &amp;data) override</td></tr>
-<tr class="memdesc:aa345caf67e8502ad75a7846336ccafa6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Manage processing slots (override)  <br /></td></tr>
+<tr class="memdesc:aa345caf67e8502ad75a7846336ccafa6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Manage slots with HTTP response support.  <br /></td></tr>
 <tr class="separator:aa345caf67e8502ad75a7846336ccafa6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6a64c858a2a81f67fbfde058df85bb6d" id="r_a6a64c858a2a81f67fbfde058df85bb6d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6a64c858a2a81f67fbfde058df85bb6d">cancel_json</a> (const json &amp;data) override</td></tr>
-<tr class="memdesc:a6a64c858a2a81f67fbfde058df85bb6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cancel running request (override)  <br /></td></tr>
-<tr class="separator:a6a64c858a2a81f67fbfde058df85bb6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9dabfa2d3939f7b2eee682b89b5fe475" id="r_a9dabfa2d3939f7b2eee682b89b5fe475"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9dabfa2d3939f7b2eee682b89b5fe475">start_server</a> (const std::string &amp;host=&quot;0.0.0.0&quot;, int port=0, const std::string &amp;API_key=&quot;&quot;) override</td></tr>
-<tr class="memdesc:a9dabfa2d3939f7b2eee682b89b5fe475"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start HTTP server (override)  <br /></td></tr>
-<tr class="separator:a9dabfa2d3939f7b2eee682b89b5fe475"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a09ac7b303c17ac938f9581bf4125b8fc" id="r_a09ac7b303c17ac938f9581bf4125b8fc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a09ac7b303c17ac938f9581bf4125b8fc">stop_server</a> () override</td></tr>
-<tr class="memdesc:a09ac7b303c17ac938f9581bf4125b8fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop HTTP server (override)  <br /></td></tr>
-<tr class="separator:a09ac7b303c17ac938f9581bf4125b8fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac63e54f4b00ac4a5c630cf3522985a1a" id="r_ac63e54f4b00ac4a5c630cf3522985a1a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac63e54f4b00ac4a5c630cf3522985a1a">join_server</a> () override</td></tr>
-<tr class="memdesc:ac63e54f4b00ac4a5c630cf3522985a1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait for server thread completion (override)  <br /></td></tr>
-<tr class="separator:ac63e54f4b00ac4a5c630cf3522985a1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4eba5396a16c93591838ec0389cfe368" id="r_a4eba5396a16c93591838ec0389cfe368"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4eba5396a16c93591838ec0389cfe368">lora_weight_json</a> (const json &amp;data) override</td></tr>
+<tr class="memdesc:a4eba5396a16c93591838ec0389cfe368"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configure LoRA weights with HTTP response support.  <br /></td></tr>
+<tr class="separator:a4eba5396a16c93591838ec0389cfe368"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7155bcce67b4762326f3dc52b8e74b5d" id="r_a7155bcce67b4762326f3dc52b8e74b5d"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7155bcce67b4762326f3dc52b8e74b5d">lora_list_json</a> () override</td></tr>
+<tr class="memdesc:a7155bcce67b4762326f3dc52b8e74b5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">List available LoRA adapters.  <br /></td></tr>
+<tr class="separator:a7155bcce67b4762326f3dc52b8e74b5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5bf3245b4d1aee65db6dab3ba1540222" id="r_a5bf3245b4d1aee65db6dab3ba1540222"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5bf3245b4d1aee65db6dab3ba1540222">cancel</a> (int id_slot) override</td></tr>
+<tr class="memdesc:a5bf3245b4d1aee65db6dab3ba1540222"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cancel running request (override)  <br /></td></tr>
+<tr class="separator:a5bf3245b4d1aee65db6dab3ba1540222"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a677511772c4657a66267697fdb2de6a5" id="r_a677511772c4657a66267697fdb2de6a5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a677511772c4657a66267697fdb2de6a5">start</a> () override</td></tr>
 <tr class="memdesc:a677511772c4657a66267697fdb2de6a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start the <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> service (override)  <br /></td></tr>
 <tr class="separator:a677511772c4657a66267697fdb2de6a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af9d9bc035f07d7237fe3571036590492" id="r_af9d9bc035f07d7237fe3571036590492"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af9d9bc035f07d7237fe3571036590492">stop</a> () override</td></tr>
-<tr class="memdesc:af9d9bc035f07d7237fe3571036590492"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop the <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> service (override)  <br /></td></tr>
-<tr class="separator:af9d9bc035f07d7237fe3571036590492"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a52492fa89b5cbc7b8599e2dd0e19507d" id="r_a52492fa89b5cbc7b8599e2dd0e19507d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a52492fa89b5cbc7b8599e2dd0e19507d">join_service</a> () override</td></tr>
-<tr class="memdesc:a52492fa89b5cbc7b8599e2dd0e19507d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait for service thread completion (override)  <br /></td></tr>
-<tr class="separator:a52492fa89b5cbc7b8599e2dd0e19507d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7b1b82f06597b9346a9926a8ff0e7de5" id="r_a7b1b82f06597b9346a9926a8ff0e7de5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7b1b82f06597b9346a9926a8ff0e7de5">set_SSL</a> (const std::string &amp;SSL_cert, const std::string &amp;SSL_key) override</td></tr>
-<tr class="memdesc:a7b1b82f06597b9346a9926a8ff0e7de5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configure SSL certificates (override)  <br /></td></tr>
-<tr class="separator:a7b1b82f06597b9346a9926a8ff0e7de5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5e89d6cc1f17e40ce154d84ab8ce75e4" id="r_a5e89d6cc1f17e40ce154d84ab8ce75e4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5e89d6cc1f17e40ce154d84ab8ce75e4">started</a> () override</td></tr>
 <tr class="memdesc:a5e89d6cc1f17e40ce154d84ab8ce75e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check service status (override)  <br /></td></tr>
 <tr class="separator:a5e89d6cc1f17e40ce154d84ab8ce75e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9d9bc035f07d7237fe3571036590492" id="r_af9d9bc035f07d7237fe3571036590492"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af9d9bc035f07d7237fe3571036590492">stop</a> () override</td></tr>
+<tr class="memdesc:af9d9bc035f07d7237fe3571036590492"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop the <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> service (override)  <br /></td></tr>
+<tr class="separator:af9d9bc035f07d7237fe3571036590492"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad98fd1abf189d95f2e5780e43b7f4fc0" id="r_ad98fd1abf189d95f2e5780e43b7f4fc0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad98fd1abf189d95f2e5780e43b7f4fc0">start_server</a> (const std::string &amp;host=&quot;0.0.0.0&quot;, int port=-1, const std::string &amp;API_key=&quot;&quot;) override</td></tr>
+<tr class="memdesc:ad98fd1abf189d95f2e5780e43b7f4fc0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start HTTP server (override)  <br /></td></tr>
+<tr class="separator:ad98fd1abf189d95f2e5780e43b7f4fc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09ac7b303c17ac938f9581bf4125b8fc" id="r_a09ac7b303c17ac938f9581bf4125b8fc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a09ac7b303c17ac938f9581bf4125b8fc">stop_server</a> () override</td></tr>
+<tr class="memdesc:a09ac7b303c17ac938f9581bf4125b8fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop HTTP server (override)  <br /></td></tr>
+<tr class="separator:a09ac7b303c17ac938f9581bf4125b8fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52492fa89b5cbc7b8599e2dd0e19507d" id="r_a52492fa89b5cbc7b8599e2dd0e19507d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a52492fa89b5cbc7b8599e2dd0e19507d">join_service</a> () override</td></tr>
+<tr class="memdesc:a52492fa89b5cbc7b8599e2dd0e19507d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait for service thread completion (override)  <br /></td></tr>
+<tr class="separator:a52492fa89b5cbc7b8599e2dd0e19507d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac63e54f4b00ac4a5c630cf3522985a1a" id="r_ac63e54f4b00ac4a5c630cf3522985a1a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac63e54f4b00ac4a5c630cf3522985a1a">join_server</a> () override</td></tr>
+<tr class="memdesc:ac63e54f4b00ac4a5c630cf3522985a1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait for server thread completion (override)  <br /></td></tr>
+<tr class="separator:ac63e54f4b00ac4a5c630cf3522985a1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7b1b82f06597b9346a9926a8ff0e7de5" id="r_a7b1b82f06597b9346a9926a8ff0e7de5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7b1b82f06597b9346a9926a8ff0e7de5">set_SSL</a> (const std::string &amp;SSL_cert, const std::string &amp;SSL_key) override</td></tr>
+<tr class="memdesc:a7b1b82f06597b9346a9926a8ff0e7de5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configure SSL certificates (override)  <br /></td></tr>
+<tr class="separator:a7b1b82f06597b9346a9926a8ff0e7de5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afc7773678786a2b749bcd514f530d666" id="r_afc7773678786a2b749bcd514f530d666"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afc7773678786a2b749bcd514f530d666">embedding_size</a> () override</td></tr>
 <tr class="memdesc:afc7773678786a2b749bcd514f530d666"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get embedding vector dimensions (override)  <br /></td></tr>
 <tr class="separator:afc7773678786a2b749bcd514f530d666"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba6e99d9b6898d51eef3b20eb7c10dcc" id="r_aba6e99d9b6898d51eef3b20eb7c10dcc"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aba6e99d9b6898d51eef3b20eb7c10dcc">get_next_available_slot</a> () override</td></tr>
 <tr class="memdesc:aba6e99d9b6898d51eef3b20eb7c10dcc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get available processing slot (override)  <br /></td></tr>
 <tr class="separator:aba6e99d9b6898d51eef3b20eb7c10dcc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4080b4e2a6ffaff05b8287726c24720" id="r_ac4080b4e2a6ffaff05b8287726c24720"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac4080b4e2a6ffaff05b8287726c24720">debug</a> (int debug_level) override</td></tr>
+<tr class="memdesc:ac4080b4e2a6ffaff05b8287726c24720"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set debug level (override)  <br /></td></tr>
+<tr class="separator:ac4080b4e2a6ffaff05b8287726c24720"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a791e34a786131e8114e9e57608cbe0a8" id="r_a791e34a786131e8114e9e57608cbe0a8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a791e34a786131e8114e9e57608cbe0a8">logging_callback</a> (CharArrayFn callback) override</td></tr>
+<tr class="memdesc:a791e34a786131e8114e9e57608cbe0a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set logging callback (override)  <br /></td></tr>
+<tr class="separator:a791e34a786131e8114e9e57608cbe0a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a31018b05cf4e56b89614dfb7080f1ed6" id="r_a31018b05cf4e56b89614dfb7080f1ed6"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a31018b05cf4e56b89614dfb7080f1ed6">debug_implementation</a> () override</td></tr>
 <tr class="memdesc:a31018b05cf4e56b89614dfb7080f1ed6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Implementation debugging.  <br /></td></tr>
 <tr class="separator:a31018b05cf4e56b89614dfb7080f1ed6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -312,120 +310,54 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ac778ad50369d60266e9e3a6799b443d4 inherit pub_methods_classLLMProvider" id="r_ac778ad50369d60266e9e3a6799b443d4"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMProvider.html#ac778ad50369d60266e9e3a6799b443d4">~LLMProvider</a> ()</td></tr>
 <tr class="memdesc:ac778ad50369d60266e9e3a6799b443d4 inherit pub_methods_classLLMProvider"><td class="mdescLeft">&#160;</td><td class="mdescRight">Virtual destructor.  <br /></td></tr>
 <tr class="separator:ac778ad50369d60266e9e3a6799b443d4 inherit pub_methods_classLLMProvider"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a20ad509797d9b892783506d31baebf70 inherit pub_methods_classLLMProvider" id="r_a20ad509797d9b892783506d31baebf70"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMProvider.html#a20ad509797d9b892783506d31baebf70">logging_stop</a> ()</td></tr>
-<tr class="memdesc:a20ad509797d9b892783506d31baebf70 inherit pub_methods_classLLMProvider"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop logging.  <br /></td></tr>
-<tr class="separator:a20ad509797d9b892783506d31baebf70 inherit pub_methods_classLLMProvider"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a178cf9298f0620c7c4fb48fd6707b56b inherit pub_methods_classLLMProvider" id="r_a178cf9298f0620c7c4fb48fd6707b56b"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMProvider.html#a178cf9298f0620c7c4fb48fd6707b56b">build_set_template_json</a> (std::string chat_template)</td></tr>
-<tr class="memdesc:a178cf9298f0620c7c4fb48fd6707b56b inherit pub_methods_classLLMProvider"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for template setting.  <br /></td></tr>
-<tr class="separator:a178cf9298f0620c7c4fb48fd6707b56b inherit pub_methods_classLLMProvider"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9429b5e0d4f56d8ebaefd44d7c7da3ef inherit pub_methods_classLLMProvider" id="r_a9429b5e0d4f56d8ebaefd44d7c7da3ef"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMProvider.html#a9429b5e0d4f56d8ebaefd44d7c7da3ef">set_template</a> (std::string chat_template)</td></tr>
-<tr class="memdesc:a9429b5e0d4f56d8ebaefd44d7c7da3ef inherit pub_methods_classLLMProvider"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set chat template.  <br /></td></tr>
-<tr class="separator:a9429b5e0d4f56d8ebaefd44d7c7da3ef inherit pub_methods_classLLMProvider"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8461da56462534f7425e5ad1c79fdfbc inherit pub_methods_classLLMProvider" id="r_a8461da56462534f7425e5ad1c79fdfbc"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMProvider.html#a8461da56462534f7425e5ad1c79fdfbc">build_lora_weight_json</a> (const std::vector&lt; <a class="el" href="structLoraIdScale.html">LoraIdScale</a> &gt; &amp;loras)</td></tr>
-<tr class="memdesc:a8461da56462534f7425e5ad1c79fdfbc inherit pub_methods_classLLMProvider"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for LoRA weight configuration.  <br /></td></tr>
-<tr class="separator:a8461da56462534f7425e5ad1c79fdfbc inherit pub_methods_classLLMProvider"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6487ee5c99fc6d0cef6becf8a9ff7f73 inherit pub_methods_classLLMProvider" id="r_a6487ee5c99fc6d0cef6becf8a9ff7f73"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMProvider.html#a6487ee5c99fc6d0cef6becf8a9ff7f73">parse_lora_weight_json</a> (const json &amp;result)</td></tr>
-<tr class="memdesc:a6487ee5c99fc6d0cef6becf8a9ff7f73 inherit pub_methods_classLLMProvider"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse LoRA weight configuration result.  <br /></td></tr>
-<tr class="separator:a6487ee5c99fc6d0cef6becf8a9ff7f73 inherit pub_methods_classLLMProvider"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8c5dbd89d29d770d73ca1bd8c6f227d8 inherit pub_methods_classLLMProvider" id="r_a8c5dbd89d29d770d73ca1bd8c6f227d8"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMProvider.html#a8c5dbd89d29d770d73ca1bd8c6f227d8">lora_weight</a> (const std::vector&lt; <a class="el" href="structLoraIdScale.html">LoraIdScale</a> &gt; &amp;loras)</td></tr>
 <tr class="memdesc:a8c5dbd89d29d770d73ca1bd8c6f227d8 inherit pub_methods_classLLMProvider"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configure LoRA weights.  <br /></td></tr>
 <tr class="separator:a8c5dbd89d29d770d73ca1bd8c6f227d8 inherit pub_methods_classLLMProvider"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad8da37c8c711256c2cb102ccd011a3b3 inherit pub_methods_classLLMProvider" id="r_ad8da37c8c711256c2cb102ccd011a3b3"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; <a class="el" href="structLoraIdScalePath.html">LoraIdScalePath</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMProvider.html#ad8da37c8c711256c2cb102ccd011a3b3">parse_lora_list_json</a> (const json &amp;result)</td></tr>
-<tr class="memdesc:ad8da37c8c711256c2cb102ccd011a3b3 inherit pub_methods_classLLMProvider"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse LoRA list result.  <br /></td></tr>
-<tr class="separator:ad8da37c8c711256c2cb102ccd011a3b3 inherit pub_methods_classLLMProvider"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a98c1986579d44789dd79444039fbdb37 inherit pub_methods_classLLMProvider" id="r_a98c1986579d44789dd79444039fbdb37"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; <a class="el" href="structLoraIdScalePath.html">LoraIdScalePath</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMProvider.html#a98c1986579d44789dd79444039fbdb37">lora_list</a> ()</td></tr>
 <tr class="memdesc:a98c1986579d44789dd79444039fbdb37 inherit pub_methods_classLLMProvider"><td class="mdescLeft">&#160;</td><td class="mdescRight">List available LoRA adapters.  <br /></td></tr>
 <tr class="separator:a98c1986579d44789dd79444039fbdb37 inherit pub_methods_classLLMProvider"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20ad509797d9b892783506d31baebf70 inherit pub_methods_classLLMProvider" id="r_a20ad509797d9b892783506d31baebf70"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMProvider.html#a20ad509797d9b892783506d31baebf70">logging_stop</a> ()</td></tr>
+<tr class="memdesc:a20ad509797d9b892783506d31baebf70 inherit pub_methods_classLLMProvider"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop logging.  <br /></td></tr>
+<tr class="separator:a20ad509797d9b892783506d31baebf70 inherit pub_methods_classLLMProvider"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classLLMLocal"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLLMLocal')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLLMLocal.html">LLMLocal</a></td></tr>
-<tr class="memitem:ac87d1592b783a9e75efe6a177a92e8bc inherit pub_methods_classLLMLocal" id="r_ac87d1592b783a9e75efe6a177a92e8bc"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMLocal.html#ac87d1592b783a9e75efe6a177a92e8bc">build_slot_json</a> (int id_slot, const std::string &amp;action, const std::string &amp;filepath)</td></tr>
-<tr class="memdesc:ac87d1592b783a9e75efe6a177a92e8bc inherit pub_methods_classLLMLocal"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for slot operations.  <br /></td></tr>
-<tr class="separator:ac87d1592b783a9e75efe6a177a92e8bc inherit pub_methods_classLLMLocal"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac8bacecd1f710569ba9abb566c532512 inherit pub_methods_classLLMLocal" id="r_ac8bacecd1f710569ba9abb566c532512"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMLocal.html#ac8bacecd1f710569ba9abb566c532512">parse_slot_json</a> (const json &amp;result)</td></tr>
-<tr class="memdesc:ac8bacecd1f710569ba9abb566c532512 inherit pub_methods_classLLMLocal"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse slot operation result.  <br /></td></tr>
-<tr class="separator:ac8bacecd1f710569ba9abb566c532512 inherit pub_methods_classLLMLocal"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaae3347bc59b9a19ba9cfc0967fd681f inherit pub_methods_classLLMLocal" id="r_aaae3347bc59b9a19ba9cfc0967fd681f"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMLocal.html#aaae3347bc59b9a19ba9cfc0967fd681f">slot</a> (int id_slot, const std::string &amp;action, const std::string &amp;filepath)</td></tr>
-<tr class="memdesc:aaae3347bc59b9a19ba9cfc0967fd681f inherit pub_methods_classLLMLocal"><td class="mdescLeft">&#160;</td><td class="mdescRight">Perform slot operation.  <br /></td></tr>
-<tr class="separator:aaae3347bc59b9a19ba9cfc0967fd681f inherit pub_methods_classLLMLocal"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7bf773cf008c1b35b30d5c5a622bcea8 inherit pub_methods_classLLMLocal" id="r_a7bf773cf008c1b35b30d5c5a622bcea8"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMLocal.html#a7bf773cf008c1b35b30d5c5a622bcea8">save_slot</a> (int id_slot, const std::string &amp;filepath)</td></tr>
 <tr class="memdesc:a7bf773cf008c1b35b30d5c5a622bcea8 inherit pub_methods_classLLMLocal"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save slot state to file.  <br /></td></tr>
 <tr class="separator:a7bf773cf008c1b35b30d5c5a622bcea8 inherit pub_methods_classLLMLocal"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a37eff46751edf994f581c432c821f9af inherit pub_methods_classLLMLocal" id="r_a37eff46751edf994f581c432c821f9af"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMLocal.html#a37eff46751edf994f581c432c821f9af">load_slot</a> (int id_slot, const std::string &amp;filepath)</td></tr>
 <tr class="memdesc:a37eff46751edf994f581c432c821f9af inherit pub_methods_classLLMLocal"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load slot state from file.  <br /></td></tr>
 <tr class="separator:a37eff46751edf994f581c432c821f9af inherit pub_methods_classLLMLocal"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac79b8f8999a7ca66f3d97592c4e714b9 inherit pub_methods_classLLMLocal" id="r_ac79b8f8999a7ca66f3d97592c4e714b9"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMLocal.html#ac79b8f8999a7ca66f3d97592c4e714b9">build_cancel_json</a> (int id_slot)</td></tr>
-<tr class="memdesc:ac79b8f8999a7ca66f3d97592c4e714b9 inherit pub_methods_classLLMLocal"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for cancellation.  <br /></td></tr>
-<tr class="separator:ac79b8f8999a7ca66f3d97592c4e714b9 inherit pub_methods_classLLMLocal"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1d66932f1ac678f421d83202357009ba inherit pub_methods_classLLMLocal" id="r_a1d66932f1ac678f421d83202357009ba"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMLocal.html#a1d66932f1ac678f421d83202357009ba">cancel</a> (int id_slot)</td></tr>
-<tr class="memdesc:a1d66932f1ac678f421d83202357009ba inherit pub_methods_classLLMLocal"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cancel request.  <br /></td></tr>
-<tr class="separator:a1d66932f1ac678f421d83202357009ba inherit pub_methods_classLLMLocal"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classLLM"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLLM')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLLM.html">LLM</a></td></tr>
 <tr class="memitem:a9b3756b3b29d2883101e34dae820f35a inherit pub_methods_classLLM" id="r_a9b3756b3b29d2883101e34dae820f35a"><td class="memItemLeft" align="right" valign="top">
 virtual&#160;</td><td class="memItemRight" valign="bottom"><b>~LLM</b> ()=default</td></tr>
 <tr class="memdesc:a9b3756b3b29d2883101e34dae820f35a inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Virtual destructor. <br /></td></tr>
 <tr class="separator:a9b3756b3b29d2883101e34dae820f35a inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7fabdf1237f2b537f82d0b6076e4efb1 inherit pub_methods_classLLM" id="r_a7fabdf1237f2b537f82d0b6076e4efb1"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a7fabdf1237f2b537f82d0b6076e4efb1">set_grammar</a> (std::string grammar_)</td></tr>
-<tr class="memdesc:a7fabdf1237f2b537f82d0b6076e4efb1 inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set grammar for constrained generation.  <br /></td></tr>
-<tr class="separator:a7fabdf1237f2b537f82d0b6076e4efb1 inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afd58a7096bdac18c26a74814899dcd89 inherit pub_methods_classLLM" id="r_afd58a7096bdac18c26a74814899dcd89"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#afd58a7096bdac18c26a74814899dcd89">get_grammar</a> ()</td></tr>
-<tr class="memdesc:afd58a7096bdac18c26a74814899dcd89 inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get current grammar specification.  <br /></td></tr>
-<tr class="separator:afd58a7096bdac18c26a74814899dcd89 inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a625ad6e037e16cdc61282150ef465229 inherit pub_methods_classLLM" id="r_a625ad6e037e16cdc61282150ef465229"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a625ad6e037e16cdc61282150ef465229">tokenize</a> (const std::string &amp;query)</td></tr>
+<tr class="memdesc:a625ad6e037e16cdc61282150ef465229 inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tokenize text.  <br /></td></tr>
+<tr class="separator:a625ad6e037e16cdc61282150ef465229 inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a57754f97f686c2f5a3e90c44c32243a8 inherit pub_methods_classLLM" id="r_a57754f97f686c2f5a3e90c44c32243a8"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a57754f97f686c2f5a3e90c44c32243a8">detokenize</a> (const std::vector&lt; int32_t &gt; &amp;tokens)</td></tr>
+<tr class="memdesc:a57754f97f686c2f5a3e90c44c32243a8 inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert tokens to text.  <br /></td></tr>
+<tr class="separator:a57754f97f686c2f5a3e90c44c32243a8 inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9fafb9791263bb1eb8458c731ea5c46b inherit pub_methods_classLLM" id="r_a9fafb9791263bb1eb8458c731ea5c46b"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a9fafb9791263bb1eb8458c731ea5c46b">embeddings</a> (const std::string &amp;query)</td></tr>
+<tr class="memdesc:a9fafb9791263bb1eb8458c731ea5c46b inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate embeddings.  <br /></td></tr>
+<tr class="separator:a9fafb9791263bb1eb8458c731ea5c46b inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a565cb67adaeb1300d0f3c10a1d6f4652 inherit pub_methods_classLLM" id="r_a565cb67adaeb1300d0f3c10a1d6f4652"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a565cb67adaeb1300d0f3c10a1d6f4652">set_completion_params</a> (json completion_params_)</td></tr>
 <tr class="memdesc:a565cb67adaeb1300d0f3c10a1d6f4652 inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set completion parameters.  <br /></td></tr>
 <tr class="separator:a565cb67adaeb1300d0f3c10a1d6f4652 inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a28f18e8277480b1a4944a5b25a6992ff inherit pub_methods_classLLM" id="r_a28f18e8277480b1a4944a5b25a6992ff"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a28f18e8277480b1a4944a5b25a6992ff">get_completion_params</a> ()</td></tr>
 <tr class="memdesc:a28f18e8277480b1a4944a5b25a6992ff inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get current completion parameters.  <br /></td></tr>
 <tr class="separator:a28f18e8277480b1a4944a5b25a6992ff inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0f86be4be1a7b98fd959b6ed8046629d inherit pub_methods_classLLM" id="r_a0f86be4be1a7b98fd959b6ed8046629d"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a0f86be4be1a7b98fd959b6ed8046629d">parse_get_template_json</a> (const json &amp;result)</td></tr>
-<tr class="memdesc:a0f86be4be1a7b98fd959b6ed8046629d inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse template JSON response.  <br /></td></tr>
-<tr class="separator:a0f86be4be1a7b98fd959b6ed8046629d inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a448645ecd9e74a4a64cc1477350fa2bd inherit pub_methods_classLLM" id="r_a448645ecd9e74a4a64cc1477350fa2bd"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a448645ecd9e74a4a64cc1477350fa2bd">get_template</a> ()</td></tr>
-<tr class="memdesc:a448645ecd9e74a4a64cc1477350fa2bd inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get chat template.  <br /></td></tr>
-<tr class="separator:a448645ecd9e74a4a64cc1477350fa2bd inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2c07dd3ece7427517b04887082caa97b inherit pub_methods_classLLM" id="r_a2c07dd3ece7427517b04887082caa97b"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a2c07dd3ece7427517b04887082caa97b">build_apply_template_json</a> (const json &amp;messages)</td></tr>
-<tr class="memdesc:a2c07dd3ece7427517b04887082caa97b inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for template application.  <br /></td></tr>
-<tr class="separator:a2c07dd3ece7427517b04887082caa97b inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a33112cbc41dcb6af5cb7e4a6cf185e94 inherit pub_methods_classLLM" id="r_a33112cbc41dcb6af5cb7e4a6cf185e94"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a33112cbc41dcb6af5cb7e4a6cf185e94">parse_apply_template_json</a> (const json &amp;result)</td></tr>
-<tr class="memdesc:a33112cbc41dcb6af5cb7e4a6cf185e94 inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse template application result.  <br /></td></tr>
-<tr class="separator:a33112cbc41dcb6af5cb7e4a6cf185e94 inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a390a093c9b269c1c342034baced79106 inherit pub_methods_classLLM" id="r_a390a093c9b269c1c342034baced79106"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a390a093c9b269c1c342034baced79106">apply_template</a> (const json &amp;messages)</td></tr>
-<tr class="memdesc:a390a093c9b269c1c342034baced79106 inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply template to messages.  <br /></td></tr>
-<tr class="separator:a390a093c9b269c1c342034baced79106 inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a15a4fb3881c49f42bb1a9515a2593359 inherit pub_methods_classLLM" id="r_a15a4fb3881c49f42bb1a9515a2593359"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a15a4fb3881c49f42bb1a9515a2593359">build_tokenize_json</a> (const std::string &amp;query)</td></tr>
-<tr class="memdesc:a15a4fb3881c49f42bb1a9515a2593359 inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for tokenization.  <br /></td></tr>
-<tr class="separator:a15a4fb3881c49f42bb1a9515a2593359 inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a33d3ec109eef58997f40487ceab50d1a inherit pub_methods_classLLM" id="r_a33d3ec109eef58997f40487ceab50d1a"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a33d3ec109eef58997f40487ceab50d1a">parse_tokenize_json</a> (const json &amp;result)</td></tr>
-<tr class="memdesc:a33d3ec109eef58997f40487ceab50d1a inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse tokenization result.  <br /></td></tr>
-<tr class="separator:a33d3ec109eef58997f40487ceab50d1a inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a625ad6e037e16cdc61282150ef465229 inherit pub_methods_classLLM" id="r_a625ad6e037e16cdc61282150ef465229"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a625ad6e037e16cdc61282150ef465229">tokenize</a> (const std::string &amp;query)</td></tr>
-<tr class="memdesc:a625ad6e037e16cdc61282150ef465229 inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tokenize text.  <br /></td></tr>
-<tr class="separator:a625ad6e037e16cdc61282150ef465229 inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a40b6013ca9ab63329b9c829878ea0a inherit pub_methods_classLLM" id="r_a3a40b6013ca9ab63329b9c829878ea0a"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a3a40b6013ca9ab63329b9c829878ea0a">build_detokenize_json</a> (const std::vector&lt; int32_t &gt; &amp;tokens)</td></tr>
-<tr class="memdesc:a3a40b6013ca9ab63329b9c829878ea0a inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for detokenization.  <br /></td></tr>
-<tr class="separator:a3a40b6013ca9ab63329b9c829878ea0a inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad5b0cde299c465007acbd77125cbfcff inherit pub_methods_classLLM" id="r_ad5b0cde299c465007acbd77125cbfcff"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#ad5b0cde299c465007acbd77125cbfcff">parse_detokenize_json</a> (const json &amp;result)</td></tr>
-<tr class="memdesc:ad5b0cde299c465007acbd77125cbfcff inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse detokenization result.  <br /></td></tr>
-<tr class="separator:ad5b0cde299c465007acbd77125cbfcff inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a57754f97f686c2f5a3e90c44c32243a8 inherit pub_methods_classLLM" id="r_a57754f97f686c2f5a3e90c44c32243a8"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a57754f97f686c2f5a3e90c44c32243a8">detokenize</a> (const std::vector&lt; int32_t &gt; &amp;tokens)</td></tr>
-<tr class="memdesc:a57754f97f686c2f5a3e90c44c32243a8 inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert tokens to text.  <br /></td></tr>
-<tr class="separator:a57754f97f686c2f5a3e90c44c32243a8 inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac9a89b18c9c14a15ecfabcee3914ad20 inherit pub_methods_classLLM" id="r_ac9a89b18c9c14a15ecfabcee3914ad20"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#ac9a89b18c9c14a15ecfabcee3914ad20">build_embeddings_json</a> (const std::string &amp;query)</td></tr>
-<tr class="memdesc:ac9a89b18c9c14a15ecfabcee3914ad20 inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for embeddings generation.  <br /></td></tr>
-<tr class="separator:ac9a89b18c9c14a15ecfabcee3914ad20 inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab8eeb0e041adeeafd3634cf66b32bbb2 inherit pub_methods_classLLM" id="r_ab8eeb0e041adeeafd3634cf66b32bbb2"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#ab8eeb0e041adeeafd3634cf66b32bbb2">parse_embeddings_json</a> (const json &amp;result)</td></tr>
-<tr class="memdesc:ab8eeb0e041adeeafd3634cf66b32bbb2 inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse embeddings result.  <br /></td></tr>
-<tr class="separator:ab8eeb0e041adeeafd3634cf66b32bbb2 inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9fafb9791263bb1eb8458c731ea5c46b inherit pub_methods_classLLM" id="r_a9fafb9791263bb1eb8458c731ea5c46b"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a9fafb9791263bb1eb8458c731ea5c46b">embeddings</a> (const std::string &amp;query)</td></tr>
-<tr class="memdesc:a9fafb9791263bb1eb8458c731ea5c46b inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate embeddings.  <br /></td></tr>
-<tr class="separator:a9fafb9791263bb1eb8458c731ea5c46b inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4e1be3e304f1326d6a8c0d86510f0bd2 inherit pub_methods_classLLM" id="r_a4e1be3e304f1326d6a8c0d86510f0bd2"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a4e1be3e304f1326d6a8c0d86510f0bd2">build_completion_json</a> (const std::string &amp;prompt, int id_slot=-1)</td></tr>
-<tr class="memdesc:a4e1be3e304f1326d6a8c0d86510f0bd2 inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for completion generation.  <br /></td></tr>
-<tr class="separator:a4e1be3e304f1326d6a8c0d86510f0bd2 inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4ac51c5268e2af6d24e7ae6982cbe58f inherit pub_methods_classLLM" id="r_a4ac51c5268e2af6d24e7ae6982cbe58f"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a4ac51c5268e2af6d24e7ae6982cbe58f">parse_completion_json</a> (const json &amp;result)</td></tr>
-<tr class="memdesc:a4ac51c5268e2af6d24e7ae6982cbe58f inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse completion result.  <br /></td></tr>
-<tr class="separator:a4ac51c5268e2af6d24e7ae6982cbe58f inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7e9e25d61ebba558111a74dd136e8c61 inherit pub_methods_classLLM" id="r_a7e9e25d61ebba558111a74dd136e8c61"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a7e9e25d61ebba558111a74dd136e8c61">completion</a> (const std::string &amp;prompt, CharArrayFn callback=nullptr, int id_slot=-1, bool return_response_json=false)</td></tr>
 <tr class="memdesc:a7e9e25d61ebba558111a74dd136e8c61 inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate completion.  <br /></td></tr>
 <tr class="separator:a7e9e25d61ebba558111a74dd136e8c61 inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7fabdf1237f2b537f82d0b6076e4efb1 inherit pub_methods_classLLM" id="r_a7fabdf1237f2b537f82d0b6076e4efb1"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a7fabdf1237f2b537f82d0b6076e4efb1">set_grammar</a> (std::string grammar_)</td></tr>
+<tr class="memdesc:a7fabdf1237f2b537f82d0b6076e4efb1 inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set grammar for constrained generation.  <br /></td></tr>
+<tr class="separator:a7fabdf1237f2b537f82d0b6076e4efb1 inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd58a7096bdac18c26a74814899dcd89 inherit pub_methods_classLLM" id="r_afd58a7096bdac18c26a74814899dcd89"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#afd58a7096bdac18c26a74814899dcd89">get_grammar</a> ()</td></tr>
+<tr class="memdesc:afd58a7096bdac18c26a74814899dcd89 inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get current grammar specification.  <br /></td></tr>
+<tr class="separator:afd58a7096bdac18c26a74814899dcd89 inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a390a093c9b269c1c342034baced79106 inherit pub_methods_classLLM" id="r_a390a093c9b269c1c342034baced79106"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a390a093c9b269c1c342034baced79106">apply_template</a> (const json &amp;messages)</td></tr>
+<tr class="memdesc:a390a093c9b269c1c342034baced79106 inherit pub_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply template to messages.  <br /></td></tr>
+<tr class="separator:a390a093c9b269c1c342034baced79106 inherit pub_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -451,9 +383,9 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:aa01e69ad4fe82bf914183a38875e35e2 inherit pub_static_methods_classLLM" id="r_aa01e69ad4fe82bf914183a38875e35e2"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#aa01e69ad4fe82bf914183a38875e35e2">has_gpu_layers</a> (const std::string &amp;command)</td></tr>
 <tr class="memdesc:aa01e69ad4fe82bf914183a38875e35e2 inherit pub_static_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if command line arguments specify GPU layers.  <br /></td></tr>
 <tr class="separator:aa01e69ad4fe82bf914183a38875e35e2 inherit pub_static_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a04014c94c0062da5c0b87f46d0904c79 inherit pub_static_methods_classLLM" id="r_a04014c94c0062da5c0b87f46d0904c79"><td class="memItemLeft" align="right" valign="top">static std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a04014c94c0062da5c0b87f46d0904c79">LLM_args_to_command</a> (const std::string &amp;model_path, int num_threads=-1, int num_GPU_layers=0, int num_parallel=1, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, const std::vector&lt; std::string &gt; &amp;lora_paths={})</td></tr>
-<tr class="memdesc:a04014c94c0062da5c0b87f46d0904c79 inherit pub_static_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> parameters to command line arguments.  <br /></td></tr>
-<tr class="separator:a04014c94c0062da5c0b87f46d0904c79 inherit pub_static_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93d91518d38588e69338de15a1ab6510 inherit pub_static_methods_classLLM" id="r_a93d91518d38588e69338de15a1ab6510"><td class="memItemLeft" align="right" valign="top">static std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a93d91518d38588e69338de15a1ab6510">LLM_args_to_command</a> (const std::string &amp;model_path, int num_slots=1, int num_threads=-1, int num_GPU_layers=0, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, const std::vector&lt; std::string &gt; &amp;lora_paths={})</td></tr>
+<tr class="memdesc:a93d91518d38588e69338de15a1ab6510 inherit pub_static_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> parameters to command line arguments.  <br /></td></tr>
+<tr class="separator:a93d91518d38588e69338de15a1ab6510 inherit pub_static_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -473,15 +405,84 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a610330354440100d70a110ee7af33108 inherit pub_attribs_classLLM" id="r_a610330354440100d70a110ee7af33108"><td class="memItemLeft" align="right" valign="top">json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a610330354440100d70a110ee7af33108">completion_params</a></td></tr>
 <tr class="memdesc:a610330354440100d70a110ee7af33108 inherit pub_attribs_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">JSON object containing completion parameters.  <br /></td></tr>
 <tr class="separator:a610330354440100d70a110ee7af33108 inherit pub_attribs_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:a5aa62b2f1feb31a8977801c2bd2ed30d" id="r_a5aa62b2f1feb31a8977801c2bd2ed30d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5aa62b2f1feb31a8977801c2bd2ed30d">create_LLM_library_backend</a> (const std::string &amp;command, const std::string &amp;llm_lib_filename)</td></tr>
+<tr class="memdesc:a5aa62b2f1feb31a8977801c2bd2ed30d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> library backend.  <br /></td></tr>
+<tr class="separator:a5aa62b2f1feb31a8977801c2bd2ed30d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pro_methods_classLLMProvider"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_methods_classLLMProvider')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classLLMProvider.html">LLMProvider</a></td></tr>
+<tr class="memitem:a6487ee5c99fc6d0cef6becf8a9ff7f73 inherit pro_methods_classLLMProvider" id="r_a6487ee5c99fc6d0cef6becf8a9ff7f73"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMProvider.html#a6487ee5c99fc6d0cef6becf8a9ff7f73">parse_lora_weight_json</a> (const json &amp;result)</td></tr>
+<tr class="memdesc:a6487ee5c99fc6d0cef6becf8a9ff7f73 inherit pro_methods_classLLMProvider"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse LoRA weight configuration result.  <br /></td></tr>
+<tr class="separator:a6487ee5c99fc6d0cef6becf8a9ff7f73 inherit pro_methods_classLLMProvider"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8461da56462534f7425e5ad1c79fdfbc inherit pro_methods_classLLMProvider" id="r_a8461da56462534f7425e5ad1c79fdfbc"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMProvider.html#a8461da56462534f7425e5ad1c79fdfbc">build_lora_weight_json</a> (const std::vector&lt; <a class="el" href="structLoraIdScale.html">LoraIdScale</a> &gt; &amp;loras)</td></tr>
+<tr class="memdesc:a8461da56462534f7425e5ad1c79fdfbc inherit pro_methods_classLLMProvider"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for LoRA weight configuration.  <br /></td></tr>
+<tr class="separator:a8461da56462534f7425e5ad1c79fdfbc inherit pro_methods_classLLMProvider"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad8da37c8c711256c2cb102ccd011a3b3 inherit pro_methods_classLLMProvider" id="r_ad8da37c8c711256c2cb102ccd011a3b3"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; <a class="el" href="structLoraIdScalePath.html">LoraIdScalePath</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMProvider.html#ad8da37c8c711256c2cb102ccd011a3b3">parse_lora_list_json</a> (const json &amp;result)</td></tr>
+<tr class="memdesc:ad8da37c8c711256c2cb102ccd011a3b3 inherit pro_methods_classLLMProvider"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse LoRA list result.  <br /></td></tr>
+<tr class="separator:ad8da37c8c711256c2cb102ccd011a3b3 inherit pro_methods_classLLMProvider"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aedff32c168b7d5beb27feef24e79b65b inherit pro_methods_classLLMProvider" id="r_aedff32c168b7d5beb27feef24e79b65b"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMProvider.html#aedff32c168b7d5beb27feef24e79b65b">build_lora_list_json</a> (const std::vector&lt; <a class="el" href="structLoraIdScalePath.html">LoraIdScalePath</a> &gt; &amp;loras)</td></tr>
+<tr class="memdesc:aedff32c168b7d5beb27feef24e79b65b inherit pro_methods_classLLMProvider"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for LoRA list result.  <br /></td></tr>
+<tr class="separator:aedff32c168b7d5beb27feef24e79b65b inherit pro_methods_classLLMProvider"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pro_methods_classLLMLocal"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_methods_classLLMLocal')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classLLMLocal.html">LLMLocal</a></td></tr>
+<tr class="memitem:aaae3347bc59b9a19ba9cfc0967fd681f inherit pro_methods_classLLMLocal" id="r_aaae3347bc59b9a19ba9cfc0967fd681f"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMLocal.html#aaae3347bc59b9a19ba9cfc0967fd681f">slot</a> (int id_slot, const std::string &amp;action, const std::string &amp;filepath)</td></tr>
+<tr class="memdesc:aaae3347bc59b9a19ba9cfc0967fd681f inherit pro_methods_classLLMLocal"><td class="mdescLeft">&#160;</td><td class="mdescRight">Perform slot operation.  <br /></td></tr>
+<tr class="separator:aaae3347bc59b9a19ba9cfc0967fd681f inherit pro_methods_classLLMLocal"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac87d1592b783a9e75efe6a177a92e8bc inherit pro_methods_classLLMLocal" id="r_ac87d1592b783a9e75efe6a177a92e8bc"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMLocal.html#ac87d1592b783a9e75efe6a177a92e8bc">build_slot_json</a> (int id_slot, const std::string &amp;action, const std::string &amp;filepath)</td></tr>
+<tr class="memdesc:ac87d1592b783a9e75efe6a177a92e8bc inherit pro_methods_classLLMLocal"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for slot operations.  <br /></td></tr>
+<tr class="separator:ac87d1592b783a9e75efe6a177a92e8bc inherit pro_methods_classLLMLocal"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8bacecd1f710569ba9abb566c532512 inherit pro_methods_classLLMLocal" id="r_ac8bacecd1f710569ba9abb566c532512"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMLocal.html#ac8bacecd1f710569ba9abb566c532512">parse_slot_json</a> (const json &amp;result)</td></tr>
+<tr class="memdesc:ac8bacecd1f710569ba9abb566c532512 inherit pro_methods_classLLMLocal"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse slot operation result.  <br /></td></tr>
+<tr class="separator:ac8bacecd1f710569ba9abb566c532512 inherit pro_methods_classLLMLocal"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pro_methods_classLLM"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_methods_classLLM')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classLLM.html">LLM</a></td></tr>
+<tr class="memitem:a2c07dd3ece7427517b04887082caa97b inherit pro_methods_classLLM" id="r_a2c07dd3ece7427517b04887082caa97b"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a2c07dd3ece7427517b04887082caa97b">build_apply_template_json</a> (const json &amp;messages)</td></tr>
+<tr class="memdesc:a2c07dd3ece7427517b04887082caa97b inherit pro_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for template application.  <br /></td></tr>
+<tr class="separator:a2c07dd3ece7427517b04887082caa97b inherit pro_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33112cbc41dcb6af5cb7e4a6cf185e94 inherit pro_methods_classLLM" id="r_a33112cbc41dcb6af5cb7e4a6cf185e94"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a33112cbc41dcb6af5cb7e4a6cf185e94">parse_apply_template_json</a> (const json &amp;result)</td></tr>
+<tr class="memdesc:a33112cbc41dcb6af5cb7e4a6cf185e94 inherit pro_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse template application result.  <br /></td></tr>
+<tr class="separator:a33112cbc41dcb6af5cb7e4a6cf185e94 inherit pro_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a15a4fb3881c49f42bb1a9515a2593359 inherit pro_methods_classLLM" id="r_a15a4fb3881c49f42bb1a9515a2593359"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a15a4fb3881c49f42bb1a9515a2593359">build_tokenize_json</a> (const std::string &amp;query)</td></tr>
+<tr class="memdesc:a15a4fb3881c49f42bb1a9515a2593359 inherit pro_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for tokenization.  <br /></td></tr>
+<tr class="separator:a15a4fb3881c49f42bb1a9515a2593359 inherit pro_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33d3ec109eef58997f40487ceab50d1a inherit pro_methods_classLLM" id="r_a33d3ec109eef58997f40487ceab50d1a"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a33d3ec109eef58997f40487ceab50d1a">parse_tokenize_json</a> (const json &amp;result)</td></tr>
+<tr class="memdesc:a33d3ec109eef58997f40487ceab50d1a inherit pro_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse tokenization result.  <br /></td></tr>
+<tr class="separator:a33d3ec109eef58997f40487ceab50d1a inherit pro_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3a40b6013ca9ab63329b9c829878ea0a inherit pro_methods_classLLM" id="r_a3a40b6013ca9ab63329b9c829878ea0a"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a3a40b6013ca9ab63329b9c829878ea0a">build_detokenize_json</a> (const std::vector&lt; int32_t &gt; &amp;tokens)</td></tr>
+<tr class="memdesc:a3a40b6013ca9ab63329b9c829878ea0a inherit pro_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for detokenization.  <br /></td></tr>
+<tr class="separator:a3a40b6013ca9ab63329b9c829878ea0a inherit pro_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5b0cde299c465007acbd77125cbfcff inherit pro_methods_classLLM" id="r_ad5b0cde299c465007acbd77125cbfcff"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#ad5b0cde299c465007acbd77125cbfcff">parse_detokenize_json</a> (const json &amp;result)</td></tr>
+<tr class="memdesc:ad5b0cde299c465007acbd77125cbfcff inherit pro_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse detokenization result.  <br /></td></tr>
+<tr class="separator:ad5b0cde299c465007acbd77125cbfcff inherit pro_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac9a89b18c9c14a15ecfabcee3914ad20 inherit pro_methods_classLLM" id="r_ac9a89b18c9c14a15ecfabcee3914ad20"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#ac9a89b18c9c14a15ecfabcee3914ad20">build_embeddings_json</a> (const std::string &amp;query)</td></tr>
+<tr class="memdesc:ac9a89b18c9c14a15ecfabcee3914ad20 inherit pro_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for embeddings generation.  <br /></td></tr>
+<tr class="separator:ac9a89b18c9c14a15ecfabcee3914ad20 inherit pro_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab8eeb0e041adeeafd3634cf66b32bbb2 inherit pro_methods_classLLM" id="r_ab8eeb0e041adeeafd3634cf66b32bbb2"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#ab8eeb0e041adeeafd3634cf66b32bbb2">parse_embeddings_json</a> (const json &amp;result)</td></tr>
+<tr class="memdesc:ab8eeb0e041adeeafd3634cf66b32bbb2 inherit pro_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse embeddings result.  <br /></td></tr>
+<tr class="separator:ab8eeb0e041adeeafd3634cf66b32bbb2 inherit pro_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e1be3e304f1326d6a8c0d86510f0bd2 inherit pro_methods_classLLM" id="r_a4e1be3e304f1326d6a8c0d86510f0bd2"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a4e1be3e304f1326d6a8c0d86510f0bd2">build_completion_json</a> (const std::string &amp;prompt, int id_slot=-1)</td></tr>
+<tr class="memdesc:a4e1be3e304f1326d6a8c0d86510f0bd2 inherit pro_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build JSON for completion generation.  <br /></td></tr>
+<tr class="separator:a4e1be3e304f1326d6a8c0d86510f0bd2 inherit pro_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ac51c5268e2af6d24e7ae6982cbe58f inherit pro_methods_classLLM" id="r_a4ac51c5268e2af6d24e7ae6982cbe58f"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLM.html#a4ac51c5268e2af6d24e7ae6982cbe58f">parse_completion_json</a> (const json &amp;result)</td></tr>
+<tr class="memdesc:a4ac51c5268e2af6d24e7ae6982cbe58f inherit pro_methods_classLLM"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse completion result.  <br /></td></tr>
+<tr class="separator:a4ac51c5268e2af6d24e7ae6982cbe58f inherit pro_methods_classLLM"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:ab1be0c484d1dad4be77aff64c8e99c20" id="r_ab1be0c484d1dad4be77aff64c8e99c20"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab1be0c484d1dad4be77aff64c8e99c20">search_paths</a></td></tr>
+<tr class="memdesc:ab1be0c484d1dad4be77aff64c8e99c20"><td class="mdescLeft">&#160;</td><td class="mdescRight">Library search paths.  <br /></td></tr>
+<tr class="separator:ab1be0c484d1dad4be77aff64c8e99c20"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pro_attribs_classLLMProvider"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_attribs_classLLMProvider')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classLLMProvider.html">LLMProvider</a></td></tr>
+<tr class="memitem:a22309652345d48c17f3abffd74656b30 inherit pro_attribs_classLLMProvider" id="r_a22309652345d48c17f3abffd74656b30"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMProvider.html#a22309652345d48c17f3abffd74656b30">reasoning_enabled</a> = false</td></tr>
+<tr class="memdesc:a22309652345d48c17f3abffd74656b30 inherit pro_attribs_classLLMProvider"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether reasoning is enabled.  <br /></td></tr>
+<tr class="separator:a22309652345d48c17f3abffd74656b30 inherit pro_attribs_classLLMProvider"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Runtime loader for <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> libraries. </p>
-<p>Forward declaration of server context structure.</p>
+<p>Concrete implementation of <a class="el" href="classLLMProvider.html" title="Abstract class for LLM service providers.">LLMProvider</a> with server capabilities.</p>
 <p>This class provides dynamic loading of <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> backend libraries, allowing for flexible deployment and architecture-specific optimizations</p>
-<p>Concrete implementation of <a class="el" href="classLLMProvider.html" title="Abstract class for LLM service providers.">LLMProvider</a> with server capabilities</p>
 <p>This class provides a full-featured <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> service with HTTP server, parameter configuration, and backend integration with llama.cpp </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00065">65</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00062">62</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a9ed3e1fb5b5bb7219afbf3acd2eeada3" name="a9ed3e1fb5b5bb7219afbf3acd2eeada3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9ed3e1fb5b5bb7219afbf3acd2eeada3">&#9670;&#160;</a></span>LLMService() <span class="overload">[1/4]</span></h2>
@@ -501,17 +502,17 @@ Public Attributes</h2></td></tr>
 <p>Default constructor. </p>
 <p>Creates an uninitialized runtime that must load a library before use </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8cpp_source.html#l00281">281</a> of file <a class="el" href="LLM__runtime_8cpp_source.html">LLM_runtime.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8cpp_source.html#l00306">306</a> of file <a class="el" href="LLM__runtime_8cpp_source.html">LLM_runtime.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMService_a9ed3e1fb5b5bb7219afbf3acd2eeada3_icgraph.svg" width="703" height="110"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMService_a9ed3e1fb5b5bb7219afbf3acd2eeada3_icgraph.svg" width="1336" height="128"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
 </div>
-<a id="aa0908086b2dff047dd6f7fddf29eb180" name="aa0908086b2dff047dd6f7fddf29eb180"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa0908086b2dff047dd6f7fddf29eb180">&#9670;&#160;</a></span>LLMService() <span class="overload">[2/4]</span></h2>
+<a id="a982b997919be934d4c3d300bbbe7a971" name="a982b997919be934d4c3d300bbbe7a971"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a982b997919be934d4c3d300bbbe7a971">&#9670;&#160;</a></span>LLMService() <span class="overload">[2/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -524,17 +525,17 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>num_slots</em><span class="paramdefsep"> = </span><span class="paramdefval">1</span>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>num_threads</em><span class="paramdefsep"> = </span><span class="paramdefval">-1</span>, </span></td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>num_GPU_layers</em><span class="paramdefsep"> = </span><span class="paramdefval">0</span>, </span></td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>num_parallel</em><span class="paramdefsep"> = </span><span class="paramdefval">1</span>, </span></td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -570,7 +571,7 @@ Here is the caller graph for this function:</div>
     <tr><td class="paramname">model_path</td><td>Path to the model file </td></tr>
     <tr><td class="paramname">num_threads</td><td>Number of CPU threads (-1 for auto-detection) </td></tr>
     <tr><td class="paramname">num_GPU_layers</td><td>Number of layers to offload to GPU </td></tr>
-    <tr><td class="paramname">num_parallel</td><td>Number of parallel slots </td></tr>
+    <tr><td class="paramname">num_slots</td><td>Number of parallel slots </td></tr>
     <tr><td class="paramname">flash_attention</td><td>Whether to enable flash attention optimization </td></tr>
     <tr><td class="paramname">context_size</td><td>Maximum context length in tokens </td></tr>
     <tr><td class="paramname">batch_size</td><td>Processing batch size </td></tr>
@@ -581,7 +582,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <p>Creates and initializes a runtime with the specified parameters </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8cpp_source.html#l00286">286</a> of file <a class="el" href="LLM__runtime_8cpp_source.html">LLM_runtime.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8cpp_source.html#l00311">311</a> of file <a class="el" href="LLM__runtime_8cpp_source.html">LLM_runtime.cpp</a>.</p>
 
 </div>
 </div>
@@ -602,7 +603,7 @@ Here is the caller graph for this function:</div>
 
 <p>Destructor. </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8cpp_source.html#l00305">305</a> of file <a class="el" href="LLM__runtime_8cpp_source.html">LLM_runtime.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8cpp_source.html#l00330">330</a> of file <a class="el" href="LLM__runtime_8cpp_source.html">LLM_runtime.cpp</a>.</p>
 
 </div>
 </div>
@@ -626,8 +627,8 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a id="aa0908086b2dff047dd6f7fddf29eb180" name="aa0908086b2dff047dd6f7fddf29eb180"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa0908086b2dff047dd6f7fddf29eb180">&#9670;&#160;</a></span>LLMService() <span class="overload">[4/4]</span></h2>
+<a id="a982b997919be934d4c3d300bbbe7a971" name="a982b997919be934d4c3d300bbbe7a971"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a982b997919be934d4c3d300bbbe7a971">&#9670;&#160;</a></span>LLMService() <span class="overload">[4/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -640,17 +641,17 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>num_slots</em><span class="paramdefsep"> = </span><span class="paramdefval">1</span>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>num_threads</em><span class="paramdefsep"> = </span><span class="paramdefval">-1</span>, </span></td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>num_GPU_layers</em><span class="paramdefsep"> = </span><span class="paramdefval">0</span>, </span></td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>num_parallel</em><span class="paramdefsep"> = </span><span class="paramdefval">1</span>, </span></td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -686,7 +687,7 @@ Here is the caller graph for this function:</div>
     <tr><td class="paramname">model_path</td><td>Path to the model file </td></tr>
     <tr><td class="paramname">num_threads</td><td>Number of CPU threads (-1 for auto-detection) </td></tr>
     <tr><td class="paramname">num_GPU_layers</td><td>Number of layers to offload to GPU </td></tr>
-    <tr><td class="paramname">num_parallel</td><td>Number of parallel processing sequences </td></tr>
+    <tr><td class="paramname">num_slots</td><td>Number of parallel processing sequences </td></tr>
     <tr><td class="paramname">flash_attention</td><td>Whether to enable flash attention optimization </td></tr>
     <tr><td class="paramname">context_size</td><td>Maximum context length in tokens </td></tr>
     <tr><td class="paramname">batch_size</td><td>Processing batch size </td></tr>
@@ -722,18 +723,19 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Apply template (override - delegates to loaded library) </p>
+<p>Apply a chat template to message data. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">data</td><td>JSON template application request </td></tr>
+    <tr><td class="paramname">data</td><td>JSON object containing messages to format </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Formatted template result </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Formatted string with template applied</dd></dl>
+<p>Pure virtual method for applying chat templates to conversation data </p>
 
 <p>Implements <a class="el" href="classLLM.html#a4dabf05907391e76f5c25f57adc1bde0">LLM</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00198">198</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00137">137</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>
@@ -760,21 +762,22 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Apply template to data (override) </p>
+<p>Apply a chat template to message data. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">data</td><td>JSON object containing messages </td></tr>
+    <tr><td class="paramname">data</td><td>JSON object containing messages to format </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Formatted string with template applied </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Formatted string with template applied</dd></dl>
+<p>Pure virtual method for applying chat templates to conversation data </p>
 
 <p>Implements <a class="el" href="classLLM.html#a4dabf05907391e76f5c25f57adc1bde0">LLM</a>.</p>
 
 </div>
 </div>
-<a id="a6a64c858a2a81f67fbfde058df85bb6d" name="a6a64c858a2a81f67fbfde058df85bb6d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6a64c858a2a81f67fbfde058df85bb6d">&#9670;&#160;</a></span>cancel_json() <span class="overload">[1/2]</span></h2>
+<a id="a5bf3245b4d1aee65db6dab3ba1540222" name="a5bf3245b4d1aee65db6dab3ba1540222"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5bf3245b4d1aee65db6dab3ba1540222">&#9670;&#160;</a></span>cancel() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -783,9 +786,9 @@ Here is the caller graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void LLMService::cancel_json </td>
+          <td class="memname">void LLMService::cancel </td>
           <td>(</td>
-          <td class="paramtype">const json &amp;</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>id_slot</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -804,14 +807,14 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p>Implements <a class="el" href="classLLMLocal.html#a7c32119e401890e9906157d84bfa4c67">LLMLocal</a>.</p>
+<p>Implements <a class="el" href="classLLMLocal.html#ab4035793b13abac9346d9748782c2bc4">LLMLocal</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00202">202</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00141">141</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>
-<a id="a6a64c858a2a81f67fbfde058df85bb6d" name="a6a64c858a2a81f67fbfde058df85bb6d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6a64c858a2a81f67fbfde058df85bb6d">&#9670;&#160;</a></span>cancel_json() <span class="overload">[2/2]</span></h2>
+<a id="a5bf3245b4d1aee65db6dab3ba1540222" name="a5bf3245b4d1aee65db6dab3ba1540222"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5bf3245b4d1aee65db6dab3ba1540222">&#9670;&#160;</a></span>cancel() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -820,9 +823,9 @@ Here is the caller graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void LLMService::cancel_json </td>
+          <td class="memname">void LLMService::cancel </td>
           <td>(</td>
-          <td class="paramtype">const json &amp;</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>id_slot</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -841,7 +844,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p>Implements <a class="el" href="classLLMLocal.html#a7c32119e401890e9906157d84bfa4c67">LLMLocal</a>.</p>
+<p>Implements <a class="el" href="classLLMLocal.html#ab4035793b13abac9346d9748782c2bc4">LLMLocal</a>.</p>
 
 </div>
 </div>
@@ -890,7 +893,7 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classLLM.html#aa123c478d02e4ecff9e73da5be2f771b">LLM</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00180">180</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00131">131</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>
@@ -965,11 +968,58 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if library loaded successfully, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8cpp_source.html#l00264">264</a> of file <a class="el" href="LLM__runtime_8cpp_source.html">LLM_runtime.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8cpp_source.html#l00287">287</a> of file <a class="el" href="LLM__runtime_8cpp_source.html">LLM_runtime.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMService_ac194e3210642288e650ed9f9194a69ee_icgraph.svg" width="670" height="122"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMService_ac194e3210642288e650ed9f9194a69ee_icgraph.svg" width="883" height="143"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
+</div>
+</div>
+<a id="a5aa62b2f1feb31a8977801c2bd2ed30d" name="a5aa62b2f1feb31a8977801c2bd2ed30d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5aa62b2f1feb31a8977801c2bd2ed30d">&#9670;&#160;</a></span>create_LLM_library_backend()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool LLMService::create_LLM_library_backend </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>command</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>llm_lib_filename</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Load <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> library backend. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">command</td><td>Command string with parameters </td></tr>
+    <tr><td class="paramname">llm_lib_filename</td><td>Specific library filename to load </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if library loaded successfully, false otherwise</dd></dl>
+<p>Internal method for loading specific library files </p>
+
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8cpp_source.html#l00218">218</a> of file <a class="el" href="LLM__runtime_8cpp_source.html">LLM_runtime.cpp</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMService_a5aa62b2f1feb31a8977801c2bd2ed30d_icgraph.svg" width="883" height="123"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -1007,11 +1057,11 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classLLMProvider.html#a548bbfcd949bf4f5ede7c05f52749923">LLMProvider</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00113">113</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00202">202</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMService_ac4080b4e2a6ffaff05b8287726c24720_icgraph.svg" width="826" height="159"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMService_ac4080b4e2a6ffaff05b8287726c24720_icgraph.svg" width="1742" height="172"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -1079,7 +1129,7 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classLLMProvider.html#a241049df792d1c4b3dbb5010d4f42cfb">LLMProvider</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00213">213</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00208">208</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>
@@ -1111,7 +1161,7 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classLLMProvider.html#a241049df792d1c4b3dbb5010d4f42cfb">LLMProvider</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__service_8h_source.html#l00185">185</a> of file <a class="el" href="LLM__service_8h_source.html">LLM_service.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__service_8h_source.html#l00201">201</a> of file <a class="el" href="LLM__service_8h_source.html">LLM_service.h</a>.</p>
 
 </div>
 </div>
@@ -1138,18 +1188,19 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Detokenize tokens (override - delegates to loaded library) </p>
+<p>Convert tokens back to text. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">data</td><td>JSON detokenization request </td></tr>
+    <tr><td class="paramname">data</td><td>JSON object containing token IDs </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Detokenized text </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>JSON string containing detokenized text</dd></dl>
+<p>Pure virtual method for converting token sequences back to text </p>
 
 <p>Implements <a class="el" href="classLLM.html#ab21dca488bf1daf687960495280f059c">LLM</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00168">168</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00118">118</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>
@@ -1176,14 +1227,15 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Detokenize tokens (override) </p>
+<p>Convert tokens back to text. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">data</td><td>JSON object containing tokens </td></tr>
+    <tr><td class="paramname">data</td><td>JSON object containing token IDs </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Detokenized text string </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>JSON string containing detokenized text</dd></dl>
+<p>Pure virtual method for converting token sequences back to text </p>
 
 <p>Implements <a class="el" href="classLLM.html#ab21dca488bf1daf687960495280f059c">LLM</a>.</p>
 
@@ -1217,7 +1269,7 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classLLMProvider.html#af119e46c52a25dedd008d4a869026666">LLMProvider</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00154">154</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00194">194</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>
@@ -1274,18 +1326,19 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Generate embeddings (override - delegates to loaded library) </p>
+<p>Generate embeddings with HTTP response support. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">data</td><td>JSON embedding request </td></tr>
+    <tr><td class="paramname">data</td><td>JSON object containing embedding request </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>JSON embedding response </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>JSON string with embedding data</dd></dl>
+<p>Protected method used internally for server-based embedding generation </p>
 
 <p>Implements <a class="el" href="classLLM.html#a180ad8f0dfd734e10042bc6a45bb3126">LLM</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00173">173</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00124">124</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>
@@ -1312,16 +1365,82 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Generate embeddings (override) </p>
+<p>Generate embeddings with HTTP response support. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">data</td><td>JSON object containing text to embed </td></tr>
+    <tr><td class="paramname">data</td><td>JSON object containing embedding request </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>JSON string with embedding vectors </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>JSON string with embedding data</dd></dl>
+<p>Protected method used internally for server-based embedding generation </p>
 
 <p>Implements <a class="el" href="classLLM.html#a180ad8f0dfd734e10042bc6a45bb3126">LLM</a>.</p>
+
+</div>
+</div>
+<a id="a303680807aba6210169bd64958d3d5d8" name="a303680807aba6210169bd64958d3d5d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a303680807aba6210169bd64958d3d5d8">&#9670;&#160;</a></span>enable_reasoning()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LLMService::enable_reasoning </td>
+          <td>(</td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>reasoning</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>enable reasoning </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">reasoning</td><td>whether to enable reasoning </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Reimplemented from <a class="el" href="classLLMProvider.html#a75886f91ec01357c59bac03ab56b45e3">LLMProvider</a>.</p>
+
+<p class="definition">Definition at line <a class="el" href="LLM__service_8cpp_source.html#l00261">261</a> of file <a class="el" href="LLM__service_8cpp_source.html">LLM_service.cpp</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMService_a303680807aba6210169bd64958d3d5d8_icgraph.svg" width="1746" height="172"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
+</div>
+</div>
+<a id="abf50823b7b0d12eb69ee357bce6b8b81" name="abf50823b7b0d12eb69ee357bce6b8b81"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abf50823b7b0d12eb69ee357bce6b8b81">&#9670;&#160;</a></span>encapsulate_route()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string LLMService::encapsulate_route </td>
+          <td>(</td>
+          <td class="paramtype">const json &amp;</td>          <td class="paramname"><span class="paramname"><em>body</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">handler_t</td>          <td class="paramname"><span class="paramname"><em>route_handler</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="LLM__service_8cpp_source.html#l00519">519</a> of file <a class="el" href="LLM__service_8cpp_source.html">LLM_service.cpp</a>.</p>
 
 </div>
 </div>
@@ -1358,11 +1477,11 @@ Here is the caller graph for this function:</div>
 <dl class="section return"><dt>Returns</dt><dd>Pointer to newly created <a class="el" href="classLLMService.html" title="Runtime loader for LLM libraries.">LLMService</a> instance</dd></dl>
 <p>Factory method for creating runtime instances from command arguments. See <a href="https://github.com/ggml-org/llama.cpp/tree/master/tools/server#usage">https://github.com/ggml-org/llama.cpp/tree/master/tools/server#usage</a> for arguments. </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8cpp_source.html#l00293">293</a> of file <a class="el" href="LLM__runtime_8cpp_source.html">LLM_runtime.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8cpp_source.html#l00318">318</a> of file <a class="el" href="LLM__runtime_8cpp_source.html">LLM_runtime.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMService_afd5f58f0c3b9e3d64524ddb21cc8168a_icgraph.svg" width="476" height="110"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMService_afd5f58f0c3b9e3d64524ddb21cc8168a_icgraph.svg" width="1110" height="143"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -1440,7 +1559,7 @@ Here is the caller graph for this function:</div>
 <dl class="section return"><dt>Returns</dt><dd>Pointer to newly created <a class="el" href="classLLMService.html" title="Runtime loader for LLM libraries.">LLMService</a> instance</dd></dl>
 <p>Factory method for creating runtime instances from main() parameters </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8cpp_source.html#l00300">300</a> of file <a class="el" href="LLM__runtime_8cpp_source.html">LLM_runtime.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8cpp_source.html#l00325">325</a> of file <a class="el" href="LLM__runtime_8cpp_source.html">LLM_runtime.cpp</a>.</p>
 
 </div>
 </div>
@@ -1517,11 +1636,45 @@ Here is the caller graph for this function:</div>
 <dl class="section return"><dt>Returns</dt><dd>Pointer to newly created <a class="el" href="classLLMService.html" title="Runtime loader for LLM libraries.">LLMService</a> instance</dd></dl>
 <p>Factory method for creating instances from structured parameter data See <a href="https://github.com/ggml-org/llama.cpp/tree/master/tools/server#usage">https://github.com/ggml-org/llama.cpp/tree/master/tools/server#usage</a> for arguments. </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__service_8cpp_source.html#l00124">124</a> of file <a class="el" href="LLM__service_8cpp_source.html">LLM_service.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__service_8cpp_source.html#l00021">21</a> of file <a class="el" href="LLM__service_8cpp_source.html">LLM_service.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMService_ad557a4449167b041276f41d6189d5d38_icgraph.svg" width="460" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMService_ad557a4449167b041276f41d6189d5d38_icgraph.svg" width="1376" height="98"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
+</div>
+</div>
+<a id="adeccb201bdab1e5fe30e411fcd3790ac" name="adeccb201bdab1e5fe30e411fcd3790ac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adeccb201bdab1e5fe30e411fcd3790ac">&#9670;&#160;</a></span>get_command()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string LLMService::get_command </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the construct command. </p>
+
+<p class="definition">Definition at line <a class="el" href="LLM__service_8h_source.html#l00097">97</a> of file <a class="el" href="LLM__service_8h_source.html">LLM_service.h</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMService_adeccb201bdab1e5fe30e411fcd3790ac_icgraph.svg" width="427" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -1554,7 +1707,7 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classLLMLocal.html#a7031b71fe66ae3574d2015abe6d33cc1">LLMLocal</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00158">158</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00198">198</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>
@@ -1588,68 +1741,6 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a id="a47f2c4656e0efe39106c959e9344177f" name="a47f2c4656e0efe39106c959e9344177f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a47f2c4656e0efe39106c959e9344177f">&#9670;&#160;</a></span>get_template_json() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string LLMService::get_template_json </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Get template (override - delegates to loaded library) </p>
-<dl class="section return"><dt>Returns</dt><dd>JSON template response </dd></dl>
-
-<p>Implements <a class="el" href="classLLM.html#af27dd1f754a74e328750b1b50f13f27e">LLM</a>.</p>
-
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00189">189</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
-
-</div>
-</div>
-<a id="a47f2c4656e0efe39106c959e9344177f" name="a47f2c4656e0efe39106c959e9344177f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a47f2c4656e0efe39106c959e9344177f">&#9670;&#160;</a></span>get_template_json() <span class="overload">[2/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string LLMService::get_template_json </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Get template JSON (override) </p>
-<dl class="section return"><dt>Returns</dt><dd>JSON string with template information </dd></dl>
-
-<p>Implements <a class="el" href="classLLM.html#af27dd1f754a74e328750b1b50f13f27e">LLM</a>.</p>
-
-</div>
-</div>
 <a id="a1ff5d7b3af982950017a8ce344a891bf" name="a1ff5d7b3af982950017a8ce344a891bf"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1ff5d7b3af982950017a8ce344a891bf">&#9670;&#160;</a></span>init() <span class="overload">[1/3]</span></h2>
 
@@ -1674,7 +1765,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <p>C-compatible version of string parameter initialization </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__service_8cpp_source.html#l00274">274</a> of file <a class="el" href="LLM__service_8cpp_source.html">LLM_service.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__service_8cpp_source.html#l00174">174</a> of file <a class="el" href="LLM__service_8cpp_source.html">LLM_service.cpp</a>.</p>
 
 </div>
 </div>
@@ -1702,7 +1793,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <p>Initialize the service by parsing a parameter string </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__service_8cpp_source.html#l00259">259</a> of file <a class="el" href="LLM__service_8cpp_source.html">LLM_service.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__service_8cpp_source.html#l00159">159</a> of file <a class="el" href="LLM__service_8cpp_source.html">LLM_service.cpp</a>.</p>
 
 </div>
 </div>
@@ -1735,11 +1826,11 @@ Here is the caller graph for this function:</div>
 </dl>
 <p>Initialize the service with command line style parameters </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__service_8cpp_source.html#l00279">279</a> of file <a class="el" href="LLM__service_8cpp_source.html">LLM_service.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__service_8cpp_source.html#l00179">179</a> of file <a class="el" href="LLM__service_8cpp_source.html">LLM_service.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMService_a053905b510fcb7755f5d9a39c8a6e03d_icgraph.svg" width="634" height="159"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMService_a053905b510fcb7755f5d9a39c8a6e03d_icgraph.svg" width="1550" height="172"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -1771,7 +1862,7 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classLLMProvider.html#a6bef1ad6bc58ca4e509bf9dda4721fc4">LLMProvider</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00129">129</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00185">185</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>
@@ -1831,7 +1922,7 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classLLMProvider.html#a4ea0347b67074cd7b73771d844f9f6a1">LLMProvider</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00141">141</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00182">182</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>
@@ -1897,11 +1988,11 @@ Here is the caller graph for this function:</div>
 <dl class="section return"><dt>Returns</dt><dd>Vector of C-style argument strings</dd></dl>
 <p>Utility function for converting structured parameters to argv format </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__service_8cpp_source.html#l00157">157</a> of file <a class="el" href="LLM__service_8cpp_source.html">LLM_service.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__service_8cpp_source.html#l00057">57</a> of file <a class="el" href="LLM__service_8cpp_source.html">LLM_service.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMService_a50e87c191c3e41da6d36e2b88cf73c10_icgraph.svg" width="724" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMService_a50e87c191c3e41da6d36e2b88cf73c10_icgraph.svg" width="1640" height="98"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -1939,11 +2030,11 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classLLMProvider.html#a0e60fa8d17447deb91fa63cbff6bd0b9">LLMProvider</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00117">117</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00206">206</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMService_a791e34a786131e8114e9e57608cbe0a8_icgraph.svg" width="834" height="159"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMService_a791e34a786131e8114e9e57608cbe0a8_icgraph.svg" width="1750" height="172"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -2006,12 +2097,12 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>List LoRA adapters (override - delegates to loaded library) </p>
-<dl class="section return"><dt>Returns</dt><dd>JSON LoRA list </dd></dl>
+<p>List available LoRA adapters. </p>
+<dl class="section return"><dt>Returns</dt><dd>JSON string containing list of available LoRA adapters </dd></dl>
 
 <p>Implements <a class="el" href="classLLMProvider.html#aacd45c15215857bddce4ab098d32e5ba">LLMProvider</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00211">211</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00151">151</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>
@@ -2038,8 +2129,8 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>List available LoRA adapters (override) </p>
-<dl class="section return"><dt>Returns</dt><dd>JSON string with LoRA adapter list </dd></dl>
+<p>List available LoRA adapters. </p>
+<dl class="section return"><dt>Returns</dt><dd>JSON string containing list of available LoRA adapters </dd></dl>
 
 <p>Implements <a class="el" href="classLLMProvider.html#aacd45c15215857bddce4ab098d32e5ba">LLMProvider</a>.</p>
 
@@ -2068,18 +2159,19 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Configure LoRA weights (override - delegates to loaded library) </p>
+<p>Configure LoRA weights with HTTP response support. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">data</td><td>JSON LoRA configuration </td></tr>
+    <tr><td class="paramname">data</td><td>JSON object with LoRA configuration </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>JSON LoRA response </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>JSON response string</dd></dl>
+<p>Protected method used internally for server-based LoRA configuration </p>
 
 <p>Implements <a class="el" href="classLLMProvider.html#ad20891b58f664d325550bb4f662d92e2">LLMProvider</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00207">207</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00147">147</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>
@@ -2106,14 +2198,15 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Configure LoRA weights (override) </p>
+<p>Configure LoRA weights with HTTP response support. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">data</td><td>JSON object with LoRA configuration </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>JSON response string </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>JSON response string</dd></dl>
+<p>Protected method used internally for server-based LoRA configuration </p>
 
 <p>Implements <a class="el" href="classLLMProvider.html#ad20891b58f664d325550bb4f662d92e2">LLMProvider</a>.</p>
 
@@ -2157,7 +2250,7 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classLLMProvider.html#aa5e464523f6bfae26f7416f28c373516">LLMProvider</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00146">146</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00190">190</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>
@@ -2201,78 +2294,6 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a id="a608e8e38aa54888b312060d6838e6c1b" name="a608e8e38aa54888b312060d6838e6c1b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a608e8e38aa54888b312060d6838e6c1b">&#9670;&#160;</a></span>set_template_json() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void LLMService::set_template_json </td>
-          <td>(</td>
-          <td class="paramtype">const json &amp;</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Set template (override - delegates to loaded library) </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">data</td><td>JSON template data </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p>Implements <a class="el" href="classLLMProvider.html#acc5cb1075cbb557ea7ba2fe98e539932">LLMProvider</a>.</p>
-
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00193">193</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
-
-</div>
-</div>
-<a id="a608e8e38aa54888b312060d6838e6c1b" name="a608e8e38aa54888b312060d6838e6c1b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a608e8e38aa54888b312060d6838e6c1b">&#9670;&#160;</a></span>set_template_json() <span class="overload">[2/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void LLMService::set_template_json </td>
-          <td>(</td>
-          <td class="paramtype">const json &amp;</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Set template from JSON (override) </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">data</td><td>JSON object containing template data </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p>Implements <a class="el" href="classLLMProvider.html#acc5cb1075cbb557ea7ba2fe98e539932">LLMProvider</a>.</p>
-
-</div>
-</div>
 <a id="aa345caf67e8502ad75a7846336ccafa6" name="aa345caf67e8502ad75a7846336ccafa6"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa345caf67e8502ad75a7846336ccafa6">&#9670;&#160;</a></span>slot_json() <span class="overload">[1/2]</span></h2>
 
@@ -2296,18 +2317,19 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Manage slots (override - delegates to loaded library) </p>
+<p>Manage slots with HTTP response support. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">data</td><td>JSON slot operation request </td></tr>
+    <tr><td class="paramname">data</td><td>JSON object with slot operation </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>JSON slot operation response </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>JSON response string</dd></dl>
+<p>Protected method used internally for server-based slot management </p>
 
 <p>Implements <a class="el" href="classLLMLocal.html#a008288c45d9747cae2c0732772cff7fe">LLMLocal</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00185">185</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00157">157</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>
@@ -2334,14 +2356,15 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Manage processing slots (override) </p>
+<p>Manage slots with HTTP response support. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">data</td><td>JSON object with slot operation parameters </td></tr>
+    <tr><td class="paramname">data</td><td>JSON object with slot operation </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>JSON response string </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>JSON response string</dd></dl>
+<p>Protected method used internally for server-based slot management </p>
 
 <p>Implements <a class="el" href="classLLMLocal.html#a008288c45d9747cae2c0732772cff7fe">LLMLocal</a>.</p>
 
@@ -2374,7 +2397,7 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classLLMProvider.html#ad46fef01bca7adba1a4f30a5e6798903">LLMProvider</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00132">132</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00169">169</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>
@@ -2407,8 +2430,8 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a id="a9dabfa2d3939f7b2eee682b89b5fe475" name="a9dabfa2d3939f7b2eee682b89b5fe475"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9dabfa2d3939f7b2eee682b89b5fe475">&#9670;&#160;</a></span>start_server() <span class="overload">[1/2]</span></h2>
+<a id="ad98fd1abf189d95f2e5780e43b7f4fc0" name="ad98fd1abf189d95f2e5780e43b7f4fc0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad98fd1abf189d95f2e5780e43b7f4fc0">&#9670;&#160;</a></span>start_server() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2424,7 +2447,7 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>port</em><span class="paramdefsep"> = </span><span class="paramdefval">0</span>, </span></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>port</em><span class="paramdefsep"> = </span><span class="paramdefval">-1</span>, </span></td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -2449,14 +2472,14 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p>Implements <a class="el" href="classLLMProvider.html#a6b76feb7cb6cda5b9416f4c27fd6a301">LLMProvider</a>.</p>
+<p>Implements <a class="el" href="classLLMProvider.html#a116cba73b2a964b7535b2e41d1ef160c">LLMProvider</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00123">123</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00163">163</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>
-<a id="a9dabfa2d3939f7b2eee682b89b5fe475" name="a9dabfa2d3939f7b2eee682b89b5fe475"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9dabfa2d3939f7b2eee682b89b5fe475">&#9670;&#160;</a></span>start_server() <span class="overload">[2/2]</span></h2>
+<a id="ad98fd1abf189d95f2e5780e43b7f4fc0" name="ad98fd1abf189d95f2e5780e43b7f4fc0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad98fd1abf189d95f2e5780e43b7f4fc0">&#9670;&#160;</a></span>start_server() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2472,7 +2495,7 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>port</em><span class="paramdefsep"> = </span><span class="paramdefval">0</span>, </span></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>port</em><span class="paramdefsep"> = </span><span class="paramdefval">-1</span>, </span></td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -2497,7 +2520,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p>Implements <a class="el" href="classLLMProvider.html#a6b76feb7cb6cda5b9416f4c27fd6a301">LLMProvider</a>.</p>
+<p>Implements <a class="el" href="classLLMProvider.html#a116cba73b2a964b7535b2e41d1ef160c">LLMProvider</a>.</p>
 
 </div>
 </div>
@@ -2529,7 +2552,7 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classLLMProvider.html#a112eb69e831ffef73adb33730515e89d">LLMProvider</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00150">150</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00173">173</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>
@@ -2590,7 +2613,7 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classLLMProvider.html#a9bfbcfcdf09564a57fcbd75cd4a82e7e">LLMProvider</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00135">135</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00176">176</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>
@@ -2650,7 +2673,7 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classLLMProvider.html#a5180d1e7bc34f67cd48c7f8d492bef36">LLMProvider</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00126">126</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00166">166</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>
@@ -2706,18 +2729,18 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Tokenize input (override - delegates to loaded library) </p>
+<p>Tokenize input (override) </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">data</td><td>JSON tokenization request </td></tr>
+    <tr><td class="paramname">data</td><td>JSON object containing text to tokenize </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>JSON tokenization response </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>JSON string with token data </dd></dl>
 
 <p>Implements <a class="el" href="classLLM.html#a535b20d75538e5bb7bca8e8f0e52ba8f">LLM</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00163">163</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00112">112</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>
@@ -2772,7 +2795,7 @@ Here is the caller graph for this function:</div>
 
 <p>Handle to loaded library. </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00102">102</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00099">99</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>
@@ -2790,7 +2813,33 @@ Here is the caller graph for this function:</div>
 
 <p>Pointer to loaded <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> provider instance. </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00103">103</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00100">100</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+
+</div>
+</div>
+<a id="ab1be0c484d1dad4be77aff64c8e99c20" name="ab1be0c484d1dad4be77aff64c8e99c20"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab1be0c484d1dad4be77aff64c8e99c20">&#9670;&#160;</a></span>search_paths</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;std::string&gt; LLMService::search_paths</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Library search paths. </p>
+
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00219">219</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>

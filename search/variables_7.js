@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['path_0',['path',['../structLoraIdScalePath.html#a5c516fefeb04f1463c0a9114094f2a0c',1,'LoraIdScalePath']]]
+  ['reasoning_5fenabled_0',['reasoning_enabled',['../classLLMProvider.html#a22309652345d48c17f3abffd74656b30',1,'LLMProvider']]],
+  ['role_1',['role',['../structChatMessage.html#a2fe438e92a64356d436e62465bdab515',1,'ChatMessage']]]
 ];
