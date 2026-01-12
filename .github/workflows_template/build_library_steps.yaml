@@ -7,101 +7,101 @@ jobs:
   lala:
     runs-on: lala
 
-################################ START ################################
+################################ Common ################################
 
     steps:
       - name: Clone
         id: checkout
         uses: actions/checkout@v4
-
-      - name: Clone
-        id: checkout_recursive
-        uses: actions/checkout@v4
         with:
           submodules: recursive
 
       - name: Upload Artifacts
-        id: upload
+        id: upload_llamalib
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.UPLOAD_NAME }}
-          path: ${{ env.UPLOAD_PATH }}
+          name: ${{ matrix.arch }}.zip
+          path: ${{ matrix.arch }}.zip
 
-################################ ArchChecker ################################
-
-      - name: Build
-        id: build_archchecker
-        run: |
-          mkdir archchecker/build
-          cd archchecker/build
-          cmake ..
-          cmake --build . --config Release -j $(nproc)
-
-################################ Cross-platform ################################
-
-      - name: Setup llama.cpp
-        id: setup_llama_cpp
-        shell: bash
-        run: |
-          git clone https://github.com/ggerganov/llama.cpp llama.cpp
-          cd llama.cpp
-          git checkout ${{ env.LLAMACPP_VERSION }}
-
-          for f in ../patches/*;do
-            git apply $f
-          done
-
-          if [[ "${{ matrix.tinyBLAS }}" != "" ]]; then
-            echo "tinyBLAS"
-            mv ggml/src/ggml-cuda/CMakeLists.txt CMakeLists.txt.ggml-cuda
-            rm -r ggml/src/ggml-cuda
-            cp -R ../tinyBLAS ggml/src/ggml-cuda
-            mv CMakeLists.txt.ggml-cuda ggml/src/ggml-cuda/CMakeLists.txt
-          fi
-
-          for f in examples/server/public/*;do
-              cmake -DINPUT="$f" -DOUTPUT="$(echo "$f" | sed -e 's:public/::g').hpp" -P "scripts/xxd.cmake"
-          done
-
-      - name: Add licenses
-        id: add_licenses
-        shell: bash
-        run: |
-          mkdir -p build/licenses build/libs
-          cp llama.cpp/LICENSE build/licenses/llama.cpp.LICENSE.txt
-          if [[ "${{ matrix.tinyBLAS }}" != "" ]]; then
-            curl -o build/licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
-          fi
-
-      - name: Set CUDA variable
-        id: set_cuda_var
-        if: startsWith(matrix.build, 'cuda')
-        shell: bash
-        run: |
-          echo "CUDA=$(echo "${{ matrix.build }}" | cut -d '-' -f2 | cut -c 3- )" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=''" >> $GITHUB_ENV
-  
       - name: Get number of CPU cores
         id: cpu-cores
         uses: SimenB/github-actions-cpu-cores@v2
 
-      - name: Set name
-        id: set_name
+      - name: Preparation
+        id: preparation
         shell: bash
         run: |
-          LIBRARY_SUFFIX="${{ env.PLATFORM }}"
-          if [ "${{ matrix.build }}" != "" ];then LIBRARY_SUFFIX="$LIBRARY_SUFFIX-${{ matrix.build }}"; fi
-          NAME=undreamai-${{ github.ref_name }}-llamacpp-$LIBRARY_SUFFIX.zip
-          echo "LIBRARY_SUFFIX=$LIBRARY_SUFFIX" >> $GITHUB_ENV
-          echo "UPLOAD_NAME=$NAME" >> $GITHUB_ENV
-          echo "UPLOAD_PATH=$NAME" >> $GITHUB_ENV
+          mkdir -p build/libs
+          echo "CMAKE_VARS=-DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}" >> $GITHUB_ENV
+          cd tests
+          curl -L -o model.gguf https://huggingface.co/unsloth/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q4_K_M.gguf
+          curl -L -o model_embedding.gguf https://huggingface.co/CompendiumLabs/bge-small-en-v1.5-gguf/resolve/main/bge-small-en-v1.5-q4_k_m.gguf
 
       - name: Build
         id: cmake_build
         run: |
           cd build
-          cmake .. -DLIBRARY_SUFFIX="${{ env.LIBRARY_SUFFIX }}" ${{ matrix.defines }} ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+          cmake .. ${{ env.CMAKE_VARS }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
+
+      - name: Build OpenSSL
+        id: build_openssl
+        run: |
+          .github/scripts/build_openssl.sh ${{ matrix.arch }}
+
+      - name: Test
+        id: test_build
+        shell: bash
+        run: |
+          cd build
+          
+          flag=0
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            flag=1
+          else
+              CPU_FLAGS=$(grep -o 'avx[^ ]*' /proc/cpuinfo | sort -u | tr '\n' ' ')
+              ARCH="${{ matrix.arch }}"
+              FEATURE="${ARCH##*_}"
+              if echo "$CPU_FLAGS" | grep -qw "$FEATURE"; then
+                flag=1
+              fi
+          fi
+          
+          if [[ "$flag" == "1" ]]; then
+            if [[ "$RUNNER_OS" == "Windows" ]]; then
+              ./libs/Release/llamalib_tests.exe
+              ./libs/Release/llamalib_tests_runtime.exe
+            else
+              ./libs/llamalib_tests
+              ./libs/llamalib_tests_runtime
+            fi
+          fi
+
+      - name: Pack artifacts
+        shell: bash
+        run: |
+          zip -j ${{ matrix.arch }}.zip build/libs/*llamalib* -x '*llamalib_tests*'
+
+      - name: Pack artifacts
+        id: pack_artifacts
+        shell: bash
+        run: |
+          ls -R build
+          
+          mkdir -p artifacts
+          mv build/Release/*llamalib* artifacts/ 2>/dev/null || true
+          mv build/libs/*llamalib* artifacts/ 2>/dev/null || true
+          mv build/libs/*.so* artifacts/ 2>/dev/null || true
+          mv build/libs/Release/*llamalib* artifacts/ 2>/dev/null || true
+          mv build/libs/Release/*.dll artifacts/ 2>/dev/null || true
+          rm -f artifacts/*llamalib_tests* artifacts/*exp artifacts/*server*lib 2>/dev/null || true
+          
+          cd artifacts
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            7z a ../${{ matrix.arch }}.zip *
+          else
+            zip ../${{ matrix.arch }}.zip *
+          fi
 
 ################################ Linux ################################
 
@@ -109,16 +109,17 @@ jobs:
         id: setup_libs_linux
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake zip libssl-dev git
+          sudo apt-get install -y build-essential cmake zip libssl-dev git libcurl4-openssl-dev curl libgomp1
 
       - name: Dependencies
         id: setup_hip_linux
         run: |
           sudo apt-get install -y rocblas-dev hipblas-dev
+          echo "CMAKE_VARS=$(echo $CMAKE_VARS | sed "s|${{ github.workspace }}/|$(pwd)/|g") -DCMAKE_HIP_COMPILER=$(hipconfig -l)/clang" >> $GITHUB_ENV
 
       - name: Dependencies Vulcan
         id: setup_vulkan_linux
-        if: matrix.build == 'vulkan'
+        if: contains(matrix.arch, 'vulkan')
         run: |
           wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
           sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list https://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
@@ -128,7 +129,7 @@ jobs:
 
       - uses: Jimver/cuda-toolkit@v0.2.15
         id: setup_cuda_linux
-        if: startsWith(matrix.build, 'cuda')
+        if: contains(matrix.arch, 'blas')
         with:
           cuda: ${{ env.CUDA }}
           method: 'network'
@@ -136,29 +137,11 @@ jobs:
 
       - name: Link Cuda
         id: link_cuda_linux
-        if: startsWith(matrix.build, 'cuda')
+        if: contains(matrix.arch, 'blas')
         run: |
           ln -s ${{ env.CUDA_PATH }} ${{ github.workspace }}/build/cuda
-
-      - name: Set build parameters
-        id: set_build_params_hip_linux
-        run: |
-          echo "CMAKE_COMMON_DIR=-DCMAKE_HIP_COMPILER=$(hipconfig -l)/clang -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=`pwd`/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=`pwd`/build/libs" >> $GITHUB_ENV
-
-      - name: Test
-        id: test_build_unix
-        if: matrix.build == 'noavx' || matrix.build == 'avx' || matrix.build == 'avx2' || matrix.build == 'acc' || matrix.build == 'no_acc'
-        run: |
-          cd build/libs
-          curl -L -o model.gguf https://huggingface.co/afrideva/smol_llama-220M-openhermes-GGUF/resolve/main/smol_llama-220m-openhermes.q4_k_m.gguf?download=true
-          ./undreamai_test -m model.gguf -np 1 --log-disable
-          rm model.gguf
-
-      - name: Pack artifacts
-        id: pack_artifacts_unix
-        run: |
-          rm -f build/libs/undreamai_test
-          zip -j ${{ env.UPLOAD_NAME }} build/licenses/* build/libs/*
+          echo "CUDAToolkit_ROOT=$GITHUB_WORKSPACE/build/cuda" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=''" >> $GITHUB_ENV
 
 ################################ macOS ################################
 
@@ -170,25 +153,50 @@ jobs:
           echo "Operating System: $(uname -s)"
           brew update
 
+      - id: download_macos_artifacts
+        name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: osx-*
+          path: artifacts
+
+      - id: combine_macos_libraries
+        name: Merge macOS libraries
+        run: |
+          cd artifacts
+          for d in *.zip;do
+            unzip -o $d/$d -d `echo $d|cut -d'.' -f1`
+          done
+
+          mkdir ${{ matrix.arch }}
+          for acc in no-acc acc;do
+            for f in `ls osx-x64_$acc`;do
+              output=${{ matrix.arch }}/`echo $f|sed -e "s:x64:universal:g"`
+              if [ -f $output ];then continue;fi
+              lipo -create -output $output osx-x64_$acc/$f osx-arm64_$acc/`echo $f|sed -e "s:x64:arm64:g"`
+            done
+          done
+          zip -j ../${{ matrix.arch }}.zip ${{ matrix.arch }}/*
+
 ################################ Windows ################################
 
       - name: Install Vulkan SDK
         id: setup_vulcan_windows
-        if: matrix.build == 'vulkan'
+        if: contains(matrix.arch, 'vulkan')
         run: |
-          curl.exe -o $env:RUNNER_TEMP/VulkanSDK-Installer.exe -L "https://sdk.lunarg.com/sdk/download/${env:VULKAN_VERSION}/windows/VulkanSDK-${env:VULKAN_VERSION}-Installer.exe"
+          mkdir -p .\build\libs\Release
+          curl.exe -o $env:RUNNER_TEMP/VulkanSDK-Installer.exe -L "https://sdk.lunarg.com/sdk/download/${env:VULKAN_VERSION}/windows/vulkansdk-windows-X64-${env:VULKAN_VERSION}.exe"
           & "$env:RUNNER_TEMP\VulkanSDK-Installer.exe" --accept-licenses --default-answer --confirm-command install
           Add-Content $env:GITHUB_ENV "VULKAN_SDK=C:\VulkanSDK\${env:VULKAN_VERSION}"
           Add-Content $env:GITHUB_PATH "C:\VulkanSDK\${env:VULKAN_VERSION}\bin"
-          curl.exe -o $env:RUNNER_TEMP/VulkanRT-Components.zip -L "https://sdk.lunarg.com/sdk/download/1.3.283.0/windows/VulkanRT-1.3.283.0-Components.zip"
+          curl.exe -o $env:RUNNER_TEMP/VulkanRT-Components.zip -L "https://sdk.lunarg.com/sdk/download/${env:VULKAN_VERSION}/windows/VulkanRT-X64-${env:VULKAN_VERSION}-Components.zip"
           7z x "-o${env:RUNNER_TEMP}" $env:RUNNER_TEMP/VulkanRT-Components.zip
-          mkdir .\build\libs\Release
           cp ${env:RUNNER_TEMP}/VulkanRT*\x64\vulkan-1.dll .\build\libs\Release
 
       - name: Install OpenSSL
         id: setup_openssl_windows
         run: |
-          choco install openssl --no-progress
+          choco install openssl --no-progress --version 3.5.4
           $OPENSSL_ROOT_DIR = 'C:\Program Files\OpenSSL'
           Copy-Item $OPENSSL_ROOT_DIR\lib\VC\x64\MD\*.lib $OPENSSL_ROOT_DIR\lib\
           Copy-Item $OPENSSL_ROOT_DIR\lib\libcrypto_static.lib $OPENSSL_ROOT_DIR\lib\libcrypto.a
@@ -201,48 +209,13 @@ jobs:
           $env:HIP_PATH=$(Resolve-Path 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' | split-path | split-path)
           $env:CMAKE_PREFIX_PATH="${env:HIP_PATH}"
           cd build
-          cmake -G "Unix Makefiles" .. -DLIBRARY_SUFFIX="${{ env.PLATFORM }}-${{ matrix.build }}" -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
+          cmake -G "Unix Makefiles" .. -DCMAKE_C_COMPILER="${env:HIP_PATH}\bin\clang.exe" -DCMAKE_CXX_COMPILER="${env:HIP_PATH}\bin\clang++.exe" -DCMAKE_CXX_FLAGS="-I$($PWD.Path.Replace('\', '/'))/rocwmma/library/include/" ${{ env.CMAKE_VARS }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
-
-      - name: Move files to Release folder
-        id: move_files_windows
-        if: startsWith(matrix.build, 'hip')
-        run: |
-          mkdir build/Release
-          mkdir build/libs/Release
-          move build/libs/*exe build/libs/Release
-          move build/libs/*dll build/libs/Release
-          move build/libs/*exp build/libs/Release
-          move build/libs/*lib build/libs/Release
-
-      - name: Copy Cuda DLLs
-        id: copy_cuda_dlls
-        if: ${{ startsWith(matrix.build, 'cuda') && matrix.tinyBLAS == '' }}
-        shell: bash
-        run: |
-          mv "${{ env.CUDA_PATH }}"/bin/cudart64_*.dll build/libs/Release
-          mv "${{ env.CUDA_PATH }}"/bin/cublas64_*.dll build/libs/Release
-          mv "${{ env.CUDA_PATH }}"/bin/cublasLt64_*.dll build/libs/Release
-
-      - name: Pack artifacts
-        id: pack_artifacts_windows
-        run: |
-          ls -R build
-          mkdir artifacts
-          move .\build\licenses\* .\artifacts\
-          move .\build\Release\* .\artifacts\
-          move .\build\libs\Release\*dll .\artifacts\
-          del artifacts/undreamai_test.*
-          $serverPath = ".\build\libs\Release\undreamai_server.exe"
-          if (Test-Path $serverPath) {
-              move $serverPath -Destination ".\artifacts\"
-          }
-          cd artifacts
-          7z a ../${{ env.UPLOAD_NAME }} *
+          mkdir Release
 
       - uses: Jimver/cuda-toolkit@v0.2.15
         id: setup_cuda_windows
-        if: startsWith(matrix.build, 'cuda')
+        if: contains(matrix.arch, 'blas')
         with:
           cuda: ${{ env.CUDA }}
           method: 'network'
@@ -251,134 +224,105 @@ jobs:
       - name: Install
         id: setup_hip_windows
         run: |
+          git clone https://github.com/rocm/rocwmma --branch rocm-6.2.4 --depth 1
           $ErrorActionPreference = "Stop"
           write-host "Downloading AMD HIP SDK Installer"
-          Invoke-WebRequest -Uri "https://download.amd.com/developer/eula/rocm-hub/AMD-Software-PRO-Edition-23.Q4-WinSvr2022-For-HIP.exe" -OutFile "${env:RUNNER_TEMP}\rocm-install.exe"
+          Invoke-WebRequest -Uri "https://download.amd.com/developer/eula/rocm-hub/AMD-Software-PRO-Edition-24.Q3-WinSvr2022-For-HIP.exe" -OutFile "${env:RUNNER_TEMP}\rocm-install.exe"
           write-host "Installing AMD HIP SDK"
           Start-Process "${env:RUNNER_TEMP}\rocm-install.exe" -ArgumentList '-install' -NoNewWindow -Wait
           write-host "Completed AMD HIP SDK installation"
           & 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' --version
 
-################################ Android ################################
-
-      - name: Set NDK variable
-        id: set_ndk_var_linux
+      - name: Copy Cuda DLLs
+        id: copy_cuda_dlls
+        if: contains(matrix.arch, 'cublas')
+        shell: bash
         run: |
-          echo "NDK=`ls -d /usr/local/lib/android/sdk/ndk/26.*`" >> $GITHUB_ENV
+          mv "${{ env.CUDA_PATH }}"/bin/cudart64_*.dll build/libs/Release
+          mv "${{ env.CUDA_PATH }}"/bin/cublas64_*.dll build/libs/Release
+          mv "${{ env.CUDA_PATH }}"/bin/cublasLt64_*.dll build/libs/Release
+
+################################ Android ################################
 
       - name: Build
         id: cmake_build_android
         run: |
           export LD_LIBRARY_PATH=""
+          export NDK=`ls -d /usr/local/lib/android/sdk/ndk/26.*`
           cd build
-          for arch in "arm64-v8a,armv8-a" "x86_64,x86-64";do
-            ABI=`echo $arch | cut -d',' -f1`
-            MARCH=`echo $arch | cut -d',' -f2`
-
-            mkdir $ABI libs/$ABI
-            cd $ABI
-            cmake ../.. -DLIBRARY_SUFFIX="${{ env.PLATFORM }}" -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=$ABI -DANDROID_PLATFORM=android-23 -DCMAKE_C_FLAGS=-march=$MARCH ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
-            cmake --build . --config Release -j $(nproc)
-            cd ..
-
-            mv libs/libundreamai_${{ env.PLATFORM }}.so libs/$ABI
-          done
-
-      - name: Pack artifacts
-        id: pack_artifacts_android
-        run: |
-          rm -f build/libs/undreamai_test
-          cd build
-          for d in libs licenses;do
-            cd $d
-            zip -r ../../${{ env.UPLOAD_NAME }} *
-            cd ..
-          done
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_PLATFORM=android-23 -DANDROID_ABI=${{ matrix.ABI }} ${{ env.CMAKE_VARS }}
+          cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
 ################################ iOS ################################
-
-      - id: cmake_build_ios
-        name: Build
-        run: |
-          sed -i.bak "s:RUNTIME:BUNDLE DESTINATION .:g" CMakeLists.txt
-          export LD_LIBRARY_PATH=""
-          cd build
-          cmake -G Xcode .. -DLIBRARY_SUFFIX="${{ env.PLATFORM }}" ${{ env.CMAKE_COMMON }} ${{ env.CMAKE_COMMON_JOBS }} ${{ env.CMAKE_COMMON_DIR }}
-          cmake --build . --config Release -j $(sysctl -n hw.logicalcpu) -- CODE_SIGNING_ALLOWED=NO
-
-      - id: pack_artifacts_ios
-        name: Pack artifacts
-        run: |
-          zip -j ${{ env.UPLOAD_NAME }} build/licenses/* build/libundreamai_${{ env.PLATFORM }}.a
 
       - id: link_libraries_ios
         name: Link libraries
         run: |
-            mkdir build/combo
-            cd build/combo
-            for f in `find .. -name "*.a"`;do ar -x $f;done
-            mv ../libundreamai_${{ env.PLATFORM }}.a ../libundreamai_${{ env.PLATFORM }}.a.orig
-            ld -r -o ../libundreamai_${{ env.PLATFORM }}.a *.o
-            nm -u ../libundreamai_${{ env.PLATFORM }}.a
+          cd build
+          lib=libs/libllamalib_${{ matrix.arch }}.a
+          libtool -static -o $lib `find . -name "*.a"`
+          nm -u $lib
 
 ################################ Release ################################
 
-      - id: set_release_prefix
-        name: Set prefix
+      - id: set_release_version
+        name: Set version
         run: |
-          echo "PREFIX=undreamai-${{ github.ref_name }}-llamacpp" >> $GITHUB_ENV
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "RELEASE_NAME=LlamaLib-v$VERSION" >> $GITHUB_ENV
+          echo "$VERSION" > VERSION
+          sed -i "s|<PackageVersion>.*</PackageVersion>|<PackageVersion>${VERSION}</PackageVersion>|g" csharp/LlamaLib.csproj
+          sed -i "s|<LlamaLibVersion>.*</LlamaLibVersion>|<LlamaLibVersion>${VERSION}</LlamaLibVersion>|g" csharp/LlamaLib.targets
+          sed -i "s|\(Include=\"LlamaLib\" Version=\)\"[^\"]*\"|\1\"${VERSION}\"|g" tests/csharp/LlamaLib.Test.csproj
         shell: bash
 
       - name: Download Artifacts
         id: download_artifacts
         uses: actions/download-artifact@v4
         with:
-          path: artifacts
+          path: release
 
-      - id: unzip_artifacts
-        name: Unzip artifacts
+      - name: Create release
+        id: create_release
         run: |
-          cd artifacts
-          ls -R
-      
-          for d in `ls | grep ${{ env.PREFIX }}`;do
-            cd $d; unzip $d; rm $d; cd ..;
-            new_name=`echo $d | sed -e "s:${{ env.PREFIX }}-::g" | sed -e 's:.zip::g'`
-            mv $d $new_name;
-            echo $new_name >> bundle
-          done
+          ./.github/scripts/release.sh release
+          mv release ${{ env.RELEASE_NAME }}
+          zip -r ${{ env.RELEASE_NAME }}.zip ${{ env.RELEASE_NAME }}
 
-      - id: combine_macos_libraries
-        name: Merge macOS libraries
+      - name: Test cmake
+        id: test_cmake
         run: |
-          cd artifacts
-          for acc in acc no_acc;do
-              mkdir macos-$acc
-              lipo -create -output macos-$acc/libundreamai_macos-$acc.dylib macos-x64-$acc/libundreamai_macos-x64-$acc.dylib macos-arm64-$acc/libundreamai_macos-arm64-$acc.dylib
-              cp `ls macos-x64-$acc/* | grep -v ".dylib"` macos-$acc
-              rm -r macos-x64-$acc macos-arm64-$acc
-              sed -i.bak "/macos-x64-$acc/d" bundle
-              sed -i.bak "/macos-arm64-$acc/d" bundle
-              echo macos-$acc >> bundle
-          done
+          cd tests/cpp-cmake
+          cmake . -DLlamaLib_DIR=../../${{ env.RELEASE_NAME }}
+          cmake --build . --config Release
+          ./test
 
-      - name: Merge artifacts
-        id: merge_artifacts
+      - name: Pack nuget
+        id: pack_nuget
         run: |
-          cd artifacts
+          cd csharp
+          dotnet pack -c Release
 
-          servers=`find . -name undreamai_server*`
-          if [ "$servers" != "" ];then
-            zip -r undreamai-${{ github.ref_name }}-server.zip $servers
-            rm $servers
-          fi
+      - name: Clean up
+        id: clean_up_release
+        run: |
+          rm -r ${{ env.RELEASE_NAME }}
 
-          zip -r $PREFIX.zip `cat bundle | grep -v full` linux-archchecker windows-archchecker
-          zip -r $PREFIX-full.zip `cat bundle | grep full`
+      - name: Test nuget
+        id: test_nuget
+        run: |
+          mkdir -p ~/.nuget/packages/LlamaLib
+          ln -s `pwd`/${{ env.RELEASE_NAME }}.zip ~/.nuget/packages/LlamaLib/${{ env.RELEASE_NAME }}.zip
+          cd tests/csharp
+          dotnet build -c Release
+          dotnet test -c Release --logger "console;verbosity=detailed"
 
       - name: Release
         id: release
         uses: softprops/action-gh-release@v2
         with:
-          name: "Release ${{ github.ref_name }}"
-          files: "artifacts/*.zip"
+          name: "Release ${{ env.VERSION }}"
+          files: | 
+            ${{ env.RELEASE_NAME }}.zip
+            csharp/bin/Release/LlamaLib*nupkg

@@ -24,7 +24,7 @@ def extract_steps(yaml_content):
         for step in steps:
             step_id = step.get('id')
             if step_id:
-                steps_dict[step_id] = yaml.safe_dump([step]).strip()
+                steps_dict[step_id] = yaml.safe_dump([step], width=float('inf')).strip()
 
     return steps_dict
 
