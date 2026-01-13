@@ -55,6 +55,8 @@ int &get_status_code();
 std::string &get_status_message();
 sigjmp_buf &get_sigjmp_buf_point();
 std::mutex &get_sigint_hook_mutex();
+sigjmp_buf* get_current_jump_point_ptr();
+void set_current_jump_point(sigjmp_buf* jump_point);
 std::vector<Hook> &get_sigint_hooks();
 
 void fail(std::string message, int code = 1);

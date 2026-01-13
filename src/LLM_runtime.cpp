@@ -217,21 +217,23 @@ LibHandle load_library_safe(const std::string &path)
 
 bool LLMService::create_LLM_library_backend(const std::string &command, const std::string &llm_lib_filename)
 {
-    if (setjmp(get_jump_point()) != 0)
+    sigjmp_buf local_jump_point;
+    sigjmp_buf* old_jump_point = get_current_jump_point_ptr(); // Save the old one
+    set_current_jump_point(&local_jump_point); // Switch to our local one
+
+    if (sigsetjmp(local_jump_point, 1) != 0)
     {
-        std::cerr << "Error occurred while loading the library" << std::endl;
-        // Clean up the handle if it was partially loaded
+        std::cerr << "Error occurred while loading backend: " << llm_lib_filename << std::endl;
         if (handle)
         {
             try { unload_library(handle); } catch (...) {}
             handle = nullptr;
         }
-        
-        // Clear error state for next attempt
         fail("", 0);
-        
+        set_current_jump_point(old_jump_point); // Restore old one
         return false;
     }
+
     auto load_sym = [&](auto &fn_ptr, const char *name)
     {
         fn_ptr = reinterpret_cast<std::decay_t<decltype(fn_ptr)>>(load_symbol(handle, name));
@@ -248,6 +250,8 @@ bool LLMService::create_LLM_library_backend(const std::string &command, const st
 
     ensure_error_handlers_initialized();
     std::cout << "Trying " << llm_lib_filename << std::endl;
+
+    bool success = false;
     for (const std::filesystem::path &full_path : full_paths)
     {
         if (std::filesystem::exists(full_path) && std::filesystem::is_regular_file(full_path))
@@ -259,7 +263,10 @@ bool LLMService::create_LLM_library_backend(const std::string &command, const st
 #define DECLARE_AND_LOAD(name, ret, ...) \
     load_sym(this->name, #name);         \
     if (!this->name)                     \
-        return false;
+    {                                    \
+        set_current_jump_point(old_jump_point); \
+        return false;                    \
+    }
             LLM_FUNCTIONS_LIST(DECLARE_AND_LOAD)
 #undef DECLARE_AND_LOAD
 
@@ -269,19 +276,21 @@ bool LLMService::create_LLM_library_backend(const std::string &command, const st
             if (llm == nullptr || get_status_code() != 0)
             {
                 std::cerr << "Failed to construct LLM (error: " << get_status_code() << "): " << get_status_message() << std::endl;
-                // Clean up before trying next backend
                 if (handle)
                 {
                     unload_library(handle);
                     handle = nullptr;
                 }
-                fail("", 0);  // Clear error state
-                return false;
+                fail("", 0);
+                continue;
             }
-            return true;
+            success = true;
+            break;
         }
     }
-    return false;
+
+    set_current_jump_point(old_jump_point); // Always restore before returning
+    return success;
 }
 
 bool LLMService::create_LLM_library(const std::string &command)
