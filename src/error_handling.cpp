@@ -60,6 +60,20 @@ sigjmp_buf &get_jump_point()
     return sigjmp_buf_point;
 }
 
+namespace {
+    thread_local sigjmp_buf* current_jump_point = nullptr;
+}
+
+sigjmp_buf* get_current_jump_point_ptr()
+{
+    return current_jump_point;
+}
+
+void set_current_jump_point(sigjmp_buf* jump_point)
+{
+    current_jump_point = jump_point;
+}
+
 static void handle_terminate()
 {
     crash_signal_handler(1);
@@ -136,8 +150,9 @@ void set_error_handlers(bool crash_handlers, bool sigint_handlers)
 void crash_signal_handler(int sig)
 {
     fail("Severe error occurred", sig);
-    sigjmp_buf &sigjmp_buf_point = get_sigjmp_buf_point();
-    siglongjmp(sigjmp_buf_point, 1);
+    sigjmp_buf* jump_point = get_current_jump_point_ptr();
+    if (jump_point) siglongjmp(*jump_point, 1);
+    std::abort();
 }
 
 void sigint_signal_handler(int sig)
