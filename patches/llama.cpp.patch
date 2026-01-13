@@ -92,16 +92,27 @@ index 23b688991..820bb4887 100644
  endif()
  
  target_link_libraries(ggml-hip PRIVATE ggml-base hip::host roc::rocblas roc::hipblas)
+diff --git a/ggml/src/ggml-metal/ggml-metal-context.h b/ggml/src/ggml-metal/ggml-metal-context.h
+index ec2b686b7..513da04b7 100644
+--- a/ggml/src/ggml-metal/ggml-metal-context.h
++++ b/ggml/src/ggml-metal/ggml-metal-context.h
+@@ -19,6 +19,7 @@ void ggml_metal_synchronize(ggml_metal_t ctx);
+ 
+ void ggml_metal_set_tensor_async(ggml_metal_t ctx, struct ggml_tensor * tensor, const void * data, size_t offset, size_t size);
+ void ggml_metal_get_tensor_async(ggml_metal_t ctx, const struct ggml_tensor * tensor, void * data, size_t offset, size_t size);
++void ggml_metal_get_tensor_async_staged_copy(ggml_metal_t ctx, const struct ggml_tensor * tensor, void * data, size_t offset, size_t size);
+ 
+ enum ggml_status ggml_metal_graph_compute (ggml_metal_t ctx, struct ggml_cgraph * gf);
+ void             ggml_metal_graph_optimize(ggml_metal_t ctx, struct ggml_cgraph * gf);
 diff --git a/ggml/src/ggml-metal/ggml-metal-context.m b/ggml/src/ggml-metal/ggml-metal-context.m
-index 42a35736e..71fb8f1a9 100644
+index 42a35736e..e5fbf1268 100644
 --- a/ggml/src/ggml-metal/ggml-metal-context.m
 +++ b/ggml/src/ggml-metal/ggml-metal-context.m
-@@ -312,47 +312,63 @@ void ggml_metal_set_tensor_async(ggml_metal_t ctx, struct ggml_tensor * tensor,
+@@ -312,6 +312,66 @@ void ggml_metal_set_tensor_async(ggml_metal_t ctx, struct ggml_tensor * tensor,
      }
  }
  
--void ggml_metal_get_tensor_async(ggml_metal_t ctx, const struct ggml_tensor * tensor, void * data, size_t offset, size_t size) {
-+void ggml_metal_get_tensor_async(
++void ggml_metal_get_tensor_async_staged_copy(
 +    ggml_metal_t ctx,
 +    const struct ggml_tensor * tensor,
 +    void * data,
@@ -112,50 +123,34 @@ index 42a35736e..71fb8f1a9 100644
 +        return;
 +    }
 +
-     @autoreleasepool {
-         id<MTLDevice> device = ggml_metal_device_get_obj(ctx->dev);
--        id<MTLBuffer> buf_dst = [device newBufferWithBytesNoCopy:data
--                                                               length:size
--                                                              options:MTLResourceStorageModeShared
--                                                          deallocator:nil];
--
--        GGML_ASSERT(buf_dst);
- 
++    @autoreleasepool {
++        id<MTLDevice> device = ggml_metal_device_get_obj(ctx->dev);
++
 +        // Source GPU buffer
-         struct ggml_metal_buffer_id bid_src = ggml_metal_get_buffer_id(tensor);
-         if (bid_src.metal == nil) {
--            GGML_ABORT("%s: failed to find buffer for tensor '%s'\n", __func__, tensor->name);
++        struct ggml_metal_buffer_id bid_src = ggml_metal_get_buffer_id(tensor);
++        if (bid_src.metal == nil) {
 +            GGML_ABORT("%s: failed to find buffer for tensor '%s'\n",
 +                       __func__, tensor->name);
-         }
--
-         bid_src.offs += offset;
- 
--        // queue the copy operation into the queue of the Metal context
--        // this will be queued at the end, after any currently ongoing GPU operations
++        }
++        bid_src.offs += offset;
++
 +        // CPU-visible staging buffer
 +        id<MTLBuffer> staging = [device newBufferWithLength:size
 +                                                    options:MTLResourceStorageModeShared];
 +        GGML_ASSERT(staging);
 +
 +        // Queue GPU → staging copy
-         id<MTLCommandQueue> queue = ggml_metal_device_get_queue(ctx->dev);
-         id<MTLCommandBuffer> cmd_buf = [queue commandBuffer];
-         id<MTLBlitCommandEncoder> encoder = [cmd_buf blitCommandEncoder];
- 
-         [encoder copyFromBuffer:bid_src.metal
-                    sourceOffset:bid_src.offs
--                       toBuffer:buf_dst
++        id<MTLCommandQueue> queue = ggml_metal_device_get_queue(ctx->dev);
++        id<MTLCommandBuffer> cmd_buf = [queue commandBuffer];
++        id<MTLBlitCommandEncoder> encoder = [cmd_buf blitCommandEncoder];
++
++        [encoder copyFromBuffer:bid_src.metal
++                   sourceOffset:bid_src.offs
 +                       toBuffer:staging
-               destinationOffset:0
-                            size:size];
--
-         [encoder endEncoding];
--        [cmd_buf commit];
--        [buf_dst release];
- 
--        // do not wait here for completion
--        //[cmd_buf waitUntilCompleted];
++              destinationOffset:0
++                           size:size];
++        [encoder endEncoding];
++
 +        // Copy staging → user buffer when complete
 +        __block id<MTLBuffer> staging_ref = [staging retain]; // Ensure cleanup
 +        [cmd_buf addCompletedHandler:^(id<MTLCommandBuffer> cb) {
@@ -165,20 +160,34 @@ index 42a35736e..71fb8f1a9 100644
 +            // Always release regardless of status
 +            [staging_ref release];
 +        }];
- 
--        // instead, remember a reference to the command buffer and wait for it later if needed
++
 +        [cmd_buf commit];
 +
 +        // Track command buffer
-         [ctx->cmd_bufs_ext addObject:cmd_buf];
-         ctx->cmd_buf_last = cmd_buf;
--
-         [cmd_buf retain];
++        [ctx->cmd_bufs_ext addObject:cmd_buf];
++        ctx->cmd_buf_last = cmd_buf;
++        [cmd_buf retain];
 +
 +        [staging release]; // Balance the newBuffer call
-     }
- }
++    }
++}
++
+ void ggml_metal_get_tensor_async(ggml_metal_t ctx, const struct ggml_tensor * tensor, void * data, size_t offset, size_t size) {
+     @autoreleasepool {
+         id<MTLDevice> device = ggml_metal_device_get_obj(ctx->dev);
+@@ -320,7 +380,11 @@ void ggml_metal_get_tensor_async(ggml_metal_t ctx, const struct ggml_tensor * te
+                                                               options:MTLResourceStorageModeShared
+                                                           deallocator:nil];
  
+-        GGML_ASSERT(buf_dst);
++        if (!buf_dst)
++        {
++                ggml_metal_get_tensor_async_staged_copy(ctx, tensor, data, offset, size);
++                return;
++        }
+ 
+         struct ggml_metal_buffer_id bid_src = ggml_metal_get_buffer_id(tensor);
+         if (bid_src.metal == nil) {
 diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 index d68735a04..56f342c9b 100644
 --- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
