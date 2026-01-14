@@ -52,6 +52,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux" OR
     if (NOT WIN32)
         add_custom_command(TARGET ${LLAMALIB_STATIC_RUNTIME_LIBRARY} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/temp_extract
+            COMMAND cd ${CMAKE_CURRENT_BINARY_DIR}/temp_extract && ${CMAKE_AR} x $<TARGET_FILE:cpp-httplib>
             COMMAND cd ${CMAKE_CURRENT_BINARY_DIR}/temp_extract && ${CMAKE_AR} x $<TARGET_FILE:OpenSSL::SSL>
             COMMAND cd ${CMAKE_CURRENT_BINARY_DIR}/temp_extract && ${CMAKE_AR} x $<TARGET_FILE:OpenSSL::Crypto>
             COMMAND ${CMAKE_AR} rcs $<TARGET_FILE:${LLAMALIB_STATIC_RUNTIME_LIBRARY}> ${CMAKE_CURRENT_BINARY_DIR}/temp_extract/*.o
