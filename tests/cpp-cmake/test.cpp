@@ -70,6 +70,14 @@ int main(int argc, char **argv)
     }
     std::cout << std::endl;
 
+    // Agent
+    PROMPT = "You are a helpful AI assistant. Be concise and friendly.";
+    LLMAgent agent(llm_service, PROMPT);
+
+    std::cout << "response: ";
+    agent.chat("how are you?", true, static_cast<CharArrayFn>(streaming_callback));
+    std::cout << std::endl;
+
     llm_service->stop();
     delete llm_service;
 

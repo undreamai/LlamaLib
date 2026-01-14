@@ -10,6 +10,7 @@
 #include <fstream>
 #include <thread>
 #include <chrono>
+#include <unordered_set>
 
 std::string PROMPT = "<|im_start|>system\nyou are an artificial intelligence assistant<|im_end|>\n<|im_start|>user\nHello, how are you?<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n";
 std::string REPLY = "Hello! I'm here to help you with anything! How can I assist you today?";
