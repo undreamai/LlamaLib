@@ -1,55 +1,47 @@
 #include "LlamaLib.h"
 #include <iostream>
 
+static std::string previous_text = "";
 static void streaming_callback(const char *c)
 {
-    std::cout << c << std::flush;
+    std::string current_text(c);
+    // streaming gets the entire generated response up to now, print only the new text
+    std::cout << current_text.substr(previous_text.length()) << std::flush;
+    previous_text = current_text;
 }
 
 int main(int argc, char **argv)
 {
-    std::string model = "model.gguf";
+    std::string PROMPT = "The capital of";
 
-    LLMService llm_service(model);
-
-    llm_service.start();
-    std::string PROMPT = "you are an artificial intelligence assistant\n\n--- user: Hello, how are you?\n--- assistant";
+    // create LLM
+    LLMService* llm_service = LLMServiceBuilder().model("model.gguf").numGPULayers(10).build();
+    // alternatively using the LLMService constructor:
+    // LLMService* llm_service = new LLMService("model.gguf", 1, -1, 10);
+    llm_service->start();
+    // limit the amount of tokens that we can predict so that it doesn't produce text forever (some models do)
+    llm_service->set_completion_params({{"n_predict", 20}});
 
     std::cout << "----------------------- tokenize -----------------------" << std::endl;
-    std::vector<int> tokens = llm_service.tokenize(PROMPT);
+    std::vector<int> tokens = llm_service->tokenize(PROMPT);
     std::cout << "tokens: ";
-    for (int token : tokens)
-    {
-        std::cout << token << " ";
-    }
+    for (int token : tokens) std::cout << token << " ";
     std::cout << std::endl;
 
-    std::cout << std::endl
-              << "----------------------- detokenize -----------------------" << std::endl;
-    std::string detokenize_response = llm_service.detokenize(tokens);
+    std::cout << std::endl << "----------------------- detokenize -----------------------" << std::endl;
+    std::string detokenize_response = llm_service->detokenize(tokens);
     std::cout << "prompt: " << detokenize_response << std::endl;
 
-    std::cout << std::endl
-              << "----------------------- completion (streaming) -----------------------" << std::endl;
+    std::cout << std::endl << "----------------------- completion (streaming) -----------------------" << std::endl;
     std::cout << "response: ";
-    llm_service.completion(PROMPT, static_cast<CharArrayFn>(streaming_callback));
+    llm_service->completion(PROMPT, static_cast<CharArrayFn>(streaming_callback));
     std::cout << std::endl;
 
-    std::cout << std::endl
-              << "----------------------- completion (no streaming) -----------------------" << std::endl;
-    std::string completion_response = llm_service.completion(PROMPT);
-    std::cout << "response: " << completion_response << std::endl;
+    std::cout << std::endl  << "----------------------- completion (no streaming) -----------------------" << std::endl;
+    std::string completion_response = llm_service->completion(PROMPT);
+    std::cout << "response: " << completion_response << std::endl << std::endl;
 
-    std::cout << std::endl
-              << "----------------------- embeddings -----------------------" << std::endl;
-    std::vector<float> embeddings = llm_service.embeddings(PROMPT);
-    std::cout << "embeddings: ";
-    size_t maxCount = std::min<size_t>(embeddings.size(), 10);
-    for (size_t i = 0; i < maxCount; ++i)
-    {
-        std::cout << embeddings[i] << " ";
-    }
-    std::cout << "..." << std::endl;
+    delete llm_service;
 
     return 0;
 }
