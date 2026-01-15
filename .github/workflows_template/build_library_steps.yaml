@@ -93,6 +93,7 @@ jobs:
           mv build/libs/Release/*.dll artifacts/ 2>/dev/null || true
           rm -f artifacts/*llamalib_tests* artifacts/*exp artifacts/*server*lib 2>/dev/null || true
           
+          rm -r build
           cd artifacts
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             7z a ../${{ matrix.arch }}.zip *
