@@ -1,4 +1,3 @@
-
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset=".github/logo_white.png">
@@ -18,12 +17,11 @@
 
 <sub>
 <a href="#quick-start" style="color: black">Quick Start</a>&nbsp;&nbsp;•&nbsp;
-<a href="#building-your-project" style=color: black>Building Your Project</a>&nbsp;&nbsp;•&nbsp;
-<a href="#core-classes" style=color: black>Core Classes</a>&nbsp;&nbsp;•&nbsp;
-<a href="#llmservice" style=color: black>LLMService</a>&nbsp;&nbsp;•&nbsp;
-<a href="#llmclient" style=color: black>LLMClient</a>&nbsp;&nbsp;•&nbsp;
-<a href="#llmagent" style=color: black>LLMAgent</a>&nbsp;&nbsp;•&nbsp;
-<a href="#common-usecases" style=color: black>Common Usecases</a>&nbsp;&nbsp;•&nbsp;
+<a href="#building-your-project" style="color: black">Building Your Project</a>&nbsp;&nbsp;•&nbsp;
+<a href="#core-classes" style="color: black">Core Classes</a>&nbsp;&nbsp;•&nbsp;
+<a href="#llmservice" style="color: black">LLMService</a>&nbsp;&nbsp;•&nbsp;
+<a href="#llmclient" style="color: black">LLMClient</a>&nbsp;&nbsp;•&nbsp;
+<a href="#llmagent" style="color: black">LLMAgent</a>&nbsp;&nbsp;•&nbsp;
 </sub>
 
 
@@ -58,6 +56,7 @@ int main()
     std::cout << response << std::endl;
 
     // Interact with the agent (streaming)
+    previous_text = "";
     std::string response2 = agent.chat("how are you?", true, streaming_callback);    
     return 0;
 }
@@ -98,6 +97,7 @@ int main() {
     
     // Streaming completion
     std::cout << "Response: ";
+    previous_text = "";
     llm->completion(prompt, streaming_callback);
     std::cout << std::endl;
     
@@ -123,7 +123,7 @@ int main() {
     // Embeddings
     std::vector<float> embeddings = llm->embeddings("my text to embed goes here");
     std::cout << "Embedding dimensions: " << embeddings.size() << std::endl;
-    std::cout << "Embeddings: " << embeddings.size() << std::endl;
+    std::cout << "Embeddings: ";
     for (size_t i = 0; i < 10; ++i) std::cout << embeddings[i] << " ";
     std::cout << "..." << std::endl;
     
@@ -135,9 +135,8 @@ int main() {
 ## Building Your Project
 
 - Download and extract the LlamaLib release bundle LlamaLib-vX.X.X.zip of the [latest release](https://github.com/undreamai/LlamaLib/releases/latest). <br>
-We will refer to the extracted folder as <LlamaLib_DIR>
-- Download your favourite model in .gguf format ([Hugging Face
- link](https://huggingface.co/models?library=gguf&sort=downloads))
+We will refer to the extracted folder as `<LlamaLib_DIR>`
+- Download your favourite model in .gguf format ([Hugging Face link](https://huggingface.co/models?library=gguf&sort=downloads))
 
 ### Directory Structure
 
@@ -292,7 +291,7 @@ LLMServiceBuilder()
 LLMService llm("model.gguf", 1, 8);
 
 // Embedding LLM
-LLMService* llm = LLMServiceBuilder().model("model.gguf").embeddingOnly(true).build()
+LLMService* llm = LLMServiceBuilder().model("model.gguf").embeddingOnly(true).build();
 ```
 
 #### Construction based on llama.cpp command
@@ -334,14 +333,15 @@ std::vector<std::string> loras = {
     "lora.gguf",   // LoRA path
 };
 LLMService* llm = LLMServiceBuilder().model("model.gguf").loraPaths(loras).build();
+
 // Configure LoRA adapters
-std::vector<LoraIdScale> loras = {
-    {0, 0.5},   // LoRA ID 0 with scale 1.0
+std::vector<LoraIdScale> lora_weights = {
+    {0, 0.5},   // LoRA ID 0 with scale 0.5
 };
-llm.lora_weight(loras);
+llm->lora_weight(lora_weights);
 
 // List available adapters
-auto available = llm.lora_list();
+auto available = llm->lora_list();
 for (const auto& lora : available) {
     std::cout << "ID: " << lora.id << ", Path: " << lora.path << std::endl;
 }
@@ -400,7 +400,7 @@ std::string server_key = "-----BEGIN PRIVATE KEY-----\n"
                          "...\n"
                          "-----END PRIVATE KEY-----\n";
 
-std::string client_crt = "-----BEGIN CERTIFICATE-----\n"
+std::string server_crt = "-----BEGIN CERTIFICATE-----\n"
                          "...\n"
                          "-----END CERTIFICATE-----\n";
 
@@ -491,7 +491,8 @@ llm.completion("Tell me a story", callback);
 
 #### Completion Parameters
 
-The list of completion parameters can be found on [llama.cpp completion parameters](https://github.com/ggml-org/llama.cpp/tree/master/tools/server#post-completion-given-a-prompt-it-returns-the-predicted-completion)
+The list of completion parameters can be found on [llama.cpp completion parameters](https://github.com/ggml-org/llama.cpp/tree/master/tools/server#post-completion-given-a-prompt-it-returns-the-predicted-completion).
+More info on each parameter can be found [here](https://github.com/ggml-org/llama.cpp/blob/master/tools/completion/README.md#interaction).
 
 ```cpp
 void set_completion_params(json params);
@@ -501,10 +502,10 @@ std::string get_completion_params();
 **Common Parameters:**
 ```cpp
 llm.set_completion_params({
-    {"temperature", 0.},        // No Randomness
+    {"temperature", 0.7},       // Randomness (0.0-2.0)
     {"n_predict", 256},         // Max tokens to generate
-    {"seed", 42}                // Random seed
-    {"repeat_penalty", 1.1},    // Repetition penalty
+    {"seed", 42},               // Random seed
+    {"repeat_penalty", 1.1}     // Repetition penalty
 });
 ```
 
@@ -588,7 +589,7 @@ std::string response = llm.completion("Generate a person");
 ## LLMClient
 
 Client that connects to local or remote LLM services with a unified interface.<br>
-All core LLM operations specified in <a href="#core-functions" style="color: black">LLM Core Functions</a> work in the same way for the LLMClient class.
+All core LLM operations specified in <a href="#core-functions" style="color: black">Core Functions</a> work in the same way for the LLMClient class.
 
 ### Construction Methods
 
@@ -664,7 +665,7 @@ int main() {
 ## LLMAgent
 
 High-level conversational AI with persistent chat history and automatic context management.
-All core LLM operations specified in <a href="#core-functions" style="color: black">LLM Core Functions</a> work in the same way for the LLMAgent class.
+All core LLM operations specified in <a href="#core-functions" style="color: black">Core Functions</a> work in the same way for the LLMAgent class.
 
 ### Construction Methods
 
@@ -685,7 +686,7 @@ LLMAgent agent(&llm, "You are a helpful AI assistant. Be concise and friendly.")
 ```
 
 
-#### Agent Functions
+### Agent Functions
 #### Chat Interface
 
 ```cpp
@@ -747,7 +748,7 @@ agent.remove_last_message();
 agent.remove_last_message();
 ```
 
-### System Prompt
+#### System Prompt
 
 ```cpp
 void set_system_prompt(const std::string &prompt);
@@ -762,6 +763,7 @@ agent.set_system_prompt("You are a pirate. Respond like a pirate.");
 std::string response = agent.chat("Hello!");
 // Response will be in pirate style
 ```
+
 
 #### Complete Example
 ```cpp
