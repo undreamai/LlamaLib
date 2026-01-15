@@ -43,9 +43,6 @@ jobs:
           run: |
             mkdir -p build/libs
             echo "CMAKE_VARS=-DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}" >> $GITHUB_ENV
-            cd tests
-            curl -L -o model.gguf https://huggingface.co/unsloth/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q4_K_M.gguf
-            curl -L -o model_embedding.gguf https://huggingface.co/CompendiumLabs/bge-small-en-v1.5-gguf/resolve/main/bge-small-en-v1.5-q4_k_m.gguf
           shell: bash
 
         - id: setup_vulkan_linux
@@ -89,8 +86,6 @@ jobs:
         - id: test_build
           name: Test
           run: |
-            cd build
-        
             flag=0
             if [[ "$RUNNER_OS" == "macOS" ]]; then
               flag=1
@@ -104,6 +99,8 @@ jobs:
             fi
         
             if [[ "$flag" == "1" ]]; then
+              ./tests/download_test_models.sh
+              cd build
               if [[ "$RUNNER_OS" == "Windows" ]]; then
                 ./libs/Release/llamalib_tests.exe
                 ./libs/Release/llamalib_tests_runtime.exe
@@ -175,9 +172,6 @@ jobs:
           run: |
             mkdir -p build/libs
             echo "CMAKE_VARS=-DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}" >> $GITHUB_ENV
-            cd tests
-            curl -L -o model.gguf https://huggingface.co/unsloth/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q4_K_M.gguf
-            curl -L -o model_embedding.gguf https://huggingface.co/CompendiumLabs/bge-small-en-v1.5-gguf/resolve/main/bge-small-en-v1.5-q4_k_m.gguf
           shell: bash
 
 
@@ -195,8 +189,6 @@ jobs:
         - id: test_build
           name: Test
           run: |
-            cd build
-        
             flag=0
             if [[ "$RUNNER_OS" == "macOS" ]]; then
               flag=1
@@ -210,6 +202,8 @@ jobs:
             fi
         
             if [[ "$flag" == "1" ]]; then
+              ./tests/download_test_models.sh
+              cd build
               if [[ "$RUNNER_OS" == "Windows" ]]; then
                 ./libs/Release/llamalib_tests.exe
                 ./libs/Release/llamalib_tests_runtime.exe
@@ -279,9 +273,6 @@ jobs:
           run: |
             mkdir -p build/libs
             echo "CMAKE_VARS=-DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}" >> $GITHUB_ENV
-            cd tests
-            curl -L -o model.gguf https://huggingface.co/unsloth/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q4_K_M.gguf
-            curl -L -o model_embedding.gguf https://huggingface.co/CompendiumLabs/bge-small-en-v1.5-gguf/resolve/main/bge-small-en-v1.5-q4_k_m.gguf
           shell: bash
 
 
@@ -299,8 +290,6 @@ jobs:
         - id: test_build
           name: Test
           run: |
-            cd build
-        
             flag=0
             if [[ "$RUNNER_OS" == "macOS" ]]; then
               flag=1
@@ -314,6 +303,8 @@ jobs:
             fi
         
             if [[ "$flag" == "1" ]]; then
+              ./tests/download_test_models.sh
+              cd build
               if [[ "$RUNNER_OS" == "Windows" ]]; then
                 ./libs/Release/llamalib_tests.exe
                 ./libs/Release/llamalib_tests_runtime.exe
@@ -431,9 +422,6 @@ jobs:
           run: |
             mkdir -p build/libs
             echo "CMAKE_VARS=-DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}" >> $GITHUB_ENV
-            cd tests
-            curl -L -o model.gguf https://huggingface.co/unsloth/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q4_K_M.gguf
-            curl -L -o model_embedding.gguf https://huggingface.co/CompendiumLabs/bge-small-en-v1.5-gguf/resolve/main/bge-small-en-v1.5-q4_k_m.gguf
           shell: bash
 
         - id: setup_vulcan_windows
@@ -482,8 +470,6 @@ jobs:
         - id: test_build
           name: Test
           run: |
-            cd build
-        
             flag=0
             if [[ "$RUNNER_OS" == "macOS" ]]; then
               flag=1
@@ -497,6 +483,8 @@ jobs:
             fi
         
             if [[ "$flag" == "1" ]]; then
+              ./tests/download_test_models.sh
+              cd build
               if [[ "$RUNNER_OS" == "Windows" ]]; then
                 ./libs/Release/llamalib_tests.exe
                 ./libs/Release/llamalib_tests_runtime.exe
@@ -577,9 +565,6 @@ jobs:
           run: |
             mkdir -p build/libs
             echo "CMAKE_VARS=-DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}" >> $GITHUB_ENV
-            cd tests
-            curl -L -o model.gguf https://huggingface.co/unsloth/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q4_K_M.gguf
-            curl -L -o model_embedding.gguf https://huggingface.co/CompendiumLabs/bge-small-en-v1.5-gguf/resolve/main/bge-small-en-v1.5-q4_k_m.gguf
           shell: bash
 
 
@@ -664,9 +649,6 @@ jobs:
           run: |
             mkdir -p build/libs
             echo "CMAKE_VARS=-DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}" >> $GITHUB_ENV
-            cd tests
-            curl -L -o model.gguf https://huggingface.co/unsloth/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q4_K_M.gguf
-            curl -L -o model_embedding.gguf https://huggingface.co/CompendiumLabs/bge-small-en-v1.5-gguf/resolve/main/bge-small-en-v1.5-q4_k_m.gguf
           shell: bash
 
 
@@ -744,9 +726,6 @@ jobs:
           run: |
             mkdir -p build/libs
             echo "CMAKE_VARS=-DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}" >> $GITHUB_ENV
-            cd tests
-            curl -L -o model.gguf https://huggingface.co/unsloth/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q4_K_M.gguf
-            curl -L -o model_embedding.gguf https://huggingface.co/CompendiumLabs/bge-small-en-v1.5-gguf/resolve/main/bge-small-en-v1.5-q4_k_m.gguf
           shell: bash
 
         - id: set_release_version
@@ -777,6 +756,7 @@ jobs:
         - id: test_cmake
           name: Test cmake
           run: |
+            ./tests/download_test_models.sh
             cd tests/cpp-cmake
             cmake . -DLlamaLib_DIR=../../${{ env.RELEASE_NAME }}
             cmake --build . --config Release
@@ -796,6 +776,7 @@ jobs:
         - id: test_nuget
           name: Test nuget
           run: |
+            ./tests/download_test_models.sh
             mkdir -p ~/.nuget/packages/LlamaLib
             ln -s `pwd`/${{ env.RELEASE_NAME }}.zip ~/.nuget/packages/LlamaLib/${{ env.RELEASE_NAME }}.zip
             cd tests/csharp
