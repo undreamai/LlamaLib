@@ -1,58 +1,39 @@
 #include "LlamaLib.h"
 #include <iostream>
-#include <thread>
-#include <chrono>
 
+static std::string previous_text = "";
 static void streaming_callback(const char *c)
 {
-    std::cout << c << std::flush;
+    std::string current_text(c);
+    // streaming gets the entire generated response up to now, print only the new text
+    std::cout << current_text.substr(previous_text.length()) << std::flush;
+    previous_text = current_text;
 }
 
 int main(int argc, char **argv)
 {
     std::string server_url = "http://localhost";
+    std::string PROMPT = "Hello, how are you?";
     int server_port = 13333;
 
     // Create a remote client that connects to the server
+    std::cout << "*** Using client ***" << std::endl;
     LLMClient llm_client(server_url, server_port);
-
-    std::string PROMPT = "you are an artificial intelligence assistant\n\n--- user: Hello, how are you?\n--- assistant";
-
     std::cout << "----------------------- tokenize -----------------------" << std::endl;
     std::vector<int> tokens = llm_client.tokenize(PROMPT);
     std::cout << "tokens: ";
-    for (int token : tokens)
-    {
-        std::cout << token << " ";
-    }
+    for (int token : tokens) std::cout << token << " ";
+    std::cout << std::endl << std::endl;
+
+    // Create an agent that uses the remote client
+    std::cout << "*** Using agent ***" << std::endl;
+    std::string system_prompt = "You are a helpful AI assistant. Be concise and friendly.";
+    LLMAgent agent(&llm_client, system_prompt);
+    std::cout << "----------------------- completion (streaming) using agent -----------------------" << std::endl;
+    std::cout << "User: " << PROMPT << std::endl;
+    std::cout << "Assistant: ";
+    agent.chat(PROMPT, true, static_cast<CharArrayFn>(streaming_callback));
     std::cout << std::endl;
-
-    std::cout << std::endl
-              << "----------------------- detokenize -----------------------" << std::endl;
-    std::string detokenize_response = llm_client.detokenize(tokens);
-    std::cout << "prompt: " << detokenize_response << std::endl;
-
-    std::cout << std::endl
-              << "----------------------- completion (streaming) -----------------------" << std::endl;
-    std::cout << "response: ";
-    llm_client.completion(PROMPT, static_cast<CharArrayFn>(streaming_callback));
-    std::cout << std::endl;
-
-    std::cout << std::endl
-              << "----------------------- completion (no streaming) -----------------------" << std::endl;
-    std::string completion_response = llm_client.completion(PROMPT);
-    std::cout << "response: " << completion_response << std::endl;
-
-    std::cout << std::endl
-              << "----------------------- embeddings -----------------------" << std::endl;
-    std::vector<float> embeddings = llm_client.embeddings(PROMPT);
-    std::cout << "embeddings: ";
-    size_t maxCount = std::min<size_t>(embeddings.size(), 10);
-    for (size_t i = 0; i < maxCount; ++i)
-    {
-        std::cout << embeddings[i] << " ";
-    }
-    std::cout << "..." << std::endl;
 
     return 0;
 }

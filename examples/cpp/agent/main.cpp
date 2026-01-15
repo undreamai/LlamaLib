@@ -1,22 +1,26 @@
 #include "LlamaLib.h"
 #include <iostream>
 
+static std::string previous_text = "";
 static void streaming_callback(const char *c)
 {
-    std::cout << c << std::flush;
+    std::string current_text(c);
+    // streaming gets the entire generated response up to now, print only the new text
+    std::cout << current_text.substr(previous_text.length()) << std::flush;
+    previous_text = current_text;
 }
 
 int main(int argc, char **argv)
 {
-    std::string model = "model.gguf";
-
-    // Create the underlying LLM service
-    LLMService llm_service(model);
-    llm_service.start();
+    // Create the LLM service
+    LLMService* llm_service = LLMServiceBuilder().model("model.gguf").numGPULayers(10).build();
+    // alternatively using the LLMService constructor:
+    // LLMService* llm_service = new LLMService("model.gguf", 1, -1, 10);
+    llm_service->start();
 
     // Create an agent with a system prompt
     std::string system_prompt = "You are a helpful AI assistant. Be concise and friendly.";
-    LLMAgent agent(&llm_service, system_prompt, "user", "assistant");
+    LLMAgent agent(llm_service, system_prompt);
 
     // First conversation turn
     std::cout << "----------------------- First Turn -----------------------" << std::endl;
@@ -27,11 +31,11 @@ int main(int argc, char **argv)
     std::cout << std::endl;
 
     // Second conversation turn (maintains context)
-    std::cout << std::endl
-              << "----------------------- Second Turn -----------------------" << std::endl;
+    std::cout << std::endl << "----------------------- Second Turn -----------------------" << std::endl;
     std::string user_message2 = "How are you today?";
     std::cout << "User: " << user_message2 << std::endl;
     std::cout << "Assistant: ";
+    previous_text = "";
     std::string response2 = agent.chat(user_message2, true, static_cast<CharArrayFn>(streaming_callback));
     std::cout << std::endl;
 
@@ -65,6 +69,8 @@ int main(int argc, char **argv)
     agent.add_user_message("This is a manually added user message");
     agent.add_assistant_message("This is a manually added assistant response");
     std::cout << "Added manual messages. New history size: " << agent.get_history_size() << std::endl;
+
+    delete llm_service;
 
     return 0;
 }
