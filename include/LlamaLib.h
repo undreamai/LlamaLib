@@ -13,3 +13,4 @@
 #else
 #include "LLM_service.h" ///< LLM service implementation
 #endif
+#include "LLM_service_builder.h" ///< LLM service builder implementation
