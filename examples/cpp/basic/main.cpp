@@ -19,7 +19,8 @@ int main(int argc, char **argv)
     // alternatively using the LLMService constructor:
     // LLMService* llm_service = new LLMService("model.gguf", 1, -1, 10);
     llm_service->start();
-    // limit the amount of tokens that we can predict so that it doesn't produce text forever (some models do)
+
+    // Optional: limit the amount of tokens that we can predict so that it doesn't produce text forever (some models do)
     llm_service->set_completion_params({{"n_predict", 20}});
 
     std::cout << "----------------------- tokenize -----------------------" << std::endl;
