@@ -2,11 +2,12 @@
 
 int main(int argc, char **argv)
 {
-    std::string model = "model.gguf";
     int server_port = 13333;
 
-    std::cout << "Starting LLM server..." << std::endl;
-    LLMService *llm_server = new LLMService(model);
+    // create LLM
+    LLMService* llm_server = LLMServiceBuilder().model("model.gguf").numGPULayers(10).build();
+    // alternatively using the LLMService constructor:
+    // LLMService* llm_server = new LLMService("model.gguf", 1, -1, 10);
 
     // show debug messages
     llm_server->debug(1);
