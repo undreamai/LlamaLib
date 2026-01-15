@@ -249,9 +249,10 @@ LlamaLib provides three main classes:
 
 ## LLMService
 
-The main class for running LLMs locally with full control.
+The class handling the LLM functionality.
 
-### Construction
+### Construction functions
+#### Construction
 
 ```cpp
 // Basic construction
@@ -269,26 +270,36 @@ LLMService(
     bool embedding_only = false,    // Embedding-only mode
     const std::vector<std::string> &lora_paths = {}  // LoRA adapters
 );
+
+// using a builder (returns LLMService*)
+LLMServiceBuilder()
+    .model(const std::string& path)
+    .numSlots(int val)
+    .numThreads(int val)
+    .numGPULayers(int val)
+    .flashAttention(bool val)
+    .contextSize(int val)
+    .batchSize(int val)
+    .embeddingOnly(bool val)
+    .loraPaths(const std::vector<std::string>& paths)
+    .build()
 ```
 
-**Example:**
+**Examples:**
+
 ```cpp
-// CPU-only with 8 threads
+// CPU-only LLM with 8 threads
 LLMService llm("model.gguf", 1, 8);
 
-// GPU-accelerated with 32 layers on GPU
-LLMService llm("model.gguf", 1, -1, 32);
-
-// Large context window
-LLMService llm("model.gguf", 1, -1, 0, false, 8192);
+// Embedding LLM
+LLMService* llm = LLMServiceBuilder().model("model.gguf").embeddingOnly(true).build()
 ```
 
-### Factory Methods
+#### Construction based on llama.cpp command
 
 ```cpp
 // From command line string
 static LLMService* from_command(const std::string &command);
-static LLMService* from_command(int argc, char **argv);
 
 // From JSON parameters
 static LLMService* from_params(const json &params_json);
@@ -296,7 +307,7 @@ static LLMService* from_params(const json &params_json);
 
 **Example:**
 ```cpp
-// Command line style
+// Command line style using a respective llama.cpp command
 LLMService* llm = LLMService::from_command(
     "-m model.gguf -ngl 32 -c 4096"
 );
@@ -310,13 +321,40 @@ json params = {
 LLMService* llm = LLMService::from_params(params);
 ```
 
-### Service Lifecycle
+#### LoRA Adapters
 
 ```cpp
-void start();                    // Start the LLM service
-bool started();                  // Check if running
-void stop();                     // Stop the service
-void join_service();            // Wait for completion
+bool lora_weight(const std::vector<LoraIdScale> &loras);
+std::vector<LoraIdScalePath> lora_list();
+```
+
+**Example:**
+```cpp
+std::vector<std::string> loras = {
+    "lora.gguf",   // LoRA path
+};
+LLMService* llm = LLMServiceBuilder().model("model.gguf").loraPaths(loras).build();
+// Configure LoRA adapters
+std::vector<LoraIdScale> loras = {
+    {0, 0.5},   // LoRA ID 0 with scale 1.0
+};
+llm.lora_weight(loras);
+
+// List available adapters
+auto available = llm.lora_list();
+for (const auto& lora : available) {
+    std::cout << "ID: " << lora.id << ", Path: " << lora.path << std::endl;
+}
+```
+
+### Service functions
+#### Service Lifecycle
+
+```cpp
+void start();                // Start the LLM service
+bool started();              // Check if running
+void stop();                 // Stop the service
+void join_service();         // Wait until the LLM service is terminated
 ```
 
 **Example:**
@@ -333,173 +371,17 @@ llm.stop();
 llm.join_service();  // Wait for clean shutdown
 ```
 
-### Text Generation
+#### HTTP Server
 
 ```cpp
-// Simple completion
-std::string completion(
-    const std::string &prompt,
-    CharArrayFn callback = nullptr,      // Streaming callback
-    int id_slot = -1,                    // Slot ID (-1 = auto)
-    bool return_response_json = false    // Return full JSON
-);
-
-// JSON-based completion
-std::string completion_json(
-    const json &data,
-    CharArrayFn callback = nullptr,
-    bool callbackWithJSON = true
-);
-```
-
-**Example:**
-```cpp
-// Basic completion
-std::string response = llm.completion("What is AI?");
-
-// Streaming completion
-auto callback = [](const char* chunk) {
-    std::cout << chunk << std::flush;
-};
-llm.completion("Tell me a story", callback);
-
-// With custom parameters
-json params = {
-    {"prompt", "Hello"},
-    {"temperature", 0.8},
-    {"max_tokens", 100}
-};
-std::string response = llm.completion_json(params);
-```
-
-### Completion Parameters
-
-```cpp
-void set_completion_params(json params);
-std::string get_completion_params();
-```
-
-**Common Parameters:**
-```cpp
-llm.set_completion_params({
-    {"temperature", 0.7},        // Randomness (0.0-2.0)
-    {"top_p", 0.9},             // Nucleus sampling
-    {"top_k", 40},              // Top-k sampling
-    {"n_predict", 256},         // Max tokens to generate
-    {"repeat_penalty", 1.1},    // Repetition penalty
-    {"seed", 42}                // Random seed
-});
-```
-
-### Tokenization
-
-```cpp
-std::vector<int> tokenize(const std::string &query);
-std::string detokenize(const std::vector<int32_t> &tokens);
-```
-
-**Example:**
-```cpp
-// Text to tokens
-std::vector<int> tokens = llm.tokenize("Hello world");
-std::cout << "Token count: " << tokens.size() << std::endl;
-
-// Tokens to text
-std::string text = llm.detokenize(tokens);
-```
-
-### Embeddings
-
-```cpp
-std::vector<float> embeddings(const std::string &query);
-int embedding_size();
-```
-
-**Example:**
-```cpp
-// Generate embeddings
-std::vector<float> vec = llm.embeddings("Sample text");
-std::cout << "Embedding dimensions: " << llm.embedding_size() << std::endl;
-
-// Use for similarity comparison
-std::vector<float> vec1 = llm.embeddings("cat");
-std::vector<float> vec2 = llm.embeddings("dog");
-```
-
-### Chat Templates
-
-```cpp
-std::string apply_template(const json &messages);
-```
-
-**Example:**
-```cpp
-json messages = json::array({
-    {{"role", "system"}, {"content", "You are a helpful assistant"}},
-    {{"role", "user"}, {"content", "Hello!"}}
-});
-
-std::string formatted = llm.apply_template(messages);
-std::string response = llm.completion(formatted);
-```
-
-### Grammar & Constrained Generation
-
-```cpp
-void set_grammar(std::string grammar);
-std::string get_grammar();
-```
-
-**Example:**
-```cpp
-// JSON schema constraint
-llm.set_grammar(R"({
-    "type": "object",
-    "properties": {
-        "name": {"type": "string"},
-        "age": {"type": "number"}
-    }
-})");
-
-std::string response = llm.completion("Generate a person");
-// Response will be valid JSON matching the schema
-```
-
-### Slot Management
-
-```cpp
-int get_next_available_slot();
-std::string save_slot(int id_slot, const std::string &filepath);
-std::string load_slot(int id_slot, const std::string &filepath);
-void cancel(int id_slot);
-```
-
-**Example:**
-```cpp
-// Get available slot
-int slot = llm.get_next_available_slot();
-
-// Generate with specific slot
-llm.completion("Hello", nullptr, slot);
-
-// Save conversation state
-llm.save_slot(slot, "conversation.state");
-
-// Later, restore state
-llm.load_slot(slot, "conversation.state");
-```
-
-### HTTP Server
-
-```cpp
-void start_server(
-    const std::string &host = "0.0.0.0",
-    int port = -1,                    // -1 = auto-select
-    const std::string &API_key = ""
-);
-void stop_server();
-void join_server();
-void set_SSL(const std::string &cert, const std::string &key);
+void start_server(                        // Start remote server
+    const std::string &host = "0.0.0.0",    // Server IP
+    int port = -1,                          // Server port (-1 = auto-select)
+    const std::string &API_key = ""         // key for accessing the services
+);                                
+void stop_server();                       // Stop remote server
+void join_server();                       // Wait until the remote server is terminated
+void set_SSL(const std::string &cert, const std::string &key);  // Set a SSL certificate and private key
 ```
 
 **Example:**
@@ -514,43 +396,52 @@ llm.start_server("0.0.0.0", 8080);
 llm.start_server("0.0.0.0", 8080, "my-secret-key");
 
 // With SSL
-llm.set_SSL("cert.pem", "key.pem");
+std::string server_key = "-----BEGIN PRIVATE KEY-----\n"
+                         "...\n"
+                         "-----END PRIVATE KEY-----\n";
+
+std::string client_crt = "-----BEGIN CERTIFICATE-----\n"
+                         "...\n"
+                         "-----END CERTIFICATE-----\n";
+
+llm.set_SSL(server_crt.c_str(), server_key.c_str());
 llm.start_server("0.0.0.0", 8443);
 
-// Keep running
+llm.stop_server();
 llm.join_server();
 ```
 
-### LoRA Adapters
+#### Slot Management
 
 ```cpp
-bool lora_weight(const std::vector<LoraIdScale> &loras);
-std::vector<LoraIdScalePath> lora_list();
+std::string save_slot(int id_slot, const std::string &filepath);
+std::string load_slot(int id_slot, const std::string &filepath);
+void cancel(int id_slot);
 ```
 
 **Example:**
 ```cpp
-// Configure LoRA adapters
-std::vector<LoraIdScale> loras = {
-    {0, 1.0},   // LoRA ID 0 with scale 1.0
-    {1, 0.5}    // LoRA ID 1 with scale 0.5
-};
-llm.lora_weight(loras);
+// LLM with 2 parallel slots
+LLMService llm("model.gguf", 2);
+llm.start();
 
-// List available adapters
-auto available = llm.lora_list();
-for (const auto& lora : available) {
-    std::cout << "ID: " << lora.id 
-              << ", Path: " << lora.path << std::endl;
-}
+// Generate with specific slot
+int slot = 0;
+llm.completion("Hello", nullptr, slot);
+// Cancel completion for the slot
+llm.cancel(slot);
+// Save conversation state
+llm.save_slot(slot, "conversation.state");
+// Restore conversation state
+llm.load_slot(slot, "conversation.state");
 ```
 
-### Debugging
+#### Debugging
 
 ```cpp
-void debug(int debug_level);
-void logging_callback(CharArrayFn callback);
-void logging_stop();
+void debug(int debug_level);                  // set debug level
+void logging_callback(CharArrayFn callback);  // set logging callback function
+void logging_stop();                          // stop logging callbacks
 ```
 
 **Debug Levels:**
@@ -573,13 +464,133 @@ llm.logging_callback(log_handler);
 llm.logging_stop();
 ```
 
+### Core functions
+#### Text Generation
+
+```cpp
+// Simple completion
+std::string completion(
+    const std::string &prompt,
+    CharArrayFn callback = nullptr,      // Streaming callback: void function_name(const char *c)
+    int id_slot = -1,                    // Slot to assign the completion (-1 = auto)
+    bool return_response_json = false    // Return full JSON
+);
+```
+
+**Example:**
+```cpp
+// Basic completion
+std::string response = llm.completion("What is AI?");
+
+// Streaming completion
+auto callback = [](const char* chunk) {
+    std::cout << chunk << std::flush;
+};
+llm.completion("Tell me a story", callback);
+```
+
+#### Completion Parameters
+
+The list of completion parameters can be found on [llama.cpp completion parameters](https://github.com/ggml-org/llama.cpp/tree/master/tools/server#post-completion-given-a-prompt-it-returns-the-predicted-completion)
+
+```cpp
+void set_completion_params(json params);
+std::string get_completion_params();
+```
+
+**Common Parameters:**
+```cpp
+llm.set_completion_params({
+    {"temperature", 0.},        // No Randomness
+    {"n_predict", 256},         // Max tokens to generate
+    {"seed", 42}                // Random seed
+    {"repeat_penalty", 1.1},    // Repetition penalty
+});
+```
+
+#### Tokenization
+
+```cpp
+std::vector<int> tokenize(const std::string &query);
+std::string detokenize(const std::vector<int32_t> &tokens);
+```
+
+**Example:**
+```cpp
+// Text to tokens
+std::vector<int> tokens = llm.tokenize("Hello world");
+std::cout << "Token count: " << tokens.size() << std::endl;
+
+// Tokens to text
+std::string text = llm.detokenize(tokens);
+```
+
+#### Embeddings
+The embeddings require to set the embedding_only flag during construction.<br>
+For well-defined embeddings you should use a model specifically trained for embeddings (good options can be found at the [MTEB leaderboard](https://huggingface.co/spaces/mteb/leaderboard)).
+
+```cpp
+std::vector<float> embeddings(const std::string &query);
+int embedding_size();
+```
+
+**Example:**
+```cpp
+// Generate embeddings
+std::vector<float> vec = llm.embeddings("Sample text");
+std::cout << "Embedding dimensions: " << llm.embedding_size() << std::endl;
+```
+
+#### Chat Templates
+
+```cpp
+std::string apply_template(const json &messages);
+```
+
+**Example:**
+```cpp
+json messages = json::array({
+    {{"role", "system"}, {"content", "You are a helpful assistant"}},
+    {{"role", "user"}, {"content", "Hello!"}}
+});
+
+std::string formatted = llm.apply_template(messages);
+std::string response = llm.completion(formatted);
+```
+
+#### Grammar & Constrained Generation
+
+To restrict the output of the LLM you can use a grammar, read more [here](https://github.com/ggerganov/llama.cpp/tree/master/grammars).<br>
+Grammars in both gbnf and json schema format are supported.
+
+```cpp
+void set_grammar(std::string grammar);
+std::string get_grammar();
+```
+
+**Example:**
+```cpp
+// JSON schema constraint
+llm.set_grammar(R"({
+    "type": "object",
+    "properties": {
+        "name": {"type": "string"},
+        "age": {"type": "number"}
+    }
+})");
+
+std::string response = llm.completion("Generate a person");
+// Response will be valid JSON matching the schema
+```
+
 ---
 
 ## LLMClient
 
-Connect to local or remote LLM services with a unified interface. All core LLM operations work identically for both connection types.
+Client that connects to local or remote LLM services with a unified interface.<br>
+All core LLM operations specified in <a href="#core-functions" style="color: black">LLM Core Functions</a> work in the same way for the LLMClient class.
 
-### Construction
+### Construction Methods
 
 ```cpp
 // Local client (wraps LLMService)
@@ -594,21 +605,15 @@ LLMClient(
 );
 ```
 
-### Local Client Example
+#### Local Client Example
 
 ```cpp
 #include "LlamaLib.h"
 #include <iostream>
 
-static void streaming_callback(const char *c) {
-    std::cout << c << std::flush;
-}
-
 int main() {
-    std::string model = "model.gguf";
-    
-    // Create service
-    LLMService llm_service(model);
+    // Create LLM
+    LLMService llm_service("model.gguf");
     llm_service.start();
     
     // Wrap with client interface
@@ -619,26 +624,18 @@ int main() {
     
     std::vector<int> tokens = client.tokenize(prompt);
     std::string text = client.detokenize(tokens);
-    
-    std::cout << "Response: ";
-    client.completion(prompt, streaming_callback);
-    std::cout << std::endl;
-    
+    std::string response = client.completion(prompt);
     std::vector<float> embeddings = client.embeddings(prompt);
     
     return 0;
 }
 ```
 
-### Remote Client Example
+#### Remote Client Example
 
 ```cpp
 #include "LlamaLib.h"
 #include <iostream>
-
-static void streaming_callback(const char *c) {
-    std::cout << c << std::flush;
-}
 
 int main() {
     // Connect to remote server
@@ -655,42 +652,8 @@ int main() {
     // All operations work the same as local
     std::vector<int> tokens = client.tokenize(prompt);
     std::string text = client.detokenize(tokens);
-    
-    std::cout << "Response: ";
-    client.completion(prompt, streaming_callback);
-    std::cout << std::endl;
-    
+    std::string response = client.completion(prompt);
     std::vector<float> embeddings = client.embeddings(prompt);
-    
-    return 0;
-}
-```
-
-### Server Setup
-
-```cpp
-#include "LlamaLib.h"
-#include <iostream>
-
-int main() {
-    std::string model = "model.gguf";
-    int server_port = 13333;
-    
-    std::cout << "Starting LLM server..." << std::endl;
-    
-    LLMService server(model);
-    
-    // Optional: enable debug messages
-    server.debug(1);
-    
-    // Start service and HTTP server
-    server.start();
-    server.start_server("0.0.0.0", server_port);
-    
-    std::cout << "Server listening on port " << server_port << std::endl;
-    
-    // Keep server running
-    server.join_server();
     
     return 0;
 }
@@ -701,8 +664,9 @@ int main() {
 ## LLMAgent
 
 High-level conversational AI with persistent chat history and automatic context management.
+All core LLM operations specified in <a href="#core-functions" style="color: black">LLM Core Functions</a> work in the same way for the LLMAgent class.
 
-### Construction
+### Construction Methods
 
 ```cpp
 LLMAgent(
@@ -720,64 +684,21 @@ llm.start();
 LLMAgent agent(&llm, "You are a helpful AI assistant. Be concise and friendly.");
 ```
 
-### Chat Interface
+
+#### Agent Functions
+#### Chat Interface
 
 ```cpp
 std::string chat(
-    const std::string &user_prompt,
-    bool add_to_history = true,
-    CharArrayFn callback = nullptr,
-    bool return_response_json = false,
-    bool debug_prompt = false
+    const std::string &user_prompt,     // user prompt
+    bool add_to_history = true,         // whether to add the user and assistant response to conversation history
+    CharArrayFn callback = nullptr,     // streaming callback function
+    bool return_response_json = false,  // return output in json format
+    bool debug_prompt = false           // debug the complete prompt after applying the chat template to the conversation history
 );
 ```
 
-**Complete Example:**
-```cpp
-#include "LlamaLib.h"
-#include <iostream>
-
-static void streaming_callback(const char *c) {
-    std::cout << c << std::flush;
-}
-
-int main() {
-    std::string model = "model.gguf";
-    
-    // Create service and agent
-    LLMService llm(model);
-    llm.start();
-    
-    LLMAgent agent(&llm, "You are a helpful AI assistant. Be concise and friendly.");
-    
-    // First conversation turn
-    std::cout << "User: Hello! What's your name?" << std::endl;
-    std::cout << "Assistant: ";
-    std::string response1 = agent.chat(
-        "Hello! What's your name?", 
-        true,  // add to history
-        streaming_callback
-    );
-    std::cout << std::endl;
-    
-    // Second turn (maintains context automatically)
-    std::cout << "User: How are you today?" << std::endl;
-    std::cout << "Assistant: ";
-    std::string response2 = agent.chat(
-        "How are you today?",
-        true,
-        streaming_callback
-    );
-    std::cout << std::endl;
-    
-    // Show conversation history
-    std::cout << "History size: " << agent.get_history_size() << " messages" << std::endl;
-    
-    return 0;
-}
-```
-
-### History Management
+#### History Management
 
 ```cpp
 // Get/set history
@@ -818,8 +739,8 @@ agent.load_history("conversation.json");
 std::cout << "Loaded. Size: " << agent.get_history_size() << std::endl;
 
 // Add messages manually
-agent.add_user_message("This is a manually added message");
-agent.add_assistant_message("This is the response");
+agent.add_user_message("This is a user message");
+agent.add_assistant_message("This is the assistant response");
 
 // Remove last exchange
 agent.remove_last_message();
@@ -842,192 +763,50 @@ std::string response = agent.chat("Hello!");
 // Response will be in pirate style
 ```
 
-### Slot Management
-
-```cpp
-int get_slot();
-void set_slot(int id_slot);
-std::string save_slot(const std::string &filepath);
-std::string load_slot(const std::string &filepath);
-void cancel();
-```
-
-**Example:**
-```cpp
-// Assign specific slot
-agent.set_slot(0);
-
-// Save agent state
-agent.save_slot("agent_state.bin");
-
-// Restore state
-agent.load_slot("agent_state.bin");
-
-// Cancel ongoing generation
-agent.cancel();
-```
-
----
-
-## Common Usecases
-
-### Pattern 1: Interactive Chatbot
-
+#### Complete Example
 ```cpp
 #include "LlamaLib.h"
 #include <iostream>
-#include <string>
 
-static void streaming_callback(const char *c) {
-    std::cout << c << std::flush;
+static std::string previous_text = "";
+static void streaming_callback(const char *c)
+{
+    std::string current_text(c);
+    // streaming gets the entire generated response up to now, print only the new text
+    std::cout << current_text.substr(previous_text.length()) << std::flush;
+    previous_text = current_text;
 }
 
 int main() {
+    // Create service and agent
     LLMService llm("model.gguf");
     llm.start();
     
-    LLMAgent agent(&llm, "You are a helpful assistant.");
+    LLMAgent agent(&llm, "You are a helpful AI assistant. Be concise and friendly.");
     
-    std::string input;
-    std::cout << "Chat with the AI (type 'quit' to exit)\n" << std::endl;
-    
-    while (true) {
-        std::cout << "You: ";
-        std::getline(std::cin, input);
-        
-        if (input == "quit") break;
-        if (input.empty()) continue;
-        
-        std::cout << "AI: ";
-        agent.chat(input, true, streaming_callback);
-        std::cout << "\n" << std::endl;
-    }
-    
-    return 0;
-}
-```
-
-### Pattern 2: Client-Server Architecture
-
-**Server (server.cpp):**
-```cpp
-#include "LlamaLib.h"
-#include <iostream>
-
-int main() {
-    std::string model = "model.gguf";
-    int port = 13333;
-    
-    std::cout << "Starting server on port " << port << std::endl;
-    
-    LLMService server(model);
-    server.debug(1);  // Show server logs
-    server.start();
-    server.start_server("0.0.0.0", port);
-    
-    server.join_server();  // Keep running
-    return 0;
-}
-```
-
-**Client (client.cpp):**
-```cpp
-#include "LlamaLib.h"
-#include <iostream>
-
-int main() {
-    LLMClient client("http://localhost", 13333);
-    
-    if (!client.is_server_alive()) {
-        std::cerr << "Cannot connect to server!" << std::endl;
-        return 1;
-    }
-    
-    std::string response = client.completion("Hello, server!");
-    std::cout << response << std::endl;
-    
-    return 0;
-}
-```
-
-### Pattern 3: GPU-Accelerated Processing
-
-```cpp
-#include "LlamaLib.h"
-#include <iostream>
-
-int main() {
-    // Offload 32 layers to GPU for faster inference
-    LLMService llm("model.gguf", 
-        1,      // num_slots
-        -1,     // num_threads (auto)
-        32      // num_GPU_layers
+    // First conversation turn
+    std::cout << "User: Hello! What's your name?" << std::endl;
+    std::cout << "Assistant: ";
+    std::string response1 = agent.chat(
+        "Hello! What's your name?", 
+        true,  // add to history
+        streaming_callback
     );
-    llm.start();
+    std::cout << std::endl;
     
-    std::string response = llm.completion("Explain quantum computing");
-    std::cout << response << std::endl;
+    // Second turn (maintains context automatically)
+    previous_text = "";
+    std::cout << "User: How are you today?" << std::endl;
+    std::cout << "Assistant: ";
+    std::string response2 = agent.chat(
+        "How are you today?",
+        true,
+        streaming_callback
+    );
+    std::cout << std::endl;
     
-    return 0;
-}
-```
-
-### Pattern 4: Structured JSON Output
-
-```cpp
-#include "LlamaLib.h"
-#include <iostream>
-
-int main() {
-    LLMService llm("model.gguf");
-    llm.start();
-    
-    // Force JSON output with schema
-    llm.set_grammar(R"({
-        "type": "object",
-        "properties": {
-            "name": {"type": "string"},
-            "age": {"type": "number"},
-            "email": {"type": "string"}
-        },
-        "required": ["name", "age", "email"]
-    })");
-    
-    std::string response = llm.completion("Generate a person profile");
-    std::cout << response << std::endl;
-    // Output will be valid JSON matching schema
-    
-    return 0;
-}
-```
-
-### Pattern 5: Embeddings for Similarity
-
-```cpp
-#include "LlamaLib.h"
-#include <iostream>
-#include <cmath>
-
-float cosine_similarity(const std::vector<float>& a, const std::vector<float>& b) {
-    float dot = 0.0f, norm_a = 0.0f, norm_b = 0.0f;
-    for (size_t i = 0; i < a.size(); i++) {
-        dot += a[i] * b[i];
-        norm_a += a[i] * a[i];
-        norm_b += b[i] * b[i];
-    }
-    return dot / (std::sqrt(norm_a) * std::sqrt(norm_b));
-}
-
-int main() {
-    LLMService llm("model.gguf");
-    llm.start();
-    
-    std::vector<float> vec1 = llm.embeddings("dog");
-    std::vector<float> vec2 = llm.embeddings("puppy");
-    std::vector<float> vec3 = llm.embeddings("car");
-    
-    std::cout << "dog vs puppy: " << cosine_similarity(vec1, vec2) << std::endl;
-    std::cout << "dog vs car: " << cosine_similarity(vec1, vec3) << std::endl;
+    // Show conversation history
+    std::cout << "History size: " << agent.get_history_size() << " messages" << std::endl;
     
     return 0;
 }
