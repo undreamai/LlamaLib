@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net8.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net8.0;netstandard2.0;net8.0-ios;net8.0-visionos;net8.0-android</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Platforms>AnyCPU;x64;ARM64</Platforms>
@@ -9,7 +9,7 @@
 
     <!-- NuGet Package Metadata -->
     <PackageId>LlamaLib</PackageId>
-    <PackageVersion>2.0.0</PackageVersion>
+    <PackageVersion>2.0.1</PackageVersion>
     <Authors>Antonis Maropoulos</Authors>
     <Company>UndreamAI</Company>
     <Description>LlamaLib - Cross-platform library for local LLMs</Description>
@@ -27,6 +27,7 @@
     <!-- Detect from target framework -->
     <DefineConstants Condition="$(TargetFramework.Contains('ios'))">$(DefineConstants);IOS</DefineConstants>
     <DefineConstants Condition="$(TargetFramework.Contains('visionos'))">$(DefineConstants);VISIONOS</DefineConstants>
+    <DefineConstants Condition="$(TargetFramework.Contains('android'))">$(DefineConstants);ANDROID</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'android-arm64'">
