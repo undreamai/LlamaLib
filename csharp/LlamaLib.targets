@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <LlamaLibVersion>2.0.0</LlamaLibVersion>
+    <LlamaLibVersion>2.0.1</LlamaLibVersion>
     <LlamaLibCacheDir>$(NuGetPackageRoot)LlamaLib</LlamaLibCacheDir>
     <LlamaLibRuntimeDir>$(OutputPath)runtimes\$(RuntimeIdentifier)\native</LlamaLibRuntimeDir>
     <LlamaLibZipName>LlamaLib-v$(LlamaLibVersion)</LlamaLibZipName>
