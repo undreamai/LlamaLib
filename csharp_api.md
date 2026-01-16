@@ -1,93 +1,24 @@
-# LlamaLib C# API Guide
+# LlamaLib C# Guide
 
-Complete reference for using LlamaLib in your C# and .NET applications.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<a href="https://discord.gg/RwXKQb6zdv"><img src="https://discordapp.com/api/guilds/1194779009284841552/widget.png?style=shield"/></a>
+[![Reddit](https://img.shields.io/badge/Reddit-%23FF4500.svg?style=flat&logo=Reddit&logoColor=white)](https://www.reddit.com/user/UndreamAI)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=flat&logo=linkedin&labelColor=blue)](https://www.linkedin.com/company/undreamai)
+[![GitHub Repo stars](https://img.shields.io/github/stars/undreamai/LlamaLib?style=flat&logo=github&color=f5f5f5)](https://github.com/undreamai/LlamaLib)
+[![Documentation](https://img.shields.io/badge/Docs-white.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwEAYAAAAHkiXEAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAATqSURBVHic7ZtbiE1RGMc349K4M5EwklwjzUhJCMmTJPJAYjQXJJcH8+Blkry4lPJA8aAoJbekDLmUS6E8SHJL5AW5JPf77eHv93C22Wfttc/ee+0zc/4vv+bMXvusvfZa3/q+b33H80oqqaSSSmqrKnPdgXjUvbvYq5f4+7f486eb/rRajRsn7t4tPngg/vol/vkj/vghXr0q7tghzpyZ//79+on79omXLombNondukXrd9GoSxdx8mSxqUm8eVNkgAvl0aPioEFip07i6dP52z15Ig4fbvVY2VVFhbhokXjrlogJiWvAg/jwoXjqVO73+leUny9eiFVV5mfMlLDRBw+KX76ISQ+0LZ8/F00v4uJFsWPHFh83O+rdWzx3TnQ9wCZ+/Sqyl5iux1RmTu3aiYcPi64H1pasALypoOv4/8SJXraEbXc9kLbECxo2TKyuFj9/zt9u+XIvG8LWv3wpuh5QW86f3/JznT+fv93s2S23C1Z72wbhtH372LdvMvdPSgzkhAkiJhT16ZO/PRPOmcr+Rda4aa5nclTeuZP7PDgRpr1g40bPrQYOFF0PYKHEC+raVVy8OFy7R49EArvURU4mrUAqaTY0iB8/2rXD+XCm5mbR9QAWylevorV7/VpkL0ld06eLpkiyWPj9u93179+LpFZwZ1PXtGnitWui64GMStPmG7SH1NSIJBNHjvTSFZvRvHlise0N9JcBtW1/44Y4dqx45IjnU0JxAGLpklPx+9VZFwPp/9v/eZDGjxcZh7dv4+mXtch+up7Rca+MsJvxiRNi6nvBhg25HWprZMaPGeOlqxEjxGKz+XGRTAAmyJnq6sR370TXA2NLW+8HNjZ62dLOnaLrAQ1r2zmqPH482n0mTfJCKmEvCJHUooNZE/369Ulct06kqiKsONRfulTEFDsX8QDlIa5nup9374pE8IiZHPY+ly+LZE/37/cM6mC6IB6Vl4urV6fzfUG6d0/csyf37wsXRFInaM4ckTjGdPg+apTYs6dIXRIWwH//1DV1qkiuxNY2FzrTd+2y6y8z2HQU6efZs+KBAyJZ4v+V0h6ArlwROaQP0uPH4ooV4sqV8Xz/4MF211M2wwoOq1mzRAq5Pnywa5+4KDHE9mI7ly0TO3fOvZ6/eZCoKwB32HS0SMFV1DNtImBKHYstBROoQ4fEQk2RaS+qrxejmj5M7NatIhWARS82xUJfAKahzFcdPnq0GLYgy7Rnbd8e6rGKRyzpuNzPBQty709RcNSZf/KkuHCh2GpMDyKbGNcLYE+YMkVks336NFx7XhTZ3szXiBaqtWvFuAOxM2dEZiyH8UErgc8JLNun7E0aFffSI7RP6owZmz9kSO73HjsmXr8ukppYsybSYyQvBp5QfOjQ3M9tRR496pGgLf1JtLlzRZJzlFzGp4SWDnUxFCrdvy+uWiWa3DJe3N69oj8uSEq8CER88uaNOGBAOv2ILGY69TBBJoM8O0t72zaRoztXBzlLlrT8XARW/IQq82JTMv3mKmv0/9CC4mJMYPwrMSETxAyurRUxQVmXP1fEid7mzeK3b+n2Jzb16CFu2SIWmtNJiriVxANsyq0uoCJfTk4G9y4t24/bSQ0rTkP6gVTG3mz//uKMGSK/ucId5Xe9lZUi5eMMLGUgz56J5Hxu3xZ50Xg3RMIltVn9BRja26PYsBHgAAAAAElFTkSuQmCC)](https://undream.ai/LlamaLib)
 
-## Table of Contents
-
-- [Getting Started](#getting-started)
-- [Quick Start](#quick-start)
-- [Core Classes](#core-classes)
-- [LLMService](#llmservice)
-- [LLMClient](#llmclient)
-- [LLMAgent](#llmagent)
-- [Common Patterns](#common-patterns)
-- [Advanced Features](#advanced-features)
-
----
-
-## Getting Started
-
-### Project Setup
-
-LlamaLib for C# requires .NET and the Newtonsoft.Json package:
-
-**Using .NET CLI:**
-```bash
-# Create a new console application
-dotnet new console -n MyLLMApp
-cd MyLLMApp
-
-# Add required package
-dotnet add package Newtonsoft.Json
-
-# Add LlamaLib reference
-# Copy LlamaLib.dll and llamalib.dll to your project directory
-```
-
-**Project Structure:**
-```
-MyLLMApp/
-├── MyLLMApp.csproj
-├── Program.cs
-├── LlamaLib.dll          # C# wrapper
-├── llamalib.dll          # Native library
-└── model.gguf            # Your LLM model file
-```
-
-**MyLLMApp.csproj:**
-```xml
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="LlamaLib">
-      <HintPath>LlamaLib.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="llamalib.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="model.gguf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-</Project>
-```
-
-### Required Namespaces
-
-```csharp
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using UndreamAI.LlamaLib;
-using Newtonsoft.Json.Linq;
-```
-
----
+<sub>
+<a href="#quick-start" style="color: black">Quick Start</a>&nbsp;&nbsp;•&nbsp;
+<a href="#building-your-project" style="color: black">Building Your Project</a>&nbsp;&nbsp;•&nbsp;
+<a href="#core-classes" style="color: black">Core Classes</a>&nbsp;&nbsp;•&nbsp;
+<a href="#llmservice" style="color: black">LLMService</a>&nbsp;&nbsp;•&nbsp;
+<a href="#llmclient" style="color: black">LLMClient</a>&nbsp;&nbsp;•&nbsp;
+<a href="#llmagent" style="color: black">LLMAgent</a>&nbsp;&nbsp;•&nbsp;
+</sub>
 
 ## Quick Start
 
-### Minimal Example
+### Minimal Agent Example
 
 ```csharp
 using System;
@@ -95,64 +26,193 @@ using UndreamAI.LlamaLib;
 
 class Program
 {
+    static string previousText = "";
+    static void StreamingCallback(string text)
+    {
+        Console.Write(text.Substring(previousText.Length));
+        previousText = text;
+    }
+
     static void Main()
     {
-        // Create and start LLM service
-        using var llm = new LLMService("model.gguf");
-        llm.Start();
-        
-        // Generate text
-        string response = llm.Completion("Hello, how are you?");
+        // Create the LLM
+        LLMService llmService = new LLMService("model.gguf");
+        llmService.Start();
+
+        // Create an agent with a system prompt
+        LLMAgent agent = new LLMAgent(llmService, "You are a helpful AI assistant named Eve. Be concise and friendly.");
+
+        // Interact with the agent (non-streaming)
+        string response = agent.Chat("what is your name?");
         Console.WriteLine(response);
+
+        // Interact with the agent (streaming)
+        agent.Chat("how are you?", true, StreamingCallback);
     }
 }
 ```
 
-### Complete Basic Example
+### Minimal LLM Functions Example
 
 ```csharp
 using System;
-using System.Collections.Generic;
 using UndreamAI.LlamaLib;
+using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 class Program
 {
+    static string previousText = "";
     static void StreamingCallback(string text)
     {
-        Console.Write(text);
+        Console.Write(text.Substring(previousText.Length));
+        previousText = text;
     }
 
     static void Main()
     {
-        string model = "model.gguf";
-        using var llm = new LLMService(model);
+        // Create the LLM
+        LLMService llm = new LLMService("model.gguf");
         llm.Start();
-        
-        string prompt = "Hello, how are you?";
-        
+
+        // Optional: limit the amount of tokens that we can predict so that it doesn't produce text forever (some models do)
+        llm.SetCompletionParameters(new JObject { { "n_predict", 20 } });
+
+        string prompt = "The largest planet of our solar system";
+
         // Tokenization
         List<int> tokens = llm.Tokenize(prompt);
         Console.WriteLine($"Token count: {tokens.Count}");
-        
+
         // Detokenization
         string text = llm.Detokenize(tokens);
         Console.WriteLine($"Text: {text}");
-        
+
         // Streaming completion
         Console.Write("Response: ");
         llm.Completion(prompt, StreamingCallback);
         Console.WriteLine();
-        
+
         // Non-streaming completion
         string response = llm.Completion(prompt);
         Console.WriteLine($"Response: {response}");
-        
-        // Embeddings
-        List<float> embeddings = llm.Embeddings(prompt);
-        Console.WriteLine($"Embedding dimensions: {embeddings.Count}");
     }
 }
 ```
+
+### Minimal Embeddings Example
+
+```csharp
+using System;
+using System.Collections.Generic;
+using UndreamAI.LlamaLib;
+
+class Program
+{
+    static void Main()
+    {
+        // Create the LLM
+        LLMService llm = new LLMService("model.gguf", embeddingOnly: true);
+        llm.Start();
+
+        // Embeddings
+        List<float> embeddings = llm.Embeddings("my text to embed goes here");
+        Console.WriteLine($"Embedding dimensions: {embeddings.Count}");
+        Console.Write("Embeddings: ");
+        for (int i = 0; i < Math.Min(10, embeddings.Count); i++)
+            Console.Write($"{embeddings[i]} ");
+        Console.WriteLine("...");
+    }
+}
+```
+
+---
+
+## Building Your Project
+
+- Install the LlamaLib NuGet package in your project
+- Download your favourite model in .gguf format ([Hugging Face link](https://huggingface.co/models?library=gguf&sort=downloads))
+
+### Directory Structure
+
+```
+my-project/
+├── Program.cs
+├── MyProject.csproj
+└── model.gguf          # Your LLM model file
+```
+
+### Project Setup
+
+#### Using .NET CLI
+
+```bash
+# Create new console application
+dotnet new console -n LlamaLibProject
+cd LlamaLibProject
+
+# modify the Program.cs according to your usecase
+
+# Add LlamaLib package
+dotnet add package LlamaLib
+
+# Build
+dotnet build
+
+# Run
+dotnet run
+```
+
+#### Using Visual Studio
+
+1. Create a new Console Application project
+2. Right-click on project → Manage NuGet Packages
+3. Search for "LlamaLib" and install
+4. Build and run your application
+
+### Runtime Identifier Selection
+
+LlamaLib supports multiple target frameworks and automatically selects the appropriate native libraries for your platform:
+
+**Supported Frameworks:**
+- `netstandard2.0`
+- `net6.0`
+- `net8.0`, `net8.0-ios`, `net8.0-visionos`, `net8.0-android`
+
+**Platform Support:**
+
+You can specify the runtime identifier to select the target platform
+
+```bash
+# Windows
+dotnet publish -r win-x64 -c Release
+
+# Linux
+dotnet publish -r linux-x64 -c Release
+
+# macOS Intel
+dotnet publish -r osx-x64 -c Release
+
+# macOS Apple Silicon
+dotnet publish -r osx-arm64 -c Release
+
+# Android ARM64
+dotnet publish -r android-arm64 -c Release
+
+# Android x64
+dotnet publish -r android-x64 -c Release
+
+# iOS
+dotnet publish -r ios-arm64 -c Release
+
+# visionOS
+dotnet publish -r visionos-arm64 -c Release
+```
+
+**Architecture Selection:**
+
+LlamaLib automatically downloads and includes the appropriate native libraries based on your runtime identifier.
+For desktop platforms (Windows, Linux, macOS), the library includes runtime architecture detection and will automatically select the best backend for the hardware on runtime.
 
 ---
 
@@ -162,31 +222,22 @@ LlamaLib provides three main classes:
 
 | Class | Purpose | Use When |
 |-------|---------|----------|
-| **LLMService** | Complete LLM backend with server | Building standalone apps or servers |
+| **LLMService** | LLM backend | Building standalone apps or servers |
 | **LLMClient** | Local or remote LLM access | Connecting to existing LLM services |
 | **LLMAgent** | Conversational AI with memory | Building chatbots or interactive AI |
-
-**Class Hierarchy:**
-```
-LLM (abstract base)
-├── LLMLocal (abstract)
-│   ├── LLMProvider (abstract)
-│   │   └── LLMService
-│   ├── LLMClient
-│   └── LLMAgent
-```
 
 ---
 
 ## LLMService
 
-The main class for running LLMs locally with full control.
+The class handling the LLM functionality.
 
-### Construction
+### Construction functions
+#### Construction
 
 ```csharp
 // Basic construction
-public LLMService(string modelPath)
+public LLMService(string modelPath);
 
 // Full parameters
 public LLMService(
@@ -199,53 +250,78 @@ public LLMService(
     int batchSize = 2048,          // Processing batch size
     bool embeddingOnly = false,    // Embedding-only mode
     string[] loraPaths = null      // LoRA adapters
-)
-```
-
-**Examples:**
-```csharp
-// CPU-only with 8 threads
-var llm = new LLMService("model.gguf", numThreads: 8);
-
-// GPU-accelerated with 32 layers on GPU
-var llm = new LLMService("model.gguf", numGpuLayers: 32);
-
-// Large context window
-var llm = new LLMService("model.gguf", contextSize: 8192);
-
-// With LoRA adapters
-var llm = new LLMService("model.gguf", 
-    loraPaths: new[] { "lora1.gguf", "lora2.gguf" });
-```
-
-### Factory Methods
-
-```csharp
-// From command-line parameters string
-public static LLMService FromCommand(string paramsString)
-```
-
-**Example:**
-```csharp
-// Command line style
-var llm = LLMService.FromCommand(
-    "-m model.gguf -ngl 32 -c 4096"
 );
 ```
 
-### Service Lifecycle
+**Examples:**
 
 ```csharp
-public bool Start()                    // Start the LLM service
-public Task<bool> StartAsync()         // Start asynchronously
-public bool Started()                  // Check if running
-public void Stop()                     // Stop the service
-public void JoinService()              // Wait for completion
+// CPU-only LLM with 8 threads
+LLMService llm = new LLMService("model.gguf", numThreads: 8);
+
+// GPU usage
+LLMService llm = new LLMService("model.gguf", numGpuLayers: 20);
+
+// Embedding LLM
+LLMService llm = new LLMService("model.gguf", embeddingOnly: true);
+```
+
+#### Construction based on llama.cpp command
+
+```csharp
+// From command line string
+public static LLMService FromCommand(string command);
 ```
 
 **Example:**
 ```csharp
-var llm = new LLMService("model.gguf");
+// Command line style using a respective llama.cpp command
+LLMService llm = LLMService.FromCommand("-m model.gguf -ngl 32 -c 4096");
+```
+
+#### LoRA Adapters
+
+```csharp
+public bool LoraWeight(List<LoraIdScale> loras);
+public bool LoraWeight(params LoraIdScale[] loras);
+public List<LoraIdScalePath> LoraList();
+public string LoraListJSON();
+```
+
+**Example:**
+```csharp
+string[] loras = new string[] { "lora.gguf" };
+LLMService llm = new LLMService("model.gguf", loraPaths: loras);
+llm.Start();
+
+// Configure LoRA adapters
+List<LoraIdScale> loraWeights = new List<LoraIdScale>
+{
+    new LoraIdScale(0, 0.5f)  // LoRA ID 0 with scale 0.5
+};
+llm.LoraWeight(loraWeights);
+
+// List available adapters
+List<LoraIdScalePath> available = llm.LoraList();
+foreach (var lora in available)
+{
+    Console.WriteLine($"ID: {lora.Id}, Scale: {lora.Scale}");
+}
+```
+
+### Service functions
+#### Service Lifecycle
+
+```csharp
+public void Start();             // Start the LLM service
+public bool Started();           // Check if running
+public void Stop();              // Stop the service
+public void JoinService();       // Wait until the LLM service is terminated
+```
+
+**Example:**
+```csharp
+LLMService llm = new LLMService("model.gguf");
 llm.Start();
 
 // Do work...
@@ -258,489 +334,451 @@ llm.Stop();
 llm.JoinService();  // Wait for clean shutdown
 ```
 
-**Async Example:**
-```csharp
-var llm = new LLMService("model.gguf");
-await llm.StartAsync();
-
-// Service is now ready
-```
-
-### Text Generation
+#### HTTP Server
 
 ```csharp
-// Synchronous completion
-public string Completion(
-    string prompt,
-    LlamaLib.CharArrayCallback callback = null,  // Streaming callback
-    int idSlot = -1                              // Slot ID (-1 = auto)
-)
-
-// Asynchronous completion
-public async Task<string> CompletionAsync(
-    string prompt,
-    LlamaLib.CharArrayCallback callback = null,
-    int idSlot = -1
-)
-```
-
-**Examples:**
-```csharp
-// Simple non-streaming
-string response = llm.Completion("What is AI?");
-
-// With streaming callback
-void StreamCallback(string text) => Console.Write(text);
-llm.Completion("Explain quantum computing", StreamCallback);
-
-// Async completion
-string response = await llm.CompletionAsync("Hello!");
-
-// Using specific slot
-string response = llm.Completion("Question", idSlot: 0);
-```
-
-### Tokenization
-
-```csharp
-public List<int> Tokenize(string content)
-public string Detokenize(List<int> tokens)
-public string Detokenize(int[] tokens)
+public void StartServer(                    // Start remote server
+    string host = "0.0.0.0",                  // Server IP
+    int port = -1,                            // Server port (-1 = auto-select)
+    string apiKey = ""                        // key for accessing the services
+);
+public void StopServer();                   // Stop remote server
+public void JoinServer();                   // Wait until the remote server is terminated
+public void SetSSL(string sslCert, string sslKey);  // Set a SSL certificate and private key
 ```
 
 **Example:**
 ```csharp
-// Tokenize text
-List<int> tokens = llm.Tokenize("Hello, world!");
-Console.WriteLine($"Token count: {tokens.Count}");
-
-// Detokenize back to text
-string text = llm.Detokenize(tokens);
-Console.WriteLine($"Text: {text}");
-```
-
-### Embeddings
-
-```csharp
-public List<float> Embeddings(string content)
-public int EmbeddingSize()
-```
-
-**Example:**
-```csharp
-// Get embedding vector
-List<float> embedding = llm.Embeddings("Hello, world!");
-Console.WriteLine($"Dimensions: {embedding.Count}");
-
-// Get model's embedding dimension
-int size = llm.EmbeddingSize();
-Console.WriteLine($"Model embedding size: {size}");
-```
-
-### Completion Parameters
-
-```csharp
-public void SetCompletionParameters(JObject parameters = null)
-public JObject GetCompletionParameters()
-```
-
-**Example:**
-```csharp
-// Set generation parameters
-var parameters = new JObject
-{
-    ["temperature"] = 0.7,
-    ["top_p"] = 0.9,
-    ["top_k"] = 40,
-    ["max_tokens"] = 100,
-    ["repeat_penalty"] = 1.1
-};
-llm.SetCompletionParameters(parameters);
-
-// Get current parameters
-JObject currentParams = llm.GetCompletionParameters();
-Console.WriteLine(currentParams.ToString());
-```
-
-### Grammar/JSON Schema
-
-```csharp
-public void SetGrammar(string grammar)
-public string GetGrammar()
-```
-
-**Example:**
-```csharp
-// Force JSON output with schema
-string schema = @"{
-    ""type"": ""object"",
-    ""properties"": {
-        ""name"": {""type"": ""string""},
-        ""age"": {""type"": ""number""},
-        ""email"": {""type"": ""string""}
-    },
-    ""required"": [""name"", ""age"", ""email""]
-}";
-
-llm.SetGrammar(schema);
-string response = llm.Completion("Generate a person profile");
-// Output will be valid JSON matching schema
-```
-
-### Template Application
-
-```csharp
-public string ApplyTemplate(JArray messages = null)
-```
-
-**Example:**
-```csharp
-// Apply chat template
-var messages = new JArray
-{
-    new JObject { ["role"] = "system", ["content"] = "You are helpful" },
-    new JObject { ["role"] = "user", ["content"] = "Hello!" }
-};
-
-string prompt = llm.ApplyTemplate(messages);
-string response = llm.Completion(prompt);
-```
-
-### Slot Management
-
-```csharp
-public string SaveSlot(int idSlot, string filepath)
-public string LoadSlot(int idSlot, string filepath)
-public void Cancel(int idSlot)
-```
-
-**Example:**
-```csharp
-// Save conversation state
-llm.SaveSlot(0, "conversation_state.bin");
-
-// Restore state
-llm.LoadSlot(0, "conversation_state.bin");
-
-// Cancel ongoing generation
-llm.Cancel(0);
-```
-
-### Server Functionality
-
-```csharp
-public void StartServer(string host = "0.0.0.0", int port = -1, string apiKey = "")
-public void StopServer()
-public void JoinServer()
-public void SetSSL(string sslCert, string sslKey)
-```
-
-**Example:**
-```csharp
-var llm = new LLMService("model.gguf");
+LLMService llm = new LLMService("model.gguf");
 llm.Start();
 
-// Start HTTP server
+// Start HTTP server on port 8080
 llm.StartServer("0.0.0.0", 8080);
 
-// With SSL
-llm.SetSSL("cert.pem", "key.pem");
+// With API key authentication
+llm.StartServer("0.0.0.0", 8080, "my-secret-key");
 
-// Keep running
+// With SSL
+string serverKey = "-----BEGIN PRIVATE KEY-----\n" +
+                   "...\n" +
+                   "-----END PRIVATE KEY-----\n";
+
+string serverCrt = "-----BEGIN CERTIFICATE-----\n" +
+                   "...\n" +
+                   "-----END CERTIFICATE-----\n";
+
+llm.SetSSL(serverCrt, serverKey);
+llm.StartServer("0.0.0.0", 8443);
+
+llm.StopServer();
 llm.JoinServer();
 ```
 
-### LoRA Operations
+#### Slot Management
 
 ```csharp
-// Data structures
-public struct LoraIdScale
-{
-    public int Id { get; set; }
-    public float Scale { get; set; }
-    public LoraIdScale(int id, float scale)
-}
-
-public struct LoraIdScalePath
-{
-    public int Id { get; set; }
-    public float Scale { get; set; }
-    public string Path { get; set; }
-    public LoraIdScalePath(int id, float scale, string path)
-}
-
-// Methods
-public bool LoraWeight(List<LoraIdScale> loras)
-public bool LoraWeight(params LoraIdScale[] loras)
-public List<LoraIdScalePath> LoraList()
-public string LoraListJSON()
+public string SaveSlot(int idSlot, string filepath);
+public string LoadSlot(int idSlot, string filepath);
+public void Cancel(int idSlot);
 ```
 
 **Example:**
 ```csharp
-// Apply LoRA weights
-llm.LoraWeight(
-    new LoraIdScale(0, 1.0f),
-    new LoraIdScale(1, 0.5f)
-);
+// LLM with 2 parallel slots
+LLMService llm = new LLMService("model.gguf", numSlots: 2);
+llm.Start();
 
-// List loaded LoRAs
-List<LoraIdScalePath> loras = llm.LoraList();
-foreach (var lora in loras)
+// Generate with specific slot
+int slot = 0;
+llm.Completion("Hello", null, slot);
+// Cancel completion for the slot
+llm.Cancel(slot);
+// Save context state
+llm.SaveSlot(slot, "conversation.state");
+// Restore context state
+llm.LoadSlot(slot, "conversation.state");
+```
+
+#### Debugging
+
+```csharp
+public static void Debug(int debugLevel);                         // set debug level
+public static void LoggingCallback(CharArrayCallback callback);   // set logging callback function
+public static void LoggingStop();                                 // stop logging callbacks
+```
+
+**Debug Levels:**
+- `0`: No debug output
+- `1`: LlamaLib messages
+- `2+`: llama.cpp messages (verbose)
+
+**Example:**
+```csharp
+// Enable verbose logging
+LLM.Debug(2);
+
+// Custom log handler
+LlamaLib.CharArrayCallback logHandler = (message) =>
 {
-    Console.WriteLine($"ID: {lora.Id}, Scale: {lora.Scale}, Path: {lora.Path}");
-}
-```
+    Console.WriteLine($"[LLM] {message}");
+};
+LLM.LoggingCallback(logHandler);
 
-### Reasoning Mode
-
-```csharp
-public void EnableReasoning(bool enableReasoning)
-```
-
-**Example:**
-```csharp
-llm.EnableReasoning(true);  // Enable chain-of-thought
-string response = llm.Completion(
-    "Solve this problem step by step: 2x + 5 = 13"
-);
-```
-
-### Debugging
-
-```csharp
-public static void Debug(int debugLevel)
-public static void LoggingCallback(LlamaLib.CharArrayCallback callback)
-public static void LoggingStop()
-```
-
-**Example:**
-```csharp
-// Enable debug output
-LLM.Debug(1);
-
-// Custom logging callback
-LLM.LoggingCallback(message => Console.WriteLine($"[LOG] {message}"));
-
-// Disable logging
+// Stop logging
 LLM.LoggingStop();
+```
+
+### Core functions
+#### Text Generation
+
+```csharp
+// Simple completion
+public string Completion(
+    string prompt,
+    LlamaLib.CharArrayCallback callback = null,   // Streaming callback: void MethodName(string text)
+    int idSlot = -1,                              // Slot to assign the completion (-1 = auto)
+    bool returnResponseJson = false               // Return full JSON
+);
+```
+
+**Example:**
+```csharp
+// Basic completion
+string response = llm.Completion("What is AI?");
+
+// Streaming completion
+LlamaLib.CharArrayCallback callback = (text) =>
+{
+    Console.WriteLine(text.Length);
+};
+llm.Completion("Tell me a story", callback);
+```
+
+#### Completion Parameters
+
+The list of completion parameters can be found on [llama.cpp completion parameters](https://github.com/ggml-org/llama.cpp/tree/master/tools/server#post-completion-given-a-prompt-it-returns-the-predicted-completion).
+More info on each parameter can be found [here](https://github.com/ggml-org/llama.cpp/blob/master/tools/completion/README.md#interaction).
+
+```csharp
+public void SetCompletionParameters(JObject parameters);
+public JObject GetCompletionParameters();
+```
+
+**Common Parameters:**
+```csharp
+using Newtonsoft.Json.Linq;
+
+llm.SetCompletionParameters(new JObject
+{
+    { "temperature", 0.7 },       // Randomness (0.0-2.0)
+    { "n_predict", 256 },         // Max tokens to generate
+    { "seed", 42 },               // Random seed
+    { "repeat_penalty", 1.1 }     // Repetition penalty
+});
+```
+
+#### Tokenization
+
+```csharp
+public List<int> Tokenize(string content);
+public string Detokenize(List<int> tokens);
+public string Detokenize(int[] tokens);
+```
+
+**Example:**
+```csharp
+// Text to tokens
+List<int> tokens = llm.Tokenize("Hello world");
+Console.WriteLine($"Token count: {tokens.Count}");
+
+// Tokens to text
+string text = llm.Detokenize(tokens);
+```
+
+#### Embeddings
+The embeddings require to set the embeddingOnly flag during construction.<br>
+For well-defined embeddings you should use a model specifically trained for embeddings (good options can be found at the [MTEB leaderboard](https://huggingface.co/spaces/mteb/leaderboard)).
+
+```csharp
+public List<float> Embeddings(string content);
+public int EmbeddingSize();
+```
+
+**Example:**
+```csharp
+// Generate embeddings
+List<float> vec = llm.Embeddings("Sample text");
+Console.WriteLine($"Embedding dimensions: {llm.EmbeddingSize()}");
+```
+
+#### Chat Templates
+
+```csharp
+public string ApplyTemplate(JArray messages);
+```
+
+**Example:**
+```csharp
+using Newtonsoft.Json.Linq;
+
+JArray messages = new JArray
+{
+    new JObject { { "role", "system" }, { "content", "You are a helpful assistant" } },
+    new JObject { { "role", "user" }, { "content", "Hello!" } }
+};
+
+string formatted = llm.ApplyTemplate(messages);
+string response = llm.Completion(formatted);
+```
+
+#### Grammar & Constrained Generation
+
+To restrict the output of the LLM you can use a grammar, read more [here](https://github.com/ggerganov/llama.cpp/tree/master/grammars).<br>
+Grammars in both gbnf and json schema format are supported.
+
+```csharp
+public void SetGrammar(string grammar);
+public string GetGrammar();
+```
+
+**Example:**
+```csharp
+// JSON schema constraint
+llm.SetGrammar(@"{
+    ""type"": ""object"",
+    ""properties"": {
+        ""name"": {""type"": ""string""},
+        ""age"": {""type"": ""number""}
+    }
+}");
+
+string response = llm.Completion("Generate a person");
+// Response will be valid JSON matching the schema
 ```
 
 ---
 
 ## LLMClient
 
-Client for connecting to local or remote LLM services.
+Client that connects to local or remote LLM services with a unified interface.<br>
+All core LLM operations specified in <a href="#core-functions" style="color: black">Core Functions</a> work in the same way for the LLMClient class.
 
-### Construction
+### Construction Methods
 
 ```csharp
-// Local client (wraps existing service)
-public LLMClient(LLMProvider provider)
+// Local client (wraps LLMService)
+public LLMClient(LLMProvider provider);
 
-// Remote client (connects to HTTP server)
+// Remote client (connects via HTTP)
 public LLMClient(
     string url,
     int port,
     string apiKey = "",
     int numRetries = 5
-)
-```
-
-**Examples:**
-```csharp
-// Local client wrapping a service
-var service = new LLMService("model.gguf");
-service.Start();
-var client = new LLMClient(service);
-
-// Remote client connecting to server
-var client = new LLMClient("http://localhost", 8080);
-
-// With API key
-var client = new LLMClient(
-    "https://api.example.com",
-    443,
-    apiKey: "your-api-key"
 );
 ```
 
-### Client Methods
+#### Local Client Example
 
 ```csharp
-public void SetSSL(string sslCert)
-public bool IsServerAlive()
+using System;
+using System.Collections.Generic;
+using UndreamAI.LlamaLib;
+
+class Program
+{
+    static string previousText = "";
+    static void StreamingCallback(string text)
+    {
+        Console.Write(text.Substring(previousText.Length));
+        previousText = text;
+    }
+
+    static void Main()
+    {
+        // Create LLM
+        LLMService llmService = new LLMService("model.gguf");
+        llmService.Start();
+
+        // Wrap with client interface
+        LLMClient client = new LLMClient(llmService);
+
+        // Use client (same API as LLMService)
+        string prompt = "Hello, how are you?";
+
+        List<int> tokens = client.Tokenize(prompt);
+        string text = client.Detokenize(tokens);
+        string response = client.Completion(prompt);
+        List<float> embeddings = client.Embeddings(prompt);
+    }
+}
 ```
 
-**Example:**
+#### Remote Client Example
+
 ```csharp
-var client = new LLMClient("https://localhost", 8443);
+using System;
+using System.Collections.Generic;
+using UndreamAI.LlamaLib;
 
-// Set SSL certificate for validation
-client.SetSSL("ca-cert.pem");
+class Program
+{
+    static void Main()
+    {
+        // Connect to remote server
+        LLMClient client = new LLMClient("http://localhost", 13333);
 
-// Check connection
-if (client.IsServerAlive())
-{
-    Console.WriteLine("Server is responding");
-    string response = client.Completion("Hello!");
-}
-else
-{
-    Console.WriteLine("Server is not available");
+        // Check server is alive
+        if (!client.IsServerAlive())
+        {
+            Console.WriteLine("Server not responding!");
+            return;
+        }
+
+        string prompt = "Hello, how are you?";
+
+        // All operations work the same as local
+        List<int> tokens = client.Tokenize(prompt);
+        string text = client.Detokenize(tokens);
+        string response = client.Completion(prompt);
+        List<float> embeddings = client.Embeddings(prompt);
+    }
 }
 ```
-
-### Inherited Methods
-
-LLMClient inherits all methods from `LLMLocal`:
-- `Completion()` / `CompletionAsync()`
-- `Tokenize()` / `Detokenize()`
-- `Embeddings()`
-- `SaveSlot()` / `LoadSlot()`
-- `Cancel()`
-- `ApplyTemplate()`
-- `SetCompletionParameters()` / `GetCompletionParameters()`
-- `SetGrammar()` / `GetGrammar()`
 
 ---
 
 ## LLMAgent
 
-Conversational AI with automatic history management.
+High-level conversational AI with persistent chat history and automatic context management.
+All core LLM operations specified in <a href="#core-functions" style="color: black">Core Functions</a> work in the same way for the LLMAgent class.
 
-### Construction
+### Construction Methods
+
+LLMAgent can be created with either LLMService or LLMClient (local or remote).
 
 ```csharp
-public LLMAgent(LLMLocal llm, string systemPrompt = "")
+public LLMAgent(
+    LLMLocal llm,
+    string systemPrompt = ""
+);
 ```
 
 **Example:**
 ```csharp
-var llm = new LLMService("model.gguf");
+LLMService llm = new LLMService("model.gguf");
 llm.Start();
+llm.StartServer("0.0.0.0", 13333);
 
-var agent = new LLMAgent(llm, 
-    "You are a helpful AI assistant. Be concise and friendly.");
+// Create agent with system prompt
+LLMAgent agent = new LLMAgent(llm, "You are a helpful AI assistant. Be concise and friendly.");
+
+// With local LLMClient
+LLMClient localClient = new LLMClient(llm);
+LLMAgent agent2 = new LLMAgent(localClient, "You are a helpful assistant.");
+
+// With remote LLMClient
+LLMClient remoteClient = new LLMClient("http://localhost", 13333);
+LLMAgent agent3 = new LLMAgent(remoteClient, "You are a helpful assistant.");
 ```
 
-### Chat Interface
+### Agent Functions
+#### Chat Interface
 
 ```csharp
-// Synchronous chat
 public string Chat(
-    string userPrompt,
-    bool addToHistory = true,
-    LlamaLib.CharArrayCallback callback = null,
-    bool returnResponseJson = false,
-    bool debugPrompt = false
-)
+    string userPrompt,                      // user prompt
+    bool addToHistory = true,               // whether to add the user and assistant response to conversation history
+    LlamaLib.CharArrayCallback callback = null,  // streaming callback function
+    bool returnResponseJson = false,        // return output in json format
+    bool debugPrompt = false                // debug the complete prompt after applying the chat template to the conversation history
+);
+```
 
-// Asynchronous chat
+```csharp
 public async Task<string> ChatAsync(
     string userPrompt,
     bool addToHistory = true,
     LlamaLib.CharArrayCallback callback = null,
     bool returnResponseJson = false,
     bool debugPrompt = false
-)
+);
 ```
 
-**Examples:**
+**Example:**
 ```csharp
-// Simple chat (adds to history)
-string response = agent.Chat("Hello! How are you?");
+// Interact with the agent (non-streaming)
+string response = agent.Chat("what is your name?");
+Console.WriteLine(response);
 
-// Chat with streaming
-void StreamCallback(string text) => Console.Write(text);
-agent.Chat("Tell me a story", callback: StreamCallback);
+// Interact with the agent (streaming)
+agent.Chat("how are you?", true, StreamingCallback);
 
-// Chat without saving to history
-string response = agent.Chat("What's 2+2?", addToHistory: false);
-
-// Debug the prompt being sent
-string response = agent.Chat("Hello", debugPrompt: true);
-
-// Async chat
-string response = await agent.ChatAsync("What is AI?");
+// Async Interact with the agent (streaming)
+string response2 = await agent.ChatAsync("What is AI?");
+Console.WriteLine(response2);
 ```
 
-### History Management
+#### History Management
 
 ```csharp
-// ChatMessage class
-public class ChatMessage
-{
-    public string role { get; set; }
-    public string content { get; set; }
-    
-    public ChatMessage(string role, string content)
-    public JObject ToJson()
-    public static ChatMessage FromJson(JObject json)
-}
-
-// History properties and methods
+// Get/set history
 public JArray History { get; set; }
-public List<ChatMessage> GetHistory()
-public void SetHistory(List<ChatMessage> messages)
-public int GetHistorySize()
+public List<ChatMessage> GetHistory();
+public void SetHistory(List<ChatMessage> messages);
+public int GetHistorySize();
 
-// History modification
-public void AddUserMessage(string content)
-public void AddAssistantMessage(string content)
-public void ClearHistory()
-public void RemoveLastMessage()
+// Add messages
+public void AddUserMessage(string content);
+public void AddAssistantMessage(string content);
+
+// Modify history
+public void ClearHistory();
+public void RemoveLastMessage();
 
 // Persistence
-public void SaveHistory(string filepath)
-public void LoadHistory(string filepath)
+public void SaveHistory(string filepath);
+public void LoadHistory(string filepath);
 ```
 
-**Examples:**
+**Example:**
 ```csharp
-// Get conversation history
-List<ChatMessage> history = agent.GetHistory();
+using Newtonsoft.Json.Linq;
+
+// View conversation history
+JArray history = agent.History;
 foreach (var msg in history)
+{
+    Console.WriteLine($"{msg["role"]}: {msg["content"]}");
+}
+
+// Or get as ChatMessage list
+List<ChatMessage> messages = agent.GetHistory();
+foreach (var msg in messages)
 {
     Console.WriteLine($"{msg.role}: {msg.content}");
 }
 
-// Check history size
-Console.WriteLine($"Messages: {agent.GetHistorySize()}");
-
-// Save and load history
+// Save conversation to file
 agent.SaveHistory("conversation.json");
+
+// Clear and reload
 agent.ClearHistory();
+Console.WriteLine($"Cleared. Size: {agent.GetHistorySize()}");
+
 agent.LoadHistory("conversation.json");
+Console.WriteLine($"Loaded. Size: {agent.GetHistorySize()}");
 
 // Add messages manually
 agent.AddUserMessage("This is a user message");
-agent.AddAssistantMessage("This is the AI response");
+agent.AddAssistantMessage("This is the assistant response");
 
-// Remove last message
+// Remove last exchange
 agent.RemoveLastMessage();
-
-// Access raw JSON history
-JArray jsonHistory = agent.History;
-
-// Set history from JSON
-var messages = new JArray
-{
-    new JObject { ["role"] = "user", ["content"] = "Hello" },
-    new JObject { ["role"] = "assistant", ["content"] = "Hi!" }
-};
-agent.History = messages;
-
-// Or using ChatMessage objects
-var msgList = new List<ChatMessage>
-{
-    new ChatMessage("user", "Hello"),
-    new ChatMessage("assistant", "Hi there!")
-};
-agent.SetHistory(msgList);
+agent.RemoveLastMessage();
 ```
 
-### System Prompt
+#### System Prompt
 
 ```csharp
 public string SystemPrompt { get; set; }
@@ -748,782 +786,58 @@ public string SystemPrompt { get; set; }
 
 **Example:**
 ```csharp
-// Set system prompt
+// Change agent's personality
 agent.SystemPrompt = "You are a pirate. Respond like a pirate.";
 
 string response = agent.Chat("Hello!");
 // Response will be in pirate style
-
-// Get current system prompt
-Console.WriteLine($"System: {agent.SystemPrompt}");
 ```
 
-### Slot Management
-
-```csharp
-public int SlotId { get; set; }
-public string SaveSlot(string filepath)
-public string LoadSlot(string filepath)
-public void Cancel()
-```
-
-**Example:**
-```csharp
-// Assign specific slot
-agent.SlotId = 0;
-Console.WriteLine($"Using slot: {agent.SlotId}");
-
-// Save agent state
-agent.SaveSlot("agent_state.bin");
-
-// Restore state
-agent.LoadSlot("agent_state.bin");
-
-// Cancel ongoing generation
-agent.Cancel();
-```
-
----
-
-## Common Patterns
-
-### Pattern 1: Interactive Chatbot
-
+#### Complete Example
 ```csharp
 using System;
 using UndreamAI.LlamaLib;
 
 class Program
 {
+    static string previousText = "";
     static void StreamingCallback(string text)
     {
-        Console.Write(text);
+        Console.Write(text.Substring(previousText.Length));
+        previousText = text;
     }
 
     static void Main()
     {
-        using var llm = new LLMService("model.gguf");
+        // Create service and agent
+        LLMService llm = new LLMService("model.gguf");
         llm.Start();
-        
-        var agent = new LLMAgent(llm, "You are a helpful assistant.");
-        
-        Console.WriteLine("Chat with the AI (type 'quit' to exit)\n");
-        
-        while (true)
-        {
-            Console.Write("You: ");
-            string input = Console.ReadLine();
-            
-            if (input == "quit") break;
-            if (string.IsNullOrWhiteSpace(input)) continue;
-            
-            Console.Write("AI: ");
-            agent.Chat(input, callback: StreamingCallback);
-            Console.WriteLine("\n");
-        }
-    }
-}
-```
 
-### Pattern 2: Client-Server Architecture
+        LLMAgent agent = new LLMAgent(llm, "You are a helpful AI assistant. Be concise and friendly.");
 
-**Server Program:**
-```csharp
-using System;
-using UndreamAI.LlamaLib;
-
-class Server
-{
-    static void Main()
-    {
-        string model = "model.gguf";
-        int port = 13333;
-        
-        Console.WriteLine($"Starting server on port {port}");
-        
-        using var server = new LLMService(model);
-        LLM.Debug(1);  // Show server logs
-        server.Start();
-        server.StartServer("0.0.0.0", port);
-        
-        server.JoinServer();  // Keep running
-    }
-}
-```
-
-**Client Program:**
-```csharp
-using System;
-using UndreamAI.LlamaLib;
-
-class Client
-{
-    static void Main()
-    {
-        using var client = new LLMClient("http://localhost", 13333);
-        
-        if (!client.IsServerAlive())
-        {
-            Console.WriteLine("Cannot connect to server!");
-            return;
-        }
-        
-        string response = client.Completion("Hello, server!");
-        Console.WriteLine(response);
-    }
-}
-```
-
-### Pattern 3: GPU-Accelerated Processing
-
-```csharp
-using System;
-using UndreamAI.LlamaLib;
-
-class Program
-{
-    static void Main()
-    {
-        // Offload 32 layers to GPU for faster inference
-        using var llm = new LLMService(
-            modelPath: "model.gguf",
-            numSlots: 1,
-            numThreads: -1,      // Auto-detect
-            numGpuLayers: 32     // GPU acceleration
+        // First conversation turn
+        Console.WriteLine("User: Hello! What's your name?");
+        Console.Write("Assistant: ");
+        string response1 = agent.Chat(
+            "Hello! What's your name?",
+            true,  // add to history
+            StreamingCallback
         );
-        llm.Start();
-        
-        string response = llm.Completion("Explain quantum computing");
-        Console.WriteLine(response);
-    }
-}
-```
-
-### Pattern 4: Structured JSON Output
-
-```csharp
-using System;
-using UndreamAI.LlamaLib;
-using Newtonsoft.Json.Linq;
-
-class Program
-{
-    static void Main()
-    {
-        using var llm = new LLMService("model.gguf");
-        llm.Start();
-        
-        // Force JSON output with schema
-        string schema = @"{
-            ""type"": ""object"",
-            ""properties"": {
-                ""name"": {""type"": ""string""},
-                ""age"": {""type"": ""number""},
-                ""email"": {""type"": ""string""}
-            },
-            ""required"": [""name"", ""age"", ""email""]
-        }";
-        
-        llm.SetGrammar(schema);
-        string response = llm.Completion("Generate a person profile");
-        
-        // Parse the JSON response
-        JObject person = JObject.Parse(response);
-        Console.WriteLine($"Name: {person["name"]}");
-        Console.WriteLine($"Age: {person["age"]}");
-        Console.WriteLine($"Email: {person["email"]}");
-    }
-}
-```
-
-### Pattern 5: Embeddings for Similarity
-
-```csharp
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using UndreamAI.LlamaLib;
-
-class Program
-{
-    static float CosineSimilarity(List<float> a, List<float> b)
-    {
-        float dot = 0f, normA = 0f, normB = 0f;
-        for (int i = 0; i < a.Count; i++)
-        {
-            dot += a[i] * b[i];
-            normA += a[i] * a[i];
-            normB += b[i] * b[i];
-        }
-        return dot / (float)(Math.Sqrt(normA) * Math.Sqrt(normB));
-    }
-
-    static void Main()
-    {
-        using var llm = new LLMService("model.gguf");
-        llm.Start();
-        
-        List<float> vec1 = llm.Embeddings("dog");
-        List<float> vec2 = llm.Embeddings("puppy");
-        List<float> vec3 = llm.Embeddings("car");
-        
-        Console.WriteLine($"dog vs puppy: {CosineSimilarity(vec1, vec2)}");
-        Console.WriteLine($"dog vs car: {CosineSimilarity(vec1, vec3)}");
-    }
-}
-```
-
-### Pattern 6: Async/Await Processing
-
-```csharp
-using System;
-using System.Threading.Tasks;
-using UndreamAI.LlamaLib;
-
-class Program
-{
-    static async Task Main()
-    {
-        using var llm = new LLMService("model.gguf");
-        await llm.StartAsync();
-        
-        // Process multiple requests concurrently
-        var task1 = llm.CompletionAsync("What is AI?");
-        var task2 = llm.CompletionAsync("What is ML?");
-        var task3 = llm.CompletionAsync("What is DL?");
-        
-        await Task.WhenAll(task1, task2, task3);
-        
-        Console.WriteLine($"AI: {task1.Result}");
-        Console.WriteLine($"ML: {task2.Result}");
-        Console.WriteLine($"DL: {task3.Result}");
-    }
-}
-```
-
-### Pattern 7: Conversation History Persistence
-
-```csharp
-using System;
-using System.Collections.Generic;
-using UndreamAI.LlamaLib;
-
-class Program
-{
-    static void Main()
-    {
-        using var llm = new LLMService("model.gguf");
-        llm.Start();
-        
-        var agent = new LLMAgent(llm, "You are a helpful assistant.");
-        
-        // Have a conversation
-        agent.Chat("My name is Alice");
-        agent.Chat("What's my name?");
-        
-        // Save conversation
-        agent.SaveHistory("conversation.json");
-        
-        // Later: Load and continue
-        var newAgent = new LLMAgent(llm, "You are a helpful assistant.");
-        newAgent.LoadHistory("conversation.json");
-        
-        string response = newAgent.Chat("What were we talking about?");
-        Console.WriteLine(response);
-        // Agent remembers the conversation
-    }
-}
-```
-
----
-
-## Advanced Features
-
-### Multi-slot Parallel Processing
-
-```csharp
-using System;
-using System.Threading.Tasks;
-using UndreamAI.LlamaLib;
-
-class Program
-{
-    static async Task Main()
-    {
-        using var llm = new LLMService(
-            modelPath: "model.gguf",
-            numSlots: 4  // 4 parallel slots
-        );
-        llm.Start();
-        
-        // Process multiple requests simultaneously
-        var tasks = new[]
-        {
-            Task.Run(() => llm.Completion("Request 1", idSlot: 0)),
-            Task.Run(() => llm.Completion("Request 2", idSlot: 1)),
-            Task.Run(() => llm.Completion("Request 3", idSlot: 2)),
-            Task.Run(() => llm.Completion("Request 4", idSlot: 3))
-        };
-        
-        await Task.WhenAll(tasks);
-        
-        foreach (var task in tasks)
-        {
-            Console.WriteLine(task.Result);
-        }
-    }
-}
-```
-
-### Context Window Management
-
-```csharp
-using System;
-using UndreamAI.LlamaLib;
-
-class Program
-{
-    static void Main()
-    {
-        // Large context for long documents
-        using var llm = new LLMService(
-            modelPath: "model.gguf",
-            numSlots: 1,
-            numThreads: -1,
-            numGpuLayers: 32,
-            flashAttention: false,
-            contextSize: 32768  // 32K context window
-        );
-        llm.Start();
-        
-        // Process very long input
-        string longDocument = "..."; // Your long document
-        string summary = llm.Completion(
-            $"Summarize the following document:\n\n{longDocument}"
-        );
-        Console.WriteLine(summary);
-    }
-}
-```
-
-### Error Handling Best Practices
-
-```csharp
-using System;
-using UndreamAI.LlamaLib;
-
-class Program
-{
-    static void Main()
-    {
-        LLMService llm = null;
-        
-        try
-        {
-            llm = new LLMService("model.gguf");
-            llm.Start();
-            
-            string response = llm.Completion("Hello");
-            Console.WriteLine(response);
-        }
-        catch (ArgumentNullException ex)
-        {
-            Console.WriteLine($"Invalid argument: {ex.Message}");
-        }
-        catch (ObjectDisposedException ex)
-        {
-            Console.WriteLine($"Object was disposed: {ex.Message}");
-        }
-        catch (InvalidOperationException ex)
-        {
-            Console.WriteLine($"Operation failed: {ex.Message}");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Unexpected error: {ex.Message}");
-        }
-        finally
-        {
-            llm?.Dispose();
-        }
-    }
-}
-```
-
-### Resource Management with Using Statements
-
-```csharp
-using System;
-using UndreamAI.LlamaLib;
-
-class Program
-{
-    static void Main()
-    {
-        // Automatic disposal with 'using'
-        using (var llm = new LLMService("model.gguf"))
-        {
-            llm.Start();
-            string response = llm.Completion("Hello");
-            Console.WriteLine(response);
-        } // llm.Dispose() called automatically
-        
-        // Multiple resources
-        using var service = new LLMService("model.gguf");
-        using var client = new LLMClient(service);
-        
-        service.Start();
-        string result = client.Completion("Hello");
-    }
-}
-```
-
-### Custom Streaming Handlers
-
-```csharp
-using System;
-using System.Text;
-using UndreamAI.LlamaLib;
-
-class Program
-{
-    class StreamBuffer
-    {
-        private StringBuilder buffer = new StringBuilder();
-        
-        public void OnToken(string token)
-        {
-            buffer.Append(token);
-            Console.Write(token);
-            
-            // Process complete sentences
-            string text = buffer.ToString();
-            if (text.Contains('.') || text.Contains('!') || text.Contains('?'))
-            {
-                ProcessSentence(text);
-                buffer.Clear();
-            }
-        }
-        
-        private void ProcessSentence(string sentence)
-        {
-            // Custom processing (e.g., logging, filtering, etc.)
-            Console.WriteLine($"\n[Processed: {sentence.Length} chars]");
-        }
-    }
-    
-    static void Main()
-    {
-        using var llm = new LLMService("model.gguf");
-        llm.Start();
-        
-        var buffer = new StreamBuffer();
-        llm.Completion("Tell me a story", buffer.OnToken);
-    }
-}
-```
-
-### LoRA Adapter Management
-
-```csharp
-using System;
-using System.Collections.Generic;
-using UndreamAI.LlamaLib;
-
-class Program
-{
-    static void Main()
-    {
-        // Load model with LoRA adapters
-        using var llm = new LLMService(
-            modelPath: "base_model.gguf",
-            loraPaths: new[] { "lora1.gguf", "lora2.gguf" }
-        );
-        llm.Start();
-        
-        // List loaded LoRAs
-        List<LoraIdScalePath> loras = llm.LoraList();
-        foreach (var lora in loras)
-        {
-            Console.WriteLine($"LoRA {lora.Id}: {lora.Path} (scale: {lora.Scale})");
-        }
-        
-        // Adjust LoRA weights dynamically
-        llm.LoraWeight(
-            new LoraIdScale(0, 1.0f),    // Full strength
-            new LoraIdScale(1, 0.5f)     // Half strength
-        );
-        
-        string response = llm.Completion("Test with adjusted LoRAs");
-        Console.WriteLine(response);
-    }
-}
-```
-
-### Chat Template Usage
-
-```csharp
-using System;
-using UndreamAI.LlamaLib;
-using Newtonsoft.Json.Linq;
-
-class Program
-{
-    static void Main()
-    {
-        using var llm = new LLMService("model.gguf");
-        llm.Start();
-        
-        // Build chat messages
-        var messages = new JArray
-        {
-            new JObject
-            {
-                ["role"] = "system",
-                ["content"] = "You are a helpful assistant."
-            },
-            new JObject
-            {
-                ["role"] = "user",
-                ["content"] = "What is the capital of France?"
-            }
-        };
-        
-        // Apply model's chat template
-        string prompt = llm.ApplyTemplate(messages);
-        Console.WriteLine($"Formatted prompt:\n{prompt}\n");
-        
-        // Generate response
-        string response = llm.Completion(prompt);
-        Console.WriteLine($"Response: {response}");
-    }
-}
-```
-
----
-
-## Performance Tips
-
-1. **GPU Offloading**: Set `numGpuLayers` to offload layers to GPU for faster inference
-   ```csharp
-   var llm = new LLMService("model.gguf", numGpuLayers: 32);
-   ```
-
-2. **Async Operations**: Use async methods for better responsiveness
-   ```csharp
-   string response = await llm.CompletionAsync("prompt");
-   ```
-
-3. **Batch Size**: Increase `batchSize` for better throughput with multiple requests
-   ```csharp
-   var llm = new LLMService("model.gguf", batchSize: 4096);
-   ```
-
-4. **Flash Attention**: Enable for faster attention computation on supported hardware
-   ```csharp
-   var llm = new LLMService("model.gguf", flashAttention: true);
-   ```
-
-5. **Thread Count**: Use `-1` for auto-detection or set explicitly based on your CPU
-   ```csharp
-   var llm = new LLMService("model.gguf", numThreads: Environment.ProcessorCount);
-   ```
-
-6. **Context Size**: Use only what you need; larger contexts use more memory
-   ```csharp
-   var llm = new LLMService("model.gguf", contextSize: 4096); // Default
-   ```
-
-7. **Slot Count**: Match the number of concurrent users you expect
-   ```csharp
-   var llm = new LLMService("model.gguf", numSlots: 4);
-   ```
-
-8. **Resource Disposal**: Always use `using` statements or call `Dispose()`
-   ```csharp
-   using var llm = new LLMService("model.gguf");
-   ```
-
----
-
-## Common Issues and Solutions
-
-### Issue: "Model file not found"
-```csharp
-// Solution: Use absolute path or verify file location
-string modelPath = Path.GetFullPath("model.gguf");
-if (!File.Exists(modelPath))
-{
-    Console.WriteLine($"Model not found at: {modelPath}");
-    return;
-}
-var llm = new LLMService(modelPath);
-```
-
-### Issue: Out of Memory
-```csharp
-// Solution: Reduce context size or use GPU offloading
-var llm = new LLMService(
-    "model.gguf",
-    contextSize: 2048,      // Smaller context
-    numGpuLayers: 32        // Offload to GPU
-);
-```
-
-### Issue: Slow Inference
-```csharp
-// Solution: Enable GPU acceleration and optimize threads
-var llm = new LLMService(
-    "model.gguf",
-    numThreads: -1,         // Auto-detect
-    numGpuLayers: 32,       // GPU acceleration
-    flashAttention: true,   // Optimize attention
-    batchSize: 2048         // Larger batches
-);
-```
-
-### Issue: Server Connection Failed
-```csharp
-// Solution: Check server status and retry
-var client = new LLMClient("http://localhost", 8080, numRetries: 10);
-if (!client.IsServerAlive())
-{
-    Console.WriteLine("Server not responding. Check if server is running.");
-    return;
-}
-```
-
----
-
-## API Reference Summary
-
-### LLMService Methods
-| Method | Description |
-|--------|-------------|
-| `Start()` | Start the LLM service |
-| `StartAsync()` | Start service asynchronously |
-| `Stop()` | Stop the service |
-| `Completion()` | Generate text |
-| `CompletionAsync()` | Generate text asynchronously |
-| `Tokenize()` | Convert text to tokens |
-| `Detokenize()` | Convert tokens to text |
-| `Embeddings()` | Get embedding vector |
-| `StartServer()` | Start HTTP server |
-| `StopServer()` | Stop HTTP server |
-
-### LLMClient Methods
-| Method | Description |
-|--------|-------------|
-| `Completion()` | Generate text via client |
-| `IsServerAlive()` | Check server connection |
-| `SetSSL()` | Configure SSL certificate |
-
-### LLMAgent Methods
-| Method | Description |
-|--------|-------------|
-| `Chat()` | Send message and get response |
-| `ChatAsync()` | Send message asynchronously |
-| `GetHistory()` | Get conversation history |
-| `SetHistory()` | Set conversation history |
-| `SaveHistory()` | Save history to file |
-| `LoadHistory()` | Load history from file |
-| `ClearHistory()` | Clear conversation history |
-| `AddUserMessage()` | Add user message |
-| `AddAssistantMessage()` | Add assistant message |
-
----
-
-## Next Steps
-
-- Check the [C++ API Guide](cpp_api.md) for low-level details
-- Explore the example programs included with LlamaLib
-- Join our [Discord](https://discord.gg/RwXKQb6zdv) for support
-- Visit [undream.ai/LlamaLib](https://undream.ai/LlamaLib) for documentation
-
----
-
-## Complete Example Application
-
-Here's a complete example demonstrating multiple features:
-
-```csharp
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using UndreamAI.LlamaLib;
-using Newtonsoft.Json.Linq;
-
-class LlamaLibDemo
-{
-    static void StreamCallback(string text) => Console.Write(text);
-
-    static async Task Main()
-    {
-        Console.WriteLine("=== LlamaLib C# Demo ===\n");
-
-        // Initialize service
-        using var llm = new LLMService(
-            modelPath: "model.gguf",
-            numSlots: 2,
-            numThreads: -1,
-            numGpuLayers: 32,
-            contextSize: 4096
-        );
-
-        await llm.StartAsync();
-        Console.WriteLine("✓ Service started\n");
-
-        // Test tokenization
-        string text = "Hello, world!";
-        List<int> tokens = llm.Tokenize(text);
-        Console.WriteLine($"Tokenization: '{text}' → {tokens.Count} tokens");
-        string decoded = llm.Detokenize(tokens);
-        Console.WriteLine($"Detokenization: {tokens.Count} tokens → '{decoded}'\n");
-
-        // Test completion
-        Console.WriteLine("--- Simple Completion ---");
-        string response = await llm.CompletionAsync("What is AI?");
-        Console.WriteLine($"Response: {response}\n");
-
-        // Test streaming
-        Console.WriteLine("--- Streaming Completion ---");
-        Console.Write("Response: ");
-        llm.Completion("Tell me a short joke", StreamCallback);
-        Console.WriteLine("\n");
-
-        // Test agent
-        Console.WriteLine("--- Agent Conversation ---");
-        var agent = new LLMAgent(llm, "You are a friendly assistant.");
-        
-        Console.Write("User: Hello!\nAI: ");
-        agent.Chat("Hello!", callback: StreamCallback);
         Console.WriteLine();
 
-        Console.Write("User: What's my name?\nAI: ");
-        agent.Chat("My name is Alice", callback: StreamCallback);
+        // Second turn (maintains context automatically)
+        previousText = "";
+        Console.WriteLine("User: How are you today?");
+        Console.Write("Assistant: ");
+        string response2 = agent.Chat(
+            "How are you today?",
+            true,
+            StreamingCallback
+        );
         Console.WriteLine();
 
-        Console.Write("User: What did I just tell you?\nAI: ");
-        agent.Chat("What did I just tell you?", callback: StreamCallback);
-        Console.WriteLine("\n");
-
-        // Show history
-        Console.WriteLine("--- Conversation History ---");
-        List<ChatMessage> history = agent.GetHistory();
-        foreach (var msg in history)
-        {
-            Console.WriteLine($"{msg.role}: {msg.content}");
-        }
-
-        // Test embeddings
-        Console.WriteLine("\n--- Embeddings ---");
-        List<float> embedding = llm.Embeddings("test");
-        Console.WriteLine($"Embedding dimensions: {embedding.Count}");
-        Console.WriteLine($"First 5 values: {string.Join(", ", embedding.GetRange(0, 5))}");
-
-        Console.WriteLine("\n✓ Demo completed successfully");
+        // Show conversation history
+        Console.WriteLine($"History size: {agent.GetHistorySize()} messages");
     }
 }
 ```
-
-This guide provides a comprehensive reference for using LlamaLib in C# applications. For more examples and advanced usage, refer to the included example programs and the C++ API documentation.
