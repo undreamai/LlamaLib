@@ -180,7 +180,8 @@ cmake --build build
 
 ### Architecture Selection
 
-LlamaLib supports runtime architecture detection, automatically selecting the best backend for your hardware. LlamaLib will automatically copy the required libraries to your build directory.
+LlamaLib will automatically copy the required libraries to your build directory.
+LlamaLib implements runtime architecture detection for desktop platforms (Windows, Linux, macOS), automatically selecting the best backend on runtime for the hardware.
 You can also control which architectures to include in your build:
 
 #### Windows & Linux
@@ -290,6 +291,9 @@ LLMServiceBuilder()
 // CPU-only LLM with 8 threads
 LLMService llm("model.gguf", 1, 8);
 
+// GPU usage
+LLMService llm("model.gguf", 1, -1, 20);
+
 // Embedding LLM
 LLMService* llm = LLMServiceBuilder().model("model.gguf").embeddingOnly(true).build();
 ```
@@ -343,7 +347,7 @@ llm->lora_weight(lora_weights);
 // List available adapters
 auto available = llm->lora_list();
 for (const auto& lora : available) {
-    std::cout << "ID: " << lora.id << ", Path: " << lora.path << std::endl;
+    std::cout << "ID: " << lora.id << ", Scale: " << lora.scaleZpath << std::endl;
 }
 ```
 
@@ -430,9 +434,9 @@ int slot = 0;
 llm.completion("Hello", nullptr, slot);
 // Cancel completion for the slot
 llm.cancel(slot);
-// Save conversation state
+// Save context state
 llm.save_slot(slot, "conversation.state");
-// Restore conversation state
+// Restore context state
 llm.load_slot(slot, "conversation.state");
 ```
 
@@ -483,9 +487,10 @@ std::string completion(
 std::string response = llm.completion("What is AI?");
 
 // Streaming completion
-auto callback = [](const char* chunk) {
-    std::cout << chunk << std::flush;
+auto callback = [](const char* text) {
+    std::cout<<std::strlen(text)<<std::endl;
 };
+
 llm.completion("Tell me a story", callback);
 ```
 
@@ -669,6 +674,8 @@ All core LLM operations specified in <a href="#core-functions" style="color: bla
 
 ### Construction Methods
 
+LLMAgent can be created with either LLMService or LLMClient (local or remote).
+
 ```cpp
 LLMAgent(
     LLMLocal *llm,
@@ -680,9 +687,18 @@ LLMAgent(
 ```cpp
 LLMService llm("model.gguf");
 llm.start();
+llm.start_server("0.0.0.0", 13333);
 
 // Create agent with system prompt
 LLMAgent agent(&llm, "You are a helpful AI assistant. Be concise and friendly.");
+
+// With local LLMClient
+LLMClient local_client(llm);
+LLMAgent agent2(&local_client, "You are a helpful assistant.");
+
+// With remote LLMClient
+LLMClient remote_client("http://localhost", 13333);
+LLMAgent agent3(&remote_client, "You are a helpful assistant.");
 ```
 
 
@@ -697,6 +713,18 @@ std::string chat(
     bool return_response_json = false,  // return output in json format
     bool debug_prompt = false           // debug the complete prompt after applying the chat template to the conversation history
 );
+```
+
+**Example:**
+```cpp
+    // Interact with the agent (non-streaming)
+std::string response = agent.chat("what is your name?");
+std::cout << response << std::endl;
+
+// Interact with the agent (streaming)
+previous_text = "";
+std::string response2 = agent.chat("how are you?", true, streaming_callback);    
+return 0;
 ```
 
 #### History Management
