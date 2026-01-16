@@ -35,7 +35,7 @@ int main(int argc, char **argv)
 
     std::cout << std::endl << "----------------------- completion (streaming) -----------------------" << std::endl;
     std::cout << "response: ";
-    llm_service->completion(PROMPT, static_cast<CharArrayFn>(streaming_callback));
+    llm_service->completion(PROMPT, streaming_callback);
     std::cout << std::endl;
 
     std::cout << std::endl  << "----------------------- completion (no streaming) -----------------------" << std::endl;

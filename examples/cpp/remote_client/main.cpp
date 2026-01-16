@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     std::cout << "----------------------- completion (streaming) using agent -----------------------" << std::endl;
     std::cout << "User: " << PROMPT << std::endl;
     std::cout << "Assistant: ";
-    agent.chat(PROMPT, true, static_cast<CharArrayFn>(streaming_callback));
+    agent.chat(PROMPT, true, streaming_callback);
     std::cout << std::endl;
 
     return 0;
