@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     std::string user_message1 = "Hello! What's your name?";
     std::cout << "User: " << user_message1 << std::endl;
     std::cout << "Assistant: ";
-    std::string response1 = agent.chat(user_message1, true, static_cast<CharArrayFn>(streaming_callback));
+    std::string response1 = agent.chat(user_message1, true, streaming_callback);
     std::cout << std::endl;
 
     // Second conversation turn (maintains context)
@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     std::cout << "User: " << user_message2 << std::endl;
     std::cout << "Assistant: ";
     previous_text = "";
-    std::string response2 = agent.chat(user_message2, true, static_cast<CharArrayFn>(streaming_callback));
+    std::string response2 = agent.chat(user_message2, true, streaming_callback);
     std::cout << std::endl;
 
     // Show conversation history
