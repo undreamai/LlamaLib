@@ -1,18 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- ===================== -->
+  <!--  General properties  -->
+  <!-- ===================== -->
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net8.0;netstandard2.0;net8.0-ios;net8.0-visionos;net8.0-android</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net6.0;net8.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Platforms>AnyCPU;x64;ARM64</Platforms>
+
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
-    <!-- NuGet Package Metadata -->
+    <!-- NuGet metadata -->
     <PackageId>LlamaLib</PackageId>
     <PackageVersion>2.0.1</PackageVersion>
     <Authors>Antonis Maropoulos</Authors>
     <Company>UndreamAI</Company>
-    <Description>LlamaLib - Cross-platform library for local LLMs</Description>
+    <Description>LlamaLib – Cross-platform library for local LLMs</Description>
     <PackageProjectUrl>https://undream.ai</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -20,49 +24,51 @@
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
-  <!-- Auto-detect platform and set constants -->
-  <PropertyGroup>  
-    <PlatformTarget Condition="'$(PlatformTarget)' == ''">AnyCPU</PlatformTarget>
-
-    <!-- Detect from target framework -->
-    <DefineConstants Condition="$(TargetFramework.Contains('ios'))">$(DefineConstants);IOS</DefineConstants>
-    <DefineConstants Condition="$(TargetFramework.Contains('visionos'))">$(DefineConstants);VISIONOS</DefineConstants>
-    <DefineConstants Condition="$(TargetFramework.Contains('android'))">$(DefineConstants);ANDROID</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'android-arm64'">
-    <DefineConstants>$(DefineConstants);ANDROID;ANDROID_ARM64</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'android-x64'">
-    <DefineConstants>$(DefineConstants);ANDROID;ANDROID_X64</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'osx-arm64'">
-    <DefineConstants>$(DefineConstants);OSX;OSX_ARM64</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'osx-x64'">
-    <DefineConstants>$(DefineConstants);OSX;OSX_X64</DefineConstants>
-  </PropertyGroup>
+  <!-- ===================== -->
+  <!--  Architecture flags  -->
+  <!-- ===================== -->
+  <!-- Mirrors CMake LLAMALIB_USE_* options -->
 
   <PropertyGroup>
-    <DefineConstants Condition="$([MSBuild]::IsOSPlatform('Linux'))">LINUX</DefineConstants>
-    <DefineConstants Condition="$([MSBuild]::IsOSPlatform('Windows'))">WINDOWS</DefineConstants>
+    <!-- CPU -->
+    <LlamaLibUseAvx512 Condition="'$(LlamaLibUseAvx512)' == ''">true</LlamaLibUseAvx512>
+    <LlamaLibUseAvx2   Condition="'$(LlamaLibUseAvx2)'   == ''">true</LlamaLibUseAvx2>
+    <LlamaLibUseAvx    Condition="'$(LlamaLibUseAvx)'    == ''">true</LlamaLibUseAvx>
+    <LlamaLibUseNoAvx  Condition="'$(LlamaLibUseNoAvx)'  == ''">true</LlamaLibUseNoAvx>
+
+    <!-- GPU -->
+    <LlamaLibUseCublas   Condition="'$(LlamaLibUseCublas)'   == ''">true</LlamaLibUseCublas>
+    <LlamaLibUseTinyblas Condition="'$(LlamaLibUseTinyblas)' == ''">false</LlamaLibUseTinyblas>
+    <LlamaLibUseVulkan   Condition="'$(LlamaLibUseVulkan)'   == ''">true</LlamaLibUseVulkan>
+    <LlamaLibUseHip      Condition="'$(LlamaLibUseHip)'      == ''">true</LlamaLibUseHip>
+
+    <!-- Accelerate -->
+    <LlamaLibUseAccelerate Condition="'$(LlamaLibUseAccelerate)' == ''">true</LlamaLibUseAccelerate>
+    <LlamaLibUseNoAccelerate Condition="'$(LlamaLibUseNoAccelerate)' == ''">true</LlamaLibUseNoAccelerate>
+    <LlamaLibUseIOS Condition="'$(LlamaLibUseIOS)' == ''">false</LlamaLibUseIOS>
+    <LlamaLibVisionOS Condition="'$(LlamaLibVisionOS)' == ''">false</LlamaLibVisionOS>
   </PropertyGroup>
 
-  <!-- Include build targets for consuming projects -->
+  <!-- ===================== -->
+  <!--  OS defines (managed) -->
+  <!-- ===================== -->
+  <PropertyGroup>
+    <DefineConstants Condition="$([MSBuild]::IsOSPlatform('Windows'))">WINDOWS</DefineConstants>
+    <DefineConstants Condition="$([MSBuild]::IsOSPlatform('Linux'))">LINUX</DefineConstants>
+    <DefineConstants Condition="$([MSBuild]::IsOSPlatform('OSX'))">OSX</DefineConstants>
+  </PropertyGroup>
+
+  <!-- ===================== -->
+  <!--  Package assets       -->
+  <!-- ===================== -->
   <ItemGroup>
     <None Include="LlamaLib.targets" Pack="true" PackagePath="build\" />
     <None Include="LlamaLib.targets" Pack="true" PackagePath="buildTransitive\" />
-  </ItemGroup>
-
-  <!-- Include README for NuGet -->
-  <ItemGroup>
-    <None Include="README.md" Pack="true" PackagePath="\" Condition="Exists('README.md')" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
+
 </Project>
