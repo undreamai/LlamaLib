@@ -30,6 +30,10 @@
   <!-- Mirrors CMake LLAMALIB_USE_* options -->
 
   <PropertyGroup>
+    <!-- Global CPU/GPU toggles -->
+    <LlamaLibAllowCPU Condition="'$(LlamaLibAllowCPU)' == ''">true</LlamaLibAllowCPU>
+    <LlamaLibAllowGPU Condition="'$(LlamaLibAllowGPU)' == ''">true</LlamaLibAllowGPU>
+
     <!-- CPU -->
     <LlamaLibUseAvx512 Condition="'$(LlamaLibUseAvx512)' == ''">true</LlamaLibUseAvx512>
     <LlamaLibUseAvx2   Condition="'$(LlamaLibUseAvx2)'   == ''">true</LlamaLibUseAvx2>
