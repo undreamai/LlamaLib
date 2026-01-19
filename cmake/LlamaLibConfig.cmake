@@ -61,17 +61,50 @@ endforeach()
 
 # Set default options based on platform
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    # Global CPU/GPU toggles
+    option(LLAMALIB_ALLOW_CPU "Enable CPU support" ON)
+    option(LLAMALIB_ALLOW_GPU "Enable GPU support" ON)
+
     # If user specified ANY architecture, use only those specified
     # Otherwise, default all to ON
     if(NOT LLAMALIB_USER_SPECIFIED_ARCH)
-        # Default: all architectures ON
-        foreach(OPT ${LLAMALIB_GPU_OPTIONS} ${LLAMALIB_CPU_OPTIONS})
-            option(${OPT} "Enable ${OPT}" ON)
-        endforeach()
+        # Default: all architectures ON (unless category is disabled)
+        if(LLAMALIB_ALLOW_GPU)
+            foreach(OPT ${LLAMALIB_GPU_OPTIONS})
+                option(${OPT} "Enable ${OPT}" ON)
+            endforeach()
+        else()
+            foreach(OPT ${LLAMALIB_GPU_OPTIONS})
+                set(${OPT} OFF CACHE BOOL "Forced OFF because LLAMALIB_ALLOW_GPU is OFF" FORCE)
+            endforeach()
+        endif()
+
+        if(LLAMALIB_ALLOW_CPU)
+            foreach(OPT ${LLAMALIB_CPU_OPTIONS})
+                option(${OPT} "Enable ${OPT}" ON)
+            endforeach()
+        else()
+            foreach(OPT ${LLAMALIB_CPU_OPTIONS})
+                set(${OPT} OFF CACHE BOOL "Forced OFF because LLAMALIB_ALLOW_CPU is OFF" FORCE)
+            endforeach()
+        endif()
     else()
         # User specified some: default unspecified to OFF
-        foreach(OPT ${LLAMALIB_GPU_OPTIONS} ${LLAMALIB_CPU_OPTIONS})
-            if(NOT DEFINED ${OPT})
+        # But still respect ALLOW_CPU/ALLOW_GPU overrides
+        foreach(OPT ${LLAMALIB_GPU_OPTIONS})
+            if(NOT LLAMALIB_ALLOW_GPU)
+                set(${OPT} OFF CACHE BOOL "Forced OFF because LLAMALIB_ALLOW_GPU is OFF" FORCE)
+            elseif(NOT DEFINED ${OPT})
+                option(${OPT} "Enable ${OPT}" OFF)
+            else()
+                option(${OPT} "Enable ${OPT}" ${${OPT}})
+            endif()
+        endforeach()
+
+        foreach(OPT ${LLAMALIB_CPU_OPTIONS})
+            if(NOT LLAMALIB_ALLOW_CPU)
+                set(${OPT} OFF CACHE BOOL "Forced OFF because LLAMALIB_ALLOW_CPU is OFF" FORCE)
+            elseif(NOT DEFINED ${OPT})
                 option(${OPT} "Enable ${OPT}" OFF)
             else()
                 option(${OPT} "Enable ${OPT}" ${${OPT}})
