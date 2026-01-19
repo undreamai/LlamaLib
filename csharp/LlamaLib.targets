@@ -11,6 +11,10 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <!-- Global CPU/GPU toggles -->
+    <LlamaLibAllowCPU Condition="'$(LlamaLibAllowCPU)' == ''">true</LlamaLibAllowCPU>
+    <LlamaLibAllowGPU Condition="'$(LlamaLibAllowGPU)' == ''">true</LlamaLibAllowGPU>
+
     <!-- CPU default flags -->
     <LlamaLibUseAvx512 Condition="'$(LlamaLibUseAvx512)' == ''">false</LlamaLibUseAvx512>
     <LlamaLibUseAvx2   Condition="'$(LlamaLibUseAvx2)'   == ''">false</LlamaLibUseAvx2>
@@ -31,9 +35,55 @@
   </PropertyGroup>
 
   <!-- ============================== -->
+  <!-- Configure CPU/GPU options      -->
+  <!-- ============================== -->
+  <Target Name="ConfigureLlamaLibOptions" BeforeTargets="DownloadLlamaLibNatives">
+    <PropertyGroup>
+      <!-- Detect if we're on Linux or Windows -->
+      <_IsLinuxOrWindows>false</_IsLinuxOrWindows>
+      <_IsLinuxOrWindows Condition="'$(RuntimeIdentifier)' != '' AND ($(RuntimeIdentifier.StartsWith('linux')) OR $(RuntimeIdentifier.StartsWith('win')))">true</_IsLinuxOrWindows>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(_IsLinuxOrWindows)' == 'true'">
+      <!-- Count CPU options -->
+      <_CpuOptionsCount>0</_CpuOptionsCount>
+      <_CpuOptionsCount Condition="'$(LlamaLibUseAvx512)' == 'true'">$([MSBuild]::Add($(_CpuOptionsCount), 1))</_CpuOptionsCount>
+      <_CpuOptionsCount Condition="'$(LlamaLibUseAvx2)' == 'true'">$([MSBuild]::Add($(_CpuOptionsCount), 1))</_CpuOptionsCount>
+      <_CpuOptionsCount Condition="'$(LlamaLibUseAvx)' == 'true'">$([MSBuild]::Add($(_CpuOptionsCount), 1))</_CpuOptionsCount>
+      <_CpuOptionsCount Condition="'$(LlamaLibUseNoAvx)' == 'true'">$([MSBuild]::Add($(_CpuOptionsCount), 1))</_CpuOptionsCount>
+
+      <!-- Count GPU options -->
+      <_GpuOptionsCount>0</_GpuOptionsCount>
+      <_GpuOptionsCount Condition="'$(LlamaLibUseCublas)' == 'true'">$([MSBuild]::Add($(_GpuOptionsCount), 1))</_GpuOptionsCount>
+      <_GpuOptionsCount Condition="'$(LlamaLibUseTinyblas)' == 'true'">$([MSBuild]::Add($(_GpuOptionsCount), 1))</_GpuOptionsCount>
+      <_GpuOptionsCount Condition="'$(LlamaLibUseVulkan)' == 'true'">$([MSBuild]::Add($(_GpuOptionsCount), 1))</_GpuOptionsCount>
+      <_GpuOptionsCount Condition="'$(LlamaLibUseHip)' == 'true'">$([MSBuild]::Add($(_GpuOptionsCount), 1))</_GpuOptionsCount>
+
+      <!-- Total options count -->
+      <_TotalOptionsCount>$([MSBuild]::Add($(_CpuOptionsCount), $(_GpuOptionsCount)))</_TotalOptionsCount>
+    </PropertyGroup>
+
+    <!-- If none is set AND LlamaLibAllowCPU is false, set all GPU options to true -->
+    <PropertyGroup Condition="'$(_IsLinuxOrWindows)' == 'true' AND '$(_TotalOptionsCount)' == '0' AND '$(LlamaLibAllowCPU)' == 'false'">
+      <LlamaLibUseCublas>true</LlamaLibUseCublas>
+      <LlamaLibUseTinyblas>true</LlamaLibUseTinyblas>
+      <LlamaLibUseVulkan>true</LlamaLibUseVulkan>
+      <LlamaLibUseHip>true</LlamaLibUseHip>
+    </PropertyGroup>
+
+    <!-- Else if none is set AND LlamaLibAllowGPU is false, set all CPU options to true -->
+    <PropertyGroup Condition="'$(_IsLinuxOrWindows)' == 'true' AND '$(_TotalOptionsCount)' == '0' AND '$(LlamaLibAllowGPU)' == 'false'">
+      <LlamaLibUseAvx512>true</LlamaLibUseAvx512>
+      <LlamaLibUseAvx2>true</LlamaLibUseAvx2>
+      <LlamaLibUseAvx>true</LlamaLibUseAvx>
+      <LlamaLibUseNoAvx>true</LlamaLibUseNoAvx>
+    </PropertyGroup>
+  </Target>
+
+  <!-- ============================== -->
   <!-- Download & unzip the package   -->
   <!-- ============================== -->
-  <Target Name="DownloadLlamaLibNatives" BeforeTargets="BeforeBuild">
+  <Target Name="DownloadLlamaLibNatives" AfterTargets="ConfigureLlamaLibOptions" BeforeTargets="BeforeBuild">
     <MakeDir Directories="$(LlamaLibCacheDir)" />
     <Message Text="Downloading LlamaLib $(LlamaLibVersion)" Importance="high" Condition="!Exists('$(LlamaLibZipFile)') AND !Exists('$(LlamaLibExtractDir)')" />
     <DownloadFile SourceUrl="$(LlamaLibReleaseUrl)" DestinationFolder="$(LlamaLibCacheDir)" DestinationFileName="$(LlamaLibZipName).zip" Condition="!Exists('$(LlamaLibZipFile)') AND !Exists('$(LlamaLibExtractDir)')" />
