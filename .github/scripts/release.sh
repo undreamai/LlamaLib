@@ -12,6 +12,7 @@ mkdir servers
 for arch in win-x64_noavx linux-x64_noavx osx-arm64_no-acc osx-x64_no-acc;do
     unzip -o $arch.zip/$arch.zip -d servers llamalib*server*
 done
+chmod a+x servers/*
 
 # extract runtimes
 for d in *.zip;do
