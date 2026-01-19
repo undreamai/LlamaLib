@@ -23,100 +23,99 @@ endmacro()
 
 ####################################################################################
 
-set(DEPENDENT_OPTIONS
+# List of all architecture options
+set(LLAMALIB_GPU_OPTIONS
     LLAMALIB_USE_CUBLAS
     LLAMALIB_USE_TINYBLAS
     LLAMALIB_USE_HIP
     LLAMALIB_USE_VULKAN
+)
+
+set(LLAMALIB_CPU_OPTIONS
     LLAMALIB_USE_AVX512
     LLAMALIB_USE_AVX2
     LLAMALIB_USE_AVX
     LLAMALIB_USE_NOAVX
+)
+
+set(LLAMALIB_MACOS_OPTIONS
     LLAMALIB_USE_ACCELERATE
     LLAMALIB_USE_NO_ACCELERATE
 )
 
-# Enhanced llamalib_option function that creates dependent options
-function(llamalib_option name description)
-    if(NOT DEFINED ${name})
-        set(${name} ON CACHE BOOL "${description}")
-    endif()
-    
-    # Create a variable to track if this option was manually overridden
-    if(NOT DEFINED ${name}_MANUAL_OVERRIDE)
-        set(${name}_MANUAL_OVERRIDE FALSE CACHE INTERNAL "Track if ${name} was manually set by user")
-    endif()
-endfunction()
+# Combine all architecture options
+set(LLAMALIB_ALL_ARCH_OPTIONS
+    ${LLAMALIB_GPU_OPTIONS}
+    ${LLAMALIB_CPU_OPTIONS}
+    ${LLAMALIB_MACOS_OPTIONS}
+)
 
-# Function to handle automatic dependency management
-function(handle_dependent_options)
-    # List of all dependent options
-    set(VALUE_AUTO_CHANGED OFF)
-    foreach(OPTION_NAME ${DEPENDENT_OPTIONS})
-        if(DEFINED ${OPTION_NAME})
-            # If option differs from expected value, user manually changed it
-            if(NOT "${${OPTION_NAME}}" STREQUAL "ON" AND NOT ${OPTION_NAME}_MANUAL_OVERRIDE)
-                set(${OPTION_NAME}_MANUAL_OVERRIDE TRUE CACHE INTERNAL "Track if ${OPTION_NAME} was manually set by user" FORCE)
-            endif()
-        endif()
-    endforeach()
-    
-    # Check for multiple enabled options when runtime detection is OFF
-    if(NOT VALUE_AUTO_CHANGED)
-        set(ENABLED_OPTIONS "")
-        set(ENABLED_COUNT 0)
-        
-        foreach(OPTION_NAME ${DEPENDENT_OPTIONS})
-            if(DEFINED ${OPTION_NAME} AND ${OPTION_NAME})
-                list(APPEND ENABLED_OPTIONS ${OPTION_NAME})
-                math(EXPR ENABLED_COUNT "${ENABLED_COUNT} + 1")
+# Check if user explicitly set any architecture options
+set(LLAMALIB_USER_SPECIFIED_ARCH FALSE)
+foreach(OPT ${LLAMALIB_ALL_ARCH_OPTIONS})
+    if(DEFINED ${OPT})
+        set(LLAMALIB_USER_SPECIFIED_ARCH TRUE)
+        break()
+    endif()
+endforeach()
+
+# Set default options based on platform
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    # If user specified ANY architecture, use only those specified
+    # Otherwise, default all to ON
+    if(NOT LLAMALIB_USER_SPECIFIED_ARCH)
+        # Default: all architectures ON
+        foreach(OPT ${LLAMALIB_GPU_OPTIONS} ${LLAMALIB_CPU_OPTIONS})
+            option(${OPT} "Enable ${OPT}" ON)
+        endforeach()
+    else()
+        # User specified some: default unspecified to OFF
+        foreach(OPT ${LLAMALIB_GPU_OPTIONS} ${LLAMALIB_CPU_OPTIONS})
+            if(NOT DEFINED ${OPT})
+                option(${OPT} "Enable ${OPT}" OFF)
+            else()
+                option(${OPT} "Enable ${OPT}" ${${OPT}})
             endif()
         endforeach()
-        
-        if(ENABLED_COUNT EQUAL 0)
-            message(WARNING "No architecture specified. Select at least one of the architectures (LLAMALIB_USE_*).")
-        endif()
     endif()
-endfunction()
-
-# Set default options
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  option(LLAMALIB_ALLOW_CPU "Enable CPU support" ON)
-  option(LLAMALIB_ALLOW_GPU "Enable GPU support" ON)
-
-  if(LLAMALIB_ALLOW_GPU)
-    llamalib_option(LLAMALIB_USE_CUBLAS "Enable CUBLAS architecture (GPU)")
-    llamalib_option(LLAMALIB_USE_TINYBLAS "Enable tinyBLAS architecture (GPU)")
-    llamalib_option(LLAMALIB_USE_VULKAN "Enable Vulkan architecture (GPU)")
-    llamalib_option(LLAMALIB_USE_HIP "Enable HIP architecture (GPU)")
-  else()
-    foreach(opt LLAMALIB_USE_CUBLAS LLAMALIB_USE_TINYBLAS LLAMALIB_USE_VULKAN LLAMALIB_USE_HIP)
-      set(${opt} OFF CACHE BOOL "Forced OFF because LLAMALIB_ALLOW_GPU is OFF" FORCE)
-    endforeach()
-  endif()
-
-  if(LLAMALIB_ALLOW_CPU)
-    llamalib_option(LLAMALIB_USE_AVX512 "Enable AVX512 architecture")
-    llamalib_option(LLAMALIB_USE_AVX2 "Enable AVX2 architecture")
-    llamalib_option(LLAMALIB_USE_AVX "Enable AVX architecture")
-    llamalib_option(LLAMALIB_USE_NOAVX "Enable no-AVX architecture")
-  else()
-    foreach(opt LLAMALIB_USE_AVX512 LLAMALIB_USE_AVX2 LLAMALIB_USE_AVX LLAMALIB_USE_NOAVX)
-      set(${opt} OFF CACHE BOOL "Forced OFF because LLAMALIB_ALLOW_CPU is OFF" FORCE)
-    endforeach()
-  endif()
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  llamalib_option(LLAMALIB_USE_ACCELERATE "Enable Accelerate framework")
-  llamalib_option(LLAMALIB_USE_NO_ACCELERATE "Disable Accelerate framework")
+    # macOS: same logic for Accelerate options
+    if(NOT LLAMALIB_USER_SPECIFIED_ARCH)
+        # Default: all ON
+        foreach(OPT ${LLAMALIB_MACOS_OPTIONS})
+            option(${OPT} "Enable ${OPT}" ON)
+        endforeach()
+    else()
+        # User specified some: default unspecified to OFF
+        foreach(OPT ${LLAMALIB_MACOS_OPTIONS})
+            if(NOT DEFINED ${OPT})
+                option(${OPT} "Enable ${OPT}" OFF)
+            else()
+                option(${OPT} "Enable ${OPT}" ${${OPT}})
+            endif()
+        endforeach()
+    endif()
 endif()
 
+# Copy dependencies option
 if(NOT DEFINED LLAMALIB_COPY_DEPS)
-    OPTION(LLAMALIB_COPY_DEPS "Automatically copy LlamaLib libraries" ON)
+    option(LLAMALIB_COPY_DEPS "Automatically copy LlamaLib libraries" ON)
 endif()
 
-# Handle dependent options after all options are defined
-handle_dependent_options()
+# Report enabled architectures
+set(LLAMALIB_ENABLED_ARCHS "")
+foreach(OPT ${LLAMALIB_ALL_ARCH_OPTIONS})
+    if(${OPT})
+        list(APPEND LLAMALIB_ENABLED_ARCHS ${OPT})
+    endif()
+endforeach()
+
+if(LLAMALIB_ENABLED_ARCHS)
+    message(STATUS "LlamaLib enabled architectures: ${LLAMALIB_ENABLED_ARCHS}")
+else()
+    message(WARNING "No LlamaLib architectures enabled")
+endif()
 
 # Include the main logic from a separate module
 include("${CMAKE_CURRENT_LIST_DIR}/LlamaLibTargets.cmake")
