@@ -31,7 +31,6 @@ cp $root_dir/third_party/llama.cpp/vendor/cpp-httplib/httplib.h include/
 # licenses
 mkdir -p third_party_licenses
 cp $root_dir/third_party/llama.cpp/LICENSE third_party_licenses/llama.cpp.LICENSE.txt
-curl -o third_party_licenses/llamafile.LICENSE.txt -L https://raw.githubusercontent.com/Mozilla-Ocho/llamafile/main/LICENSE
 
 # copy files from repo
 cp $root_dir/LICENSE ./
