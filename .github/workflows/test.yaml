@@ -1,0 +1,91 @@
+name: Build library
+
+on:
+  push:
+
+env:
+  CUDA: 12.4.1
+
+jobs:
+  ios-build:
+    runs-on: macos-14
+
+    strategy:
+      matrix:
+        include:
+          - arch: ios-arm64
+            cmake_vars: '-DCMAKE_SYSTEM_NAME=iOS'
+          - arch: visionos-arm64
+            cmake_vars: '-DCMAKE_SYSTEM_NAME=visionOS'
+
+    steps:
+        - continue-on-error: true
+          id: setup_libs_macos
+          name: Dependencies
+          run: |
+            echo "Architecture: $(uname -m)"
+            echo "Operating System: $(uname -s)"
+            brew update
+
+        - id: checkout
+          name: Clone
+          uses: actions/checkout@v4
+          with:
+            submodules: recursive
+
+        - id: preparation
+          name: Preparation
+          run: |
+            mkdir -p build/libs
+            echo "CMAKE_VARS=-DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}" >> $GITHUB_ENV
+          shell: bash
+
+
+        - id: cpu-cores
+          name: Get number of CPU cores
+          uses: SimenB/github-actions-cpu-cores@v2
+
+        - id: cmake_build
+          name: Build
+          run: |
+            cd build
+            cmake .. ${{ env.CMAKE_VARS }}
+            cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
+
+        - id: link_libraries_ios
+          name: Link libraries
+          run: |
+            cd build
+            lib=libs/libllamalib_${{ matrix.arch }}.a
+            libtool -static -o $lib `find . -name "*.a"`
+            nm -u $lib
+
+
+        - id: pack_artifacts
+          name: Pack artifacts
+          run: |
+            ls -R build
+        
+            mkdir -p artifacts
+            mv build/Release/*llamalib* artifacts/ 2>/dev/null || true
+            mv build/libs/*llamalib* artifacts/ 2>/dev/null || true
+            mv build/libs/*.so* artifacts/ 2>/dev/null || true
+            mv build/libs/Release/*llamalib* artifacts/ 2>/dev/null || true
+            mv build/libs/Release/*.dll artifacts/ 2>/dev/null || true
+            rm -f artifacts/*llamalib_tests* artifacts/*exp artifacts/*server*lib 2>/dev/null || true
+        
+            rm -r build
+            cd artifacts
+            if [[ "$RUNNER_OS" == "Windows" ]]; then
+              7z a ../${{ matrix.arch }}.zip *
+            else
+              zip ../${{ matrix.arch }}.zip *
+            fi
+          shell: bash
+
+        - id: upload_llamalib
+          name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ matrix.arch }}.zip
+            path: ${{ matrix.arch }}.zip
