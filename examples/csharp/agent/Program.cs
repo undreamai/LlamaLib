@@ -7,17 +7,17 @@ namespace LlamaLibExamples
 {
     class Program
     {
+        static string previousText = "";
         static void StreamingCallback(string text)
         {
-            Console.Write(text);
+            Console.Write(text.Substring(previousText.Length));
+            previousText = text;
         }
 
         static void Main(string[] args)
         {
-            string model = "model.gguf";
-
             // Create the underlying LLM service
-            LLMService llmService = new LLMService(model);
+            LLMService llmService = new LLMService("model.gguf", numGpuLayers:10);
             llmService.Start();
 
             // Create an agent with a system prompt
@@ -37,6 +37,7 @@ namespace LlamaLibExamples
             string userMessage2 = "How are you today?";
             Console.WriteLine($"User: {userMessage2}");
             Console.Write("Assistant: ");
+            previousText = "";
             string response2 = agent.Chat(userMessage2, true, StreamingCallback);
             Console.WriteLine();
 

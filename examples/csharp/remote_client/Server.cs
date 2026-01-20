@@ -9,14 +9,13 @@ namespace LlamaLibExamples
     {
         static void Main(string[] args)
         {
-            string model = "model.gguf";
             int serverPort = 13333;
 
             // show debug messages
             LLM.Debug(1);
 
             Console.WriteLine("Starting LLM server...\n");
-            LLMService llmServer = new LLMService(model);
+            LLMService llmServer = new LLMService("model.gguf", numGpuLayers:10);
 
             // start service and server
             llmServer.Start();
