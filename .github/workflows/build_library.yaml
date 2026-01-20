@@ -764,7 +764,7 @@ jobs:
           run: |
             ./tests/download_test_models.sh
             cd tests/cpp-cmake
-            cmake . -DLlamaLib_DIR=../../${{ env.RELEASE_NAME }}
+            cmake . -DLLAMALIB_DIR=../../${{ env.RELEASE_NAME }}
             cmake --build . --config Release
             ./test
 
