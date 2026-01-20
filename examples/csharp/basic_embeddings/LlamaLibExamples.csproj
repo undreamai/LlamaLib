@@ -9,7 +9,6 @@
   
   <ItemGroup>
     <PackageReference Include="LlamaLib" Version="2.0.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
   
 </Project>
