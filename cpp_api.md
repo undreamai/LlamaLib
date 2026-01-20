@@ -135,7 +135,7 @@ int main() {
 ## Building Your Project
 
 - Download and extract the LlamaLib release bundle LlamaLib-vX.X.X.zip of the [latest release](https://github.com/undreamai/LlamaLib/releases/latest). <br>
-We will refer to the extracted folder as `<LlamaLib_DIR>`
+We will refer to the extracted folder as `<LLAMALIB_DIR>`
 - Download your favourite model in .gguf format ([Hugging Face link](https://huggingface.co/models?library=gguf&sort=downloads))
 
 ### Directory Structure
@@ -156,20 +156,20 @@ cmake_minimum_required(VERSION 3.22)
 project(MyLLMApp)
 
 # Find LlamaLib package
-find_package(LlamaLib REQUIRED)
+find_package(LLAMALIB REQUIRED)
 
 # Create your executable
 add_executable(main main.cpp)
 
 # Link against LlamaLib
-target_link_libraries(main PRIVATE ${LlamaLib_LIBRARIES})
+target_link_libraries(main PRIVATE ${LLAMALIB_LIBRARIES})
 ```
 
 ### Build Commands
 
 ```bash
 # Configure
-cmake -B build -DLlamaLib_DIR=<LlamaLib_DIR>
+cmake -B build -DLLAMALIB_DIR=<LLAMALIB_DIR>
 
 # Build
 cmake --build build
@@ -184,54 +184,45 @@ LlamaLib will automatically copy the required libraries to your build directory.
 LlamaLib implements runtime architecture detection for desktop platforms (Windows, Linux, macOS), automatically selecting the best backend on runtime for the hardware.
 You can also control which architectures to include in your build:
 
-#### Windows & Linux
-
-**GPU Options:**
 ```bash
-# Enable all GPU backends (default)
-cmake -B build -DLLAMALIB_ALLOW_GPU=ON
+# Windows / Linux
 
-# Enable specific GPU backends
-cmake -B build \
-  -DLLAMALIB_USE_CUBLAS=ON \      # NVIDIA CUDA
-  -DLLAMALIB_USE_TINYBLAS=ON \    # Compact NVIDIA CUDA
-  -DLLAMALIB_USE_VULKAN=ON        # Cross-platform GPU
-```
-
-**CPU Options:**
-```bash
-# Enable all CPU backends (default)
-cmake -B build -DLLAMALIB_ALLOW_CPU=ON
-
+## CPU options
 # Enable specific CPU instruction sets
-cmake -B build \
-  -DLLAMALIB_USE_AVX512=ON \      # Latest Intel/AMD CPUs
-  -DLLAMALIB_USE_AVX2=ON \        # Modern CPUs (2013+)
-  -DLLAMALIB_USE_AVX=ON \         # Older CPUs (2011+)
-  -DLLAMALIB_USE_NOAVX=ON         # Legacy CPUs
-```
+## CPUs without AVX instructions
+cmake -B build -DLLAMALIB_USE_NOAVX=ON
+## CPUs with AVX instructions
+cmake -B build -DLLAMALIB_USE_AVX=ON
+## CPUs with AVX2 instructions
+cmake -B build -DLLAMALIB_USE_AVX2=ON
+## CPUs with AVX512 instructions
+cmake -B build -DLLAMALIB_USE_AVX512=ON
 
-**CPU-Only Build:**
-```bash
-# Disable GPU support
-cmake -B build \
-  -DLLAMALIB_ALLOW_GPU=OFF \
-  -DLLAMALIB_ALLOW_CPU=ON
-```
+## Compact NVIDIA CUDA
+cmake -B build -DLLAMALIB_USE_TINYBLAS=ON
+## NVIDIA CUDA (CUBLAS)
+cmake -B build -DLLAMALIB_USE_CUBLAS=ON
+## Cross-platform GPU support (Nvidia, AMD)
+cmake -B build -DLLAMALIB_USE_VULKAN=ON
 
-#### macOS
+## Multiple architectures can be provided e.g.
+cmake -B build -DLLAMALIB_USE_NOAVX=ON -DLLAMALIB_USE_AVX=ON -DLLAMALIB_USE_AVX2=ON -DLLAMALIB_USE_AVX512=ON -DLLAMALIB_USE_TINYBLAS=ON
 
-```bash
-# Enable Metal GPU acceleration (default)
+## Disable all GPU architectures (keep only CPU)
+cmake -B build -DLLAMALIB_ALLOW_GPU=OFF
+## Disable all CPU architectures (keep only GPU)
+cmake -B build -DLLAMALIB_ALLOW_CPU=OFF
+
+################################################
+
+# OSX
+## Accelerate framework support
 cmake -B build -DLLAMALIB_USE_ACCELERATE=ON
-
-# Enable No-Metal CPU-only acceleration (default)
+## No accelerate framework support
 cmake -B build -DLLAMALIB_USE_NO_ACCELERATE=ON
 ```
 
-#### Mobile & VR
 For mobile (Android, iOS) and VR applications the corresponding architecture is automatically used.
-
 
 ---
 
