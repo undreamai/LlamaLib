@@ -10,7 +10,7 @@ The basic example demonstrates how to start a LLM and run its main methods:
 2. Build with CMake:
 
 ```bash
-cmake -B build -DLlamaLib_DIR=<path_to_extracted_LlamaLib_release>
+cmake -B build -DLLAMALIB_DIR=<path_to_extracted_LlamaLib_release>
 cmake --build build
 ```
 
