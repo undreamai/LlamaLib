@@ -13,7 +13,7 @@ The remote client example demonstrates the remote server-client functionality:
 2. Build with CMake:
 
 ```bash
-cmake -B build -DLlamaLib_DIR=<path_to_extracted_LlamaLib_release>
+cmake -B build -DLLAMALIB_DIR=<path_to_extracted_LlamaLib_release>
 cmake --build build
 ```
 
