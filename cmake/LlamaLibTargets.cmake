@@ -228,19 +228,5 @@ message(STATUS "LlamaLib libraries: ${LlamaLib_LIBRARIES}")
 
 # Set variables for find_package
 set(LlamaLib_FOUND TRUE)
-
-# Check required components
-if(LlamaLib_FIND_COMPONENTS)
-    set(LlamaLib_FOUND TRUE)
-    foreach(component ${LlamaLib_FIND_COMPONENTS})
-        string(TOUPPER ${component} component_upper)
-        if(NOT LlamaLib_${component}_FOUND)
-            set(LlamaLib_FOUND FALSE)
-            if(LlamaLib_FIND_REQUIRED_${component})
-                message(FATAL_ERROR "LlamaLib component ${component} not found")
-            endif()
-        endif()
-    endforeach()
-endif()
-
-check_required_components(LlamaLib)
+set(LLAMALIB_FOUND "${LlamaLib_FOUND}")
+set(LLAMALIB_LIBRARIES "${LlamaLib_LIBRARIES}")
