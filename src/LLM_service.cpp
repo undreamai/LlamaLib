@@ -1,5 +1,6 @@
 #include "LLM_service.h"
 
+#include "arg.h"
 #include "common.h"
 #include "llama-chat.h"
 #include "log.h"
