@@ -1,8 +1,8 @@
 diff --git a/common/common.h b/common/common.h
-index d6fd0d37a..ea2777d20 100644
+index b9566df62..b3f8f2363 100644
 --- a/common/common.h
 +++ b/common/common.h
-@@ -489,7 +489,9 @@ struct common_params {
+@@ -497,7 +497,9 @@ struct common_params {
      std::vector<std::string> api_keys;
  
      std::string ssl_file_key  = "";                                                                         // NOLINT
@@ -189,7 +189,7 @@ index 42a35736e..e5fbf1268 100644
          struct ggml_metal_buffer_id bid_src = ggml_metal_get_buffer_id(tensor);
          if (bid_src.metal == nil) {
 diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-index d68735a04..56f342c9b 100644
+index 08fd044ca..b808959f7 100644
 --- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 +++ b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 @@ -103,7 +103,7 @@ static bool is_pow2(uint32_t x) { return x > 1 && (x & (x-1)) == 0; }
@@ -202,7 +202,7 @@ index d68735a04..56f342c9b 100644
      } while (0)
  
 diff --git a/ggml/src/ggml.c b/ggml/src/ggml.c
-index 09b8eb466..b8293b203 100644
+index 1725ad165..3fe2de85d 100644
 --- a/ggml/src/ggml.c
 +++ b/ggml/src/ggml.c
 @@ -253,7 +253,12 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {
@@ -220,10 +220,10 @@ index 09b8eb466..b8293b203 100644
  
  // ggml_print_backtrace is registered with std::set_terminate by ggml.cpp
 diff --git a/tools/mtmd/CMakeLists.txt b/tools/mtmd/CMakeLists.txt
-index 4b9022cb5..26fc1391f 100644
+index 751440af3..26435cf6e 100644
 --- a/tools/mtmd/CMakeLists.txt
 +++ b/tools/mtmd/CMakeLists.txt
-@@ -78,17 +78,3 @@ if (TARGET mtmd)
+@@ -79,17 +79,3 @@ if (TARGET mtmd)
                              "It must not link against common")
      endif()
  endif()
@@ -242,21 +242,21 @@ index 4b9022cb5..26fc1391f 100644
 -target_link_libraries  (${TARGET} PRIVATE common mtmd Threads::Threads)
 -target_compile_features(${TARGET} PRIVATE cxx_std_17)
 diff --git a/tools/server/server-context.cpp b/tools/server/server-context.cpp
-index 33635a158..83a9c5c33 100644
+index 82294d940..199ccf14c 100644
 --- a/tools/server/server-context.cpp
 +++ b/tools/server/server-context.cpp
-@@ -18,6 +18,7 @@
+@@ -16,6 +16,7 @@
+ #include <cinttypes>
  #include <memory>
- #include <unordered_set>
  #include <filesystem>
 +#include <iostream>
  
  // fix problem with std::min and std::max
  #if defined(_WIN32)
-@@ -81,8 +82,8 @@ struct server_slot {
+@@ -61,8 +62,8 @@ struct server_slot {
  
-     common_speculative * spec = nullptr;
- 
+     // TODO: move members that belong to the task (such as `generated_text`, `has_new_line`) to task_results_state
+     //       see https://github.com/ggml-org/llama.cpp/pull/18283#issuecomment-3710175837
 -    std::unique_ptr<const server_task> task;
 -    std::unique_ptr<const server_task> task_prev; // used for debugging
 +    std::unique_ptr<server_task> task;
@@ -264,7 +264,7 @@ index 33635a158..83a9c5c33 100644
  
      // used to determine the slot that has been used the longest
      int64_t t_last_used = -1;
-@@ -531,7 +532,6 @@ public:
+@@ -545,7 +546,6 @@ public:
          }
      }
  
@@ -272,7 +272,7 @@ index 33635a158..83a9c5c33 100644
      // note: accessing these fields outside of this class is not thread-safe
      // use server_context methods instead
  
-@@ -608,7 +608,6 @@ private:
+@@ -622,7 +622,6 @@ private:
          }
          sleeping = new_state;
      }
@@ -280,7 +280,7 @@ index 33635a158..83a9c5c33 100644
      // load the model and initialize llama_context
      // this may also be called to resume from sleeping state
      bool load_model(const common_params & params) {
-@@ -628,6 +627,11 @@ private:
+@@ -642,6 +641,11 @@ private:
              return false;
          }
  
@@ -292,14 +292,14 @@ index 33635a158..83a9c5c33 100644
          vocab = llama_model_get_vocab(model);
  
          n_ctx = llama_n_ctx(ctx);
-@@ -1178,7 +1182,7 @@ private:
+@@ -1184,7 +1188,7 @@ private:
              slot.batch_spec = llama_batch_init(task.params.speculative.n_max + 1, 0, 1);
          }
  
 -        slot.task = std::make_unique<const server_task>(std::move(task));
 +        slot.task = std::make_unique<server_task>(std::move(task));
  
-         slot.state = slot.is_child()
+         slot.state = slot.task->is_child()
              ? SLOT_STATE_WAIT_OTHER // wait for the parent to process prompt
 diff --git a/tools/server/server-http.cpp b/tools/server/server-http.cpp
 index 5d67e5722..f0bccd73d 100644
@@ -348,10 +348,10 @@ index 5d67e5722..f0bccd73d 100644
          LOG_INF("Running without SSL\n");
          srv.reset(new httplib::Server());
 diff --git a/tools/server/server-queue.h b/tools/server/server-queue.h
-index 3798aa299..e22e3fcb1 100644
+index 164f09b19..1fc9ba027 100644
 --- a/tools/server/server-queue.h
 +++ b/tools/server/server-queue.h
-@@ -101,6 +101,9 @@ public:
+@@ -102,6 +102,9 @@ public:
          callback_sleeping_state = std::move(callback);
      }
  
