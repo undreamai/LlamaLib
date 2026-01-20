@@ -7,21 +7,22 @@ namespace LlamaLibExamples
 {
     class Client
     {
+        static string previousText = "";
         static void StreamingCallback(string text)
         {
-            Console.Write(text);
+            Console.Write(text.Substring(previousText.Length));
+            previousText = text;
         }
 
         static void Main(string[] args)
         {
             string serverUrl = "http://localhost";
+            string prompt = "Hello, how are you?";
             int serverPort = 13333;
 
+            Console.WriteLine("*** Using client ***");
             // Create a remote client that connects to the server
             LLMClient llmClient = new LLMClient(serverUrl, serverPort);
-
-            string prompt = "you are an artificial intelligence assistant\n\n--- user: Hello, how are you?\n--- assistant";
-
             Console.WriteLine("----------------------- tokenize -----------------------");
             List<int> tokens = llmClient.Tokenize(prompt);
             Console.Write("tokens: ");
@@ -31,28 +32,15 @@ namespace LlamaLibExamples
             }
             Console.WriteLine();
 
-            Console.WriteLine("\n----------------------- detokenize -----------------------");
-            string detokenizeResponse = llmClient.Detokenize(tokens);
-            Console.WriteLine($"prompt: {detokenizeResponse}");
-
-            Console.WriteLine("\n----------------------- completion (streaming) -----------------------");
-            Console.Write("response: ");
+            // Create an agent that uses the remote client
+            Console.WriteLine("*** Using agent ***");
+            string systemPrompt = "You are a helpful AI assistant. Be concise and friendly.";
+            LLMAgent agent = new LLMAgent(llmClient, systemPrompt);
+            Console.WriteLine("\n----------------------- completion (streaming) using agent -----------------------");
+            Console.WriteLine("User: " + prompt);
+            Console.Write("Assistant: ");
             llmClient.Completion(prompt, StreamingCallback);
             Console.WriteLine();
-
-            Console.WriteLine("\n----------------------- completion (no streaming) -----------------------");
-            string completionResponse = llmClient.Completion(prompt);
-            Console.WriteLine($"response: {completionResponse}");
-
-            Console.WriteLine("\n----------------------- embeddings -----------------------");
-            List<float> embeddings = llmClient.Embeddings(prompt);
-            Console.Write("embeddings: ");
-            int maxCount = Math.Min(embeddings.Count, 10);
-            for (int i = 0; i < maxCount; i++)
-            {
-                Console.Write($"{embeddings[i]} ");
-            }
-            Console.WriteLine("...");
         }
     }
 }
