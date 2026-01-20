@@ -185,28 +185,28 @@ You can specify the runtime identifier to select the target platform
 
 ```bash
 # Windows
-dotnet publish -r win-x64 -c Release
+dotnet build -r win-x64
 
 # Linux
-dotnet publish -r linux-x64 -c Release
+dotnet build -r linux-x64
 
 # macOS Intel
-dotnet publish -r osx-x64 -c Release
+dotnet build -r osx-x64
 
 # macOS Apple Silicon
-dotnet publish -r osx-arm64 -c Release
+dotnet build -r osx-arm64
 
 # Android ARM64
-dotnet publish -r android-arm64 -c Release
+dotnet build -r android-arm64
 
 # Android x64
-dotnet publish -r android-x64 -c Release
+dotnet build -r android-x64
 
 # iOS
-dotnet publish -r ios-arm64 -c Release
+dotnet build -r ios-arm64
 
-# visionOS
-dotnet publish -r visionos-arm64 -c Release
+# visionOS (there is no runtime id for VisionOS)
+dotnet build -r osx-arm64 -p:LlamaLibVisionOS=true
 ```
 
 **Architecture Selection:**
@@ -214,6 +214,44 @@ dotnet publish -r visionos-arm64 -c Release
 LlamaLib automatically downloads and includes the appropriate native libraries based on your runtime identifier.
 For desktop platforms (Windows, Linux, macOS), the library includes runtime architecture detection and will automatically select the best backend for the hardware on runtime.
 
+Alternatively you can specify the architecture(s) you would like to bundle with your build@
+
+```bash
+# Windows / Linux
+
+## CPU options
+## CPUs without AVX instructions
+dotnet build -p:LlamaLibUseNoAvx=true
+## CPUs with AVX instructions
+dotnet build -p:LlamaLibUseAvx=true
+## CPUs with AVX2 instructions
+dotnet build -p:LlamaLibUseAvx2=true
+## CPUs with AVX512 instructions
+dotnet build -p:LlamaLibUseAvx512=true
+
+## GPU options
+## Compact NVIDIA CUDA
+dotnet build -p:LlamaLibUseTinyblas=true
+## NVIDIA CUDA (CUBLAS)
+dotnet build -p:LlamaLibUseCuBlas=true
+## Cross-platform GPU support (Nvidia, AMD)
+dotnet build -p:LlamaLibUseVulkan=true
+
+## Multiple architectures can be provided e.g.
+dotnet build -p:LlamaLibUseNoAvx=true  -p:LlamaLibUseAvx=true -p:LlamaLibUseAvx2=true -p:LlamaLibUseAvx512=true -p:LlamaLibUseTinyblas=true
+
+## Disable all GPU architectures (keep only CPU)
+dotnet build -p:LlamaLibAllowGPU=false
+## Disable all CPU architectures (keep only GPU)
+dotnet build -p:LlamaLibAllowCPU=false
+
+################################################
+
+# OSX
+## Accelerate framework support
+dotnet build -p:LlamaLibUseAccelerate=true
+## No accelerate framework support
+dotnet build -p:LlamaLibUseNoAccelerate=true
 ---
 
 ## Core Classes
