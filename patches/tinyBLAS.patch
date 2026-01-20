@@ -60,7 +60,7 @@ index d313c1ac9..f8a717efa 100644
          add_compile_definitions(GGML_CUDA_NO_PEER_COPY)
      endif()
 diff --git a/ggml/src/ggml-cuda/common.cuh b/ggml/src/ggml-cuda/common.cuh
-index 9516d8ec8..f3075e700 100644
+index 179522d83..85e9a19d7 100644
 --- a/ggml/src/ggml-cuda/common.cuh
 +++ b/ggml/src/ggml-cuda/common.cuh
 @@ -33,6 +33,8 @@
@@ -91,7 +91,7 @@ index 9516d8ec8..f3075e700 100644
  #endif // !defined(GGML_CUDA_NO_FA) && !(defined(GGML_USE_MUSA) && __MUSA_ARCH__ < 220)
  
 diff --git a/ggml/src/ggml-cuda/ggml-cuda.cu b/ggml/src/ggml-cuda/ggml-cuda.cu
-index bac69cdd1..7ace6a393 100644
+index cda422def..5c45f12a3 100644
 --- a/ggml/src/ggml-cuda/ggml-cuda.cu
 +++ b/ggml/src/ggml-cuda/ggml-cuda.cu
 @@ -56,7 +56,9 @@
@@ -195,7 +195,7 @@ index bac69cdd1..7ace6a393 100644
          case GGML_OP_FILL:
              ggml_cuda_op_fill(ctx, dst);
              break;
-@@ -3523,7 +3537,6 @@ static void ggml_cuda_graph_evaluate_and_capture(ggml_backend_cuda_context * cud
+@@ -3531,7 +3545,6 @@ static void ggml_cuda_graph_evaluate_and_capture(ggml_backend_cuda_context * cud
                                  fused_node_count = 5;
                                  break;
                              }
@@ -203,7 +203,7 @@ index bac69cdd1..7ace6a393 100644
                              if (ggml_cuda_should_fuse_mul_mat_vec_q(up_n)) {
                                  ggml_cuda_mm_fusion_args_host fusion_data{};
                                  fusion_data.gate      = gate_n->src[0];
-@@ -3560,7 +3573,6 @@ static void ggml_cuda_graph_evaluate_and_capture(ggml_backend_cuda_context * cud
+@@ -3568,7 +3581,6 @@ static void ggml_cuda_graph_evaluate_and_capture(ggml_backend_cuda_context * cud
                                  fused_node_count = 3;
                                  break;
                              }
@@ -211,7 +211,7 @@ index bac69cdd1..7ace6a393 100644
                              if (ggml_cuda_should_fuse_mul_mat_vec_q(up)) {
                                  ggml_cuda_mm_fusion_args_host fusion_data{};
                                  fusion_data.gate   = gate->src[0];
-@@ -3622,14 +3634,12 @@ static void ggml_cuda_graph_evaluate_and_capture(ggml_backend_cuda_context * cud
+@@ -3630,14 +3642,12 @@ static void ggml_cuda_graph_evaluate_and_capture(ggml_backend_cuda_context * cud
  
                          ggml_cuda_mm_fusion_args_host fusion_data{};
                          fusion_data.x_bias = bias_tensor;
@@ -226,7 +226,7 @@ index bac69cdd1..7ace6a393 100644
                          if (ggml_cuda_should_fuse_mul_mat_vec_q(mm_node)) {
                              ggml_cuda_mul_mat_vec_q(*cuda_ctx, src0, src1, ids, bias_node, &fusion_data);
                              fused_mul_mat_vec = true;
-@@ -4636,8 +4646,10 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
+@@ -4648,8 +4658,10 @@ static bool ggml_backend_cuda_device_supports_op(ggml_backend_dev_t dev, const g
          case GGML_OP_GATED_LINEAR_ATTN:
          case GGML_OP_RWKV_WKV7:
              return true;
@@ -238,7 +238,7 @@ index bac69cdd1..7ace6a393 100644
          case GGML_OP_CROSS_ENTROPY_LOSS_BACK:
          case GGML_OP_OPT_STEP_ADAMW:
 diff --git a/ggml/src/ggml-cuda/mmq.cu b/ggml/src/ggml-cuda/mmq.cu
-index ceb95758d..6d9d3ca34 100644
+index 9a69f41d1..d7773e2b5 100644
 --- a/ggml/src/ggml-cuda/mmq.cu
 +++ b/ggml/src/ggml-cuda/mmq.cu
 @@ -38,6 +38,7 @@ static void ggml_cuda_mul_mat_q_switch_type(ggml_backend_cuda_context & ctx, con
