@@ -1,0 +1,296 @@
+name: Test
+
+on:
+  push:
+
+jobs:
+  linux-build:
+    runs-on: ubuntu-22.04
+
+    strategy:
+      matrix:
+        include:
+          - arch: "-p:LlamaLibUseNoAvx=true"
+            rid: linux-x64
+            test: 1
+            num: 3
+          - arch: "-p:LlamaLibUseAvx=true"
+            rid: linux-x64
+            test: 1
+            num: 3
+          - arch: "-p:LlamaLibUseAvx2=true"
+            rid: linux-x64
+            test: 1
+            num: 3
+          - arch: "-p:LlamaLibUseAvx512=true"
+            rid: linux-x64
+            test: 0
+            num: 3
+          - arch: "-p:LlamaLibUseCuBlas=true -p:LlamaLibUseAvx=true"
+            rid: linux-x64
+            test: 0
+            num: 4
+          - arch: "-p:LlamaLibUseTinyblas=true -p:LlamaLibUseAvx=true"
+            rid: linux-x64
+            test: 1
+            num: 4
+          - arch: "-p:LlamaLibUseVulkan=true -p:LlamaLibUseAvx=true"
+            rid: linux-x64
+            test: 1
+            num: 5
+          - arch: ''
+            rid: linux-x64
+            test: 1
+            num: 10
+          - arch: ''
+            rid: ''
+            test: 1
+
+    steps:
+        - id: setup_libs_linux
+          name: setup
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y build-essential cmake zip curl
+
+        - name: Clone
+          id: checkout
+          uses: actions/checkout@v4
+
+        - id: run
+          name: run
+          run: |
+            cd test
+            dotnet nuget add source `pwd` --name LocalNuGet
+
+            if [ "${{ matrix.rid }}" == "" ];then
+              dotnet build -c Release
+            else
+              dotnet build -c Release -r ${{ matrix.rid }} ${{ matrix.arch }}
+            fi
+
+            ls -R
+            if [ "${{ matrix.rid }}" != "" ];then
+                num=`ls bin/Release/*/${{ matrix.rid }}/runtimes/${{ matrix.rid }}/native |wc -l`
+                if [ "$num" != "${{ matrix.num }}" ];then exit 1;fi
+            fi
+
+            if [ "${{ matrix.test }}" == "1" ];then
+              cd ./bin/Release/*/
+              if [ "${{ matrix.rid }}" != "" ];then
+                cd ${{ matrix.rid }}
+              fi
+
+              curl -L -o model.gguf https://huggingface.co/unsloth/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q4_K_M.gguf
+              ./Program
+            fi
+
+
+  windows-build:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        include:
+          - arch: "-p:LlamaLibUseNoAvx=true"
+            rid: win-x64
+            test: 1
+            num: 5
+          - arch: "-p:LlamaLibUseAvx=true"
+            rid: win-x64
+            test: 1
+            num: 5
+          - arch: "-p:LlamaLibUseAvx2=true"
+            rid: win-x64
+            test: 1
+            num: 5
+          - arch: "-p:LlamaLibUseAvx512=true"
+            rid: win-x64
+            test: 0
+            num: 5
+          - arch: "-p:LlamaLibUseCuBlas=true -p:LlamaLibUseAvx=true"
+            rid: win-x64
+            test: 0
+            num: 10
+          - arch: "-p:LlamaLibUseTinyblas=true -p:LlamaLibUseAvx=true"
+            rid: win-x64
+            test: 1
+            num: 7
+          - arch: "-p:LlamaLibUseVulkan=true -p:LlamaLibUseAvx=true"
+            rid: win-x64
+            test: 1
+            num: 8
+          - arch: ''
+            rid: win-x64
+            test: 1
+            num: 21
+          - arch: ''
+            rid: ''
+            test: 1
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build + Test
+        shell: pwsh
+        run: |
+          cd test
+          dotnet nuget add source (pwd) --name LocalNuGet
+
+          if ("${{ matrix.rid }}" -eq "") {
+            dotnet build -c Release
+          } else {
+            dotnet build -c Release -r "${{ matrix.rid }}" ${{ matrix.arch }}
+          }
+
+          dir -Recurse
+
+          if ("${{ matrix.rid }}" -ne "") {
+            $num = (Get-ChildItem -Recurse "bin\Release\*\${{ matrix.rid }}\runtimes\${{ matrix.rid }}\native" | Measure-Object).Count
+            if ($num -ne "${{ matrix.num }}") { exit 1 }
+          }
+
+          if ("${{ matrix.test }}" -eq "1") {
+            Set-Location "bin\Release\*\"
+            if ("${{ matrix.rid }}" -ne "") {
+              Set-Location "${{ matrix.rid }}"
+            }
+
+            Invoke-WebRequest -Uri "https://huggingface.co/unsloth/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q4_K_M.gguf" -OutFile "model.gguf"
+            .\Program.exe
+          }
+
+
+  osx-build:
+    runs-on: macos-15
+
+    strategy:
+      matrix:
+        include:
+          - arch: "-p:LlamaLibUseAccelerate=true"
+            rid: osx-arm64
+            test: 1
+            num: 3
+          - arch: "-p:LlamaLibUseNoAccelerate=true"
+            rid: osx-arm64
+            test: 1
+            num: 3
+          - arch: ''
+            rid: osx-arm64
+            test: 1
+            num: 4
+          - arch: ''
+            rid: ''
+            test: 1
+          - arch: ""
+            rid: ios-arm64
+            test: 0
+            num: 1
+          - arch: "-p:LlamaLibVisionOS=true"
+            rid: osx-arm64
+            test: 0
+            num: 1
+
+    steps:
+        - name: Clone
+          id: checkout
+          uses: actions/checkout@v4
+
+        - id: run
+          name: run
+          shell: bash
+          run: |
+            cd test
+            dotnet nuget add source `pwd` --name LocalNuGet
+
+            if [ "${{ matrix.rid }}" == "" ];then
+              dotnet build -c Release
+            else
+              dotnet build -c Release -r ${{ matrix.rid }} ${{ matrix.arch }}
+            fi
+
+            ls -R
+            if [ "${{ matrix.rid }}" != "" ];then
+                num=`ls bin/Release/*/${{ matrix.rid }}/runtimes/${{ matrix.rid }}/native |wc -l`
+                if [ "$num" -ne "${{ matrix.num }}" ];then exit 1;fi
+            fi
+
+            if [ "${{ matrix.test }}" == "1" ];then
+              cd ./bin/Release/*/
+              if [ "${{ matrix.rid }}" != "" ];then
+                cd ${{ matrix.rid }}
+              fi
+
+              curl -L -o model.gguf https://huggingface.co/unsloth/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q4_K_M.gguf
+              dotnet Program.dll
+            fi
+
+  osx-x64-build:
+    runs-on: macos-15-intel
+
+    strategy:
+      matrix:
+        include:
+          - arch: "-p:LlamaLibUseAccelerate=true"
+            rid: osx-x64
+            test: 1
+            num: 3
+          - arch: "-p:LlamaLibUseNoAccelerate=true"
+            rid: osx-x64
+            test: 1
+            num: 3
+          - arch: ''
+            rid: osx-x64
+            test: 1
+            num: 4
+          - arch: ''
+            rid: ''
+            test: 1
+          - arch: ""
+            rid: ios-arm64
+            test: 0
+            num: 1
+          - arch: "-p:LlamaLibVisionOS=true"
+            rid: osx-x64
+            test: 0
+            num: 1
+
+    steps:
+        - name: Clone
+          id: checkout
+          uses: actions/checkout@v4
+
+        - id: run
+          name: run
+          shell: bash
+          run: |
+            cd test
+            dotnet nuget add source `pwd` --name LocalNuGet
+
+            if [ "${{ matrix.rid }}" == "" ];then
+              dotnet build -c Release
+            else
+              dotnet build -c Release -r ${{ matrix.rid }} ${{ matrix.arch }}
+            fi
+
+            ls -R
+            if [ "${{ matrix.rid }}" != "" ];then
+                num=`ls bin/Release/*/${{ matrix.rid }}/runtimes/${{ matrix.rid }}/native |wc -l`
+                if [ "$num" -ne "${{ matrix.num }}" ];then exit 1;fi
+            fi
+
+            if [ "${{ matrix.test }}" == "1" ];then
+              cd ./bin/Release/*/
+              if [ "${{ matrix.rid }}" != "" ];then
+                cd ${{ matrix.rid }}
+              fi
+
+              curl -L -o model.gguf https://huggingface.co/unsloth/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q4_K_M.gguf
+              dotnet Program.dll
+            fi
