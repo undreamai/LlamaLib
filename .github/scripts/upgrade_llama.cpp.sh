@@ -60,6 +60,7 @@ patch -p1 < $BASE_DIR/patches/tinyBLAS.patch
 save_patches
 
 # check server
+commit=`git rev-parse HEAD`
 git log $version..$commit --format="%h" tools/server/server.cpp
 git diff $version..$commit tools/server/server.cpp
 
