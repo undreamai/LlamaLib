@@ -45,7 +45,7 @@ LLMProvider::~LLMProvider() {}
 
 std::string LLM::LLM_args_to_command(const std::string &model_path, int num_slots, int num_threads, int num_GPU_layers, bool flash_attention, int context_size, int batch_size, bool embedding_only, const std::vector<std::string> &lora_paths)
 {
-    std::string command = "-m " + model_path +
+    std::string command =  "-m \"" + model_path + "\"" +
                           " -t " + std::to_string(num_threads) +
                           " -np " + std::to_string(num_slots) +
                           " -c " + std::to_string(context_size) +
@@ -58,7 +58,7 @@ std::string LLM::LLM_args_to_command(const std::string &model_path, int num_slot
     if (embedding_only)
         command += " --embedding";
     for (const auto &lora_path : lora_paths)
-        command += " --lora " + lora_path;
+        command += " --lora \"" + lora_path + "\"";
     return command;
 }
 
