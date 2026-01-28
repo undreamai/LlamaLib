@@ -124,7 +124,6 @@ jobs:
         @@checkout@@
         @@preparation@@
         @@setup_vulcan_windows@@
-        @@setup_openssl_windows@@
         @@setup_cuda_windows@@
 
         @@cpu-cores@@
