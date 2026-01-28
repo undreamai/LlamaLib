@@ -14,14 +14,15 @@
     <!-- NuGet metadata -->
     <PackageId>LlamaLib</PackageId>
     <PackageVersion>2.0.2</PackageVersion>
-    <Authors>Antonis Maropoulos</Authors>
+    <Authors>Antonis Makropoulos</Authors>
     <Company>UndreamAI</Company>
-    <Description>LlamaLib – Cross-platform library for local LLMs</Description>
+    <Description>LlamaLib - Cross-Platform High-Level LLM Library</Description>
     <PackageProjectUrl>https://undream.ai</PackageProjectUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/undreamai/LlamaLib</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PackageTags>llm;ai;llama;local-llm;gguf;inference;chatbot;nlp;transformers;llama-cpp;rag</PackageTags>
   </PropertyGroup>
 
   <!-- ===================== -->
