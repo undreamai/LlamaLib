@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['why_20choose_20llamalib_0',['Why choose LlamaLib?',['../index.html#autotoc_md3',1,'']]]
+  ['why_20llamalib_0',['Why LlamaLib?',['../index.html#autotoc_md4',1,'']]]
 ];

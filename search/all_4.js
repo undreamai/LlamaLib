@@ -6,5 +6,6 @@ var searchData=
   ['enable_5freasoning_3',['enable_reasoning',['../classLLMProvider.html#a75886f91ec01357c59bac03ab56b45e3',1,'LLMProvider::enable_reasoning()'],['../classLLMService.html#a303680807aba6210169bd64958d3d5d8',1,'LLMService::enable_reasoning()']]],
   ['ensure_5ferror_5fhandlers_5finitialized_4',['ensure_error_handlers_initialized',['../LLM_8h.html#af9a1fc25d2366afe3ed03d9289176e35',1,'LLM.cpp']]],
   ['errorstate_5',['ErrorState',['../structErrorState.html',1,'']]],
-  ['errorstateregistry_6',['ErrorStateRegistry',['../classErrorStateRegistry.html',1,'']]]
+  ['errorstateregistry_6',['ErrorStateRegistry',['../classErrorStateRegistry.html',1,'']]],
+  ['example_7',['Example',['../index.html#autotoc_md17',1,'C# Example'],['../index.html#autotoc_md16',1,'C++ Example']]]
 ];

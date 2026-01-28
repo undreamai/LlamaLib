@@ -1,27 +1,30 @@
 <map id="include/LLM.h" name="include/LLM.h">
-<area shape="rect" id="Node000001" title="Core LLM functionality interface and base classes." alt="" coords="547,5,658,31"/>
-<area shape="rect" id="Node000002" href="$LLM__agent_8h.html" title="High&#45;level conversational agent interface for LLMs." alt="" coords="5,152,160,177"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="534,21,460,24,373,33,280,51,190,81,161,97,134,117,95,154,91,150,131,113,158,93,188,76,278,46,372,28,460,19,533,16"/>
-<area shape="rect" id="Node000003" href="$LlamaLib_8h.html" title="Main include file for the LLama library." alt="" coords="260,225,404,251"/>
-<area shape="poly" id="edge13_Node000001_Node000003" title=" " alt="" coords="672,18,706,24,740,35,772,52,798,77,814,103,819,129,814,154,798,179,778,190,742,200,637,216,404,235,404,230,637,210,741,194,776,185,794,175,809,152,814,129,809,105,794,80,769,56,738,40,705,29,671,24"/>
-<area shape="rect" id="Node000005" href="$LLM__client_8h.html" title="Client interface for local and remote LLM access." alt="" coords="201,79,356,104"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="538,36,332,81,331,76,537,31"/>
-<area shape="rect" id="Node000007" href="$LLM__runtime_8h.html" title="Runtime loading and management of LLM libraries." alt="" coords="614,79,783,104"/>
-<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="631,37,685,76,681,81,628,41"/>
-<area shape="rect" id="Node000009" href="$LLM__service_8h.html" title="LLM service implementation with server capabilities." alt="" coords="424,79,589,104"/>
-<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="578,41,524,81,521,76,575,37"/>
-<area shape="rect" id="Node000011" href="$LLM_8cpp_source.html" title=" " alt="" coords="859,79,957,104"/>
-<area shape="poly" id="edge14_Node000001_Node000011" title=" " alt="" coords="666,31,859,76,858,81,664,36"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="137,179,292,223,291,228,135,184"/>
-<area shape="rect" id="Node000004" href="$LLM__agent_8cpp_source.html" title=" " alt="" coords="11,225,154,251"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="85,191,85,225,80,225,80,191"/>
-<area shape="poly" id="edge5_Node000005_Node000002" title=" " alt="" coords="235,111,116,154,114,149,234,106"/>
-<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="252,115,238,129,226,144,221,160,225,176,238,192,254,205,290,223,288,228,251,209,234,196,220,179,216,160,222,142,234,125,249,111"/>
-<area shape="rect" id="Node000006" href="$LLM__client_8cpp_source.html" title=" " alt="" coords="235,152,376,177"/>
-<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="290,116,304,151,299,153,285,118"/>
-<area shape="rect" id="Node000008" href="$LLM__runtime_8cpp_source.html" title=" " alt="" coords="627,152,783,177"/>
-<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="704,118,707,152,702,152,698,118"/>
-<area shape="poly" id="edge11_Node000009_Node000003" title=" " alt="" coords="484,115,348,227,344,223,480,111"/>
-<area shape="rect" id="Node000010" href="$LLM__service_8cpp_source.html" title=" " alt="" coords="451,152,603,177"/>
-<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="516,117,526,151,521,153,511,118"/>
+<area shape="rect" id="Node000001" title="Core LLM functionality interface and base classes." alt="" coords="349,5,459,31"/>
+<area shape="rect" id="Node000002" href="$LLM__agent_8h.html" title="High&#45;level conversational agent interface for LLMs." alt="" coords="5,159,160,185"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="336,31,258,49,218,63,180,81,153,100,128,121,93,161,89,157,125,118,150,95,177,76,216,58,257,44,334,26"/>
+<area shape="rect" id="Node000003" href="$LlamaLib_8h.html" title="Main include file for the LLama library." alt="" coords="177,240,321,265"/>
+<area shape="poly" id="edge15_Node000001_Node000003" title=" " alt="" coords="335,25,305,32,274,42,247,58,225,80,215,100,211,121,211,144,215,166,230,208,245,239,240,241,225,210,210,168,206,144,205,121,210,98,221,77,244,54,272,37,303,27,334,20"/>
+<area shape="rect" id="Node000005" href="$LLM__client_8h.html" title="Client interface for local and remote LLM access." alt="" coords="235,79,389,104"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="380,41,329,81,325,76,377,37"/>
+<area shape="rect" id="Node000007" href="$LLM__runtime_8h.html" title="Runtime loading and management of LLM libraries." alt="" coords="603,79,773,104"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="463,31,643,76,641,81,462,37"/>
+<area shape="rect" id="Node000009" href="$LLM__service_8h.html" title="LLM service implementation with server capabilities." alt="" coords="413,79,579,104"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="431,37,483,76,479,81,428,41"/>
+<area shape="rect" id="Node000012" href="$LLM_8cpp_source.html" title=" " alt="" coords="797,79,896,104"/>
+<area shape="poly" id="edge16_Node000001_Node000012" title=" " alt="" coords="473,27,786,76,798,78,797,83,785,81,472,32"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="120,188,226,238,224,242,118,193"/>
+<area shape="rect" id="Node000004" href="$LLM__agent_8cpp_source.html" title=" " alt="" coords="10,240,153,265"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="85,198,84,240,79,240,80,198"/>
+<area shape="poly" id="edge5_Node000005_Node000002" title=" " alt="" coords="266,111,117,162,115,157,265,106"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="297,116,276,153,261,201,253,240,248,239,256,200,271,151,292,114"/>
+<area shape="rect" id="Node000006" href="$LLM__client_8cpp_source.html" title=" " alt="" coords="285,159,427,185"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="328,115,352,158,347,160,323,117"/>
+<area shape="rect" id="Node000008" href="$LLM__runtime_8cpp_source.html" title=" " alt="" coords="857,159,1013,185"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="737,106,900,157,898,162,736,111"/>
+<area shape="poly" id="edge13_Node000009_Node000003" title=" " alt="" coords="490,119,471,157,457,177,440,194,413,212,383,226,322,244,321,239,381,221,410,208,437,190,453,174,467,155,485,116"/>
+<area shape="rect" id="Node000010" href="$LLM__service__builder_8h_source.html" title=" " alt="" coords="502,152,655,192"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="520,111,561,150,557,154,516,115"/>
+<area shape="rect" id="Node000011" href="$LLM__service_8cpp_source.html" title=" " alt="" coords="680,159,832,185"/>
+<area shape="poly" id="edge14_Node000009_Node000011" title=" " alt="" coords="547,105,719,157,717,162,546,110"/>
+<area shape="poly" id="edge12_Node000010_Node000003" title=" " alt="" coords="489,197,298,242,297,237,488,192"/>
 </map>

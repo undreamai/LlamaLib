@@ -1,13 +1,15 @@
 <map id="include/LlamaLib.h" name="include/LlamaLib.h">
-<area shape="rect" id="Node000001" title="Main include file for the LLama library." alt="" coords="451,5,595,31"/>
+<area shape="rect" id="Node000001" title="Main include file for the LLama library." alt="" coords="403,5,547,31"/>
 <area shape="rect" id="Node000002" href="$LLM_8h.html" title="Core LLM functionality interface and base classes." alt="" coords="512,225,572,251"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="521,32,507,79,506,116,512,152,533,212,528,214,507,153,501,116,502,78,516,30"/>
-<area shape="rect" id="Node000015" href="$LLM__client_8h.html" title="Client interface for local and remote LLM access." alt="" coords="601,152,704,177"/>
-<area shape="poly" id="edge15_Node000001_Node000015" title=" " alt="" coords="562,28,601,47,619,61,635,77,649,107,655,138,649,139,644,109,630,80,616,65,598,52,560,33"/>
-<area shape="rect" id="Node000020" href="$LLM__agent_8h.html" title="High&#45;level conversational agent interface for LLMs." alt="" coords="517,79,621,104"/>
-<area shape="poly" id="edge29_Node000001_Node000020" title=" " alt="" coords="533,30,556,66,552,69,529,32"/>
-<area shape="rect" id="Node000021" href="$LLM__service_8h.html" title="LLM service implementation with server capabilities." alt="" coords="327,152,442,177"/>
-<area shape="poly" id="edge32_Node000001_Node000021" title=" " alt="" coords="512,33,463,81,406,143,402,140,459,77,509,29"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="481,30,503,103,537,212,532,213,498,105,476,32"/>
+<area shape="rect" id="Node000015" href="$LLM__client_8h.html" title="Client interface for local and remote LLM access." alt="" coords="592,152,695,177"/>
+<area shape="poly" id="edge15_Node000001_Node000015" title=" " alt="" coords="547,28,592,46,613,60,631,77,639,91,645,107,648,137,643,138,639,108,634,93,627,80,610,64,590,51,545,33"/>
+<area shape="rect" id="Node000020" href="$LLM__agent_8h.html" title="High&#45;level conversational agent interface for LLMs." alt="" coords="513,79,617,104"/>
+<area shape="poly" id="edge29_Node000001_Node000020" title=" " alt="" coords="491,29,541,68,538,72,488,33"/>
+<area shape="rect" id="Node000021" href="$LLM__service_8h.html" title="LLM service implementation with server capabilities." alt="" coords="285,152,399,177"/>
+<area shape="poly" id="edge32_Node000001_Node000021" title=" " alt="" coords="467,33,401,106,365,144,361,140,397,102,463,29"/>
+<area shape="rect" id="Node000023" href="$LLM__service__builder_8h_source.html" title=" " alt="" coords="222,79,387,104"/>
+<area shape="poly" id="edge37_Node000001_Node000023" title=" " alt="" coords="449,33,346,76,344,71,447,28"/>
 <area shape="rect" id="Node000003" href="$defs_8h.html" title="File with basic definitions." alt="" coords="269,299,332,324"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="513,251,346,300,344,294,511,246"/>
 <area shape="rect" id="Node000007" href="$error__handling_8h_source.html" title=" " alt="" coords="407,299,535,324"/>
@@ -33,28 +35,29 @@
 <area shape="poly" id="edge12_Node000007_Node000012" title=" " alt="" coords="407,325,106,375,105,369,407,320"/>
 <area shape="rect" id="Node000013" title=" " alt="" coords="701,372,781,397"/>
 <area shape="poly" id="edge13_Node000007_Node000013" title=" " alt="" coords="515,321,688,367,687,372,514,327"/>
-<area shape="poly" id="edge21_Node000015_Node000002" title=" " alt="" coords="636,180,573,220,570,215,633,175"/>
-<area shape="poly" id="edge16_Node000015_Node000009" title=" " alt="" coords="674,175,705,196,737,223,766,258,791,295,828,358,823,361,787,297,762,261,733,227,702,200,671,180"/>
-<area shape="poly" id="edge19_Node000015_Node000013" title=" " alt="" coords="668,176,712,225,734,260,750,298,753,330,750,359,744,358,748,329,745,299,730,262,708,228,664,179"/>
-<area shape="poly" id="edge20_Node000015_Node000014" title=" " alt="" coords="663,177,687,224,695,255,699,285,694,285,690,256,682,226,658,179"/>
+<area shape="poly" id="edge21_Node000015_Node000002" title=" " alt="" coords="629,180,571,219,568,215,626,175"/>
+<area shape="poly" id="edge16_Node000015_Node000009" title=" " alt="" coords="667,175,700,196,735,223,764,257,790,294,827,358,823,361,786,297,760,261,731,227,697,200,664,180"/>
+<area shape="poly" id="edge19_Node000015_Node000013" title=" " alt="" coords="660,176,683,196,709,224,733,259,750,298,753,330,750,359,744,358,748,329,745,299,729,261,705,228,679,200,656,179"/>
+<area shape="poly" id="edge20_Node000015_Node000014" title=" " alt="" coords="656,176,672,197,687,224,696,255,700,285,694,286,691,257,682,226,668,200,651,179"/>
 <area shape="rect" id="Node000016" title=" " alt="" coords="223,225,287,251"/>
-<area shape="poly" id="edge17_Node000015_Node000016" title=" " alt="" coords="601,176,469,197,301,228,300,223,468,191,600,171"/>
+<area shape="poly" id="edge17_Node000015_Node000016" title=" " alt="" coords="592,176,464,197,301,228,300,223,463,192,591,171"/>
 <area shape="rect" id="Node000017" title=" " alt="" coords="861,225,927,251"/>
-<area shape="poly" id="edge18_Node000015_Node000017" title=" " alt="" coords="692,175,848,220,846,225,691,180"/>
+<area shape="poly" id="edge18_Node000015_Node000017" title=" " alt="" coords="684,175,848,221,847,226,683,180"/>
 <area shape="rect" id="Node000018" href="$completion__processor_8h_source.html" title=" " alt="" coords="311,225,487,251"/>
-<area shape="poly" id="edge22_Node000015_Node000018" title=" " alt="" coords="613,180,454,224,453,219,611,175"/>
+<area shape="poly" id="edge22_Node000015_Node000018" title=" " alt="" coords="605,180,453,224,451,219,603,175"/>
 <area shape="rect" id="Node000019" title=" " alt="" coords="596,225,672,251"/>
-<area shape="poly" id="edge28_Node000015_Node000019" title=" " alt="" coords="652,178,643,213,638,212,647,177"/>
+<area shape="poly" id="edge28_Node000015_Node000019" title=" " alt="" coords="644,178,640,212,635,211,639,177"/>
 <area shape="poly" id="edge26_Node000018_Node000003" title=" " alt="" coords="385,253,329,293,326,288,382,249"/>
 <area shape="poly" id="edge23_Node000018_Node000005" title=" " alt="" coords="398,252,367,359,361,358,393,250"/>
-<area shape="poly" id="edge24_Node000018_Node000009" title=" " alt="" coords="444,248,515,269,595,296,650,322,725,348,793,368,791,374,723,353,648,326,593,301,513,274,442,253"/>
+<area shape="poly" id="edge24_Node000018_Node000009" title=" " alt="" coords="444,248,516,269,596,296,650,322,725,348,793,369,791,374,723,353,648,326,594,301,515,274,443,253"/>
 <area shape="poly" id="edge25_Node000018_Node000012" title=" " alt="" coords="372,253,90,369,88,364,370,248"/>
 <area shape="poly" id="edge27_Node000018_Node000013" title=" " alt="" coords="430,248,548,296,606,322,703,364,701,369,604,326,546,301,428,253"/>
-<area shape="poly" id="edge30_Node000020_Node000002" title=" " alt="" coords="569,105,549,212,544,211,564,104"/>
-<area shape="poly" id="edge31_Node000020_Node000015" title=" " alt="" coords="584,102,630,141,627,145,580,106"/>
-<area shape="poly" id="edge35_Node000021_Node000002" title=" " alt="" coords="411,175,505,217,503,222,409,180"/>
-<area shape="poly" id="edge33_Node000021_Node000016" title=" " alt="" coords="365,180,290,221,288,216,363,175"/>
-<area shape="poly" id="edge36_Node000021_Node000018" title=" " alt="" coords="390,177,397,211,392,212,384,178"/>
+<area shape="poly" id="edge30_Node000020_Node000002" title=" " alt="" coords="565,105,549,212,543,211,560,104"/>
+<area shape="poly" id="edge31_Node000020_Node000015" title=" " alt="" coords="579,102,622,141,619,145,576,106"/>
+<area shape="poly" id="edge35_Node000021_Node000002" title=" " alt="" coords="375,175,500,219,498,224,373,180"/>
+<area shape="poly" id="edge33_Node000021_Node000016" title=" " alt="" coords="330,179,282,219,278,214,326,175"/>
+<area shape="poly" id="edge36_Node000021_Node000018" title=" " alt="" coords="354,176,383,213,379,216,349,179"/>
 <area shape="rect" id="Node000022" title=" " alt="" coords="56,225,199,251"/>
-<area shape="poly" id="edge34_Node000021_Node000022" title=" " alt="" coords="344,180,183,224,181,219,343,175"/>
+<area shape="poly" id="edge34_Node000021_Node000022" title=" " alt="" coords="308,180,176,223,174,218,307,175"/>
+<area shape="poly" id="edge38_Node000023_Node000021" title=" " alt="" coords="313,103,332,139,327,141,308,106"/>
 </map>

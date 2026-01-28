@@ -42,7 +42,8 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"annotated.html"
+"annotated.html",
+"structLoraIdScalePath.html#ad2dc2e47119b49ac79b006065e445e72"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

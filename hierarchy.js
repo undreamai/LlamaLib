@@ -16,6 +16,7 @@ var hierarchy =
       ] ]
     ] ],
     [ "LLMProviderRegistry", "classLLMProviderRegistry.html", null ],
+    [ "LLMServiceBuilder", "classLLMServiceBuilder.html", null ],
     [ "LoraIdScale", "structLoraIdScale.html", null ],
     [ "LoraIdScalePath", "structLoraIdScalePath.html", null ],
     [ "ResponseConcatenator", "classResponseConcatenator.html", null ]

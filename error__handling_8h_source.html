@@ -47,7 +47,7 @@
   <td id="projectlogo"><img alt="Logo" src="logo_tiny.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">LlamaLib
-   &#160;<span id="projectnumber">v2.0.0</span>
+   &#160;<span id="projectnumber">v2.0.2</span>
    </div>
    <div id="projectbrief">Cross-platform library for local LLMs</div>
   </td>
@@ -178,21 +178,23 @@ $(function(){initNavTree('error__handling_8h_source.html',''); initResizable(); 
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>std::string &amp;get_status_message();</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>sigjmp_buf &amp;get_sigjmp_buf_point();</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>std::mutex &amp;get_sigint_hook_mutex();</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>std::vector&lt;Hook&gt; &amp;get_sigint_hooks();</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="keywordtype">void</span> fail(std::string message, <span class="keywordtype">int</span> code = 1);</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="keywordtype">void</span> handle_exception(<span class="keywordtype">int</span> code = -1);</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>sigjmp_buf &amp;get_jump_point();</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span><span class="preprocessor">#ifdef _WIN32</span></div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>BOOL WINAPI console_ctrl_handler(DWORD ctrl_type);</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="keywordtype">void</span> handle_signal(<span class="keywordtype">int</span> sig, siginfo_t *, <span class="keywordtype">void</span> *);</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span><span class="keywordtype">void</span> set_error_handlers(<span class="keywordtype">bool</span> crash_handlers = <span class="keyword">true</span>, <span class="keywordtype">bool</span> sigint_handlers = <span class="keyword">true</span>);</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="keywordtype">void</span> crash_signal_handler(<span class="keywordtype">int</span> sig);</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span><span class="keywordtype">void</span> sigint_signal_handler(<span class="keywordtype">int</span> sig);</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="keywordtype">void</span> register_sigint_hook(Hook hook);</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>sigjmp_buf* get_current_jump_point_ptr();</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span><span class="keywordtype">void</span> set_current_jump_point(sigjmp_buf* jump_point);</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>std::vector&lt;Hook&gt; &amp;get_sigint_hooks();</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="keywordtype">void</span> fail(std::string message, <span class="keywordtype">int</span> code = 1);</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span><span class="keywordtype">void</span> handle_exception(<span class="keywordtype">int</span> code = -1);</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>sigjmp_buf &amp;get_jump_point();</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="preprocessor">#ifdef _WIN32</span></div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>BOOL WINAPI console_ctrl_handler(DWORD ctrl_type);</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span><span class="keywordtype">void</span> handle_signal(<span class="keywordtype">int</span> sig, siginfo_t *, <span class="keywordtype">void</span> *);</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="keywordtype">void</span> set_error_handlers(<span class="keywordtype">bool</span> crash_handlers = <span class="keyword">true</span>, <span class="keywordtype">bool</span> sigint_handlers = <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span> </div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="keywordtype">void</span> crash_signal_handler(<span class="keywordtype">int</span> sig);</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="keywordtype">void</span> sigint_signal_handler(<span class="keywordtype">int</span> sig);</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span><span class="keywordtype">void</span> register_sigint_hook(Hook hook);</div>
 <div class="ttc" id="aclassErrorStateRegistry_html"><div class="ttname"><a href="classErrorStateRegistry.html">ErrorStateRegistry</a></div><div class="ttdoc">Error state registry for managing shared error state.</div><div class="ttdef"><b>Definition</b> <a href="#l00028">error_handling.h:29</a></div></div>
 <div class="ttc" id="aclassErrorStateRegistry_html_a7c90fbd64f72ebdcc811e189e25228e7"><div class="ttname"><a href="classErrorStateRegistry.html#a7c90fbd64f72ebdcc811e189e25228e7">ErrorStateRegistry::inject_error_state</a></div><div class="ttdeci">static void inject_error_state(ErrorState *state)</div><div class="ttdoc">Inject a custom error state instance.</div><div class="ttdef"><b>Definition</b> <a href="#l00034">error_handling.h:34</a></div></div>
 <div class="ttc" id="aclassErrorStateRegistry_html_ae7bc00e80f104f1263bb34db947cf347"><div class="ttname"><a href="classErrorStateRegistry.html#ae7bc00e80f104f1263bb34db947cf347">ErrorStateRegistry::get_error_state</a></div><div class="ttdeci">static ErrorState &amp; get_error_state()</div><div class="ttdoc">Get the error state instance.</div><div class="ttdef"><b>Definition</b> <a href="#l00041">error_handling.h:41</a></div></div>

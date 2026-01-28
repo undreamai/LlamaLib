@@ -12,6 +12,7 @@ var annotated_dup =
     [ "LLMProvider", "classLLMProvider.html", "classLLMProvider" ],
     [ "LLMProviderRegistry", "classLLMProviderRegistry.html", "classLLMProviderRegistry" ],
     [ "LLMService", "classLLMService.html", "classLLMService" ],
+    [ "LLMServiceBuilder", "classLLMServiceBuilder.html", null ],
     [ "LoraIdScale", "structLoraIdScale.html", "structLoraIdScale" ],
     [ "LoraIdScalePath", "structLoraIdScalePath.html", "structLoraIdScalePath" ],
     [ "ResponseConcatenator", "classResponseConcatenator.html", "classResponseConcatenator" ]

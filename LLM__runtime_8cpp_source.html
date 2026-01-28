@@ -47,7 +47,7 @@
   <td id="projectlogo"><img alt="Logo" src="logo_tiny.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">LlamaLib
-   &#160;<span id="projectnumber">v2.0.0</span>
+   &#160;<span id="projectnumber">v2.0.2</span>
    </div>
    <div id="projectbrief">Cross-platform library for local LLMs</div>
   </td>
@@ -344,161 +344,170 @@ $(function(){initNavTree('LLM__runtime_8cpp_source.html',''); initResizable(); }
 <div class="foldopen" id="foldopen00218" data-start="{" data-end="}">
 <div class="line"><a id="l00218" name="l00218"></a><span class="lineno"><a class="line" href="classLLMService.html#a5aa62b2f1feb31a8977801c2bd2ed30d">  218</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="classLLMService.html#a5aa62b2f1feb31a8977801c2bd2ed30d">LLMService::create_LLM_library_backend</a>(<span class="keyword">const</span> std::string &amp;command, <span class="keyword">const</span> std::string &amp;llm_lib_filename)</div>
 <div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>{</div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    <span class="keywordflow">if</span> (setjmp(get_jump_point()) != 0)</div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>    {</div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>        std::cerr &lt;&lt; <span class="stringliteral">&quot;Error occurred while loading the library&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>        <span class="comment">// Clean up the handle if it was partially loaded</span></div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>        <span class="keywordflow">if</span> (<a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a>)</div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>        {</div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>            <span class="keywordflow">try</span> { unload_library(<a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a>); } <span class="keywordflow">catch</span> (...) {}</div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>            <a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a> = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>        }</div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>        </div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>        <span class="comment">// Clear error state for next attempt</span></div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>        fail(<span class="stringliteral">&quot;&quot;</span>, 0);</div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>        </div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    }</div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>    <span class="keyword">auto</span> load_sym = [&amp;](<span class="keyword">auto</span> &amp;fn_ptr, <span class="keyword">const</span> <span class="keywordtype">char</span> *name)</div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>    {</div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>        fn_ptr = <span class="keyword">reinterpret_cast&lt;</span>std::decay_t&lt;decltype(fn_ptr)<span class="keyword">&gt;</span>&gt;(load_symbol(<a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a>, name));</div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>        <span class="keywordflow">if</span> (!fn_ptr)</div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>        {</div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>            std::cerr &lt;&lt; <span class="stringliteral">&quot;Failed to load: &quot;</span> &lt;&lt; name &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>        }</div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>    };</div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span> </div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    std::vector&lt;std::filesystem::path&gt; full_paths;</div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>    full_paths.push_back(llm_lib_filename);</div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> std::filesystem::path &amp;search_path : <a class="code hl_variable" href="classLLMService.html#ab1be0c484d1dad4be77aff64c8e99c20">search_paths</a>)</div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>        full_paths.push_back(search_path / llm_lib_filename);</div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span> </div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>    <a class="code hl_function" href="LLM_8h.html#af9a1fc25d2366afe3ed03d9289176e35">ensure_error_handlers_initialized</a>();</div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    std::cout &lt;&lt; <span class="stringliteral">&quot;Trying &quot;</span> &lt;&lt; llm_lib_filename &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> std::filesystem::path &amp;full_path : full_paths)</div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    {</div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>        <span class="keywordflow">if</span> (std::filesystem::exists(full_path) &amp;&amp; std::filesystem::is_regular_file(full_path))</div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>        {</div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>            <a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a> = load_library_safe(full_path.string());</div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>            <span class="keywordflow">if</span> (!<a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a>)</div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>                <span class="keywordflow">continue</span>;</div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span> </div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span><span class="preprocessor">#define DECLARE_AND_LOAD(name, ret, ...) \</span></div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span><span class="preprocessor">    load_sym(this-&gt;name, #name);         \</span></div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span><span class="preprocessor">    if (!this-&gt;name)                     \</span></div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span><span class="preprocessor">        return false;</span></div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>            <a class="code hl_define" href="LLM__runtime_8h.html#a848ecb3aa80c5b88221a2511f02f94bd">LLM_FUNCTIONS_LIST</a>(DECLARE_AND_LOAD)</div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span><span class="preprocessor">#undef DECLARE_AND_LOAD</span></div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span> </div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>            <a class="code hl_function" href="group__c__api.html#ga2685b20fe11a096ebd009f94d7c17164">LLMService_Registry</a>(&amp;<a class="code hl_function" href="classLLMProviderRegistry.html#ada6617f6f572dc8c91e8da0700c625ce">LLMProviderRegistry::instance</a>());</div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>            LLMService_InjectErrorState(&amp;<a class="code hl_function" href="classErrorStateRegistry.html#ae7bc00e80f104f1263bb34db947cf347">ErrorStateRegistry::get_error_state</a>());</div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>            <a class="code hl_variable" href="classLLMService.html#ad9fa388a87b885aafa40edf09f8cf77f">llm</a> = (<a class="code hl_class" href="classLLMProvider.html">LLMProvider</a> *)<a class="code hl_function" href="group__c__api.html#gad23f3f7f87169600bd22bb9b28bcfd94">LLMService_From_Command</a>(command.c_str());</div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>            <span class="keywordflow">if</span> (<a class="code hl_variable" href="classLLMService.html#ad9fa388a87b885aafa40edf09f8cf77f">llm</a> == <span class="keyword">nullptr</span> || get_status_code() != 0)</div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>            {</div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>                std::cerr &lt;&lt; <span class="stringliteral">&quot;Failed to construct LLM (error: &quot;</span> &lt;&lt; get_status_code() &lt;&lt; <span class="stringliteral">&quot;): &quot;</span> &lt;&lt; get_status_message() &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>                <span class="comment">// Clean up before trying next backend</span></div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>                <span class="keywordflow">if</span> (<a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a>)</div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>                {</div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>                    unload_library(<a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a>);</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>                    <a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a> = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>                }</div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>                fail(<span class="stringliteral">&quot;&quot;</span>, 0);  <span class="comment">// Clear error state</span></div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>                <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>            }</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>            <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>        }</div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>    }</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>}</div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    sigjmp_buf local_jump_point;</div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>    sigjmp_buf* old_jump_point = get_current_jump_point_ptr(); <span class="comment">// Save the old one</span></div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>    set_current_jump_point(&amp;local_jump_point); <span class="comment">// Switch to our local one</span></div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span> </div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    <span class="keywordflow">if</span> (sigsetjmp(local_jump_point, 1) != 0)</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>    {</div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>        std::cerr &lt;&lt; <span class="stringliteral">&quot;Error occurred while loading backend: &quot;</span> &lt;&lt; llm_lib_filename &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>        <span class="keywordflow">if</span> (<a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a>)</div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>        {</div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>            <span class="keywordflow">try</span> { unload_library(<a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a>); } <span class="keywordflow">catch</span> (...) {}</div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>            <a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a> = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>        }</div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>        fail(<span class="stringliteral">&quot;&quot;</span>, 0);</div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>        set_current_jump_point(old_jump_point); <span class="comment">// Restore old one</span></div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>    }</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span> </div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>    <span class="keyword">auto</span> load_sym = [&amp;](<span class="keyword">auto</span> &amp;fn_ptr, <span class="keyword">const</span> <span class="keywordtype">char</span> *name)</div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>    {</div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>        fn_ptr = <span class="keyword">reinterpret_cast&lt;</span>std::decay_t&lt;decltype(fn_ptr)<span class="keyword">&gt;</span>&gt;(load_symbol(<a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a>, name));</div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>        <span class="keywordflow">if</span> (!fn_ptr)</div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>        {</div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>            std::cerr &lt;&lt; <span class="stringliteral">&quot;Failed to load: &quot;</span> &lt;&lt; name &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>        }</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    };</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span> </div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>    std::vector&lt;std::filesystem::path&gt; full_paths;</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>    full_paths.push_back(llm_lib_filename);</div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> std::filesystem::path &amp;search_path : <a class="code hl_variable" href="classLLMService.html#ab1be0c484d1dad4be77aff64c8e99c20">search_paths</a>)</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>        full_paths.push_back(search_path / llm_lib_filename);</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span> </div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    <a class="code hl_function" href="LLM_8h.html#af9a1fc25d2366afe3ed03d9289176e35">ensure_error_handlers_initialized</a>();</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    std::cout &lt;&lt; <span class="stringliteral">&quot;Trying &quot;</span> &lt;&lt; llm_lib_filename &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span> </div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>    <span class="keywordtype">bool</span> success = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> std::filesystem::path &amp;full_path : full_paths)</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>    {</div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>        <span class="keywordflow">if</span> (std::filesystem::exists(full_path) &amp;&amp; std::filesystem::is_regular_file(full_path))</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>        {</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>            <a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a> = load_library_safe(full_path.string());</div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>            <span class="keywordflow">if</span> (!<a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a>)</div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>                <span class="keywordflow">continue</span>;</div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span> </div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span><span class="preprocessor">#define DECLARE_AND_LOAD(name, ret, ...) \</span></div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span><span class="preprocessor">    load_sym(this-&gt;name, #name);         \</span></div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span><span class="preprocessor">    if (!this-&gt;name)                     \</span></div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span><span class="preprocessor">    {                                    \</span></div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span><span class="preprocessor">        set_current_jump_point(old_jump_point); \</span></div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span><span class="preprocessor">        return false;                    \</span></div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span><span class="preprocessor">    }</span></div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>            <a class="code hl_define" href="LLM__runtime_8h.html#a848ecb3aa80c5b88221a2511f02f94bd">LLM_FUNCTIONS_LIST</a>(DECLARE_AND_LOAD)</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span><span class="preprocessor">#undef DECLARE_AND_LOAD</span></div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span> </div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>            <a class="code hl_function" href="group__c__api.html#ga2685b20fe11a096ebd009f94d7c17164">LLMService_Registry</a>(&amp;<a class="code hl_function" href="classLLMProviderRegistry.html#ada6617f6f572dc8c91e8da0700c625ce">LLMProviderRegistry::instance</a>());</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>            LLMService_InjectErrorState(&amp;<a class="code hl_function" href="classErrorStateRegistry.html#ae7bc00e80f104f1263bb34db947cf347">ErrorStateRegistry::get_error_state</a>());</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>            <a class="code hl_variable" href="classLLMService.html#ad9fa388a87b885aafa40edf09f8cf77f">llm</a> = (<a class="code hl_class" href="classLLMProvider.html">LLMProvider</a> *)<a class="code hl_function" href="group__c__api.html#gad23f3f7f87169600bd22bb9b28bcfd94">LLMService_From_Command</a>(command.c_str());</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>            <span class="keywordflow">if</span> (<a class="code hl_variable" href="classLLMService.html#ad9fa388a87b885aafa40edf09f8cf77f">llm</a> == <span class="keyword">nullptr</span> || get_status_code() != 0)</div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>            {</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>                std::cerr &lt;&lt; <span class="stringliteral">&quot;Failed to construct LLM (error: &quot;</span> &lt;&lt; get_status_code() &lt;&lt; <span class="stringliteral">&quot;): &quot;</span> &lt;&lt; get_status_message() &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>                <span class="keywordflow">if</span> (<a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a>)</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>                {</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>                    unload_library(<a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a>);</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>                    <a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a> = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>                }</div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>                fail(<span class="stringliteral">&quot;&quot;</span>, 0);</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>                <span class="keywordflow">continue</span>;</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>            }</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>            success = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>            <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>        }</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>    }</div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span> </div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>    set_current_jump_point(old_jump_point); <span class="comment">// Always restore before returning</span></div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>    <span class="keywordflow">return</span> success;</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>}</div>
 </div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span> </div>
-<div class="foldopen" id="foldopen00287" data-start="{" data-end="}">
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno"><a class="line" href="classLLMService.html#ac194e3210642288e650ed9f9194a69ee">  287</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="classLLMService.html#ac194e3210642288e650ed9f9194a69ee">LLMService::create_LLM_library</a>(<span class="keyword">const</span> std::string &amp;command)</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>{</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>    <span class="keywordtype">bool</span> gpu = <a class="code hl_function" href="classLLM.html#aa01e69ad4fe82bf914183a38875e35e2">has_gpu_layers</a>(command);</div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;llm_lib_filename : <a class="code hl_function" href="LLM__runtime_8h.html#ad0f2f5aaa112a81fd83c72c238017774">available_architectures</a>(gpu))</div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>    {</div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>        fail(<span class="stringliteral">&quot;&quot;</span>, 0);</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>        <span class="keywordtype">bool</span> success = <a class="code hl_function" href="classLLMService.html#a5aa62b2f1feb31a8977801c2bd2ed30d">create_LLM_library_backend</a>(command, llm_lib_filename);</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>        <span class="keywordflow">if</span> (success)</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>        {</div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>            std::cout &lt;&lt; <span class="stringliteral">&quot;Successfully loaded: &quot;</span> &lt;&lt; llm_lib_filename &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>            <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>        }</div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>    }</div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>    std::cerr &lt;&lt; <span class="stringliteral">&quot;Couldn&#39;t load a backend&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>}</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span> </div>
+<div class="foldopen" id="foldopen00296" data-start="{" data-end="}">
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno"><a class="line" href="classLLMService.html#ac194e3210642288e650ed9f9194a69ee">  296</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="classLLMService.html#ac194e3210642288e650ed9f9194a69ee">LLMService::create_LLM_library</a>(<span class="keyword">const</span> std::string &amp;command)</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>{</div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>    <span class="keywordtype">bool</span> gpu = <a class="code hl_function" href="classLLM.html#aa01e69ad4fe82bf914183a38875e35e2">has_gpu_layers</a>(command);</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;llm_lib_filename : <a class="code hl_function" href="LLM__runtime_8h.html#ad0f2f5aaa112a81fd83c72c238017774">available_architectures</a>(gpu))</div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>    {</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>        fail(<span class="stringliteral">&quot;&quot;</span>, 0);</div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>        <span class="keywordtype">bool</span> success = <a class="code hl_function" href="classLLMService.html#a5aa62b2f1feb31a8977801c2bd2ed30d">create_LLM_library_backend</a>(command, llm_lib_filename);</div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>        <span class="keywordflow">if</span> (success)</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>        {</div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>            std::cout &lt;&lt; <span class="stringliteral">&quot;Successfully loaded: &quot;</span> &lt;&lt; llm_lib_filename &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>            <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>        }</div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>    }</div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>    std::cerr &lt;&lt; <span class="stringliteral">&quot;Couldn&#39;t load a backend&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>}</div>
 </div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span> </div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span><span class="comment">//============================= LLMService =============================//</span></div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span> </div>
-<div class="foldopen" id="foldopen00306" data-start="{" data-end="}">
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno"><a class="line" href="classLLMService.html#a9ed3e1fb5b5bb7219afbf3acd2eeada3">  306</a></span><a class="code hl_function" href="classLLMService.html#a9ed3e1fb5b5bb7219afbf3acd2eeada3">LLMService::LLMService</a>()</div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>{</div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>    <a class="code hl_variable" href="classLLMService.html#ab1be0c484d1dad4be77aff64c8e99c20">search_paths</a> = get_search_directories();</div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>}</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span> </div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span><span class="comment">//============================= LLMService =============================//</span></div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span> </div>
+<div class="foldopen" id="foldopen00315" data-start="{" data-end="}">
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno"><a class="line" href="classLLMService.html#a9ed3e1fb5b5bb7219afbf3acd2eeada3">  315</a></span><a class="code hl_function" href="classLLMService.html#a9ed3e1fb5b5bb7219afbf3acd2eeada3">LLMService::LLMService</a>()</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>{</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>    <a class="code hl_variable" href="classLLMService.html#ab1be0c484d1dad4be77aff64c8e99c20">search_paths</a> = get_search_directories();</div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>}</div>
 </div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span> </div>
-<div class="foldopen" id="foldopen00311" data-start="{" data-end="}">
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno"><a class="line" href="classLLMService.html#a982b997919be934d4c3d300bbbe7a971">  311</a></span><a class="code hl_function" href="classLLMService.html#a9ed3e1fb5b5bb7219afbf3acd2eeada3">LLMService::LLMService</a>(<span class="keyword">const</span> std::string &amp;model_path, <span class="keywordtype">int</span> num_slots, <span class="keywordtype">int</span> num_threads, <span class="keywordtype">int</span> num_GPU_layers, <span class="keywordtype">bool</span> flash_attention, <span class="keywordtype">int</span> context_size, <span class="keywordtype">int</span> batch_size, <span class="keywordtype">bool</span> embedding_only, <span class="keyword">const</span> std::vector&lt;std::string&gt; &amp;lora_paths)</div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>    : <a class="code hl_class" href="classLLMService.html">LLMService</a>()</div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>{</div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>    std::string command = <a class="code hl_function" href="classLLM.html#a93d91518d38588e69338de15a1ab6510">LLM::LLM_args_to_command</a>(model_path, num_slots, num_threads, num_GPU_layers, flash_attention, context_size, batch_size, embedding_only, lora_paths);</div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>    <a class="code hl_function" href="classLLMService.html#ac194e3210642288e650ed9f9194a69ee">create_LLM_library</a>(command);</div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>}</div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span> </div>
+<div class="foldopen" id="foldopen00320" data-start="{" data-end="}">
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno"><a class="line" href="classLLMService.html#a982b997919be934d4c3d300bbbe7a971">  320</a></span><a class="code hl_function" href="classLLMService.html#a9ed3e1fb5b5bb7219afbf3acd2eeada3">LLMService::LLMService</a>(<span class="keyword">const</span> std::string &amp;model_path, <span class="keywordtype">int</span> num_slots, <span class="keywordtype">int</span> num_threads, <span class="keywordtype">int</span> num_GPU_layers, <span class="keywordtype">bool</span> flash_attention, <span class="keywordtype">int</span> context_size, <span class="keywordtype">int</span> batch_size, <span class="keywordtype">bool</span> embedding_only, <span class="keyword">const</span> std::vector&lt;std::string&gt; &amp;lora_paths)</div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>    : <a class="code hl_class" href="classLLMService.html">LLMService</a>()</div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>{</div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>    std::string command = <a class="code hl_function" href="classLLM.html#a93d91518d38588e69338de15a1ab6510">LLM::LLM_args_to_command</a>(model_path, num_slots, num_threads, num_GPU_layers, flash_attention, context_size, batch_size, embedding_only, lora_paths);</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>    <a class="code hl_function" href="classLLMService.html#ac194e3210642288e650ed9f9194a69ee">create_LLM_library</a>(command);</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>}</div>
 </div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span> </div>
-<div class="foldopen" id="foldopen00318" data-start="{" data-end="}">
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno"><a class="line" href="classLLMService.html#afd5f58f0c3b9e3d64524ddb21cc8168a">  318</a></span><a class="code hl_class" href="classLLMService.html">LLMService</a> *<a class="code hl_function" href="classLLMService.html#afd5f58f0c3b9e3d64524ddb21cc8168a">LLMService::from_command</a>(<span class="keyword">const</span> std::string &amp;command)</div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>{</div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>    <a class="code hl_class" href="classLLMService.html">LLMService</a> *llmService = <span class="keyword">new</span> <a class="code hl_function" href="classLLMService.html#a9ed3e1fb5b5bb7219afbf3acd2eeada3">LLMService</a>();</div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>    llmService-&gt;<a class="code hl_function" href="classLLMService.html#ac194e3210642288e650ed9f9194a69ee">create_LLM_library</a>(command);</div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>    <span class="keywordflow">return</span> llmService;</div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>}</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span> </div>
+<div class="foldopen" id="foldopen00327" data-start="{" data-end="}">
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno"><a class="line" href="classLLMService.html#afd5f58f0c3b9e3d64524ddb21cc8168a">  327</a></span><a class="code hl_class" href="classLLMService.html">LLMService</a> *<a class="code hl_function" href="classLLMService.html#afd5f58f0c3b9e3d64524ddb21cc8168a">LLMService::from_command</a>(<span class="keyword">const</span> std::string &amp;command)</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>{</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>    <a class="code hl_class" href="classLLMService.html">LLMService</a> *llmService = <span class="keyword">new</span> <a class="code hl_function" href="classLLMService.html#a9ed3e1fb5b5bb7219afbf3acd2eeada3">LLMService</a>();</div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>    llmService-&gt;<a class="code hl_function" href="classLLMService.html#ac194e3210642288e650ed9f9194a69ee">create_LLM_library</a>(command);</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>    <span class="keywordflow">return</span> llmService;</div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>}</div>
 </div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span> </div>
-<div class="foldopen" id="foldopen00325" data-start="{" data-end="}">
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno"><a class="line" href="classLLMService.html#a8c646d7f7f81358417ed52359b10d583">  325</a></span><a class="code hl_class" href="classLLMService.html">LLMService</a> *<a class="code hl_function" href="classLLMService.html#afd5f58f0c3b9e3d64524ddb21cc8168a">LLMService::from_command</a>(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> **argv)</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>{</div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>    <span class="keywordflow">return</span> <a class="code hl_function" href="classLLMService.html#afd5f58f0c3b9e3d64524ddb21cc8168a">from_command</a>(args_to_command(argc, argv));</div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>}</div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span> </div>
+<div class="foldopen" id="foldopen00334" data-start="{" data-end="}">
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno"><a class="line" href="classLLMService.html#a8c646d7f7f81358417ed52359b10d583">  334</a></span><a class="code hl_class" href="classLLMService.html">LLMService</a> *<a class="code hl_function" href="classLLMService.html#afd5f58f0c3b9e3d64524ddb21cc8168a">LLMService::from_command</a>(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> **argv)</div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>{</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>    <span class="keywordflow">return</span> <a class="code hl_function" href="classLLMService.html#afd5f58f0c3b9e3d64524ddb21cc8168a">from_command</a>(args_to_command(argc, argv));</div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>}</div>
 </div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span> </div>
-<div class="foldopen" id="foldopen00330" data-start="{" data-end="}">
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno"><a class="line" href="classLLMService.html#a2e4a6744af72dfc8edba8c91e827c68e">  330</a></span><a class="code hl_function" href="classLLMService.html#a2e4a6744af72dfc8edba8c91e827c68e">LLMService::~LLMService</a>()</div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>{</div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="classLLMService.html#ad9fa388a87b885aafa40edf09f8cf77f">llm</a>)</div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>    {</div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>        <a class="code hl_function" href="group__c__api.html#ga97824d171f73839d2de0fcdcdd69c53a">LLM_Delete</a>(<a class="code hl_variable" href="classLLMService.html#ad9fa388a87b885aafa40edf09f8cf77f">llm</a>);</div>
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>        <a class="code hl_variable" href="classLLMService.html#ad9fa388a87b885aafa40edf09f8cf77f">llm</a> = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>    }</div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a>)</div>
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>    {</div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>        unload_library(<a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a>);</div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>        <a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a> = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>    }</div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>}</div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span> </div>
+<div class="foldopen" id="foldopen00339" data-start="{" data-end="}">
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno"><a class="line" href="classLLMService.html#a2e4a6744af72dfc8edba8c91e827c68e">  339</a></span><a class="code hl_function" href="classLLMService.html#a2e4a6744af72dfc8edba8c91e827c68e">LLMService::~LLMService</a>()</div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>{</div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="classLLMService.html#ad9fa388a87b885aafa40edf09f8cf77f">llm</a>)</div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>    {</div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>        <a class="code hl_function" href="group__c__api.html#ga97824d171f73839d2de0fcdcdd69c53a">LLM_Delete</a>(<a class="code hl_variable" href="classLLMService.html#ad9fa388a87b885aafa40edf09f8cf77f">llm</a>);</div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>        <a class="code hl_variable" href="classLLMService.html#ad9fa388a87b885aafa40edf09f8cf77f">llm</a> = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>    }</div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a>)</div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>    {</div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>        unload_library(<a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a>);</div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>        <a class="code hl_variable" href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">handle</a> = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>    }</div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>}</div>
 </div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span> </div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span><span class="comment">//============================= API =============================//</span></div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span> </div>
-<div class="foldopen" id="foldopen00346" data-start="{" data-end="}">
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno"><a class="line" href="group__c__api.html#ga5b4db05f55ed6b70506bc17a93f7eb40">  346</a></span><span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code hl_function" href="group__c__api.html#ga5b4db05f55ed6b70506bc17a93f7eb40">Available_Architectures</a>(<span class="keywordtype">bool</span> gpu)</div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>{</div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>    <span class="keyword">const</span> std::vector&lt;std::string&gt; &amp;llmlibs = <a class="code hl_function" href="LLM__runtime_8h.html#ad0f2f5aaa112a81fd83c72c238017774">available_architectures</a>(gpu);</div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>    <span class="keyword">thread_local</span> <span class="keyword">static</span> std::string result;</div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span> </div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>    std::ostringstream oss;</div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; llmlibs.size(); ++i)</div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>    {</div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>        <span class="keywordflow">if</span> (i != 0)</div>
-<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>            oss &lt;&lt; <span class="stringliteral">&quot;,&quot;</span>;</div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>        oss &lt;&lt; llmlibs[i];</div>
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>    }</div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>    result = oss.str();</div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>    <span class="keywordflow">return</span> result.c_str();</div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>}</div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span> </div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span><span class="comment">//============================= API =============================//</span></div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span> </div>
+<div class="foldopen" id="foldopen00355" data-start="{" data-end="}">
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno"><a class="line" href="group__c__api.html#ga5b4db05f55ed6b70506bc17a93f7eb40">  355</a></span><span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code hl_function" href="group__c__api.html#ga5b4db05f55ed6b70506bc17a93f7eb40">Available_Architectures</a>(<span class="keywordtype">bool</span> gpu)</div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>{</div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>    <span class="keyword">const</span> std::vector&lt;std::string&gt; &amp;llmlibs = <a class="code hl_function" href="LLM__runtime_8h.html#ad0f2f5aaa112a81fd83c72c238017774">available_architectures</a>(gpu);</div>
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>    <span class="keyword">thread_local</span> <span class="keyword">static</span> std::string result;</div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span> </div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>    std::ostringstream oss;</div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; llmlibs.size(); ++i)</div>
+<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>    {</div>
+<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>        <span class="keywordflow">if</span> (i != 0)</div>
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>            oss &lt;&lt; <span class="stringliteral">&quot;,&quot;</span>;</div>
+<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>        oss &lt;&lt; llmlibs[i];</div>
+<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>    }</div>
+<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>    result = oss.str();</div>
+<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>    <span class="keywordflow">return</span> result.c_str();</div>
+<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>}</div>
 </div>
 <div class="ttc" id="aLLM_8h_html_af9a1fc25d2366afe3ed03d9289176e35"><div class="ttname"><a href="LLM_8h.html#af9a1fc25d2366afe3ed03d9289176e35">ensure_error_handlers_initialized</a></div><div class="ttdeci">void ensure_error_handlers_initialized()</div><div class="ttdoc">Ensures error handlers are properly initialized.</div><div class="ttdef"><b>Definition</b> <a href="LLM_8cpp_source.html#l00025">LLM.cpp:25</a></div></div>
 <div class="ttc" id="aLLM__runtime_8h_html"><div class="ttname"><a href="LLM__runtime_8h.html">LLM_runtime.h</a></div><div class="ttdoc">Runtime loading and management of LLM libraries.</div></div>
@@ -513,20 +522,20 @@ $(function(){initNavTree('LLM__runtime_8cpp_source.html',''); initResizable(); }
 <div class="ttc" id="aclassLLMProviderRegistry_html_ada6617f6f572dc8c91e8da0700c625ce"><div class="ttname"><a href="classLLMProviderRegistry.html#ada6617f6f572dc8c91e8da0700c625ce">LLMProviderRegistry::instance</a></div><div class="ttdeci">static LLMProviderRegistry &amp; instance()</div><div class="ttdoc">Get the singleton registry instance.</div><div class="ttdef"><b>Definition</b> <a href="LLM_8h_source.html#l00395">LLM.h:395</a></div></div>
 <div class="ttc" id="aclassLLMProvider_html"><div class="ttname"><a href="classLLMProvider.html">LLMProvider</a></div><div class="ttdoc">Abstract class for LLM service providers.</div><div class="ttdef"><b>Definition</b> <a href="LLM_8h_source.html#l00274">LLM.h:275</a></div></div>
 <div class="ttc" id="aclassLLMService_html"><div class="ttname"><a href="classLLMService.html">LLMService</a></div><div class="ttdoc">Runtime loader for LLM libraries.</div><div class="ttdef"><b>Definition</b> <a href="LLM__runtime_8h_source.html#l00062">LLM_runtime.h:63</a></div></div>
-<div class="ttc" id="aclassLLMService_html_a2e4a6744af72dfc8edba8c91e827c68e"><div class="ttname"><a href="classLLMService.html#a2e4a6744af72dfc8edba8c91e827c68e">LLMService::~LLMService</a></div><div class="ttdeci">~LLMService()</div><div class="ttdoc">Destructor.</div><div class="ttdef"><b>Definition</b> <a href="#l00330">LLM_runtime.cpp:330</a></div></div>
+<div class="ttc" id="aclassLLMService_html_a2e4a6744af72dfc8edba8c91e827c68e"><div class="ttname"><a href="classLLMService.html#a2e4a6744af72dfc8edba8c91e827c68e">LLMService::~LLMService</a></div><div class="ttdeci">~LLMService()</div><div class="ttdoc">Destructor.</div><div class="ttdef"><b>Definition</b> <a href="#l00339">LLM_runtime.cpp:339</a></div></div>
 <div class="ttc" id="aclassLLMService_html_a5aa62b2f1feb31a8977801c2bd2ed30d"><div class="ttname"><a href="classLLMService.html#a5aa62b2f1feb31a8977801c2bd2ed30d">LLMService::create_LLM_library_backend</a></div><div class="ttdeci">bool create_LLM_library_backend(const std::string &amp;command, const std::string &amp;llm_lib_filename)</div><div class="ttdoc">Load LLM library backend.</div><div class="ttdef"><b>Definition</b> <a href="#l00218">LLM_runtime.cpp:218</a></div></div>
 <div class="ttc" id="aclassLLMService_html_a783c8e9bf285b20853c010eab4aadcaa"><div class="ttname"><a href="classLLMService.html#a783c8e9bf285b20853c010eab4aadcaa">LLMService::handle</a></div><div class="ttdeci">LibHandle handle</div><div class="ttdoc">Handle to loaded library.</div><div class="ttdef"><b>Definition</b> <a href="LLM__runtime_8h_source.html#l00099">LLM_runtime.h:99</a></div></div>
-<div class="ttc" id="aclassLLMService_html_a9ed3e1fb5b5bb7219afbf3acd2eeada3"><div class="ttname"><a href="classLLMService.html#a9ed3e1fb5b5bb7219afbf3acd2eeada3">LLMService::LLMService</a></div><div class="ttdeci">LLMService()</div><div class="ttdoc">Default constructor.</div><div class="ttdef"><b>Definition</b> <a href="#l00306">LLM_runtime.cpp:306</a></div></div>
+<div class="ttc" id="aclassLLMService_html_a9ed3e1fb5b5bb7219afbf3acd2eeada3"><div class="ttname"><a href="classLLMService.html#a9ed3e1fb5b5bb7219afbf3acd2eeada3">LLMService::LLMService</a></div><div class="ttdeci">LLMService()</div><div class="ttdoc">Default constructor.</div><div class="ttdef"><b>Definition</b> <a href="#l00315">LLM_runtime.cpp:315</a></div></div>
 <div class="ttc" id="aclassLLMService_html_ab1be0c484d1dad4be77aff64c8e99c20"><div class="ttname"><a href="classLLMService.html#ab1be0c484d1dad4be77aff64c8e99c20">LLMService::search_paths</a></div><div class="ttdeci">std::vector&lt; std::string &gt; search_paths</div><div class="ttdoc">Library search paths.</div><div class="ttdef"><b>Definition</b> <a href="LLM__runtime_8h_source.html#l00219">LLM_runtime.h:219</a></div></div>
-<div class="ttc" id="aclassLLMService_html_ac194e3210642288e650ed9f9194a69ee"><div class="ttname"><a href="classLLMService.html#ac194e3210642288e650ed9f9194a69ee">LLMService::create_LLM_library</a></div><div class="ttdeci">bool create_LLM_library(const std::string &amp;command)</div><div class="ttdoc">Loads LLM library dynamically according to underlying achitecture and creates a LLM based on the comm...</div><div class="ttdef"><b>Definition</b> <a href="#l00287">LLM_runtime.cpp:287</a></div></div>
+<div class="ttc" id="aclassLLMService_html_ac194e3210642288e650ed9f9194a69ee"><div class="ttname"><a href="classLLMService.html#ac194e3210642288e650ed9f9194a69ee">LLMService::create_LLM_library</a></div><div class="ttdeci">bool create_LLM_library(const std::string &amp;command)</div><div class="ttdoc">Loads LLM library dynamically according to underlying achitecture and creates a LLM based on the comm...</div><div class="ttdef"><b>Definition</b> <a href="#l00296">LLM_runtime.cpp:296</a></div></div>
 <div class="ttc" id="aclassLLMService_html_ad9fa388a87b885aafa40edf09f8cf77f"><div class="ttname"><a href="classLLMService.html#ad9fa388a87b885aafa40edf09f8cf77f">LLMService::llm</a></div><div class="ttdeci">LLMProvider * llm</div><div class="ttdoc">Pointer to loaded LLM provider instance.</div><div class="ttdef"><b>Definition</b> <a href="LLM__runtime_8h_source.html#l00100">LLM_runtime.h:100</a></div></div>
-<div class="ttc" id="aclassLLMService_html_afd5f58f0c3b9e3d64524ddb21cc8168a"><div class="ttname"><a href="classLLMService.html#afd5f58f0c3b9e3d64524ddb21cc8168a">LLMService::from_command</a></div><div class="ttdeci">static LLMService * from_command(const std::string &amp;command)</div><div class="ttdoc">Create runtime from command line string.</div><div class="ttdef"><b>Definition</b> <a href="#l00318">LLM_runtime.cpp:318</a></div></div>
+<div class="ttc" id="aclassLLMService_html_afd5f58f0c3b9e3d64524ddb21cc8168a"><div class="ttname"><a href="classLLMService.html#afd5f58f0c3b9e3d64524ddb21cc8168a">LLMService::from_command</a></div><div class="ttdeci">static LLMService * from_command(const std::string &amp;command)</div><div class="ttdoc">Create runtime from command line string.</div><div class="ttdef"><b>Definition</b> <a href="#l00327">LLM_runtime.cpp:327</a></div></div>
 <div class="ttc" id="aclassLLM_html_a93d91518d38588e69338de15a1ab6510"><div class="ttname"><a href="classLLM.html#a93d91518d38588e69338de15a1ab6510">LLM::LLM_args_to_command</a></div><div class="ttdeci">static std::string LLM_args_to_command(const std::string &amp;model_path, int num_slots=1, int num_threads=-1, int num_GPU_layers=0, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, const std::vector&lt; std::string &gt; &amp;lora_paths={})</div><div class="ttdoc">Convert LLM parameters to command line arguments.</div><div class="ttdef"><b>Definition</b> <a href="LLM_8cpp_source.html#l00046">LLM.cpp:46</a></div></div>
 <div class="ttc" id="aclassLLM_html_aa01e69ad4fe82bf914183a38875e35e2"><div class="ttname"><a href="classLLM.html#aa01e69ad4fe82bf914183a38875e35e2">LLM::has_gpu_layers</a></div><div class="ttdeci">static bool has_gpu_layers(const std::string &amp;command)</div><div class="ttdoc">Check if command line arguments specify GPU layers.</div><div class="ttdef"><b>Definition</b> <a href="LLM_8cpp_source.html#l00065">LLM.cpp:65</a></div></div>
-<div class="ttc" id="agroup__c__api_html_ga2685b20fe11a096ebd009f94d7c17164"><div class="ttname"><a href="group__c__api.html#ga2685b20fe11a096ebd009f94d7c17164">LLMService_Registry</a></div><div class="ttdeci">void LLMService_Registry(LLMProviderRegistry *existing_instance)</div><div class="ttdoc">Set registry for LLMService (C API)</div><div class="ttdef"><b>Definition</b> <a href="LLM__service_8cpp_source.html#l00704">LLM_service.cpp:704</a></div></div>
-<div class="ttc" id="agroup__c__api_html_ga5b4db05f55ed6b70506bc17a93f7eb40"><div class="ttname"><a href="group__c__api.html#ga5b4db05f55ed6b70506bc17a93f7eb40">Available_Architectures</a></div><div class="ttdeci">const char * Available_Architectures(bool gpu)</div><div class="ttdoc">Get available architectures (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00346">LLM_runtime.cpp:346</a></div></div>
+<div class="ttc" id="agroup__c__api_html_ga2685b20fe11a096ebd009f94d7c17164"><div class="ttname"><a href="group__c__api.html#ga2685b20fe11a096ebd009f94d7c17164">LLMService_Registry</a></div><div class="ttdeci">void LLMService_Registry(LLMProviderRegistry *existing_instance)</div><div class="ttdoc">Set registry for LLMService (C API)</div><div class="ttdef"><b>Definition</b> <a href="LLM__service_8cpp_source.html#l00705">LLM_service.cpp:705</a></div></div>
+<div class="ttc" id="agroup__c__api_html_ga5b4db05f55ed6b70506bc17a93f7eb40"><div class="ttname"><a href="group__c__api.html#ga5b4db05f55ed6b70506bc17a93f7eb40">Available_Architectures</a></div><div class="ttdeci">const char * Available_Architectures(bool gpu)</div><div class="ttdoc">Get available architectures (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00355">LLM_runtime.cpp:355</a></div></div>
 <div class="ttc" id="agroup__c__api_html_ga97824d171f73839d2de0fcdcdd69c53a"><div class="ttname"><a href="group__c__api.html#ga97824d171f73839d2de0fcdcdd69c53a">LLM_Delete</a></div><div class="ttdeci">void LLM_Delete(LLMProvider *llm)</div><div class="ttdoc">Delete LLM provider (C API)</div><div class="ttdef"><b>Definition</b> <a href="LLM_8cpp_source.html#l00542">LLM.cpp:542</a></div></div>
-<div class="ttc" id="agroup__c__api_html_gad23f3f7f87169600bd22bb9b28bcfd94"><div class="ttname"><a href="group__c__api.html#gad23f3f7f87169600bd22bb9b28bcfd94">LLMService_From_Command</a></div><div class="ttdeci">LLMService * LLMService_From_Command(const char *params_string)</div><div class="ttdoc">Create LLMService from command string (C API)</div><div class="ttdef"><b>Definition</b> <a href="LLM__service_8cpp_source.html#l00728">LLM_service.cpp:728</a></div></div>
+<div class="ttc" id="agroup__c__api_html_gad23f3f7f87169600bd22bb9b28bcfd94"><div class="ttname"><a href="group__c__api.html#gad23f3f7f87169600bd22bb9b28bcfd94">LLMService_From_Command</a></div><div class="ttdeci">LLMService * LLMService_From_Command(const char *params_string)</div><div class="ttdoc">Create LLMService from command string (C API)</div><div class="ttdef"><b>Definition</b> <a href="LLM__service_8cpp_source.html#l00729">LLM_service.cpp:729</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

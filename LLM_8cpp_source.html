@@ -47,7 +47,7 @@
   <td id="projectlogo"><img alt="Logo" src="logo_tiny.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">LlamaLib
-   &#160;<span id="projectnumber">v2.0.0</span>
+   &#160;<span id="projectnumber">v2.0.2</span>
    </div>
    <div id="projectbrief">Cross-platform library for local LLMs</div>
   </td>
@@ -170,7 +170,7 @@ $(function(){initNavTree('LLM_8cpp_source.html',''); initResizable(); });
 <div class="foldopen" id="foldopen00046" data-start="{" data-end="}">
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="classLLM.html#a93d91518d38588e69338de15a1ab6510">   46</a></span>std::string <a class="code hl_function" href="classLLM.html#a93d91518d38588e69338de15a1ab6510">LLM::LLM_args_to_command</a>(<span class="keyword">const</span> std::string &amp;model_path, <span class="keywordtype">int</span> num_slots, <span class="keywordtype">int</span> num_threads, <span class="keywordtype">int</span> num_GPU_layers, <span class="keywordtype">bool</span> flash_attention, <span class="keywordtype">int</span> context_size, <span class="keywordtype">int</span> batch_size, <span class="keywordtype">bool</span> embedding_only, <span class="keyword">const</span> std::vector&lt;std::string&gt; &amp;lora_paths)</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>{</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    std::string command = <span class="stringliteral">&quot;-m &quot;</span> + model_path +</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    std::string command =  <span class="stringliteral">&quot;-m \&quot;&quot;</span> + model_path + <span class="stringliteral">&quot;\&quot;&quot;</span> +</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>                          <span class="stringliteral">&quot; -t &quot;</span> + std::to_string(num_threads) +</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>                          <span class="stringliteral">&quot; -np &quot;</span> + std::to_string(num_slots) +</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>                          <span class="stringliteral">&quot; -c &quot;</span> + std::to_string(context_size) +</div>
@@ -183,7 +183,7 @@ $(function(){initNavTree('LLM_8cpp_source.html',''); initResizable(); });
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keywordflow">if</span> (embedding_only)</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        command += <span class="stringliteral">&quot; --embedding&quot;</span>;</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;lora_path : lora_paths)</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>        command += <span class="stringliteral">&quot; --lora &quot;</span> + lora_path;</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>        command += <span class="stringliteral">&quot; --lora \&quot;&quot;</span> + lora_path + <span class="stringliteral">&quot;\&quot;&quot;</span>;</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keywordflow">return</span> command;</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>}</div>
 </div>

@@ -1,7 +1,10 @@
 <map id="include/LLM_service.h" name="include/LLM_service.h">
-<area shape="rect" id="Node000001" title="LLM service implementation with server capabilities." alt="" coords="80,5,245,31"/>
-<area shape="rect" id="Node000002" href="$LlamaLib_8h.html" title="Main include file for the LLama library." alt="" coords="5,79,149,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,41,93,80,90,76,137,37"/>
-<area shape="rect" id="Node000003" href="$LLM__service_8cpp_source.html" title=" " alt="" coords="173,79,325,104"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="189,37,237,76,233,81,185,41"/>
+<area shape="rect" id="Node000001" title="LLM service implementation with server capabilities." alt="" coords="114,5,279,31"/>
+<area shape="rect" id="Node000002" href="$LLM__service__builder_8h_source.html" title=" " alt="" coords="5,79,159,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,41,111,81,108,76,167,36"/>
+<area shape="rect" id="Node000003" href="$LlamaLib_8h.html" title="Main include file for the LLama library." alt="" coords="67,167,211,192"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="194,45,172,120,149,168,144,165,168,118,189,44"/>
+<area shape="rect" id="Node000004" href="$LLM__service_8cpp_source.html" title=" " alt="" coords="234,86,386,111"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="226,36,295,84,292,88,223,41"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="106,128,133,165,129,168,102,132"/>
 </map>
