@@ -84,7 +84,7 @@ LlamaLib is a **high-level C++ and C#** library for running Large Language Model
 
 ---
 
-## In a nutshell
+## Quick Start
 
 ### Documentation
 
