@@ -14,6 +14,7 @@
     <!-- NuGet metadata -->
     <PackageId>LlamaLib</PackageId>
     <PackageVersion>2.0.2</PackageVersion>
+    <PackageIcon>logo.png</PackageIcon>
     <Authors>Antonis Makropoulos</Authors>
     <Company>UndreamAI</Company>
     <Description>LlamaLib - Cross-Platform High-Level LLM Library</Description>
@@ -70,6 +71,7 @@
     <None Include="LlamaLib.targets" Pack="true" PackagePath="build\" />
     <None Include="LlamaLib.targets" Pack="true" PackagePath="buildTransitive\" />
     <None Include="README.md" Pack="true" PackagePath="\" />
+    <None Include="../.github/logo.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>
