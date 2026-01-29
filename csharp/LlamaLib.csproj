@@ -13,7 +13,7 @@
 
     <!-- NuGet metadata -->
     <PackageId>LlamaLib</PackageId>
-    <PackageVersion>2.0.2</PackageVersion>
+    <PackageVersion>2.0.3</PackageVersion>
     <PackageIcon>logo.png</PackageIcon>
     <Authors>Antonis Makropoulos</Authors>
     <Company>UndreamAI</Company>
