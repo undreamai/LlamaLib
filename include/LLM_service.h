@@ -148,6 +148,10 @@ public:
     /// @return JSON string containing list of available LoRA adapters
     std::string lora_list_json() override;
 
+    /// @brief Return properties of server / slots
+    /// @return pointer to properties
+    std::unique_ptr<server_http_res> get_props();
+
     /// @brief Cancel running request (override)
     /// @param data JSON object with cancellation parameters
     void cancel(int id_slot) override;
@@ -185,6 +189,10 @@ public:
     /// @brief Get embedding vector dimensions (override)
     /// @return Number of dimensions in embedding vectors
     int embedding_size() override;
+
+    /// @brief Get slot context size
+    /// @return slot context size
+    int get_slot_context_size() override;
 
     /// @brief Get available processing slot (override)
     /// @return Available slot ID or -1 if none available

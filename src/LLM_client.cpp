@@ -342,6 +342,25 @@ int LLMClient::get_next_available_slot()
     return llm->get_next_available_slot();
 }
 
+int LLMClient::get_slot_context_size()
+{
+    if (is_remote())
+    {
+        try
+        {
+            std::string res = post_request("props", {});
+            json data = json::parse(res);
+            return data.at("default_generation_settings").at("n_ctx").get<int>();
+        }
+        catch (const std::exception & ex) {std::cerr<<ex.what()<<std::endl;}
+        return -1;
+    }
+    else
+    {
+        return llm->get_slot_context_size();
+    }
+}
+
 std::string LLMClient::apply_template_json(const json &data)
 {
     if (is_remote())

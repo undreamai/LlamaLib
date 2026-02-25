@@ -27,17 +27,28 @@ void LLMAgent::set_slot(int id_slot_)
 void LLMAgent::clear_history()
 {
     history = json::array();
+    summary = "";
     n_keep = -1;
+}
+
+json LLMAgent::build_working_history(const std::string &user_prompt) const
+{
+    json working_history = json::array();
+    std::string effective_system = system_prompt;
+    if (!summary.empty())
+        effective_system += "\n\n[Conversation summary]\n" + summary;
+    working_history.push_back(ChatMessage(system_role, effective_system).to_json());
+    for (const auto &m : history) working_history.push_back(m);
+    if (!user_prompt.empty())
+        working_history.push_back(ChatMessage(USER_ROLE, user_prompt).to_json());
+    return working_history;
 }
 
 void LLMAgent::set_n_keep()
 {
     try
     {
-        json working_history = json::array();
-        working_history.push_back(ChatMessage(system_role, system_prompt).to_json());
-        working_history.push_back(ChatMessage(USER_ROLE, "").to_json());
-        n_keep = tokenize(apply_template(working_history)).size();
+        n_keep = tokenize(apply_template(build_working_history(""))).size();
     } catch(...){ }
 }
 
@@ -45,16 +56,12 @@ std::string LLMAgent::chat(const std::string &user_prompt, bool add_to_history, 
 {
     if (n_keep == -1) set_n_keep();
 
-    // Add user message to working history
-    json working_history = json::array();
-    working_history.push_back(ChatMessage(system_role, system_prompt).to_json());
-    for (auto &m : history)
-        working_history.push_back(m);
-    ChatMessage user_msg(USER_ROLE, user_prompt);
-    working_history.push_back(user_msg.to_json());
+    // Handle context overflow before sending
+    if (overflow_strategy != ContextOverflowStrategy::None)
+        handle_overflow(apply_template(build_working_history(user_prompt)));
 
     // Apply template to get the formatted prompt
-    std::string query_prompt = apply_template(working_history);
+    std::string query_prompt = apply_template(build_working_history(user_prompt));
     if (debug_prompt)
     {
         LLMProviderRegistry &registry = LLMProviderRegistry::instance();
@@ -70,9 +77,8 @@ std::string LLMAgent::chat(const std::string &user_prompt, bool add_to_history, 
 
     if (add_to_history)
     {
-        history.push_back(user_msg.to_json());
-        ChatMessage assistant_msg(ASSISTANT_ROLE, assistant_content);
-        history.push_back(assistant_msg.to_json());
+        history.push_back(ChatMessage(USER_ROLE, user_prompt).to_json());
+        history.push_back(ChatMessage(ASSISTANT_ROLE, assistant_content).to_json());
     }
 
     return response;
@@ -99,7 +105,10 @@ void LLMAgent::save_history(const std::string &filepath) const
         std::ofstream file(filepath);
         if (file.is_open())
         {
-            file << history.dump(4); // Pretty print with 4 spaces
+            json save_data;
+            save_data["history"] = history;
+            save_data["summary"] = summary;
+            file << save_data.dump(4);
             file.close();
         }
         else
@@ -120,17 +129,25 @@ void LLMAgent::load_history(const std::string &filepath)
         std::ifstream file(filepath);
         if (file.is_open())
         {
-            json loaded_history;
-            file >> loaded_history;
+            json data;
+            file >> data;
             file.close();
 
-            if (loaded_history.is_array())
+            // New format: {"history": [...], "summary": "..."}
+            if (data.is_object() && data.contains("history") && data["history"].is_array())
             {
-                history = loaded_history;
+                history = data["history"];
+                summary = data.value("summary", "");
+            }
+            // Legacy format: plain JSON array (no summary)
+            else if (data.is_array())
+            {
+                history = data;
+                summary = "";
             }
             else
             {
-                std::cerr << "Invalid history file format: expected JSON array" << std::endl;
+                std::cerr << "Invalid history file format" << std::endl;
             }
         }
         else
@@ -141,6 +158,107 @@ void LLMAgent::load_history(const std::string &filepath)
     catch (const std::exception &e)
     {
         std::cerr << "Error loading history from file: " << e.what() << std::endl;
+    }
+}
+
+bool LLMAgent::handle_overflow(const std::string &formatted_prompt)
+{
+    int ctx = get_slot_context_size();
+    if (ctx <= 0) return false;
+
+    int prompt_tokens = static_cast<int>(tokenize(formatted_prompt).size());
+    if (prompt_tokens < ctx) return false;
+
+    switch (overflow_strategy)
+    {
+        case ContextOverflowStrategy::Truncate:
+            truncate_history();
+            return true;
+        case ContextOverflowStrategy::Summarize:
+            summarize_history();
+            return true;
+        default:
+            return false;
+    }
+}
+
+void LLMAgent::truncate_history()
+{
+    int ctx = get_slot_context_size();
+    if (ctx <= 0 || history.empty()) return;
+
+    int target_tokens = static_cast<int>(ctx * target_context_ratio);
+
+    auto measure = [&]() -> int {
+        return static_cast<int>(tokenize(apply_template(build_working_history(""))).size());
+    };
+
+    while (history.size() >= 2 && measure() > target_tokens)
+        history.erase(history.begin(), history.begin() + 2);
+
+    // Edge case: a single orphan message still overflows
+    if (!history.empty() && measure() > target_tokens)
+        history.erase(history.begin());
+}
+
+void LLMAgent::summarize_history()
+{
+    if (history.empty()) return;
+    int ctx = get_slot_context_size();
+    if (ctx <= 0) return;
+
+    // Build the prompt for a summary request, incorporating any prior rolling summary.
+    auto build_summary_prompt = [&](const std::string &transcript) -> std::string {
+        std::string query = summarize_prompt;
+        if (!summary.empty())
+            query += "Current summary:\n" + summary + "\n\n";
+        query += "Messages:\n" + transcript;
+        json msgs = json::array();
+        msgs.push_back(ChatMessage(USER_ROLE, query).to_json());
+        return apply_template(msgs);
+    };
+
+    try
+    {
+        // Walk history, flushing a summary call whenever the accumulating transcript
+        // would itself overflow the context.
+        std::string transcript;
+        for (const auto &msg : history)
+        {
+            std::string role    = msg.at("role").get<std::string>();
+            std::string content = msg.at("content").get<std::string>();
+            std::string line    = role + ": " + content + "\n";
+
+            // Flush before appending if this line would push the prompt over the limit
+            if (!transcript.empty() &&
+                static_cast<int>(tokenize(build_summary_prompt(transcript + line)).size()) >= ctx)
+            {
+                summary = completion(build_summary_prompt(transcript));
+                transcript = "";
+            }
+            transcript += line;
+        }
+        if (!transcript.empty())
+            summary = completion(build_summary_prompt(transcript));
+
+        // History is now condensed into summary — clear the raw messages
+        history = json::array();
+
+        // The summary lives in the system message (injected by build_working_history).
+        // If even system + summary + empty user message overflows the budget, discard it.
+        int probe_tokens = static_cast<int>(tokenize(apply_template(build_working_history(""))).size());
+        int target_tokens = static_cast<int>(ctx * target_context_ratio);
+        if (probe_tokens > target_tokens)
+        {
+            std::cerr << "LLMAgent: summary itself exceeds context budget — discarding summary" << std::endl;
+            summary = "";
+        }
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "LLMAgent: summarization failed (" << e.what() << "), falling back to truncation" << std::endl;
+        history = json::array(); // clear history to avoid double-processing
+        truncate_history();
     }
 }
 
@@ -241,4 +359,32 @@ void LLMAgent_Load_History(LLMAgent *llm, const char *filepath)
 size_t LLMAgent_Get_History_Size(LLMAgent *llm)
 {
     return llm->get_history_size();
+}
+
+void LLMAgent_Set_Overflow_Strategy(LLMAgent *llm, int strategy, float target_ratio, const char *summarize_prompt)
+{
+    constexpr int strategy_min = static_cast<int>(ContextOverflowStrategy::None);
+    constexpr int strategy_max = static_cast<int>(ContextOverflowStrategy::Summarize);
+    if (strategy < strategy_min || strategy > strategy_max)
+    {
+        std::cerr << "LLMAgent_Set_Overflow_Strategy: invalid strategy " << strategy << std::endl;
+        return;
+    }
+    ContextOverflowStrategy s = static_cast<ContextOverflowStrategy>(strategy);
+
+    std::string prompt = summarize_prompt ? summarize_prompt : "";
+    if (prompt.empty())
+        llm->set_overflow_strategy(s, target_ratio);
+    else
+        llm->set_overflow_strategy(s, target_ratio, prompt);
+}
+
+const char *LLMAgent_Get_Summary(LLMAgent *llm)
+{
+    return stringToCharArray(llm->get_summary());
+}
+
+void LLMAgent_Set_Summary(LLMAgent *llm, const char *summary)
+{
+    llm->set_summary(summary ? summary : "");
 }

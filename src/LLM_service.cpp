@@ -255,7 +255,7 @@ void LLMService::init(int argc, char **argv)
     catch (...)
     {
         LLMProviderRegistry::instance().unregister_instance(this);
-        handle_exception(1);
+        handle_exception(-1);
     }
 }
 
@@ -314,11 +314,18 @@ void release_slot(server_slot &slot)
 
 int LLMService::get_next_available_slot()
 {
-    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
+    if (get_status_code() < 0 || setjmp(get_jump_point()) != 0)
         return -1;
     if (ctx_server->impl->slots.size() == 0)
         return -1;
     return next_available_slot++ % ctx_server->impl->slots.size();
+}
+
+int LLMService::get_slot_context_size()
+{
+    if (get_status_code() < 0 || setjmp(get_jump_point()) != 0)
+        return -1;
+    return ctx_server->impl->get_slot_n_ctx();
 }
 
 // wrapper function that handles exceptions and logs errors
@@ -359,7 +366,7 @@ static server_http_context::handler_t ex_wrapper(server_http_context::handler_t 
 
 void LLMService::start_server(const std::string &host, int port, const std::string &API_key)
 {
-    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
+    if (get_status_code() < 0 || setjmp(get_jump_point()) != 0)
         return;
 
     try
@@ -380,6 +387,7 @@ void LLMService::start_server(const std::string &host, int port, const std::stri
         // register API routes
         ctx_http->post("/health",  ex_wrapper(routes->get_health)); // public endpoint (no API key check)
         ctx_http->post("/v1/health", ex_wrapper(routes->get_health)); // public endpoint (no API key check)
+        ctx_http->post("/props",  ex_wrapper([this](const server_http_req &) {return get_props();}));
         ctx_http->post("/completion", ex_wrapper(routes->post_completions)); // legacy
         ctx_http->post("/completions", ex_wrapper(routes->post_completions));
         ctx_http->post("/chat/completions", ex_wrapper(routes->post_chat_completions));
@@ -408,7 +416,7 @@ void LLMService::start_server(const std::string &host, int port, const std::stri
 
 void LLMService::stop_server()
 {
-    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
+    if (get_status_code() < 0 || setjmp(get_jump_point()) != 0)
         return;
     if (ctx_http == nullptr)
         return;
@@ -423,7 +431,7 @@ void LLMService::stop_server()
 
 void LLMService::join_server()
 {
-    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
+    if (get_status_code() < 0 || setjmp(get_jump_point()) != 0)
         return;
     std::unique_lock<std::mutex> lock(start_stop_mutex);
     server_stopped_cv.wait(lock, [this]
@@ -432,7 +440,7 @@ void LLMService::join_server()
 
 void LLMService::start()
 {
-    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
+    if (get_status_code() < 0 || setjmp(get_jump_point()) != 0)
         return;
     std::lock_guard<std::mutex> lock(start_stop_mutex);
     service_thread = std::thread([&]()
@@ -449,7 +457,7 @@ void LLMService::start()
 
 void LLMService::stop()
 {
-    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
+    if (get_status_code() < 0 || setjmp(get_jump_point()) != 0)
         return;
     try
     {
@@ -499,7 +507,7 @@ void LLMService::stop()
 
 void LLMService::join_service()
 {
-    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
+    if (get_status_code() < 0 || setjmp(get_jump_point()) != 0)
         return;
     std::unique_lock<std::mutex> lock(start_stop_mutex);
     service_stopped_cv.wait(lock, [this]
@@ -519,7 +527,7 @@ void LLMService::set_SSL(const std::string &SSL_cert_str, const std::string &SSL
 
 std::string LLMService::encapsulate_route(const json &body, server_http_context::handler_t route_handler)
 {
-    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
+    if (get_status_code() < 0 || setjmp(get_jump_point()) != 0)
         return "";
 
     try
@@ -536,7 +544,7 @@ std::string LLMService::encapsulate_route(const json &body, server_http_context:
 
 std::string LLMService::apply_template_json(const json &body)
 {
-    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
+    if (get_status_code() < 0 || setjmp(get_jump_point()) != 0)
         return "";
     std::vector<raw_buffer> files; // dummy, unused
     json copy = body;
@@ -574,7 +582,7 @@ std::string LLMService::lora_list_json()
 
 std::string LLMService::completion_json(const json &data_in, CharArrayFn callback, bool callbackWithJSON)
 {
-    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
+    if (get_status_code() < 0 || setjmp(get_jump_point()) != 0)
         return "";
     
     try
@@ -616,7 +624,7 @@ std::string LLMService::completion_json(const json &data_in, CharArrayFn callbac
 
 std::string LLMService::slot_json(const json &data)
 {
-    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
+    if (get_status_code() < 0 || setjmp(get_jump_point()) != 0)
         return "";
     std::string result_data = "";
     try
@@ -671,7 +679,7 @@ std::string LLMService::slot_json(const json &data)
 
 void LLMService::cancel(int id_slot)
 {
-    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
+    if (get_status_code() < 0 || setjmp(get_jump_point()) != 0)
         return;
     try
     {
@@ -692,13 +700,37 @@ void LLMService::cancel(int id_slot)
 
 int LLMService::embedding_size()
 {
-    if (get_status_code() > 0 || setjmp(get_jump_point()) != 0)
+    if (get_status_code() < 0 || setjmp(get_jump_point()) != 0)
         return 0;
 
     int n_embd = 0;
     if (ctx_server == nullptr) return 0;
     return ctx_server->get_meta().model_n_embd_inp;
 }
+
+std::unique_ptr<server_http_res> LLMService::get_props(){
+    if (get_status_code() < 0 || setjmp(get_jump_point()) != 0)
+        return nullptr;
+
+    server_http_req req{ {}, {}, "", "", always_false };
+    auto result = routes->get_props(req);
+
+    json data = json::parse(result->data);
+    int n_ctx = -1;
+    try
+    {
+        n_ctx = data.at("default_generation_settings").at("n_ctx").get<int>();
+    }
+    catch (...){}
+
+    result->data = safe_json_to_str(json {
+        { "default_generation_settings", {
+            { "n_ctx", n_ctx }
+        }}
+    });
+    return result;
+};
+
 
 //=========================== API ===========================//
 

@@ -104,6 +104,10 @@ public:
     /// @brief Get available processing slot (override)
     /// @return Available slot ID or -1 if none available
     int get_next_available_slot() override;
+
+    /// @brief Get slot context size
+    /// @return Slot context size or -1 if none available
+    int get_slot_context_size() override;
     //=================================== LLM METHODS END ===================================//
 
 private:
