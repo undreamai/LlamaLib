@@ -1058,7 +1058,7 @@ void test_overflow(LLMService *llm_service, int n_ctx)
     agent->set_overflow_strategy(ContextOverflowStrategy::None);
     reply = agent->chat(user_prompt,true, nullptr, false, true);
     ASSERT(agent->get_history_size() == num_messages + 2);
-    ASSERT(get_status_code() > 0);
+    ASSERT(LLM_Status_Code() > 0);
     ASSERT(reply == "");
 
     delete agent;
@@ -1066,6 +1066,7 @@ void test_overflow(LLMService *llm_service, int n_ctx)
 
 void run_all_tests(LLMService *llm_service, bool embedding)
 {
+    std::cout << std::endl << "-------- LLM service --------" << std::endl;
     LLM_Start(llm_service);
 
     EMBEDDING_SIZE = LLM_Embedding_Size(llm_service);
@@ -1102,6 +1103,7 @@ void run_all_tests(LLMService *llm_service, bool embedding)
 
 void run_overflow_tests(LLMService *llm_service, int n_ctx)
 {
+    std::cout << std::endl << "-------- Test overflow --------" << std::endl;
     llm_service->start();
     test_overflow(llm_service, n_ctx);
     llm_service->stop();
