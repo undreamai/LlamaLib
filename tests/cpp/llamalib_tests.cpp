@@ -564,6 +564,7 @@ public:
     bool started() override { return true; }
     int embedding_size() override { return 0; }
     int get_next_available_slot() override { return -1; }
+    int get_slot_context_size() override { return -1; }
 
     void debug(int debug_level) override {}
     void logging_callback(CharArrayFn callback) override {}
@@ -1008,6 +1009,61 @@ void test_API_key(LLMService *llm_service)
     ASSERT(!LLMClient_Is_Server_Alive(&llm_remote_client));
 }
 
+void fill_history_with_words(LLMAgent* agent, int num_words, int num_messages)
+{
+    int num_per_message = num_words / num_messages;
+
+    json test_history = json::array();
+    std::string message = "";
+    std::string message2 = "";
+
+    for (int i=0; i<num_per_message-1; i++) message += "Hello ";
+    for (int i=0; i<num_per_message-1; i++) message2 += "Hi ";
+
+    for (int i=0; i<num_messages/2; i++)
+    {
+        test_history.push_back({{"role", "user"}, {"content", message + std::to_string(i)}});
+        test_history.push_back({{"role", "assistant"}, {"content", message2 + std::to_string(i)}});
+    }
+    agent->clear_history();
+    agent->set_history(test_history);
+    ASSERT(agent->get_history_size() == num_messages);
+}
+
+void test_overflow(LLMService *llm_service, int n_ctx)
+{
+    std::string system_prompt = "Say hi";
+    LLMAgent *agent = new LLMAgent(llm_service, system_prompt);
+
+    int num_left = n_ctx - llm_service->tokenize(system_prompt).size();
+    int num_messages = 8;
+    std::string reply;
+    std::string user_prompt = "you didn't greet me";
+
+    fill_history_with_words(agent, num_left, num_messages);
+    agent->set_overflow_strategy(ContextOverflowStrategy::Truncate);
+    reply = agent->chat(user_prompt,true, nullptr, false, true);
+    ASSERT(agent->get_history_size() > 0 && agent->get_history_size() < num_messages);
+    ASSERT(agent->get_summary() == "");
+    ASSERT(reply != "");
+
+    fill_history_with_words(agent, num_left, num_messages);
+    agent->set_overflow_strategy(ContextOverflowStrategy::Summarize);
+    reply = agent->chat(user_prompt,true, nullptr, false, true);
+    ASSERT(agent->get_history_size() == 2);
+    ASSERT(agent->get_summary() != "");
+    ASSERT(reply != "");
+
+    fill_history_with_words(agent, num_left, num_messages);
+    agent->set_overflow_strategy(ContextOverflowStrategy::None);
+    reply = agent->chat(user_prompt,true, nullptr, false, true);
+    ASSERT(agent->get_history_size() == num_messages + 2);
+    ASSERT(get_status_code() > 0);
+    ASSERT(reply == "");
+
+    delete agent;
+}
+
 void run_all_tests(LLMService *llm_service, bool embedding)
 {
     LLM_Start(llm_service);
@@ -1016,14 +1072,12 @@ void run_all_tests(LLMService *llm_service, bool embedding)
     if (embedding) run_LLM_embedding_tests(llm_service);
     else run_LLMProvider_tests(llm_service);
 
-    std::cout << std::endl
-              << "-------- LLM client --------" << std::endl;
+    std::cout << std::endl << "-------- LLM client --------" << std::endl;
     LLMClient llm_client(llm_service);
     if (embedding) run_LLM_embedding_tests(&llm_client);
     else run_LLMLocal_tests(&llm_client);
 
-    std::cout << std::endl
-              << "-------- LLM remote client --------" << std::endl;
+    std::cout << std::endl << "-------- LLM remote client --------" << std::endl;
     LLMClient llm_remote_client("http://localhost", 8080);
     llm_service->start_server("", 8080);
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -1033,8 +1087,7 @@ void run_all_tests(LLMService *llm_service, bool embedding)
 
     test_API_key(llm_service);
 
-    std::cout << std::endl
-              << "-------- LLM remote client SSL --------" << std::endl;
+    std::cout << std::endl << "-------- LLM remote client SSL --------" << std::endl;
     LLMClient llm_remote_client_SSL("https://localhost", 8080);
     set_SSL(llm_service, &llm_remote_client_SSL);
     llm_service->start_server("", 8080);
@@ -1043,17 +1096,30 @@ void run_all_tests(LLMService *llm_service, bool embedding)
     else run_LLMLocal_tests(&llm_remote_client_SSL);
     llm_service->stop_server();
 
-    std::cout << std::endl
-              << "-------- Stop service --------" << std::endl;
+    std::cout << std::endl << "-------- Stop service --------" << std::endl;
     LLM_Delete(llm_service);
+}
+
+void run_overflow_tests(LLMService *llm_service, int n_ctx)
+{
+    llm_service->start();
+    test_overflow(llm_service, n_ctx);
+    llm_service->stop();
+    delete llm_service;
 }
 
 int main(int argc, char **argv)
 {
     LLM_Debug(1);
     run_mock_tests();
+
+    int n_ctx = 250;
+    LLMService* llm_service_ctx = LLMServiceBuilder().model("../tests/model.gguf").contextSize(n_ctx).build();
+    run_overflow_tests(llm_service_ctx, n_ctx);
+
     LLMService* llm_service = new LLMService("../tests/model.gguf");
     run_all_tests(llm_service, false);
+
     LLMService* llm_service_embedding = LLMService::from_command("-m ../tests/model_embedding.gguf --embeddings");
     run_all_tests(llm_service_embedding, true);
      

@@ -241,7 +241,7 @@ namespace UndreamAI.LlamaLib
         public void CheckStatus(bool crashesOnly = false)
         {
             int status = LLM_Status_Code_Internal();
-            if (status > 0 || (status < 0 && !crashesOnly))
+            if (status < 0 || (status > 0 && !crashesOnly))
             {
                 string msg = Marshal.PtrToStringAnsi(LLM_Status_Message_Internal()) ?? "";
                 throw new InvalidOperationException($"LlamaLib error {status}: {msg}");

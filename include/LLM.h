@@ -225,6 +225,10 @@ public:
     /// @return Available slot ID, or -1 if none determined
     virtual int get_next_available_slot() = 0;
 
+    /// @brief Get slot context size
+    /// @return Slot context size, or -1 if not determined
+    virtual int get_slot_context_size() = 0;
+
     /// @brief Save slot state to file
     /// @param id_slot Slot ID to save
     /// @param filepath Path to save state file

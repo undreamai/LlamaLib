@@ -53,6 +53,14 @@ struct UNDREAMAI_API ChatMessage
     }
 };
 
+/// @brief Strategy to apply when the chat history would exceed the model's context window
+enum class ContextOverflowStrategy
+{
+    None,       ///< No automatic handling — may crash if context is exceeded
+    Truncate,   ///< Remove oldest messages (in pairs) from the front until history fits within target_context_ratio
+    Summarize   ///< Summarise the full history (rolling chunks if needed), embed it in the system message, then truncate if still needed
+};
+
 /// @brief High-level conversational agent for LLM interactions
 /// @details Provides a conversation-aware interface that manages chat history
 /// and applies chat template formatting
@@ -112,6 +120,10 @@ public:
     /// @brief Get available slot (delegate to wrapped LLM)
     /// @return Available slot ID
     int get_next_available_slot() override { return llm->get_next_available_slot(); }
+
+    /// @brief Get slot context size (delegate to wrapped LLM)
+    /// @return Slot context size
+    int get_slot_context_size() override { return llm->get_slot_context_size(); }
 
     //=================================== LLM METHOD DELEGATES ===================================//
 
@@ -223,6 +235,35 @@ public:
     /// @details Returns the count of messages currently stored in history
     size_t get_history_size() const { return history.size(); }
 
+    // Context overflow management
+
+    /// @brief Configure how the agent handles context overflow
+    /// @param strategy The overflow strategy to use
+    /// @param target_ratio Fraction of context to target after truncation (0.0–1.0, default 0.5)
+    /// @param summarize_prompt Prompt used to ask the LLM to summarise the history
+    void set_overflow_strategy(
+        ContextOverflowStrategy strategy,
+        float target_ratio = 0.5f,
+        const std::string &summarize_prompt = "Summarize the following conversation concisely, preserving all important details:\n\n"
+    )
+    {
+        overflow_strategy = strategy;
+        target_context_ratio = target_ratio;
+        this->summarize_prompt = summarize_prompt;
+    }
+
+    /// @brief Get the current overflow strategy
+    ContextOverflowStrategy get_overflow_strategy() const { return overflow_strategy; }
+
+    /// @brief Get the current summarize prompt
+    std::string get_summarize_prompt() const { return summarize_prompt; }
+
+    /// @brief Get the current rolling summary (empty if none has been generated yet)
+    std::string get_summary() const { return summary; }
+
+    /// @brief Set the rolling summary directly (e.g. after loading from file)
+    void set_summary(const std::string &summary_) { summary = summary_; }
+
     // Chat functionality
 
     /// @brief Conduct a chat interaction
@@ -239,6 +280,22 @@ public:
 protected:
     void set_n_keep();
 
+    /// @brief Build the full message list to send to the model
+    /// @param user_prompt The current user message to append
+    /// @return JSON array: [system+summary, ...history, user_prompt]
+    json build_working_history(const std::string &user_prompt) const;
+
+    /// @brief Handle context overflow using the configured strategy before a chat call
+    /// @param formatted_prompt The fully formatted prompt string about to be sent
+    /// @return true if history was modified
+    bool handle_overflow(const std::string &formatted_prompt);
+
+    /// @brief Remove oldest message pairs from the front until history fits within target_context_ratio
+    void truncate_history();
+
+    /// @brief Summarise the entire history (chunking if needed), embed summary in system message, then truncate if still needed
+    void summarize_history();
+
     /// @brief Add a message to conversation history
     /// @param role Message role identifier
     /// @param content Message content text
@@ -250,7 +307,13 @@ private:
     int id_slot = -1;                         ///< Assigned processing slot ID
     std::string system_prompt = "";           ///< System prompt for conversation context
     std::string system_role = "system";       ///< Role identifier for system messages
+    std::string summary = "";                 ///< Rolling summary embedded into the system message by Summarize strategy
     json history;                             ///< Conversation history as JSON array
+
+    // Context overflow
+    ContextOverflowStrategy overflow_strategy = ContextOverflowStrategy::Truncate;
+    float target_context_ratio = 0.5f;        ///< Target fill ratio after truncation (0.0–1.0)
+    std::string summarize_prompt = "Summarize the following conversation concisely, preserving all important details:\n\n";
 };
 
 /// @ingroup c_api
@@ -346,6 +409,23 @@ extern "C"
     /// @param llm LLMAgent instance pointer
     /// @return Number of messages in conversation history
     UNDREAMAI_API size_t LLMAgent_Get_History_Size(LLMAgent *llm);
+
+    /// @brief Configure the context overflow strategy (C API)
+    /// @param llm LLMAgent instance pointer
+    /// @param strategy 0=None, 1=Truncate, 2=Summarize
+    /// @param target_ratio Target fill ratio after truncation (0.0–1.0)
+    /// @param summarize_prompt Prompt used for summarization (nullptr = use default)
+    UNDREAMAI_API void LLMAgent_Set_Overflow_Strategy(LLMAgent *llm, int strategy, float target_ratio, const char *summarize_prompt);
+
+    /// @brief Get the current rolling summary (C API)
+    /// @param llm LLMAgent instance pointer
+    /// @return Summary string, or empty string if none has been generated
+    UNDREAMAI_API const char *LLMAgent_Get_Summary(LLMAgent *llm);
+
+    /// @brief Set the rolling summary directly (C API)
+    /// @param llm LLMAgent instance pointer
+    /// @param summary Summary string to restore
+    UNDREAMAI_API void LLMAgent_Set_Summary(LLMAgent *llm, const char *summary);
 }
 
 /// @}

@@ -197,6 +197,10 @@ public:
     /// @return Available slot ID
     int get_next_available_slot() override { return ((LLMProvider *)llm)->get_next_available_slot(); }
 
+    /// @brief Get slot context size (override - delegates to loaded library)
+    /// @return Slot context size
+    int get_slot_context_size() override { return ((LLMProvider *)llm)->get_slot_context_size(); }
+
     /// @brief Set debug level (override - delegates to loaded library)
     /// @param debug_level Debug verbosity level
     void debug(int debug_level) override { ((LLMProvider *)llm)->debug(debug_level); }
