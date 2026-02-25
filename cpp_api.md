@@ -767,6 +767,47 @@ agent.remove_last_message();
 agent.remove_last_message();
 ```
 
+#### Context Overflow Management
+
+When conversation history grows large enough to exceed the model's context window, the agent can automatically handle it using a configurable strategy.
+
+```cpp
+void set_overflow_strategy(
+    ContextOverflowStrategy strategy,                  // None, Truncate, or Summarize
+    float target_ratio = 0.5f,                         // target fill ratio of context after truncation (0.0–1.0)
+    const std::string &summarize_prompt = "..."        // custom summarization prompt (default provided)
+);
+```
+
+**Strategies:**
+
+| Value | Behaviour |
+|-------|-----------|
+| `ContextOverflowStrategy::None` | No protection — may crash if context is exceeded |
+| `ContextOverflowStrategy::Truncate` | Drops oldest message pairs until history fits within `target_ratio` of the context |
+| `ContextOverflowStrategy::Summarize` | Asks the LLM to summarise history, embeds summary in the system message, then truncates if still needed |
+
+**Example:**
+```cpp
+// Truncate: drop oldest pairs when context is full, keeping ≤50% filled
+agent.set_overflow_strategy(ContextOverflowStrategy::Truncate, 0.5f);
+
+// Summarize: condense history into a rolling summary in the system prompt
+agent.set_overflow_strategy(ContextOverflowStrategy::Summarize);
+
+// Summarize with a custom prompt
+agent.set_overflow_strategy(
+    ContextOverflowStrategy::Summarize,
+    0.5f,
+    "Summarize the key facts from this conversation briefly:\n\n"
+);
+
+// The rolling summary is automatically saved with save_history / loaded with load_history.
+// You can also access or replace it directly:
+std::string summary = agent.get_summary();
+agent.set_summary("Alice introduced herself as a software engineer.");
+```
+
 #### System Prompt
 
 ```cpp

@@ -816,6 +816,47 @@ agent.RemoveLastMessage();
 agent.RemoveLastMessage();
 ```
 
+#### Context Overflow Management
+
+When conversation history grows large enough to exceed the model's context window, the agent can automatically handle it using a configurable strategy.
+
+```csharp
+public void SetOverflowStrategy(
+    ContextOverflowStrategy strategy,   // None, Truncate, or Summarize
+    float targetRatio = 0.5f,           // target fill ratio of context after truncation (0.0–1.0)
+    string summarizePrompt = null       // custom summarization prompt (null = use default)
+);
+```
+
+**Strategies:**
+
+| Value | Behaviour |
+|-------|-----------|
+| `ContextOverflowStrategy.None` (0) | No protection — may crash if context is exceeded |
+| `ContextOverflowStrategy.Truncate` (1) | Drops oldest message pairs until history fits within `targetRatio` of the context |
+| `ContextOverflowStrategy.Summarize` (2) | Asks the LLM to summarise history, embeds summary in the system message, then truncates if still needed |
+
+**Example:**
+```csharp
+// Truncate: drop oldest pairs when context is full, keeping ≤50% filled
+agent.SetOverflowStrategy(ContextOverflowStrategy.Truncate, 0.5f);
+
+// Summarize: condense history into a rolling summary in the system prompt
+agent.SetOverflowStrategy(ContextOverflowStrategy.Summarize);
+
+// Summarize with a custom prompt
+agent.SetOverflowStrategy(
+    ContextOverflowStrategy.Summarize,
+    0.5f,
+    "Summarize the key facts from this conversation briefly:\n\n"
+);
+
+// The rolling summary is automatically saved with SaveHistory / loaded with LoadHistory.
+// You can also access or replace it directly:
+string summary = agent.GetSummary();
+agent.SetSummary("Alice introduced herself as a software engineer.");
+```
+
 #### System Prompt
 
 ```csharp
