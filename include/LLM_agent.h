@@ -61,6 +61,21 @@ enum class ContextOverflowStrategy
     Summarize   ///< Summarise the full history (rolling chunks if needed), embed it in the system message, then truncate if still needed
 };
 
+const std::string SUMMARY_PROMPT=
+"You are maintaining a concise working memory of an ongoing conversation."
+""
+"If an existing summary is provided, merge it with the new messages into a single updated summary."
+"If no existing summary is provided, create a new summary from the messages."
+""
+"Rules:"
+"- Preserve user goals, decisions made, constraints, preferences, open questions, and pending tasks."
+"- Remove anything resolved, superseded, redundant, or purely conversational."
+"- Keep only information relevant for future reasoning."
+"- Avoid duplicating or rephrasing information unnecessarily."
+"- Write in present tense where possible."
+"- Keep under 200 words."
+"- No bullet points. No preamble. Output only the summary text.";
+
 /// @brief High-level conversational agent for LLM interactions
 /// @details Provides a conversation-aware interface that manages chat history
 /// and applies chat template formatting
@@ -244,7 +259,7 @@ public:
     void set_overflow_strategy(
         ContextOverflowStrategy strategy,
         float target_ratio = 0.5f,
-        const std::string &summarize_prompt = "Summarize the following conversation concisely, preserving all important details:\n\n"
+        const std::string &summarize_prompt = SUMMARY_PROMPT
     )
     {
         overflow_strategy = strategy;
@@ -317,7 +332,7 @@ private:
     // Context overflow
     ContextOverflowStrategy overflow_strategy = ContextOverflowStrategy::Truncate;
     float target_context_ratio = 0.5f;        ///< Target fill ratio after truncation (0.0–1.0)
-    std::string summarize_prompt = "Summarize the following conversation concisely, preserving all important details:\n\n";
+    std::string summarize_prompt = SUMMARY_PROMPT;
 };
 
 /// @ingroup c_api

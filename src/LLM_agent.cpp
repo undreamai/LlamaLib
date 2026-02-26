@@ -195,6 +195,8 @@ void LLMAgent::truncate_history(const std::string &user_prompt)
     int ctx = get_slot_context_size();
     if (ctx <= 0 || history.empty()) return;
 
+    std::cout<<"context size reached, truncating history"<<std::endl;
+
     int target_tokens = static_cast<int>(ctx * target_context_ratio);
 
     auto measure = [&]() -> int {
@@ -215,11 +217,12 @@ void LLMAgent::summarize_history(const std::string &user_prompt)
     int ctx = get_slot_context_size();
     if (ctx <= 0) return;
 
+    std::cout<<"context size reached, summarizing history"<<std::endl;
     // Build the prompt for a summary request, incorporating any prior rolling summary.
     auto build_summary_prompt = [&](const std::string &transcript) -> std::string {
         std::string query = summarize_prompt;
         if (!summary.empty())
-            query += "Current summary:\n" + summary + "\n\n";
+            query += "Existing summary:\n" + summary + "\n\n";
         query += "Messages:\n" + transcript;
         json msgs = json::array();
         msgs.push_back(ChatMessage(USER_ROLE, query).to_json());
