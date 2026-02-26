@@ -53,6 +53,7 @@ using LibHandle = void *; ///< Unix library handle type
 #define LLM_FUNCTIONS_LIST(M)                                                                                     \
     M(LLMService_Registry, void, LLMProviderRegistry *)                                                           \
     M(LLMService_InjectErrorState, void, ErrorState *)                                                            \
+    M(LLMService_Supports_GPU, bool)                                                                              \
     M(LLMService_Construct, LLMProvider *, const char *, int, int, int, bool, int, int, bool, int, const char **) \
     M(LLMService_From_Command, LLMProvider *, const char *)
 
@@ -227,7 +228,7 @@ protected:
     /// @param llm_lib_filename Specific library filename to load
     /// @return true if library loaded successfully, false otherwise
     /// @details Internal method for loading specific library files
-    bool create_LLM_library_backend(const std::string &command, const std::string &llm_lib_filename);
+    bool create_LLM_library_backend(const std::string &command, const std::string &llm_lib_filename, bool is_gpu_library=false);
 };
 
 /// @brief Get OS-specific library directory

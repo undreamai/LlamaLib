@@ -739,6 +739,11 @@ void LLMService_Registry(LLMProviderRegistry *existing_instance)
     LLMProviderRegistry::inject_registry(existing_instance);
 }
 
+bool LLMService_Supports_GPU()
+{
+    return llama_supports_gpu_offload();
+}
+
 LLMService *LLMService_Construct(const char *model_path, int num_slots, int num_threads, int num_GPU_layers, bool flash_attention, int context_size, int batch_size, bool embedding_only, int lora_count, const char **lora_paths)
 {
     std::vector<std::string> lora_paths_vector;
