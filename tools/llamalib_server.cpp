@@ -14,6 +14,7 @@ int main(int argc, char **argv)
     llm->debug(1);
     llm->start();
     llm->start_server();
+    std::cout << "service started" << std::endl;
     llm->join_server();
 
     return 0;
