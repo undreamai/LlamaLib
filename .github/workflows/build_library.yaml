@@ -748,6 +748,7 @@ jobs:
             ./.github/scripts/release.sh release
             mv release ${{ env.RELEASE_NAME }}
             zip -r ${{ env.RELEASE_NAME }}.zip ${{ env.RELEASE_NAME }}
+            sha256sum ${{ env.RELEASE_NAME }}.zip | awk '{print $1}' > ${{ env.RELEASE_NAME }}.zip.sha256
 
         - id: test_cmake
           name: Test cmake
@@ -785,6 +786,7 @@ jobs:
           with:
             files: |
               ${{ env.RELEASE_NAME }}.zip
+              ${{ env.RELEASE_NAME }}.zip.sha256
               csharp/bin/Release/LlamaLib*nupkg
             name: Release ${{ env.VERSION }}
 
