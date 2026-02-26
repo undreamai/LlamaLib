@@ -1115,7 +1115,7 @@ void run_overflow_tests(LLMService *llm_service, int n_ctx)
 
 int main(int argc, char **argv)
 {
-    LLM_Debug(1);
+    LLM_Debug(4);
     run_mock_tests();
 
     int n_ctx = 250;
