@@ -279,6 +279,9 @@ extern "C"
     UNDREAMAI_API const char *LLMService_Command(LLMService *llm_service);
 
     UNDREAMAI_API void LLMService_InjectErrorState(ErrorState *error_state);
+
+    UNDREAMAI_API bool LLMService_Supports_GPU();
+
 }
 
 /// @}

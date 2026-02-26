@@ -20,6 +20,8 @@ const std::string platform_name()
 #endif
 }
 
+const std::vector<std::string> GPU_LIBRARIES = {"cublas", "tinyblas", "hip", "vulkan"};
+
 const std::vector<std::string> available_architectures(bool gpu)
 {
     std::vector<std::string> architectures;
@@ -53,10 +55,8 @@ const std::vector<std::string> available_architectures(bool gpu)
 #if defined(_WIN32) || defined(__linux__)
     if (gpu)
     {
-        add_library("cublas");
-        add_library("tinyblas");
-        add_library("hip");
-        add_library("vulkan");
+        for (std::string gpu_library: GPU_LIBRARIES)
+            add_library(gpu_library);
     }
     if (has_avx512())
         add_library("avx512");
@@ -215,7 +215,7 @@ LibHandle load_library_safe(const std::string &path)
     return handle_out;
 }
 
-bool LLMService::create_LLM_library_backend(const std::string &command, const std::string &llm_lib_filename)
+bool LLMService::create_LLM_library_backend(const std::string &command, const std::string &llm_lib_filename, bool is_gpu_library)
 {
     sigjmp_buf local_jump_point;
     sigjmp_buf* old_jump_point = get_current_jump_point_ptr(); // Save the old one
@@ -269,6 +269,11 @@ bool LLMService::create_LLM_library_backend(const std::string &command, const st
     }
             LLM_FUNCTIONS_LIST(DECLARE_AND_LOAD)
 #undef DECLARE_AND_LOAD
+            if (is_gpu_library && !LLMService_Supports_GPU())
+            {
+                std::cout << "Doesn't support the GPU, skipping"<<std::endl;
+                continue;
+            }
 
             LLMService_Registry(&LLMProviderRegistry::instance());
             LLMService_InjectErrorState(&ErrorStateRegistry::get_error_state());
@@ -299,7 +304,16 @@ bool LLMService::create_LLM_library(const std::string &command)
     for (const auto &llm_lib_filename : available_architectures(gpu))
     {
         fail("", 0);
-        bool success = create_LLM_library_backend(command, llm_lib_filename);
+        bool is_gpu_library = false;
+        for (std::string gpu_library: GPU_LIBRARIES)
+        {
+            if (llm_lib_filename.find(gpu_library) != std::string::npos) {
+                is_gpu_library = true;
+                break;
+            }
+        }
+
+        bool success = create_LLM_library_backend(command, llm_lib_filename, is_gpu_library);
         if (success)
         {
             std::cout << "Successfully loaded: " << llm_lib_filename << std::endl;
