@@ -286,15 +286,15 @@ protected:
     json build_working_history(const std::string &user_prompt) const;
 
     /// @brief Handle context overflow using the configured strategy before a chat call
-    /// @param formatted_prompt The fully formatted prompt string about to be sent
+    /// @param user_prompt The user prompt string about to be sent
     /// @return true if history was modified
-    bool handle_overflow(const std::string &formatted_prompt);
+    bool handle_overflow(const std::string &user_prompt);
 
     /// @brief Remove oldest message pairs from the front until history fits within target_context_ratio
-    void truncate_history();
+    void truncate_history(const std::string &user_prompt);
 
     /// @brief Summarise the entire history (chunking if needed), embed summary in system message, then truncate if still needed
-    void summarize_history();
+    void summarize_history(const std::string &user_prompt);
 
     /// @brief Add a message to conversation history
     /// @param role Message role identifier

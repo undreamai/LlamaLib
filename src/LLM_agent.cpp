@@ -58,7 +58,7 @@ std::string LLMAgent::chat(const std::string &user_prompt, bool add_to_history, 
 
     // Handle context overflow before sending
     if (overflow_strategy != ContextOverflowStrategy::None)
-        handle_overflow(apply_template(build_working_history(user_prompt)));
+        handle_overflow(user_prompt);
 
     // Apply template to get the formatted prompt
     std::string query_prompt = apply_template(build_working_history(user_prompt));
@@ -161,28 +161,28 @@ void LLMAgent::load_history(const std::string &filepath)
     }
 }
 
-bool LLMAgent::handle_overflow(const std::string &formatted_prompt)
+bool LLMAgent::handle_overflow(const std::string &user_prompt)
 {
     int ctx = get_slot_context_size();
     if (ctx <= 0) return false;
 
-    int prompt_tokens = static_cast<int>(tokenize(formatted_prompt).size());
+    int prompt_tokens = static_cast<int>(tokenize(apply_template(build_working_history(user_prompt))).size());
     if (prompt_tokens < ctx) return false;
 
     switch (overflow_strategy)
     {
         case ContextOverflowStrategy::Truncate:
-            truncate_history();
+            truncate_history(user_prompt);
             return true;
         case ContextOverflowStrategy::Summarize:
-            summarize_history();
+            summarize_history(user_prompt);
             return true;
         default:
             return false;
     }
 }
 
-void LLMAgent::truncate_history()
+void LLMAgent::truncate_history(const std::string &user_prompt)
 {
     int ctx = get_slot_context_size();
     if (ctx <= 0 || history.empty()) return;
@@ -190,7 +190,7 @@ void LLMAgent::truncate_history()
     int target_tokens = static_cast<int>(ctx * target_context_ratio);
 
     auto measure = [&]() -> int {
-        return static_cast<int>(tokenize(apply_template(build_working_history(""))).size());
+        return static_cast<int>(tokenize(apply_template(build_working_history(user_prompt))).size());
     };
 
     while (history.size() >= 2 && measure() > target_tokens)
@@ -201,7 +201,7 @@ void LLMAgent::truncate_history()
         history.erase(history.begin());
 }
 
-void LLMAgent::summarize_history()
+void LLMAgent::summarize_history(const std::string &user_prompt)
 {
     if (history.empty()) return;
     int ctx = get_slot_context_size();
@@ -251,7 +251,7 @@ void LLMAgent::summarize_history()
 
         // The summary lives in the system message (injected by build_working_history).
         // If even system + summary + empty user message overflows the budget, discard it.
-        int probe_tokens = static_cast<int>(tokenize(apply_template(build_working_history(""))).size());
+        int probe_tokens = static_cast<int>(tokenize(apply_template(build_working_history(user_prompt))).size());
         int target_tokens = static_cast<int>(ctx * target_context_ratio);
         if (probe_tokens > target_tokens)
         {
@@ -263,7 +263,7 @@ void LLMAgent::summarize_history()
     {
         std::cerr << "LLMAgent: summarization failed (" << e.what() << "), falling back to truncation" << std::endl;
         history = json::array(); // clear history to avoid double-processing
-        truncate_history();
+        truncate_history(user_prompt);
     }
 }
 
