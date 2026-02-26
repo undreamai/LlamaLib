@@ -1050,7 +1050,7 @@ void test_overflow(LLMService *llm_service, int n_ctx)
 
     std::cout << std::endl << "Overflow: Summarize" << std::endl;
     fill_history_with_words(agent, num_left, num_messages);
-    agent->set_overflow_strategy(ContextOverflowStrategy::Summarize);
+    agent->set_overflow_strategy(ContextOverflowStrategy::Summarize, 0.5, "Summarise the provided messages and existing history");
     reply = agent->chat(user_prompt);
     ASSERT(agent->get_history_size() == 2);
     ASSERT(agent->get_summary() != "");
