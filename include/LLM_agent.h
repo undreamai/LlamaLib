@@ -280,6 +280,10 @@ public:
 protected:
     void set_n_keep();
 
+    /// @brief Builds the history to send to the model including only the prompts
+    /// @return JSON array: [system+summary]
+    json build_system_history() const;
+
     /// @brief Build the full message list to send to the model
     /// @param user_prompt The current user message to append
     /// @return JSON array: [system+summary, ...history, user_prompt]
