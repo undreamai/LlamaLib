@@ -1040,23 +1040,26 @@ void test_overflow(LLMService *llm_service, int n_ctx)
     std::string reply;
     std::string user_prompt = "you didn't greet me";
 
+    std::cout << std::endl << "Overflow: Truncate" << std::endl;
     fill_history_with_words(agent, num_left, num_messages);
     agent->set_overflow_strategy(ContextOverflowStrategy::Truncate);
-    reply = agent->chat(user_prompt,true, nullptr, false, true);
+    reply = agent->chat(user_prompt);
     ASSERT(agent->get_history_size() > 0 && agent->get_history_size() < num_messages);
     ASSERT(agent->get_summary() == "");
     ASSERT(reply != "");
 
+    std::cout << std::endl << "Overflow: Summarize" << std::endl;
     fill_history_with_words(agent, num_left, num_messages);
     agent->set_overflow_strategy(ContextOverflowStrategy::Summarize);
-    reply = agent->chat(user_prompt,true, nullptr, false, true);
+    reply = agent->chat(user_prompt);
     ASSERT(agent->get_history_size() == 2);
     ASSERT(agent->get_summary() != "");
     ASSERT(reply != "");
 
+    std::cout << std::endl << "Overflow: None" << std::endl;
     fill_history_with_words(agent, num_left, num_messages);
     agent->set_overflow_strategy(ContextOverflowStrategy::None);
-    reply = agent->chat(user_prompt,true, nullptr, false, true);
+    reply = agent->chat(user_prompt);
     ASSERT(agent->get_history_size() == num_messages + 2);
     ASSERT(LLM_Status_Code() > 0);
     ASSERT(reply == "");

@@ -223,15 +223,20 @@ void LLMAgent::summarize_history()
         // Walk history, flushing a summary call whenever the accumulating transcript
         // would itself overflow the context.
         std::string transcript;
-        for (const auto &msg : history)
+        for (int i=0; i<history.size(); i+=2)
         {
-            std::string role    = msg.at("role").get<std::string>();
-            std::string content = msg.at("content").get<std::string>();
-            std::string line    = role + ": " + content + "\n";
+            std::string line = "";
+            for (int j=0; j<2; j++)
+            {
+                if (i+j >= history.size()-1) break;
+                json msg = history[i+j];
+                std::string role    = msg.at("role").get<std::string>();
+                std::string content = msg.at("content").get<std::string>();
+                line += role + ": " + content + "\n";
+            }
 
             // Flush before appending if this line would push the prompt over the limit
-            if (!transcript.empty() &&
-                static_cast<int>(tokenize(build_summary_prompt(transcript + line)).size()) >= ctx)
+            if (!transcript.empty() && static_cast<int>(tokenize(build_summary_prompt(transcript + line)).size()) >= ctx*0.75)
             {
                 summary = completion(build_summary_prompt(transcript));
                 transcript = "";
