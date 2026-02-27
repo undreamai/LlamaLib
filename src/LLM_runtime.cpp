@@ -20,8 +20,6 @@ const std::string platform_name()
 #endif
 }
 
-const std::vector<std::string> GPU_LIBRARIES = {"cublas", "tinyblas", "hip", "vulkan"};
-
 const std::vector<std::string> available_architectures(bool gpu)
 {
     std::vector<std::string> architectures;
@@ -52,23 +50,30 @@ const std::vector<std::string> available_architectures(bool gpu)
         architectures.push_back(path);
     };
 
-#if defined(_WIN32) || defined(__linux__)
     if (gpu)
     {
-        for (std::string gpu_library: GPU_LIBRARIES)
-            add_library(gpu_library);
-    }
-    if (has_avx512())
-        add_library("avx512");
-    if (has_avx2())
-        add_library("avx2");
-    if (has_avx())
-        add_library("avx");
-    add_library("noavx");
-#elif defined(__APPLE__)
-    add_library("acc");
-    add_library("no-acc");
+#if defined(_WIN32) || defined(__linux__)
+        add_library("cublas");
+        add_library("tinyblas");
+        add_library("hip");
+        add_library("vulkan");
 #endif
+    }
+    else
+    {
+#if defined(_WIN32) || defined(__linux__)
+        if (has_avx512())
+            add_library("avx512");
+        if (has_avx2())
+            add_library("avx2");
+        if (has_avx())
+            add_library("avx");
+        add_library("noavx");
+#elif defined(__APPLE__)
+        add_library("acc");
+        add_library("no-acc");
+#endif
+    }
     return architectures;
 }
 
@@ -269,11 +274,7 @@ bool LLMService::create_LLM_library_backend(const std::string &command, const st
     }
             LLM_FUNCTIONS_LIST(DECLARE_AND_LOAD)
 #undef DECLARE_AND_LOAD
-            if (is_gpu_library && !LLMService_Supports_GPU())
-            {
-                std::cout << "Doesn't support the GPU, skipping"<<std::endl;
-                continue;
-            }
+            if (is_gpu_library && !LLMService_Supports_GPU()) continue;
 
             LLMService_Registry(&LLMProviderRegistry::instance());
             LLMService_InjectErrorState(&ErrorStateRegistry::get_error_state());
@@ -300,24 +301,22 @@ bool LLMService::create_LLM_library_backend(const std::string &command, const st
 
 bool LLMService::create_LLM_library(const std::string &command)
 {
-    bool gpu = has_gpu_layers(command);
-    for (const auto &llm_lib_filename : available_architectures(gpu))
-    {
-        fail("", 0);
-        bool is_gpu_library = false;
-        for (std::string gpu_library: GPU_LIBRARIES)
-        {
-            if (llm_lib_filename.find(gpu_library) != std::string::npos) {
-                is_gpu_library = true;
-                break;
-            }
-        }
+    std::vector<std::string> archs_cpu = available_architectures(false);
+    std::vector<std::string> archs_gpu;
+    if (has_gpu_layers(command)) archs_gpu = available_architectures(true);
 
-        bool success = create_LLM_library_backend(command, llm_lib_filename, is_gpu_library);
-        if (success)
+    for (bool is_gpu_library: {true, false})
+    {
+        std::vector<std::string> archs = is_gpu_library? archs_gpu: archs_cpu;
+        for (const auto &llm_lib_filename : archs)
         {
-            std::cout << "Successfully loaded: " << llm_lib_filename << std::endl;
-            return true;
+            fail("", 0);
+            bool success = create_LLM_library_backend(command, llm_lib_filename, is_gpu_library);
+            if (success)
+            {
+                std::cout << "Successfully loaded: " << llm_lib_filename << std::endl;
+                return true;
+            }
         }
     }
     std::cerr << "Couldn't load a backend" << std::endl;
