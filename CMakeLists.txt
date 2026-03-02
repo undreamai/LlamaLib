@@ -48,6 +48,42 @@ endif()
 
 set(LLAMA_CPP_ROOT ${CMAKE_SOURCE_DIR}/third_party/llama.cpp)
 
+if(ARCHITECTURE MATCHES "android" AND ARCHITECTURE MATCHES "vulkan")
+    # Derive triple from ANDROID_ABI
+    if(ANDROID_ABI STREQUAL "arm64-v8a")
+        set(ANDROID_ARCH_TRIPLE "aarch64-linux-android")
+    elseif(ANDROID_ABI STREQUAL "armeabi-v7a")
+        set(ANDROID_ARCH_TRIPLE "arm-linux-androideabi")
+    elseif(ANDROID_ABI STREQUAL "x86_64")
+        set(ANDROID_ARCH_TRIPLE "x86_64-linux-android")
+    elseif(ANDROID_ABI STREQUAL "x86")
+        set(ANDROID_ARCH_TRIPLE "i686-linux-android")
+    else()
+        message(FATAL_ERROR "Unknown ANDROID_ABI: ${ANDROID_ABI}")
+    endif()
+
+    message(STATUS "ANDROID_ABI=${ANDROID_ABI}")
+    message(STATUS "ANDROID_ARCH_TRIPLE=${ANDROID_ARCH_TRIPLE}")
+    message(STATUS "CMAKE_SYSROOT=${CMAKE_SYSROOT}")
+
+    string(REGEX REPLACE "android-" "" ANDROID_API_LEVEL "${ANDROID_PLATFORM}")
+    set(Vulkan_LIBRARY "${CMAKE_SYSROOT}/usr/lib/${ANDROID_ARCH_TRIPLE}/${ANDROID_API_LEVEL}/libvulkan.so")
+    set(Vulkan_FOUND TRUE)
+    set(Vulkan_VERSION "1.3.275")
+    set(Vulkan_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/third_party/Vulkan-Headers/include")
+
+    if(NOT EXISTS "${Vulkan_LIBRARY}")
+        message(FATAL_ERROR "Vulkan stub not found at: ${Vulkan_LIBRARY}")
+    endif()
+
+    find_program(Vulkan_GLSLC_EXECUTABLE
+        NAMES glslc
+        PATHS "/usr/bin" "/usr/local/bin"
+        NO_CMAKE_SYSTEM_PATH)
+    set(Vulkan_GLSLC_EXECUTABLE "${Vulkan_GLSLC_EXECUTABLE}" CACHE FILEPATH "" FORCE)
+endif()
+
+
 function(LLAMALIB_COMPILE_DEFS NAME)
     add_compile_definitions(${NAME} PRIVATE UNDREAMAI_EXPORTS)
     target_include_directories(${NAME} PRIVATE "${CMAKE_SOURCE_DIR}/include")

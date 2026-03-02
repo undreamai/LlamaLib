@@ -51,7 +51,7 @@ get_android_toolchain() {
     local api_level=$2
     
     case $arch in
-        android-arm64)
+        android-arm64|android-arm64-vulkan)
             export ANDROID_ARCH="aarch64"
             export ANDROID_EABI="aarch64-linux-android"
             export OPENSSL_ARCH="android-arm64"
@@ -157,7 +157,7 @@ main() {
     mkdir -p $WORK_DIR $INSTALL_DIR/$arch
 
     case $arch in
-        android-arm64)
+        android-arm64|android-arm64-vulkan)
             build_openssl_android $arch
             ;;
         android-x64)
