@@ -1,13 +1,18 @@
 <map id="LLM::completion" name="LLM::completion">
-<area shape="rect" id="Node000001" title="Generate completion." alt="" coords="561,67,691,92"/>
-<area shape="rect" id="Node000002" href="$classLLMAgent.html#afb17d7be97ea8b561b5770b9c7f94659" title="Generate completion with agent&#39;s slot." alt="" coords="347,29,513,55"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="547,67,497,57,498,52,548,62"/>
-<area shape="rect" id="Node000005" href="$LLM_8cpp.html#ad6c74f41038afdaab03c769b7695538f" title="Generate completion (C API)" alt="" coords="365,103,495,128"/>
-<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="548,96,496,106,495,101,547,91"/>
+<area shape="rect" id="Node000001" title="Generate completion." alt="" coords="1025,67,1155,92"/>
+<area shape="rect" id="Node000002" href="$classLLMAgent.html#afb17d7be97ea8b561b5770b9c7f94659" title="Generate completion with agent&#39;s slot." alt="" coords="811,29,977,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1011,67,961,57,962,52,1012,62"/>
+<area shape="rect" id="Node000007" href="$LLM_8cpp.html#ad6c74f41038afdaab03c769b7695538f" title="Generate completion (C API)" alt="" coords="829,103,959,128"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="1012,96,960,106,959,101,1011,91"/>
 <area shape="rect" id="Node000003" href="$classLLMAgent.html#aecac08f1cbc4ed079cc75bc98f08d4ce" title="Conduct a chat interaction." alt="" coords="176,29,299,55"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="333,45,299,45,299,39,333,39"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="797,42,763,42,299,44,299,38,763,37,797,37"/>
+<area shape="rect" id="Node000005" href="$classLLMAgent.html#a6486c1a1fc79c96bbc4442f722e0bba4" title="Summarise the entire history (chunking if needed), embed summary in system message,..." alt="" coords="596,51,763,91"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="797,58,763,63,763,57,796,53"/>
 <area shape="rect" id="Node000004" href="$LLM__agent_8cpp.html#ae783925557d9588c8e4f16e58ba116b2" title="Conduct chat interaction (C API)" alt="" coords="5,29,128,55"/>
 <area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="162,45,128,45,128,39,162,39"/>
 <area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="97,19,88,11,67,8,49,10,39,15,37,20,43,28,38,31,32,21,35,11,47,5,67,3,90,6,100,15"/>
-<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="464,92,454,84,430,81,410,83,399,88,397,94,403,101,398,104,392,94,395,84,408,78,430,76,456,80,467,88"/>
+<area shape="rect" id="Node000006" href="$classLLMAgent.html#a152bf0a1849d69775af9a57144291f56" title="Handle context overflow using the configured strategy before a chat call." alt="" coords="347,55,548,80"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="582,72,548,72,548,66,582,67"/>
+<area shape="poly" id="edge7_Node000006_Node000003" title=" " alt="" coords="333,56,299,52,299,47,334,51"/>
+<area shape="poly" id="edge9_Node000007_Node000007" title=" " alt="" coords="929,93,919,84,894,81,873,83,862,88,860,94,866,101,862,104,855,94,859,84,872,78,894,76,921,80,932,88"/>
 </map>

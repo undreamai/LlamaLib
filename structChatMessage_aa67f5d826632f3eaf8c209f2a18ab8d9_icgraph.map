@@ -1,10 +1,22 @@
 <map id="ChatMessage::to_json" name="ChatMessage::to_json">
-<area shape="rect" id="Node000001" title="Convert message to JSON representation." alt="" coords="408,31,573,56"/>
-<area shape="rect" id="Node000002" href="$classLLMAgent.html#a61db559b8f31d3c5d52632139b184780" title="Add a message to conversation history." alt="" coords="176,5,360,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="394,35,360,31,361,26,394,30"/>
-<area shape="rect" id="Node000003" href="$classLLMAgent.html#aecac08f1cbc4ed079cc75bc98f08d4ce" title="Conduct a chat interaction." alt="" coords="207,55,329,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="394,56,330,63,329,58,394,51"/>
-<area shape="rect" id="Node000004" href="$LLM__agent_8cpp.html#ae783925557d9588c8e4f16e58ba116b2" title="Conduct chat interaction (C API)" alt="" coords="5,55,128,80"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="193,70,128,70,128,65,193,65"/>
-<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="102,45,92,37,67,33,45,35,34,40,32,46,38,53,34,56,27,46,30,36,44,30,67,28,95,32,106,41"/>
+<area shape="rect" id="Node000001" title="Convert message to JSON representation." alt="" coords="1240,35,1405,60"/>
+<area shape="rect" id="Node000002" href="$classLLMAgent.html#a61db559b8f31d3c5d52632139b184780" title="Add a message to conversation history." alt="" coords="1007,5,1191,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1226,37,1191,33,1192,27,1227,32"/>
+<area shape="rect" id="Node000003" href="$classLLMAgent.html#a89677b14b18e12ffd6e0cd5c9064111b" title="Build the full message list to send to the model." alt="" coords="1007,55,1192,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1227,62,1193,66,1192,61,1226,57"/>
+<area shape="rect" id="Node000004" href="$classLLMAgent.html#aecac08f1cbc4ed079cc75bc98f08d4ce" title="Conduct a chat interaction." alt="" coords="176,40,299,65"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="993,61,958,58,770,49,584,47,299,53,299,47,584,41,770,43,959,53,993,56"/>
+<area shape="rect" id="Node000006" href="$classLLMAgent.html#a152bf0a1849d69775af9a57144291f56" title="Handle context overflow using the configured strategy before a chat call." alt="" coords="347,65,548,91"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="993,77,959,77,596,78,548,79,548,73,596,73,959,71,993,72"/>
+<area shape="rect" id="Node000007" href="$classLLMAgent.html#a6486c1a1fc79c96bbc4442f722e0bba4" title="Summarise the entire history (chunking if needed), embed summary in system message,..." alt="" coords="596,87,763,127"/>
+<area shape="poly" id="edge8_Node000003_Node000007" title=" " alt="" coords="993,86,763,104,763,98,993,81"/>
+<area shape="rect" id="Node000008" href="$classLLMAgent.html#a1b2ce4f2eddc64953186861d0415a2f5" title="Remove oldest message pairs from the front until history fits within target_context_ratio." alt="" coords="811,138,959,178"/>
+<area shape="poly" id="edge10_Node000003_Node000008" title=" " alt="" coords="1035,103,939,140,937,135,1033,98"/>
+<area shape="rect" id="Node000005" href="$LLM__agent_8cpp.html#ae783925557d9588c8e4f16e58ba116b2" title="Conduct chat interaction (C API)" alt="" coords="5,40,128,65"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="162,55,128,55,128,50,162,50"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="97,29,88,22,67,19,49,21,39,25,37,31,43,38,38,41,32,32,35,22,47,16,67,13,90,17,100,25"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="333,67,299,63,299,57,334,62"/>
+<area shape="poly" id="edge9_Node000007_Node000006" title=" " alt="" coords="582,98,548,93,548,88,583,92"/>
+<area shape="poly" id="edge11_Node000008_Node000006" title=" " alt="" coords="797,162,699,158,647,152,595,142,527,119,471,93,473,88,529,114,597,137,648,146,700,152,797,157"/>
+<area shape="poly" id="edge12_Node000008_Node000007" title=" " alt="" coords="796,139,760,130,762,125,798,134"/>
 </map>

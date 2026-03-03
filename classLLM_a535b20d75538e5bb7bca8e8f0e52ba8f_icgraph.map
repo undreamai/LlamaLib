@@ -1,12 +1,26 @@
 <map id="LLM::tokenize_json" name="LLM::tokenize_json">
-<area shape="rect" id="Node000001" title="Tokenize input (override)" alt="" coords="395,79,540,104"/>
-<area shape="rect" id="Node000002" href="$classLLM.html#a625ad6e037e16cdc61282150ef465229" title="Tokenize text." alt="" coords="200,29,311,55"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="398,78,310,57,311,52,400,73"/>
-<area shape="rect" id="Node000004" href="$classLLMAgent.html#af731f579cad220648aa963a4a5d914de" title="Tokenize input (override)" alt="" coords="164,79,347,104"/>
-<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="381,94,347,94,347,89,381,89"/>
-<area shape="rect" id="Node000005" href="$classLLMClient.html#aedfc3267eeda5ae10fef18f614b5df0f" title="Tokenize input (override)" alt="" coords="164,128,347,153"/>
-<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="400,110,311,131,310,125,398,105"/>
-<area shape="rect" id="Node000003" href="$LLM_8cpp.html#abd6f6e4fce851c75901a1807a9cbeb0f" title="Tokenize text (C API)" alt="" coords="5,29,116,55"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="186,45,117,45,117,39,186,39"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="95,19,85,11,61,8,40,10,29,15,27,20,33,28,29,31,22,21,25,11,39,5,61,3,87,6,99,15"/>
+<area shape="rect" id="Node000001" title="Tokenize input (override)" alt="" coords="1237,130,1383,155"/>
+<area shape="rect" id="Node000002" href="$classLLM.html#a625ad6e037e16cdc61282150ef465229" title="Tokenize text." alt="" coords="1043,80,1153,106"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1241,129,1153,108,1154,103,1242,124"/>
+<area shape="rect" id="Node000009" href="$classLLMAgent.html#af731f579cad220648aa963a4a5d914de" title="Tokenize input (override)" alt="" coords="1007,130,1189,155"/>
+<area shape="poly" id="edge13_Node000001_Node000009" title=" " alt="" coords="1224,145,1189,145,1189,140,1224,140"/>
+<area shape="rect" id="Node000010" href="$classLLMClient.html#aedfc3267eeda5ae10fef18f614b5df0f" title="Tokenize input (override)" alt="" coords="1007,179,1189,204"/>
+<area shape="poly" id="edge14_Node000001_Node000010" title=" " alt="" coords="1242,161,1154,181,1153,176,1241,155"/>
+<area shape="rect" id="Node000003" href="$classLLMAgent.html#a152bf0a1849d69775af9a57144291f56" title="Handle context overflow using the configured strategy before a chat call." alt="" coords="347,106,548,131"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1067,74,1018,45,988,31,958,21,888,10,816,10,744,18,676,33,612,52,556,72,475,108,473,103,554,67,611,47,675,28,744,13,816,4,888,4,959,16,990,26,1020,40,1070,70"/>
+<area shape="rect" id="Node000006" href="$LLM_8cpp.html#abd6f6e4fce851c75901a1807a9cbeb0f" title="Tokenize text (C API)" alt="" coords="829,55,940,80"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="1029,87,940,77,940,71,1029,82"/>
+<area shape="rect" id="Node000007" href="$classLLMAgent.html#a6486c1a1fc79c96bbc4442f722e0bba4" title="Summarise the entire history (chunking if needed), embed summary in system message,..." alt="" coords="596,98,763,138"/>
+<area shape="poly" id="edge8_Node000002_Node000007" title=" " alt="" coords="1029,100,763,116,763,110,1029,94"/>
+<area shape="rect" id="Node000008" href="$classLLMAgent.html#a1b2ce4f2eddc64953186861d0415a2f5" title="Remove oldest message pairs from the front until history fits within target_context_ratio." alt="" coords="811,156,959,196"/>
+<area shape="poly" id="edge10_Node000002_Node000008" title=" " alt="" coords="1030,112,1008,119,924,158,922,153,1006,114,1029,107"/>
+<area shape="rect" id="Node000004" href="$classLLMAgent.html#aecac08f1cbc4ed079cc75bc98f08d4ce" title="Conduct a chat interaction." alt="" coords="176,106,299,131"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="333,121,299,121,299,116,333,116"/>
+<area shape="rect" id="Node000005" href="$LLM__agent_8cpp.html#ae783925557d9588c8e4f16e58ba116b2" title="Conduct chat interaction (C API)" alt="" coords="5,106,128,131"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="162,121,128,121,128,116,162,116"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="97,95,88,87,67,84,49,86,39,91,37,96,43,104,38,107,32,97,35,87,47,81,67,79,90,82,100,91"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="921,45,911,37,885,34,863,36,851,40,849,46,855,53,851,56,844,47,847,37,861,30,885,28,913,32,925,41"/>
+<area shape="poly" id="edge9_Node000007_Node000003" title=" " alt="" coords="582,121,548,121,548,116,582,116"/>
+<area shape="poly" id="edge11_Node000008_Node000003" title=" " alt="" coords="797,173,700,165,596,153,499,133,500,128,596,148,701,160,797,168"/>
+<area shape="poly" id="edge12_Node000008_Node000007" title=" " alt="" coords="799,154,751,141,752,136,800,149"/>
 </map>

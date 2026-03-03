@@ -1,6 +1,6 @@
 <map id="ErrorStateRegistry::get_error_state" name="ErrorStateRegistry::get_error_state">
 <area shape="rect" id="Node000001" title="Get the error state instance." alt="" coords="925,70,1067,110"/>
-<area shape="rect" id="Node000002" href="$classLLMService.html#a5aa62b2f1feb31a8977801c2bd2ed30d" title="Load LLM library backend." alt="" coords="712,70,877,110"/>
+<area shape="rect" id="Node000002" href="$classLLMService.html#a007564dfcf3c7c91b727f82a219c06d1" title="Load LLM library backend." alt="" coords="712,70,877,110"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="912,93,877,93,877,87,912,87"/>
 <area shape="rect" id="Node000003" href="$classLLMService.html#ac194e3210642288e650ed9f9194a69ee" title="Loads LLM library dynamically according to underlying achitecture and creates a LLM based on the comm..." alt="" coords="519,41,664,81"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="698,79,664,74,665,69,699,73"/>

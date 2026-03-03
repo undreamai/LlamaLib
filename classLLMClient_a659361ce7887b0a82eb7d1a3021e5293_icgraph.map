@@ -1,24 +1,26 @@
 <map id="LLMClient::is_remote" name="LLMClient::is_remote">
-<area shape="rect" id="Node000001" title="Check if this is a remote client." alt="" coords="476,203,635,228"/>
+<area shape="rect" id="Node000001" title="Check if this is a remote client." alt="" coords="476,232,635,257"/>
 <area shape="rect" id="Node000002" href="$classLLMClient.html#a5e0d4af22b373efdb12ab7512ff48f5f" title="Apply a chat template to message data." alt="" coords="197,5,428,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="541,191,523,157,498,117,466,77,427,44,404,33,407,28,429,40,469,73,502,114,528,154,545,189"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="543,220,527,180,502,132,469,84,449,63,427,44,406,33,408,28,429,40,453,59,473,81,507,129,532,178,548,218"/>
 <area shape="rect" id="Node000003" href="$classLLMClient.html#af0eeeae8c4360c2c8a9af632d13beb1d" title="Cancel running request (override)" alt="" coords="245,55,381,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="535,193,490,142,460,116,427,94,380,77,382,72,429,89,463,111,493,138,539,190"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="539,222,495,156,463,122,427,94,404,83,380,76,381,71,406,78,429,89,467,118,499,153,543,219"/>
 <area shape="rect" id="Node000004" href="$classLLMClient.html#a9613eb92ed2660c3e086754eaf1e3db6" title="Generate text completion (override)" alt="" coords="212,104,413,129"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="524,197,480,169,427,143,391,132,392,127,429,138,482,164,527,193"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="531,224,486,182,457,161,427,143,397,132,399,127,429,138,460,156,489,178,535,220"/>
 <area shape="rect" id="Node000005" href="$classLLMClient.html#a67449d6548e6bf936bd0ebfc768a8c82" title="Convert tokens back to text." alt="" coords="213,153,412,179"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="478,203,375,181,377,176,479,197"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="515,228,427,193,385,181,386,176,429,187,517,224"/>
 <area shape="rect" id="Node000006" href="$classLLMClient.html#ad25a26b154b875a4e0f0fd7515e6f96f" title="Generate embeddings with HTTP response support." alt="" coords="209,203,417,228"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="462,218,417,218,417,213,462,213"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="462,236,416,231,417,225,462,231"/>
 <area shape="rect" id="Node000007" href="$classLLMClient.html#a1564f7ffcde80f00ffc57b72531d9882" title="Get available processing slot (override)" alt="" coords="237,253,388,293"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="488,234,389,258,387,252,487,229"/>
-<area shape="rect" id="Node000008" href="$classLLMClient.html#a17346625e29f46f976adc93388724668" title="Configure SSL certificate for remote connections." alt="" coords="241,317,385,343"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="531,239,486,274,429,307,386,321,384,316,427,302,483,270,528,235"/>
-<area shape="rect" id="Node000010" href="$classLLMClient.html#a273747787cead016d69c57780d9c11ba" title="Manage slots with HTTP response support." alt="" coords="237,367,389,392"/>
-<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="541,241,496,300,465,331,429,356,390,372,388,367,427,352,461,326,492,296,537,238"/>
-<area shape="rect" id="Node000011" href="$classLLMClient.html#aedfc3267eeda5ae10fef18f614b5df0f" title="Tokenize input (override)" alt="" coords="221,416,404,441"/>
-<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="547,242,530,279,504,324,471,368,430,406,405,418,402,414,426,401,467,365,500,321,525,277,542,240"/>
-<area shape="rect" id="Node000009" href="$LLM__client_8cpp.html#a76b46ac93bf8735a0e2bb0e2cc34f4d0" title="Set SSL certificate (C API)" alt="" coords="5,317,149,343"/>
-<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="227,333,150,333,150,327,227,327"/>
-<area shape="poly" id="edge9_Node000009_Node000009" title=" " alt="" coords="120,308,108,299,77,296,52,298,39,303,36,308,43,315,39,319,31,309,35,299,51,293,77,291,110,295,123,304"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="462,258,389,267,388,261,462,253"/>
+<area shape="rect" id="Node000008" href="$classLLMClient.html#a5e38b8ad75b9d4c0c646dda28c1c97a9" title="Get slot context size." alt="" coords="239,317,386,357"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="519,266,429,307,387,321,386,316,427,302,517,261"/>
+<area shape="rect" id="Node000009" href="$classLLMClient.html#a17346625e29f46f976adc93388724668" title="Configure SSL certificate for remote connections." alt="" coords="241,381,385,407"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="539,270,493,322,463,349,429,371,386,387,384,382,427,366,460,344,489,318,535,267"/>
+<area shape="rect" id="Node000011" href="$classLLMClient.html#a273747787cead016d69c57780d9c11ba" title="Manage slots with HTTP response support." alt="" coords="237,431,389,456"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="545,271,528,305,502,346,469,386,429,420,390,437,388,432,427,416,465,383,498,343,523,303,541,269"/>
+<area shape="rect" id="Node000012" href="$classLLMClient.html#aedfc3267eeda5ae10fef18f614b5df0f" title="Tokenize input (override)" alt="" coords="221,480,404,505"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="549,272,534,316,510,369,475,424,454,448,430,470,406,483,403,478,426,465,450,445,471,420,505,367,529,314,544,270"/>
+<area shape="rect" id="Node000010" href="$LLM__client_8cpp.html#a76b46ac93bf8735a0e2bb0e2cc34f4d0" title="Set SSL certificate (C API)" alt="" coords="5,381,149,407"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="227,397,150,397,150,391,227,391"/>
+<area shape="poly" id="edge10_Node000010_Node000010" title=" " alt="" coords="120,372,108,363,77,360,52,362,39,367,36,372,43,379,39,383,31,373,35,363,51,357,77,355,110,359,123,368"/>
 </map>

@@ -1,0 +1,13 @@
+<map id="LLMAgent::truncate_history" name="LLMAgent::truncate_history">
+<area shape="rect" id="Node000001" title="Remove oldest message pairs from the front until history fits within target_context_ratio." alt="" coords="811,22,959,62"/>
+<area shape="rect" id="Node000002" href="$classLLMAgent.html#a152bf0a1849d69775af9a57144291f56" title="Handle context overflow using the configured strategy before a chat call." alt="" coords="347,29,548,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="797,41,763,41,596,41,548,42,548,36,596,35,763,35,797,36"/>
+<area shape="rect" id="Node000005" href="$classLLMAgent.html#a6486c1a1fc79c96bbc4442f722e0bba4" title="Summarise the entire history (chunking if needed), embed summary in system message,..." alt="" coords="596,50,763,90"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="797,57,763,61,763,56,796,51"/>
+<area shape="rect" id="Node000003" href="$classLLMAgent.html#aecac08f1cbc4ed079cc75bc98f08d4ce" title="Conduct a chat interaction." alt="" coords="176,29,299,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="333,45,299,45,299,39,333,39"/>
+<area shape="rect" id="Node000004" href="$LLM__agent_8cpp.html#ae783925557d9588c8e4f16e58ba116b2" title="Conduct chat interaction (C API)" alt="" coords="5,29,128,55"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="162,45,128,45,128,39,162,39"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="97,19,88,11,67,8,49,10,39,15,37,20,43,28,38,31,32,21,35,11,47,5,67,3,90,6,100,15"/>
+<area shape="poly" id="edge6_Node000005_Node000002" title=" " alt="" coords="582,61,548,57,549,52,583,56"/>
+</map>

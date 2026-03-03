@@ -47,7 +47,7 @@
   <td id="projectlogo"><img alt="Logo" src="logo_tiny.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">LlamaLib
-   &#160;<span id="projectnumber">v2.0.3</span>
+   &#160;<span id="projectnumber">v2.0.4</span>
    </div>
    <div id="projectbrief">Cross-platform library for local LLMs</div>
   </td>
@@ -160,6 +160,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a80fea0b1a2c492521d14f3588d00337c" id="r_a80fea0b1a2c492521d14f3588d00337c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a80fea0b1a2c492521d14f3588d00337c">get_next_available_slot</a> () override</td></tr>
 <tr class="memdesc:a80fea0b1a2c492521d14f3588d00337c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get available slot (delegate to wrapped <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a>)  <br /></td></tr>
 <tr class="separator:a80fea0b1a2c492521d14f3588d00337c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa59516247e9fa3af6161877fcd2cb19" id="r_afa59516247e9fa3af6161877fcd2cb19"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afa59516247e9fa3af6161877fcd2cb19">get_slot_context_size</a> () override</td></tr>
+<tr class="memdesc:afa59516247e9fa3af6161877fcd2cb19"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get slot context size (delegate to wrapped <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a>)  <br /></td></tr>
+<tr class="separator:afa59516247e9fa3af6161877fcd2cb19"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5f98db59a967cc0cac3d6fbe422d6a36" id="r_a5f98db59a967cc0cac3d6fbe422d6a36"><td class="memItemLeft" align="right" valign="top">virtual json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5f98db59a967cc0cac3d6fbe422d6a36">build_completion_json</a> (const std::string &amp;prompt)</td></tr>
 <tr class="memdesc:a5f98db59a967cc0cac3d6fbe422d6a36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build completion JSON with agent's slot.  <br /></td></tr>
 <tr class="separator:a5f98db59a967cc0cac3d6fbe422d6a36"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -217,6 +220,21 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a922ad83c352c2ffa9724eb7fa027ac6e" id="r_a922ad83c352c2ffa9724eb7fa027ac6e"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a922ad83c352c2ffa9724eb7fa027ac6e">get_history_size</a> () const</td></tr>
 <tr class="memdesc:a922ad83c352c2ffa9724eb7fa027ac6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get number of messages in history.  <br /></td></tr>
 <tr class="separator:a922ad83c352c2ffa9724eb7fa027ac6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a280a1648b797ec9724ffbae28c1a9f94" id="r_a280a1648b797ec9724ffbae28c1a9f94"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a280a1648b797ec9724ffbae28c1a9f94">set_overflow_strategy</a> (<a class="el" href="LLM__agent_8h.html#a088f6764b525b6915e24b5248d151446">ContextOverflowStrategy</a> strategy, float target_ratio=0.5f, const std::string &amp;summarize_prompt=SUMMARY_PROMPT)</td></tr>
+<tr class="memdesc:a280a1648b797ec9724ffbae28c1a9f94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configure how the agent handles context overflow.  <br /></td></tr>
+<tr class="separator:a280a1648b797ec9724ffbae28c1a9f94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7de95e67dab55017e7e1420307de6480" id="r_a7de95e67dab55017e7e1420307de6480"><td class="memItemLeft" align="right" valign="top"><a class="el" href="LLM__agent_8h.html#a088f6764b525b6915e24b5248d151446">ContextOverflowStrategy</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7de95e67dab55017e7e1420307de6480">get_overflow_strategy</a> () const</td></tr>
+<tr class="memdesc:a7de95e67dab55017e7e1420307de6480"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the current overflow strategy.  <br /></td></tr>
+<tr class="separator:a7de95e67dab55017e7e1420307de6480"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af420dd1b84c146c68525975a9a858ef7" id="r_af420dd1b84c146c68525975a9a858ef7"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af420dd1b84c146c68525975a9a858ef7">get_summarize_prompt</a> () const</td></tr>
+<tr class="memdesc:af420dd1b84c146c68525975a9a858ef7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the current summarize prompt.  <br /></td></tr>
+<tr class="separator:af420dd1b84c146c68525975a9a858ef7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9de55fa1c2e6a2c3b56814896ed79b60" id="r_a9de55fa1c2e6a2c3b56814896ed79b60"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9de55fa1c2e6a2c3b56814896ed79b60">get_summary</a> () const</td></tr>
+<tr class="memdesc:a9de55fa1c2e6a2c3b56814896ed79b60"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the current rolling summary (empty if none has been generated yet)  <br /></td></tr>
+<tr class="separator:a9de55fa1c2e6a2c3b56814896ed79b60"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a97aa828eaed8dd6b3feafb6e7f891d98" id="r_a97aa828eaed8dd6b3feafb6e7f891d98"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a97aa828eaed8dd6b3feafb6e7f891d98">set_summary</a> (const std::string &amp;summary_)</td></tr>
+<tr class="memdesc:a97aa828eaed8dd6b3feafb6e7f891d98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the rolling summary directly (e.g. after loading from file)  <br /></td></tr>
+<tr class="separator:a97aa828eaed8dd6b3feafb6e7f891d98"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aecac08f1cbc4ed079cc75bc98f08d4ce" id="r_aecac08f1cbc4ed079cc75bc98f08d4ce"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aecac08f1cbc4ed079cc75bc98f08d4ce">chat</a> (const std::string &amp;user_prompt, bool add_to_history=true, CharArrayFn callback=nullptr, bool return_response_json=false, bool debug_prompt=false)</td></tr>
 <tr class="memdesc:aecac08f1cbc4ed079cc75bc98f08d4ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Conduct a chat interaction.  <br /></td></tr>
 <tr class="separator:aecac08f1cbc4ed079cc75bc98f08d4ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -281,6 +299,21 @@ Public Attributes</h2></td></tr>
 Protected Member Functions</h2></td></tr>
 <tr class="memitem:a5e74154a3c4f27f1194b002b5d9f944b" id="r_a5e74154a3c4f27f1194b002b5d9f944b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5e74154a3c4f27f1194b002b5d9f944b">set_n_keep</a> ()</td></tr>
 <tr class="separator:a5e74154a3c4f27f1194b002b5d9f944b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5a4708a9f319ffc2ec7798057901006" id="r_ad5a4708a9f319ffc2ec7798057901006"><td class="memItemLeft" align="right" valign="top">json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad5a4708a9f319ffc2ec7798057901006">build_system_history</a> () const</td></tr>
+<tr class="memdesc:ad5a4708a9f319ffc2ec7798057901006"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds the history to send to the model including only the prompts.  <br /></td></tr>
+<tr class="separator:ad5a4708a9f319ffc2ec7798057901006"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89677b14b18e12ffd6e0cd5c9064111b" id="r_a89677b14b18e12ffd6e0cd5c9064111b"><td class="memItemLeft" align="right" valign="top">json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a89677b14b18e12ffd6e0cd5c9064111b">build_working_history</a> (const std::string &amp;user_prompt) const</td></tr>
+<tr class="memdesc:a89677b14b18e12ffd6e0cd5c9064111b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build the full message list to send to the model.  <br /></td></tr>
+<tr class="separator:a89677b14b18e12ffd6e0cd5c9064111b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a152bf0a1849d69775af9a57144291f56" id="r_a152bf0a1849d69775af9a57144291f56"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a152bf0a1849d69775af9a57144291f56">handle_overflow</a> (const std::string &amp;user_prompt)</td></tr>
+<tr class="memdesc:a152bf0a1849d69775af9a57144291f56"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle context overflow using the configured strategy before a chat call.  <br /></td></tr>
+<tr class="separator:a152bf0a1849d69775af9a57144291f56"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b2ce4f2eddc64953186861d0415a2f5" id="r_a1b2ce4f2eddc64953186861d0415a2f5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1b2ce4f2eddc64953186861d0415a2f5">truncate_history</a> (const std::string &amp;user_prompt)</td></tr>
+<tr class="memdesc:a1b2ce4f2eddc64953186861d0415a2f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove oldest message pairs from the front until history fits within target_context_ratio.  <br /></td></tr>
+<tr class="separator:a1b2ce4f2eddc64953186861d0415a2f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6486c1a1fc79c96bbc4442f722e0bba4" id="r_a6486c1a1fc79c96bbc4442f722e0bba4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6486c1a1fc79c96bbc4442f722e0bba4">summarize_history</a> (const std::string &amp;user_prompt)</td></tr>
+<tr class="memdesc:a6486c1a1fc79c96bbc4442f722e0bba4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Summarise the entire history (chunking if needed), embed summary in system message, then truncate if still needed.  <br /></td></tr>
+<tr class="separator:a6486c1a1fc79c96bbc4442f722e0bba4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a61db559b8f31d3c5d52632139b184780" id="r_a61db559b8f31d3c5d52632139b184780"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a61db559b8f31d3c5d52632139b184780">add_message</a> (const std::string &amp;role, const std::string &amp;content)</td></tr>
 <tr class="memdesc:a61db559b8f31d3c5d52632139b184780"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a message to conversation history.  <br /></td></tr>
 <tr class="separator:a61db559b8f31d3c5d52632139b184780"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -340,7 +373,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="textblock"><p>High-level conversational agent for <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> interactions. </p>
 <p>Provides a conversation-aware interface that manages chat history and applies chat template formatting </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00059">59</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00082">82</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a06fb642149fc7e5f6e2c3ab93960b050" name="a06fb642149fc7e5f6e2c3ab93960b050"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a06fb642149fc7e5f6e2c3ab93960b050">&#9670;&#160;</a></span>LLMAgent()</h2>
@@ -408,7 +441,7 @@ Additional Inherited Members</h2></td></tr>
 </dl>
 <p>Convenience method for adding assistant messages </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00201">201</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00228">228</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -454,7 +487,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <p>Appends a new message to the conversation history </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00081">81</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00095">95</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
 
 </div>
 </div>
@@ -490,7 +523,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <p>Convenience method for adding user messages </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00196">196</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00223">223</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -534,7 +567,7 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classLLM.html#a4dabf05907391e76f5c25f57adc1bde0">LLM</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00100">100</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00123">123</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
 
 </div>
 </div>
@@ -571,7 +604,7 @@ Here is the caller graph for this function:</div>
 <dl class="section return"><dt>Returns</dt><dd>JSON object for completion request</dd></dl>
 <p>Override that automatically uses the agent's assigned slot </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00123">123</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00150">150</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
 
 </div>
 </div>
@@ -613,7 +646,83 @@ Here is the caller graph for this function:</div>
 <dl class="section return"><dt>Returns</dt><dd>JSON object for slot operation</dd></dl>
 <p>Override that automatically uses the agent's assigned slot </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00141">141</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00168">168</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+
+</div>
+</div>
+<a id="ad5a4708a9f319ffc2ec7798057901006" name="ad5a4708a9f319ffc2ec7798057901006"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad5a4708a9f319ffc2ec7798057901006">&#9670;&#160;</a></span>build_system_history()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">json LLMAgent::build_system_history </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Builds the history to send to the model including only the prompts. </p>
+<dl class="section return"><dt>Returns</dt><dd>JSON array: [system+summary] </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00034">34</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMAgent_ad5a4708a9f319ffc2ec7798057901006_icgraph.svg" width="1427" height="174"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
+</div>
+</div>
+<a id="a89677b14b18e12ffd6e0cd5c9064111b" name="a89677b14b18e12ffd6e0cd5c9064111b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a89677b14b18e12ffd6e0cd5c9064111b">&#9670;&#160;</a></span>build_working_history()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">json LLMAgent::build_working_history </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>user_prompt</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Build the full message list to send to the model. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">user_prompt</td><td>The current user message to append </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>JSON array: [system+summary, ...history, user_prompt] </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00044">44</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMAgent_a89677b14b18e12ffd6e0cd5c9064111b_icgraph.svg" width="1198" height="174"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
 
 </div>
 </div>
@@ -643,7 +752,7 @@ Here is the caller graph for this function:</div>
 <p>Cancel agent's current request. </p>
 <p>Cancels any running request on the agent's slot </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00157">157</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00184">184</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
 
 </div>
 </div>
@@ -680,7 +789,7 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classLLMLocal.html#ab4035793b13abac9346d9748782c2bc4">LLMLocal</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00110">110</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00133">133</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
 
 </div>
 </div>
@@ -732,7 +841,7 @@ Here is the caller graph for this function:</div>
 <dl class="section return"><dt>Returns</dt><dd>Assistant's response text or JSON</dd></dl>
 <p>Main chat method that processes user input, applies conversation context, generates a response, and optionally updates conversation history </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00044">44</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00063">63</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -812,11 +921,11 @@ Here is the caller graph for this function:</div>
 <dl class="section return"><dt>Returns</dt><dd>Generated completion text or JSON</dd></dl>
 <p>Override that automatically uses the agent's assigned slot </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00131">131</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00158">158</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMAgent_afb17d7be97ea8b561b5770b9c7f94659_icgraph.svg" width="519" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMAgent_afb17d7be97ea8b561b5770b9c7f94659_icgraph.svg" width="983" height="98"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -866,7 +975,7 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classLLM.html#aa123c478d02e4ecff9e73da5be2f771b">LLM</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00094">94</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00117">117</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
 
 </div>
 </div>
@@ -905,7 +1014,7 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classLLM.html#ab21dca488bf1daf687960495280f059c">LLM</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00081">81</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00104">104</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
 
 </div>
 </div>
@@ -944,7 +1053,7 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classLLM.html#a180ad8f0dfd734e10042bc6a45bb3126">LLM</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00087">87</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00110">110</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
 
 </div>
 </div>
@@ -975,7 +1084,7 @@ Here is the caller graph for this function:</div>
 <dl class="section return"><dt>Returns</dt><dd>JSON array containing conversation history</dd></dl>
 <p>Returns the complete conversation history as JSON </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00189">189</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00216">216</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1011,7 +1120,7 @@ Here is the caller graph for this function:</div>
 <dl class="section return"><dt>Returns</dt><dd>Number of messages in conversation history</dd></dl>
 <p>Returns the count of messages currently stored in history </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00224">224</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00251">251</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1048,7 +1157,36 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classLLMLocal.html#a7031b71fe66ae3574d2015abe6d33cc1">LLMLocal</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00114">114</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00137">137</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+
+</div>
+</div>
+<a id="a7de95e67dab55017e7e1420307de6480" name="a7de95e67dab55017e7e1420307de6480"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7de95e67dab55017e7e1420307de6480">&#9670;&#160;</a></span>get_overflow_strategy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="LLM__agent_8h.html#a088f6764b525b6915e24b5248d151446">ContextOverflowStrategy</a> LLMAgent::get_overflow_strategy </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the current overflow strategy. </p>
+
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00271">271</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
 
 </div>
 </div>
@@ -1079,11 +1217,111 @@ Here is the caller graph for this function:</div>
 <dl class="section return"><dt>Returns</dt><dd>Current slot ID</dd></dl>
 <p>Returns the slot ID used for this agent's operations </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00163">163</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00190">190</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><iframe scrolling="no" frameborder="0" src="classLLMAgent_a4001c91cf9c5ce41ea2a744fbdb026ef_icgraph.svg" width="354" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
+</div>
+</div>
+<a id="afa59516247e9fa3af6161877fcd2cb19" name="afa59516247e9fa3af6161877fcd2cb19"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afa59516247e9fa3af6161877fcd2cb19">&#9670;&#160;</a></span>get_slot_context_size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int LLMAgent::get_slot_context_size </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get slot context size (delegate to wrapped <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a>) </p>
+<dl class="section return"><dt>Returns</dt><dd>Slot context size </dd></dl>
+
+<p>Implements <a class="el" href="classLLMLocal.html#a1f233be264bc94a50bed883739859d03">LLMLocal</a>.</p>
+
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00141">141</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMAgent_afa59516247e9fa3af6161877fcd2cb19_icgraph.svg" width="1159" height="123"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
+</div>
+</div>
+<a id="af420dd1b84c146c68525975a9a858ef7" name="af420dd1b84c146c68525975a9a858ef7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af420dd1b84c146c68525975a9a858ef7">&#9670;&#160;</a></span>get_summarize_prompt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string LLMAgent::get_summarize_prompt </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the current summarize prompt. </p>
+
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00274">274</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+
+</div>
+</div>
+<a id="a9de55fa1c2e6a2c3b56814896ed79b60" name="a9de55fa1c2e6a2c3b56814896ed79b60"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9de55fa1c2e6a2c3b56814896ed79b60">&#9670;&#160;</a></span>get_summary()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string LLMAgent::get_summary </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the current rolling summary (empty if none has been generated yet) </p>
+
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00277">277</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMAgent_a9de55fa1c2e6a2c3b56814896ed79b60_icgraph.svg" width="430" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -1114,11 +1352,52 @@ Here is the caller graph for this function:</div>
 <p>Get current system prompt. </p>
 <dl class="section return"><dt>Returns</dt><dd>Current system prompt string </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00179">179</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00206">206</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><iframe scrolling="no" frameborder="0" src="classLLMAgent_ae2d47c9ac540fd0c75402f7dffd04fe2_icgraph.svg" width="402" height="75"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
+</div>
+</div>
+<a id="a152bf0a1849d69775af9a57144291f56" name="a152bf0a1849d69775af9a57144291f56"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a152bf0a1849d69775af9a57144291f56">&#9670;&#160;</a></span>handle_overflow()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool LLMAgent::handle_overflow </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>user_prompt</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Handle context overflow using the configured strategy before a chat call. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">user_prompt</td><td>The user prompt string about to be sent </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if history was modified </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00172">172</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMAgent_a152bf0a1849d69775af9a57144291f56_icgraph.svg" width="554" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -1147,7 +1426,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <p>Loads conversation history from a JSON file, replacing current history </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00116">116</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00133">133</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1189,7 +1468,7 @@ Here is the caller graph for this function:</div>
 <dl class="section return"><dt>Returns</dt><dd>Operation result string</dd></dl>
 <p>Restores the agent's processing state from file </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00153">153</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00180">180</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
 
 </div>
 </div>
@@ -1211,7 +1490,7 @@ Here is the caller graph for this function:</div>
 <p>Remove the last message from history. </p>
 <p>Removes the most recently added message </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00087">87</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00101">101</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1244,7 +1523,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <p>Saves the current conversation history as JSON to the specified file </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00095">95</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00109">109</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1286,7 +1565,7 @@ Here is the caller graph for this function:</div>
 <dl class="section return"><dt>Returns</dt><dd>Operation result string</dd></dl>
 <p>Saves the agent's current processing state to file </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00147">147</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00174">174</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
 
 </div>
 </div>
@@ -1322,7 +1601,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <p>Replaces current conversation history with provided messages </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00184">184</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00211">211</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1354,7 +1633,58 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00033">33</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00053">53</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a280a1648b797ec9724ffbae28c1a9f94" name="a280a1648b797ec9724ffbae28c1a9f94"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a280a1648b797ec9724ffbae28c1a9f94">&#9670;&#160;</a></span>set_overflow_strategy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LLMAgent::set_overflow_strategy </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="LLM__agent_8h.html#a088f6764b525b6915e24b5248d151446">ContextOverflowStrategy</a></td>          <td class="paramname"><span class="paramname"><em>strategy</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>target_ratio</em><span class="paramdefsep"> = </span><span class="paramdefval">0.5f</span>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>summarize_prompt</em><span class="paramdefsep"> = </span><span class="paramdefval">SUMMARY_PROMPT</span></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Configure how the agent handles context overflow. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">strategy</td><td>The overflow strategy to use </td></tr>
+    <tr><td class="paramname">target_ratio</td><td>Fraction of context to target after truncation (0.0–1.0, default 0.5) </td></tr>
+    <tr><td class="paramname">summarize_prompt</td><td>Prompt used to ask the <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> to summarise the history </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00259">259</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMAgent_a280a1648b797ec9724ffbae28c1a9f94_icgraph.svg" width="415" height="75"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
 
 </div>
 </div>
@@ -1391,6 +1721,40 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
+<a id="a97aa828eaed8dd6b3feafb6e7f891d98" name="a97aa828eaed8dd6b3feafb6e7f891d98"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a97aa828eaed8dd6b3feafb6e7f891d98">&#9670;&#160;</a></span>set_summary()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LLMAgent::set_summary </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>summary_</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Set the rolling summary directly (e.g. after loading from file) </p>
+
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00280">280</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMAgent_a97aa828eaed8dd6b3feafb6e7f891d98_icgraph.svg" width="426" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
+</div>
+</div>
 <a id="ac4c90915ba15f9cbdcf76619479340bd" name="ac4c90915ba15f9cbdcf76619479340bd"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac4c90915ba15f9cbdcf76619479340bd">&#9670;&#160;</a></span>set_system_prompt()</h2>
 
@@ -1423,7 +1787,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <p>Sets the system prompt and clears conversation history </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00175">175</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00202">202</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1467,7 +1831,41 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classLLMLocal.html#a008288c45d9747cae2c0732772cff7fe">LLMLocal</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00106">106</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00129">129</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+
+</div>
+</div>
+<a id="a6486c1a1fc79c96bbc4442f722e0bba4" name="a6486c1a1fc79c96bbc4442f722e0bba4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6486c1a1fc79c96bbc4442f722e0bba4">&#9670;&#160;</a></span>summarize_history()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LLMAgent::summarize_history </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>user_prompt</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Summarise the entire history (chunking if needed), embed summary in system message, then truncate if still needed. </p>
+
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00214">214</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMAgent_a6486c1a1fc79c96bbc4442f722e0bba4_icgraph.svg" width="768" height="68"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
 
 </div>
 </div>
@@ -1505,7 +1903,41 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classLLM.html#a535b20d75538e5bb7bca8e8f0e52ba8f">LLM</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00075">75</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00098">98</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+
+</div>
+</div>
+<a id="a1b2ce4f2eddc64953186861d0415a2f5" name="a1b2ce4f2eddc64953186861d0415a2f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1b2ce4f2eddc64953186861d0415a2f5">&#9670;&#160;</a></span>truncate_history()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LLMAgent::truncate_history </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>user_prompt</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Remove oldest message pairs from the front until history fits within target_context_ratio. </p>
+
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00193">193</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMAgent_a1b2ce4f2eddc64953186861d0415a2f5_icgraph.svg" width="964" height="96"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
 
 </div>
 </div>
@@ -1522,7 +1954,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00063">63</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00086">86</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
 
 </div>
 </div>
@@ -1538,7 +1970,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00062">62</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00085">85</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
 
 </div>
 </div>

@@ -47,7 +47,7 @@
   <td id="projectlogo"><img alt="Logo" src="logo_tiny.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">LlamaLib
-   &#160;<span id="projectnumber">v2.0.3</span>
+   &#160;<span id="projectnumber">v2.0.4</span>
    </div>
    <div id="projectbrief">Cross-platform library for local LLMs</div>
   </td>
@@ -250,7 +250,7 @@ Functions</h2></td></tr>
 <p>Declare function pointers for dynamically loaded functions. </p>
 <p>Uses the LLM_FUNCTIONS_LIST macro to declare all required function pointers </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00213">213</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8h_source.html#l00218">218</a> of file <a class="el" href="LLM__runtime_8h_source.html">LLM_runtime.h</a>.</p>
 
 </div>
 </div>
@@ -295,13 +295,14 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <b>Value:</b><div class="fragment"><div class="line">    M(<a class="code hl_function" href="group__c__api.html#ga2685b20fe11a096ebd009f94d7c17164">LLMService_Registry</a>, <span class="keywordtype">void</span>, <a class="code hl_class" href="classLLMProviderRegistry.html">LLMProviderRegistry</a> *)                                                           \</div>
 <div class="line">    M(LLMService_InjectErrorState, <span class="keywordtype">void</span>, <a class="code hl_struct" href="structErrorState.html">ErrorState</a> *)                                                            \</div>
+<div class="line">    M(LLMService_Supports_GPU, <span class="keywordtype">bool</span>)                                                                              \</div>
 <div class="line">    M(<a class="code hl_function" href="group__c__api.html#ga06760df214abda8ef4f0773013a62626">LLMService_Construct</a>, <a class="code hl_class" href="classLLMProvider.html">LLMProvider</a> *, <span class="keyword">const</span> <span class="keywordtype">char</span> *, <span class="keywordtype">int</span>, <span class="keywordtype">int</span>, <span class="keywordtype">int</span>, <span class="keywordtype">bool</span>, <span class="keywordtype">int</span>, <span class="keywordtype">int</span>, <span class="keywordtype">bool</span>, <span class="keywordtype">int</span>, <span class="keyword">const</span> <span class="keywordtype">char</span> **) \</div>
 <div class="line">    M(<a class="code hl_function" href="group__c__api.html#gad23f3f7f87169600bd22bb9b28bcfd94">LLMService_From_Command</a>, <a class="code hl_class" href="classLLMProvider.html">LLMProvider</a> *, <span class="keyword">const</span> <span class="keywordtype">char</span> *)</div>
-<div class="ttc" id="aclassLLMProviderRegistry_html"><div class="ttname"><a href="classLLMProviderRegistry.html">LLMProviderRegistry</a></div><div class="ttdoc">Registry for managing LLM provider instances.</div><div class="ttdef"><b>Definition</b> <a href="LLM_8h_source.html#l00379">LLM.h:380</a></div></div>
-<div class="ttc" id="aclassLLMProvider_html"><div class="ttname"><a href="classLLMProvider.html">LLMProvider</a></div><div class="ttdoc">Abstract class for LLM service providers.</div><div class="ttdef"><b>Definition</b> <a href="LLM_8h_source.html#l00274">LLM.h:275</a></div></div>
-<div class="ttc" id="agroup__c__api_html_ga06760df214abda8ef4f0773013a62626"><div class="ttname"><a href="group__c__api.html#ga06760df214abda8ef4f0773013a62626">LLMService_Construct</a></div><div class="ttdeci">LLMService * LLMService_Construct(const char *model_path, int num_slots=1, int num_threads=-1, int num_GPU_layers=0, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, int lora_count=0, const char **lora_paths=nullptr)</div><div class="ttdoc">Construct LLMService instance (C API)</div><div class="ttdef"><b>Definition</b> <a href="LLM__service_8cpp_source.html#l00710">LLM_service.cpp:710</a></div></div>
-<div class="ttc" id="agroup__c__api_html_ga2685b20fe11a096ebd009f94d7c17164"><div class="ttname"><a href="group__c__api.html#ga2685b20fe11a096ebd009f94d7c17164">LLMService_Registry</a></div><div class="ttdeci">void LLMService_Registry(LLMProviderRegistry *existing_instance)</div><div class="ttdoc">Set registry for LLMService (C API)</div><div class="ttdef"><b>Definition</b> <a href="LLM__service_8cpp_source.html#l00705">LLM_service.cpp:705</a></div></div>
-<div class="ttc" id="agroup__c__api_html_gad23f3f7f87169600bd22bb9b28bcfd94"><div class="ttname"><a href="group__c__api.html#gad23f3f7f87169600bd22bb9b28bcfd94">LLMService_From_Command</a></div><div class="ttdeci">LLMService * LLMService_From_Command(const char *params_string)</div><div class="ttdoc">Create LLMService from command string (C API)</div><div class="ttdef"><b>Definition</b> <a href="LLM__service_8cpp_source.html#l00729">LLM_service.cpp:729</a></div></div>
+<div class="ttc" id="aclassLLMProviderRegistry_html"><div class="ttname"><a href="classLLMProviderRegistry.html">LLMProviderRegistry</a></div><div class="ttdoc">Registry for managing LLM provider instances.</div><div class="ttdef"><b>Definition</b> <a href="LLM_8h_source.html#l00383">LLM.h:384</a></div></div>
+<div class="ttc" id="aclassLLMProvider_html"><div class="ttname"><a href="classLLMProvider.html">LLMProvider</a></div><div class="ttdoc">Abstract class for LLM service providers.</div><div class="ttdef"><b>Definition</b> <a href="LLM_8h_source.html#l00278">LLM.h:279</a></div></div>
+<div class="ttc" id="agroup__c__api_html_ga06760df214abda8ef4f0773013a62626"><div class="ttname"><a href="group__c__api.html#ga06760df214abda8ef4f0773013a62626">LLMService_Construct</a></div><div class="ttdeci">LLMService * LLMService_Construct(const char *model_path, int num_slots=1, int num_threads=-1, int num_GPU_layers=0, bool flash_attention=false, int context_size=4096, int batch_size=2048, bool embedding_only=false, int lora_count=0, const char **lora_paths=nullptr)</div><div class="ttdoc">Construct LLMService instance (C API)</div><div class="ttdef"><b>Definition</b> <a href="LLM__service_8cpp_source.html#l00747">LLM_service.cpp:747</a></div></div>
+<div class="ttc" id="agroup__c__api_html_ga2685b20fe11a096ebd009f94d7c17164"><div class="ttname"><a href="group__c__api.html#ga2685b20fe11a096ebd009f94d7c17164">LLMService_Registry</a></div><div class="ttdeci">void LLMService_Registry(LLMProviderRegistry *existing_instance)</div><div class="ttdoc">Set registry for LLMService (C API)</div><div class="ttdef"><b>Definition</b> <a href="LLM__service_8cpp_source.html#l00737">LLM_service.cpp:737</a></div></div>
+<div class="ttc" id="agroup__c__api_html_gad23f3f7f87169600bd22bb9b28bcfd94"><div class="ttname"><a href="group__c__api.html#gad23f3f7f87169600bd22bb9b28bcfd94">LLMService_From_Command</a></div><div class="ttdeci">LLMService * LLMService_From_Command(const char *params_string)</div><div class="ttdoc">Create LLMService from command string (C API)</div><div class="ttdef"><b>Definition</b> <a href="LLM__service_8cpp_source.html#l00766">LLM_service.cpp:766</a></div></div>
 <div class="ttc" id="astructErrorState_html"><div class="ttname"><a href="structErrorState.html">ErrorState</a></div><div class="ttdoc">Error state container for sharing between libraries.</div><div class="ttdef"><b>Definition</b> <a href="error__handling_8h_source.html#l00021">error_handling.h:22</a></div></div>
 </div><!-- fragment -->
 <p>Macro defining the list of dynamically loaded <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> functions. </p>
@@ -411,7 +412,7 @@ Here is the caller graph for this function:</div>
 <dl class="section return"><dt>Returns</dt><dd>Vector of environment variable names to check for library paths</dd></dl>
 <p>Returns platform-specific environment variables used for library loading </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM__runtime_8cpp_source.html#l00108">108</a> of file <a class="el" href="LLM__runtime_8cpp_source.html">LLM_runtime.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__runtime_8cpp_source.html#l00113">113</a> of file <a class="el" href="LLM__runtime_8cpp_source.html">LLM_runtime.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">

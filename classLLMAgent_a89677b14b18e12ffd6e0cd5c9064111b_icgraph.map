@@ -1,0 +1,18 @@
+<map id="LLMAgent::build_working_history" name="LLMAgent::build_working_history">
+<area shape="rect" id="Node000001" title="Build the full message list to send to the model." alt="" coords="1007,45,1192,85"/>
+<area shape="rect" id="Node000002" href="$classLLMAgent.html#aecac08f1cbc4ed079cc75bc98f08d4ce" title="Conduct a chat interaction." alt="" coords="176,29,299,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="993,51,958,47,770,38,584,36,299,42,299,37,584,31,770,33,959,42,993,45"/>
+<area shape="rect" id="Node000004" href="$classLLMAgent.html#a152bf0a1849d69775af9a57144291f56" title="Handle context overflow using the configured strategy before a chat call." alt="" coords="347,55,548,80"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="993,66,959,66,596,67,548,68,548,63,596,62,959,61,993,61"/>
+<area shape="rect" id="Node000005" href="$classLLMAgent.html#a6486c1a1fc79c96bbc4442f722e0bba4" title="Summarise the entire history (chunking if needed), embed summary in system message,..." alt="" coords="596,77,763,117"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="993,75,763,93,763,88,993,70"/>
+<area shape="rect" id="Node000006" href="$classLLMAgent.html#a1b2ce4f2eddc64953186861d0415a2f5" title="Remove oldest message pairs from the front until history fits within target_context_ratio." alt="" coords="811,127,959,167"/>
+<area shape="poly" id="edge8_Node000001_Node000006" title=" " alt="" coords="1035,92,939,130,937,125,1033,87"/>
+<area shape="rect" id="Node000003" href="$LLM__agent_8cpp.html#ae783925557d9588c8e4f16e58ba116b2" title="Conduct chat interaction (C API)" alt="" coords="5,29,128,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="162,45,128,45,128,39,162,39"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="97,19,88,11,67,8,49,10,39,15,37,20,43,28,38,31,32,21,35,11,47,5,67,3,90,6,100,15"/>
+<area shape="poly" id="edge5_Node000004_Node000002" title=" " alt="" coords="333,56,299,52,299,47,334,51"/>
+<area shape="poly" id="edge7_Node000005_Node000004" title=" " alt="" coords="582,87,548,83,548,77,583,82"/>
+<area shape="poly" id="edge9_Node000006_Node000004" title=" " alt="" coords="797,152,699,147,647,141,595,131,527,108,471,82,473,78,529,103,597,126,648,136,700,142,797,146"/>
+<area shape="poly" id="edge10_Node000006_Node000005" title=" " alt="" coords="796,128,760,119,762,114,798,123"/>
+</map>

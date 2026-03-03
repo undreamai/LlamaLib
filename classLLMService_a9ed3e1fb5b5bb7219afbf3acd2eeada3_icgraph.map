@@ -9,7 +9,7 @@
 <area shape="rect" id="Node000004" href="$LLM__service_8cpp.html#abaea4e04e10d2f293565fc535746b240" title="Create LLMService from command string (C API)" alt="" coords="639,97,849,123"/>
 <area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="938,62,795,100,793,95,937,57"/>
 <area shape="poly" id="edge8_Node000004_Node000004" title=" " alt="" coords="786,88,775,80,744,76,719,78,705,83,703,88,710,96,706,99,698,89,702,79,718,73,744,71,777,75,790,84"/>
-<area shape="rect" id="Node000005" href="$classLLMService.html#a5aa62b2f1feb31a8977801c2bd2ed30d" title="Load LLM library backend." alt="" coords="425,57,591,97"/>
+<area shape="rect" id="Node000005" href="$classLLMService.html#a007564dfcf3c7c91b727f82a219c06d1" title="Load LLM library backend." alt="" coords="425,57,591,97"/>
 <area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="640,98,590,91,591,86,641,93"/>
 <area shape="rect" id="Node000006" href="$classLLMService.html#ac194e3210642288e650ed9f9194a69ee" title="Loads LLM library dynamically according to underlying achitecture and creates a LLM based on the comm..." alt="" coords="232,29,377,69"/>
 <area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="411,66,378,61,378,56,412,61"/>

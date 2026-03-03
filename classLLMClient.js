@@ -9,6 +9,7 @@ var classLLMClient =
     [ "detokenize_json", "classLLMClient.html#a67449d6548e6bf936bd0ebfc768a8c82", null ],
     [ "embeddings_json", "classLLMClient.html#ad25a26b154b875a4e0f0fd7515e6f96f", null ],
     [ "get_next_available_slot", "classLLMClient.html#a1564f7ffcde80f00ffc57b72531d9882", null ],
+    [ "get_slot_context_size", "classLLMClient.html#a5e38b8ad75b9d4c0c646dda28c1c97a9", null ],
     [ "is_remote", "classLLMClient.html#a659361ce7887b0a82eb7d1a3021e5293", null ],
     [ "set_SSL", "classLLMClient.html#a17346625e29f46f976adc93388724668", null ],
     [ "slot_json", "classLLMClient.html#a273747787cead016d69c57780d9c11ba", null ],

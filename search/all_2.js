@@ -13,7 +13,8 @@ var searchData=
   ['completion_5fjson_10',['completion_json',['../classLLM.html#aa123c478d02e4ecff9e73da5be2f771b',1,'LLM::completion_json()'],['../classLLMAgent.html#a0a13f9a38043f95640411c2a4598f14f',1,'LLMAgent::completion_json()'],['../classLLMClient.html#a9613eb92ed2660c3e086754eaf1e3db6',1,'LLMClient::completion_json()'],['../classLLMService.html#add81f54b4e1d077338ed828bca5eb4f9',1,'LLMService::completion_json(const json &amp;data, CharArrayFn callback=nullptr, bool callbackWithJSON=true) override'],['../classLLMService.html#add81f54b4e1d077338ed828bca5eb4f9',1,'LLMService::completion_json(const json &amp;data, CharArrayFn callback=nullptr, bool callbackWithJSON=true) override']]],
   ['completion_5fparams_11',['completion_params',['../classLLM.html#a610330354440100d70a110ee7af33108',1,'LLM']]],
   ['content_12',['content',['../structChatMessage.html#a73d91c015a029aba1928441650fbc210',1,'ChatMessage']]],
-  ['core_20classes_13',['Core classes',['../index.html#autotoc_md15',1,'']]],
-  ['create_5fllm_5flibrary_14',['create_LLM_library',['../classLLMService.html#ac194e3210642288e650ed9f9194a69ee',1,'LLMService']]],
-  ['create_5fllm_5flibrary_5fbackend_15',['create_LLM_library_backend',['../classLLMService.html#a5aa62b2f1feb31a8977801c2bd2ed30d',1,'LLMService']]]
+  ['contextoverflowstrategy_13',['ContextOverflowStrategy',['../LLM__agent_8h.html#a088f6764b525b6915e24b5248d151446',1,'LLM_agent.h']]],
+  ['core_20classes_14',['Core classes',['../index.html#autotoc_md15',1,'']]],
+  ['create_5fllm_5flibrary_15',['create_LLM_library',['../classLLMService.html#ac194e3210642288e650ed9f9194a69ee',1,'LLMService']]],
+  ['create_5fllm_5flibrary_5fbackend_16',['create_LLM_library_backend',['../classLLMService.html#a007564dfcf3c7c91b727f82a219c06d1',1,'LLMService']]]
 ];

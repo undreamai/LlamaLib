@@ -47,7 +47,7 @@
   <td id="projectlogo"><img alt="Logo" src="logo_tiny.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">LlamaLib
-   &#160;<span id="projectnumber">v2.0.3</span>
+   &#160;<span id="projectnumber">v2.0.4</span>
    </div>
    <div id="projectbrief">Cross-platform library for local LLMs</div>
   </td>
@@ -113,7 +113,9 @@ $(function(){initNavTree('LLM__agent_8h.html',''); initResizable(); });
 
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a>  </div>
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">LLM_agent.h File Reference<div class="ingroups"><a class="el" href="group__llm.html">LLM</a></div></div></div>
 </div><!--header-->
 <div class="contents">
@@ -143,6 +145,15 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMAgent.html">LLMAgent</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">High-level conversational agent for <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> interactions.  <a href="classLLMAgent.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:a088f6764b525b6915e24b5248d151446" id="r_a088f6764b525b6915e24b5248d151446"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a088f6764b525b6915e24b5248d151446">ContextOverflowStrategy</a> { <a class="el" href="#a088f6764b525b6915e24b5248d151446a6adf97f83acf6453d4a6a4b1070f3754">None</a>
+, <a class="el" href="#a088f6764b525b6915e24b5248d151446aa8156810bfee2bd2b44765b9e91db3bd">Truncate</a>
+, <a class="el" href="#a088f6764b525b6915e24b5248d151446a10fabddaa26f740c259e8adcfd5e32d4">Summarize</a>
+ }</td></tr>
+<tr class="memdesc:a088f6764b525b6915e24b5248d151446"><td class="mdescLeft">&#160;</td><td class="mdescRight">Strategy to apply when the chat history would exceed the model's context window.  <a href="#a088f6764b525b6915e24b5248d151446">More...</a><br /></td></tr>
+<tr class="separator:a088f6764b525b6915e24b5248d151446"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -192,13 +203,93 @@ Functions</h2></td></tr>
 <tr class="memitem:ga277940928041a33dc91e86f22715e518" id="r_ga277940928041a33dc91e86f22715e518"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__c__api.html#ga277940928041a33dc91e86f22715e518">LLMAgent_Get_History_Size</a> (<a class="el" href="classLLMAgent.html">LLMAgent</a> *llm)</td></tr>
 <tr class="memdesc:ga277940928041a33dc91e86f22715e518"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get conversation history size (C API)  <br /></td></tr>
 <tr class="separator:ga277940928041a33dc91e86f22715e518"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga018feeee123d09250300b0a91dc837da" id="r_ga018feeee123d09250300b0a91dc837da"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__c__api.html#ga018feeee123d09250300b0a91dc837da">LLMAgent_Set_Overflow_Strategy</a> (<a class="el" href="classLLMAgent.html">LLMAgent</a> *llm, int strategy, float target_ratio, const char *summarize_prompt)</td></tr>
+<tr class="memdesc:ga018feeee123d09250300b0a91dc837da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configure the context overflow strategy (C API)  <br /></td></tr>
+<tr class="separator:ga018feeee123d09250300b0a91dc837da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7928ff4ffef7bd5ed886f128847785bb" id="r_ga7928ff4ffef7bd5ed886f128847785bb"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__c__api.html#ga7928ff4ffef7bd5ed886f128847785bb">LLMAgent_Get_Summary</a> (<a class="el" href="classLLMAgent.html">LLMAgent</a> *llm)</td></tr>
+<tr class="memdesc:ga7928ff4ffef7bd5ed886f128847785bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the current rolling summary (C API)  <br /></td></tr>
+<tr class="separator:ga7928ff4ffef7bd5ed886f128847785bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gade951504f284a64285274c3933d3ba01" id="r_gade951504f284a64285274c3933d3ba01"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__c__api.html#gade951504f284a64285274c3933d3ba01">LLMAgent_Set_Summary</a> (<a class="el" href="classLLMAgent.html">LLMAgent</a> *llm, const char *summary)</td></tr>
+<tr class="memdesc:gade951504f284a64285274c3933d3ba01"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the rolling summary directly (C API)  <br /></td></tr>
+<tr class="separator:gade951504f284a64285274c3933d3ba01"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a812877c2cca9f385c40a0fbbe6241247" id="r_a812877c2cca9f385c40a0fbbe6241247"><td class="memItemLeft" align="right" valign="top">const std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a812877c2cca9f385c40a0fbbe6241247">SUMMARY_PROMPT</a></td></tr>
+<tr class="separator:a812877c2cca9f385c40a0fbbe6241247"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>High-level conversational agent interface for LLMs. </p>
 <p>Provides a conversation-aware wrapper around <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> functionality with chat history management </p>
 
 <p class="definition">Definition in file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
-</div></div><!-- contents -->
+</div><h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="a088f6764b525b6915e24b5248d151446" name="a088f6764b525b6915e24b5248d151446"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a088f6764b525b6915e24b5248d151446">&#9670;&#160;</a></span>ContextOverflowStrategy</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class <a class="el" href="#a088f6764b525b6915e24b5248d151446">ContextOverflowStrategy</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Strategy to apply when the chat history would exceed the model's context window. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a088f6764b525b6915e24b5248d151446a6adf97f83acf6453d4a6a4b1070f3754" name="a088f6764b525b6915e24b5248d151446a6adf97f83acf6453d4a6a4b1070f3754"></a>None&#160;</td><td class="fielddoc"><p>No automatic handling — may crash if context is exceeded. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a088f6764b525b6915e24b5248d151446aa8156810bfee2bd2b44765b9e91db3bd" name="a088f6764b525b6915e24b5248d151446aa8156810bfee2bd2b44765b9e91db3bd"></a>Truncate&#160;</td><td class="fielddoc"><p>Remove oldest messages (in pairs) from the front until history fits within target_context_ratio. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a088f6764b525b6915e24b5248d151446a10fabddaa26f740c259e8adcfd5e32d4" name="a088f6764b525b6915e24b5248d151446a10fabddaa26f740c259e8adcfd5e32d4"></a>Summarize&#160;</td><td class="fielddoc"><p>Summarise the full history (rolling chunks if needed), embed it in the system message, then truncate if still needed. </p>
+</td></tr>
+</table>
+
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00057">57</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="a812877c2cca9f385c40a0fbbe6241247" name="a812877c2cca9f385c40a0fbbe6241247"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a812877c2cca9f385c40a0fbbe6241247">&#9670;&#160;</a></span>SUMMARY_PROMPT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::string SUMMARY_PROMPT</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">=</div>
+<div class="line"><span class="stringliteral">&quot;You are maintaining a concise working memory of an ongoing conversation.&quot;</span></div>
+<div class="line"><span class="stringliteral">&quot;&quot;</span></div>
+<div class="line"><span class="stringliteral">&quot;If an existing summary is provided, merge it with the new messages into a single updated summary.&quot;</span></div>
+<div class="line"><span class="stringliteral">&quot;If no existing summary is provided, create a new summary from the messages.&quot;</span></div>
+<div class="line"><span class="stringliteral">&quot;&quot;</span></div>
+<div class="line"><span class="stringliteral">&quot;Rules:&quot;</span></div>
+<div class="line"><span class="stringliteral">&quot;- Preserve user goals, decisions made, constraints, preferences, open questions, and pending tasks.&quot;</span></div>
+<div class="line"><span class="stringliteral">&quot;- Remove anything resolved, superseded, redundant, or purely conversational.&quot;</span></div>
+<div class="line"><span class="stringliteral">&quot;- Keep only information relevant for future reasoning.&quot;</span></div>
+<div class="line"><span class="stringliteral">&quot;- Avoid duplicating or rephrasing information unnecessarily.&quot;</span></div>
+<div class="line"><span class="stringliteral">&quot;- Write in present tense where possible.&quot;</span></div>
+<div class="line"><span class="stringliteral">&quot;- Keep under 200 words.&quot;</span></div>
+<div class="line"><span class="stringliteral">&quot;- No bullet points. No preamble. Output only the summary text.&quot;</span></div>
+</div><!-- fragment -->
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8h_source.html#l00064">64</a> of file <a class="el" href="LLM__agent_8h_source.html">LLM_agent.h</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->

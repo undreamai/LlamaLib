@@ -47,7 +47,7 @@
   <td id="projectlogo"><img alt="Logo" src="logo_tiny.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">LlamaLib
-   &#160;<span id="projectnumber">v2.0.3</span>
+   &#160;<span id="projectnumber">v2.0.4</span>
    </div>
    <div id="projectbrief">Cross-platform library for local LLMs</div>
   </td>
@@ -481,94 +481,117 @@ $(function(){initNavTree('LLM__client_8cpp_source.html',''); initResizable(); })
 </div>
 <div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span> </div>
 <div class="foldopen" id="foldopen00345" data-start="{" data-end="}">
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno"><a class="line" href="classLLMClient.html#a5e0d4af22b373efdb12ab7512ff48f5f">  345</a></span>std::string <a class="code hl_function" href="classLLMClient.html#a5e0d4af22b373efdb12ab7512ff48f5f">LLMClient::apply_template_json</a>(<span class="keyword">const</span> json &amp;data)</div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno"><a class="line" href="classLLMClient.html#a5e38b8ad75b9d4c0c646dda28c1c97a9">  345</a></span><span class="keywordtype">int</span> <a class="code hl_function" href="classLLMClient.html#a5e38b8ad75b9d4c0c646dda28c1c97a9">LLMClient::get_slot_context_size</a>()</div>
 <div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>{</div>
 <div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>    <span class="keywordflow">if</span> (<a class="code hl_function" href="classLLMClient.html#a659361ce7887b0a82eb7d1a3021e5293">is_remote</a>())</div>
 <div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>    {</div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>        <span class="keywordflow">return</span> post_request(<span class="stringliteral">&quot;apply-template&quot;</span>, data);</div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>    }</div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>    {</div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>        <span class="keywordflow">return</span> llm-&gt;<a class="code hl_function" href="classLLM.html#a4dabf05907391e76f5c25f57adc1bde0">apply_template_json</a>(data);</div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>    }</div>
-<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>}</div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>        <span class="keywordflow">try</span></div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>        {</div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>            std::string res = post_request(<span class="stringliteral">&quot;props&quot;</span>, {});</div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>            json data = json::parse(res);</div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>            <span class="keywordflow">return</span> data.at(<span class="stringliteral">&quot;default_generation_settings&quot;</span>).at(<span class="stringliteral">&quot;n_ctx&quot;</span>).get&lt;<span class="keywordtype">int</span>&gt;();</div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>        }</div>
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>        <span class="keywordflow">catch</span> (<span class="keyword">const</span> std::exception &amp; ex) {std::cerr&lt;&lt;ex.what()&lt;&lt;std::endl;}</div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>        <span class="keywordflow">return</span> -1;</div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>    }</div>
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>    {</div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>        <span class="keywordflow">return</span> llm-&gt;<a class="code hl_function" href="classLLMLocal.html#a1f233be264bc94a50bed883739859d03">get_slot_context_size</a>();</div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>    }</div>
+<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>}</div>
 </div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span> </div>
-<div class="foldopen" id="foldopen00357" data-start="{" data-end="}">
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno"><a class="line" href="classLLMClient.html#a273747787cead016d69c57780d9c11ba">  357</a></span>std::string <a class="code hl_function" href="classLLMClient.html#a273747787cead016d69c57780d9c11ba">LLMClient::slot_json</a>(<span class="keyword">const</span> json &amp;data)</div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>{</div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>    <span class="keywordflow">if</span> (<a class="code hl_function" href="classLLMClient.html#a659361ce7887b0a82eb7d1a3021e5293">is_remote</a>())</div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>    {</div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>        std::cerr &lt;&lt; <span class="stringliteral">&quot;Slot operations are not supported in remote clients&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>        <span class="keywordflow">return</span> <span class="stringliteral">&quot;{}&quot;</span>;</div>
-<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>    }</div>
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>    {</div>
-<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>        <span class="keywordflow">return</span> llm-&gt;<a class="code hl_function" href="classLLMLocal.html#a008288c45d9747cae2c0732772cff7fe">slot_json</a>(data);</div>
-<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>    }</div>
-<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>}</div>
+<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span> </div>
+<div class="foldopen" id="foldopen00364" data-start="{" data-end="}">
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno"><a class="line" href="classLLMClient.html#a5e0d4af22b373efdb12ab7512ff48f5f">  364</a></span>std::string <a class="code hl_function" href="classLLMClient.html#a5e0d4af22b373efdb12ab7512ff48f5f">LLMClient::apply_template_json</a>(<span class="keyword">const</span> json &amp;data)</div>
+<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>{</div>
+<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>    <span class="keywordflow">if</span> (<a class="code hl_function" href="classLLMClient.html#a659361ce7887b0a82eb7d1a3021e5293">is_remote</a>())</div>
+<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>    {</div>
+<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>        <span class="keywordflow">return</span> post_request(<span class="stringliteral">&quot;apply-template&quot;</span>, data);</div>
+<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>    }</div>
+<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span>    {</div>
+<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>        <span class="keywordflow">return</span> llm-&gt;<a class="code hl_function" href="classLLM.html#a4dabf05907391e76f5c25f57adc1bde0">apply_template_json</a>(data);</div>
+<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>    }</div>
+<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>}</div>
 </div>
-<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span> </div>
-<div class="foldopen" id="foldopen00370" data-start="{" data-end="}">
-<div class="line"><a id="l00370" name="l00370"></a><span class="lineno"><a class="line" href="classLLMClient.html#af0eeeae8c4360c2c8a9af632d13beb1d">  370</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classLLMClient.html#af0eeeae8c4360c2c8a9af632d13beb1d">LLMClient::cancel</a>(<span class="keywordtype">int</span> id_slot)</div>
-<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span>{</div>
-<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>    <span class="keywordflow">if</span> (<a class="code hl_function" href="classLLMClient.html#a659361ce7887b0a82eb7d1a3021e5293">is_remote</a>())</div>
-<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>    {</div>
-<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>        <span class="keywordflow">for</span> (<span class="keywordtype">bool</span>* flag : active_requests) *flag = <span class="keyword">true</span>;</div>
-<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>    }</div>
-<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>    {</div>
-<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>        llm-&gt;<a class="code hl_function" href="classLLMLocal.html#ab4035793b13abac9346d9748782c2bc4">cancel</a>(id_slot);</div>
-<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>    }</div>
-<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>}</div>
-</div>
-<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span> </div>
-<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span><span class="comment">//================ API ================//</span></div>
-<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span> </div>
-<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span><span class="keywordtype">bool</span> LLMClient_Is_Server_Alive(<a class="code hl_class" href="classLLMClient.html">LLMClient</a> *llm)</div>
-<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>{</div>
-<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>    <span class="keywordflow">return</span> llm-&gt;is_server_alive();</div>
+<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span> </div>
+<div class="foldopen" id="foldopen00376" data-start="{" data-end="}">
+<div class="line"><a id="l00376" name="l00376"></a><span class="lineno"><a class="line" href="classLLMClient.html#a273747787cead016d69c57780d9c11ba">  376</a></span>std::string <a class="code hl_function" href="classLLMClient.html#a273747787cead016d69c57780d9c11ba">LLMClient::slot_json</a>(<span class="keyword">const</span> json &amp;data)</div>
+<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>{</div>
+<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>    <span class="keywordflow">if</span> (<a class="code hl_function" href="classLLMClient.html#a659361ce7887b0a82eb7d1a3021e5293">is_remote</a>())</div>
+<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>    {</div>
+<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>        std::cerr &lt;&lt; <span class="stringliteral">&quot;Slot operations are not supported in remote clients&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>        <span class="keywordflow">return</span> <span class="stringliteral">&quot;{}&quot;</span>;</div>
+<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>    }</div>
+<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>    {</div>
+<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>        <span class="keywordflow">return</span> llm-&gt;<a class="code hl_function" href="classLLMLocal.html#a008288c45d9747cae2c0732772cff7fe">slot_json</a>(data);</div>
+<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>    }</div>
 <div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>}</div>
+</div>
 <div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span> </div>
 <div class="foldopen" id="foldopen00389" data-start="{" data-end="}">
-<div class="line"><a id="l00389" name="l00389"></a><span class="lineno"><a class="line" href="group__c__api.html#ga76b46ac93bf8735a0e2bb0e2cc34f4d0">  389</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#ga76b46ac93bf8735a0e2bb0e2cc34f4d0">LLMClient_Set_SSL</a>(<a class="code hl_class" href="classLLMClient.html">LLMClient</a> *llm, <span class="keyword">const</span> <span class="keywordtype">char</span> *SSL_cert)</div>
+<div class="line"><a id="l00389" name="l00389"></a><span class="lineno"><a class="line" href="classLLMClient.html#af0eeeae8c4360c2c8a9af632d13beb1d">  389</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classLLMClient.html#af0eeeae8c4360c2c8a9af632d13beb1d">LLMClient::cancel</a>(<span class="keywordtype">int</span> id_slot)</div>
 <div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>{</div>
-<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>    llm-&gt;<a class="code hl_function" href="classLLMClient.html#a17346625e29f46f976adc93388724668">set_SSL</a>(SSL_cert);</div>
-<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>}</div>
+<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>    <span class="keywordflow">if</span> (<a class="code hl_function" href="classLLMClient.html#a659361ce7887b0a82eb7d1a3021e5293">is_remote</a>())</div>
+<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>    {</div>
+<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>        <span class="keywordflow">for</span> (<span class="keywordtype">bool</span>* flag : active_requests) *flag = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>    }</div>
+<div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>    {</div>
+<div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span>        llm-&gt;<a class="code hl_function" href="classLLMLocal.html#ab4035793b13abac9346d9748782c2bc4">cancel</a>(id_slot);</div>
+<div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span>    }</div>
+<div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>}</div>
 </div>
-<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span> </div>
-<div class="foldopen" id="foldopen00394" data-start="{" data-end="}">
-<div class="line"><a id="l00394" name="l00394"></a><span class="lineno"><a class="line" href="group__c__api.html#ga6f2f5d43a4bf1ae52b05c602e6ee3a8f">  394</a></span><a class="code hl_class" href="classLLMClient.html">LLMClient</a> *<a class="code hl_function" href="group__c__api.html#ga6f2f5d43a4bf1ae52b05c602e6ee3a8f">LLMClient_Construct</a>(<a class="code hl_class" href="classLLMProvider.html">LLMProvider</a> *llm)</div>
-<div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span>{</div>
-<div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>    <span class="keywordflow">return</span> <span class="keyword">new</span> <a class="code hl_class" href="classLLMClient.html">LLMClient</a>(llm);</div>
-<div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span>}</div>
+<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span> </div>
+<div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span><span class="comment">//================ API ================//</span></div>
+<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span> </div>
+<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span><span class="keywordtype">bool</span> LLMClient_Is_Server_Alive(<a class="code hl_class" href="classLLMClient.html">LLMClient</a> *llm)</div>
+<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>{</div>
+<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>    <span class="keywordflow">return</span> llm-&gt;is_server_alive();</div>
+<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>}</div>
+<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span> </div>
+<div class="foldopen" id="foldopen00408" data-start="{" data-end="}">
+<div class="line"><a id="l00408" name="l00408"></a><span class="lineno"><a class="line" href="group__c__api.html#ga76b46ac93bf8735a0e2bb0e2cc34f4d0">  408</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#ga76b46ac93bf8735a0e2bb0e2cc34f4d0">LLMClient_Set_SSL</a>(<a class="code hl_class" href="classLLMClient.html">LLMClient</a> *llm, <span class="keyword">const</span> <span class="keywordtype">char</span> *SSL_cert)</div>
+<div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>{</div>
+<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span>    llm-&gt;<a class="code hl_function" href="classLLMClient.html#a17346625e29f46f976adc93388724668">set_SSL</a>(SSL_cert);</div>
+<div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span>}</div>
 </div>
-<div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span> </div>
-<div class="foldopen" id="foldopen00399" data-start="{" data-end="}">
-<div class="line"><a id="l00399" name="l00399"></a><span class="lineno"><a class="line" href="group__c__api.html#gae91722416d193cf4768f174b8b37aff7">  399</a></span><a class="code hl_class" href="classLLMClient.html">LLMClient</a> *<a class="code hl_function" href="group__c__api.html#gae91722416d193cf4768f174b8b37aff7">LLMClient_Construct_Remote</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *url, <span class="keyword">const</span> <span class="keywordtype">int</span> port, <span class="keyword">const</span> <span class="keywordtype">char</span> *API_key)</div>
-<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>{</div>
-<div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span>    <span class="keywordflow">return</span> <span class="keyword">new</span> <a class="code hl_class" href="classLLMClient.html">LLMClient</a>(url, port, API_key);</div>
-<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>}</div>
+<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span> </div>
+<div class="foldopen" id="foldopen00413" data-start="{" data-end="}">
+<div class="line"><a id="l00413" name="l00413"></a><span class="lineno"><a class="line" href="group__c__api.html#ga6f2f5d43a4bf1ae52b05c602e6ee3a8f">  413</a></span><a class="code hl_class" href="classLLMClient.html">LLMClient</a> *<a class="code hl_function" href="group__c__api.html#ga6f2f5d43a4bf1ae52b05c602e6ee3a8f">LLMClient_Construct</a>(<a class="code hl_class" href="classLLMProvider.html">LLMProvider</a> *llm)</div>
+<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>{</div>
+<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span>    <span class="keywordflow">return</span> <span class="keyword">new</span> <a class="code hl_class" href="classLLMClient.html">LLMClient</a>(llm);</div>
+<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span>}</div>
+</div>
+<div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span> </div>
+<div class="foldopen" id="foldopen00418" data-start="{" data-end="}">
+<div class="line"><a id="l00418" name="l00418"></a><span class="lineno"><a class="line" href="group__c__api.html#gae91722416d193cf4768f174b8b37aff7">  418</a></span><a class="code hl_class" href="classLLMClient.html">LLMClient</a> *<a class="code hl_function" href="group__c__api.html#gae91722416d193cf4768f174b8b37aff7">LLMClient_Construct_Remote</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *url, <span class="keyword">const</span> <span class="keywordtype">int</span> port, <span class="keyword">const</span> <span class="keywordtype">char</span> *API_key)</div>
+<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>{</div>
+<div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span>    <span class="keywordflow">return</span> <span class="keyword">new</span> <a class="code hl_class" href="classLLMClient.html">LLMClient</a>(url, port, API_key);</div>
+<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span>}</div>
 </div>
 <div class="ttc" id="aLLM__client_8h_html"><div class="ttname"><a href="LLM__client_8h.html">LLM_client.h</a></div><div class="ttdoc">Client interface for local and remote LLM access.</div></div>
 <div class="ttc" id="aclassIOSHttpTransport_html"><div class="ttname"><a href="classIOSHttpTransport.html">IOSHttpTransport</a></div><div class="ttdef"><b>Definition</b> <a href="ios__http__transport_8h_source.html#l00018">ios_http_transport.h:18</a></div></div>
 <div class="ttc" id="aclassLLMClient_html"><div class="ttname"><a href="classLLMClient.html">LLMClient</a></div><div class="ttdoc">Client for accessing LLM functionality locally or remotely.</div><div class="ttdef"><b>Definition</b> <a href="LLM__client_8h_source.html#l00031">LLM_client.h:32</a></div></div>
 <div class="ttc" id="aclassLLMClient_html_a1564f7ffcde80f00ffc57b72531d9882"><div class="ttname"><a href="classLLMClient.html#a1564f7ffcde80f00ffc57b72531d9882">LLMClient::get_next_available_slot</a></div><div class="ttdeci">int get_next_available_slot() override</div><div class="ttdoc">Get available processing slot (override)</div><div class="ttdef"><b>Definition</b> <a href="#l00338">LLM_client.cpp:338</a></div></div>
 <div class="ttc" id="aclassLLMClient_html_a17346625e29f46f976adc93388724668"><div class="ttname"><a href="classLLMClient.html#a17346625e29f46f976adc93388724668">LLMClient::set_SSL</a></div><div class="ttdeci">void set_SSL(const char *SSL_cert)</div><div class="ttdoc">Configure SSL certificate for remote connections.</div><div class="ttdef"><b>Definition</b> <a href="#l00272">LLM_client.cpp:272</a></div></div>
-<div class="ttc" id="aclassLLMClient_html_a273747787cead016d69c57780d9c11ba"><div class="ttname"><a href="classLLMClient.html#a273747787cead016d69c57780d9c11ba">LLMClient::slot_json</a></div><div class="ttdeci">std::string slot_json(const json &amp;data) override</div><div class="ttdoc">Manage slots with HTTP response support.</div><div class="ttdef"><b>Definition</b> <a href="#l00357">LLM_client.cpp:357</a></div></div>
+<div class="ttc" id="aclassLLMClient_html_a273747787cead016d69c57780d9c11ba"><div class="ttname"><a href="classLLMClient.html#a273747787cead016d69c57780d9c11ba">LLMClient::slot_json</a></div><div class="ttdeci">std::string slot_json(const json &amp;data) override</div><div class="ttdoc">Manage slots with HTTP response support.</div><div class="ttdef"><b>Definition</b> <a href="#l00376">LLM_client.cpp:376</a></div></div>
 <div class="ttc" id="aclassLLMClient_html_a29039f28ee0a88e9b2a13feb6fe54e4b"><div class="ttname"><a href="classLLMClient.html#a29039f28ee0a88e9b2a13feb6fe54e4b">LLMClient::LLMClient</a></div><div class="ttdeci">LLMClient(LLMProvider *llm)</div><div class="ttdoc">Constructor for local LLM access.</div><div class="ttdef"><b>Definition</b> <a href="#l00226">LLM_client.cpp:226</a></div></div>
 <div class="ttc" id="aclassLLMClient_html_a5d1fef0b80fe1edc902db5f2dc6e3b60"><div class="ttname"><a href="classLLMClient.html#a5d1fef0b80fe1edc902db5f2dc6e3b60">LLMClient::~LLMClient</a></div><div class="ttdeci">~LLMClient()</div><div class="ttdoc">Destructor.</div><div class="ttdef"><b>Definition</b> <a href="#l00258">LLM_client.cpp:258</a></div></div>
-<div class="ttc" id="aclassLLMClient_html_a5e0d4af22b373efdb12ab7512ff48f5f"><div class="ttname"><a href="classLLMClient.html#a5e0d4af22b373efdb12ab7512ff48f5f">LLMClient::apply_template_json</a></div><div class="ttdeci">std::string apply_template_json(const json &amp;data) override</div><div class="ttdoc">Apply a chat template to message data.</div><div class="ttdef"><b>Definition</b> <a href="#l00345">LLM_client.cpp:345</a></div></div>
+<div class="ttc" id="aclassLLMClient_html_a5e0d4af22b373efdb12ab7512ff48f5f"><div class="ttname"><a href="classLLMClient.html#a5e0d4af22b373efdb12ab7512ff48f5f">LLMClient::apply_template_json</a></div><div class="ttdeci">std::string apply_template_json(const json &amp;data) override</div><div class="ttdoc">Apply a chat template to message data.</div><div class="ttdef"><b>Definition</b> <a href="#l00364">LLM_client.cpp:364</a></div></div>
+<div class="ttc" id="aclassLLMClient_html_a5e38b8ad75b9d4c0c646dda28c1c97a9"><div class="ttname"><a href="classLLMClient.html#a5e38b8ad75b9d4c0c646dda28c1c97a9">LLMClient::get_slot_context_size</a></div><div class="ttdeci">int get_slot_context_size() override</div><div class="ttdoc">Get slot context size.</div><div class="ttdef"><b>Definition</b> <a href="#l00345">LLM_client.cpp:345</a></div></div>
 <div class="ttc" id="aclassLLMClient_html_a659361ce7887b0a82eb7d1a3021e5293"><div class="ttname"><a href="classLLMClient.html#a659361ce7887b0a82eb7d1a3021e5293">LLMClient::is_remote</a></div><div class="ttdeci">bool is_remote() const</div><div class="ttdoc">Check if this is a remote client.</div><div class="ttdef"><b>Definition</b> <a href="LLM__client_8h_source.html#l00060">LLM_client.h:60</a></div></div>
 <div class="ttc" id="aclassLLMClient_html_a67449d6548e6bf936bd0ebfc768a8c82"><div class="ttname"><a href="classLLMClient.html#a67449d6548e6bf936bd0ebfc768a8c82">LLMClient::detokenize_json</a></div><div class="ttdeci">std::string detokenize_json(const json &amp;data) override</div><div class="ttdoc">Convert tokens back to text.</div><div class="ttdef"><b>Definition</b> <a href="#l00296">LLM_client.cpp:296</a></div></div>
 <div class="ttc" id="aclassLLMClient_html_a9613eb92ed2660c3e086754eaf1e3db6"><div class="ttname"><a href="classLLMClient.html#a9613eb92ed2660c3e086754eaf1e3db6">LLMClient::completion_json</a></div><div class="ttdeci">std::string completion_json(const json &amp;data, CharArrayFn callback=nullptr, bool callbackWithJSON=true) override</div><div class="ttdoc">Generate text completion (override)</div><div class="ttdef"><b>Definition</b> <a href="#l00320">LLM_client.cpp:320</a></div></div>
 <div class="ttc" id="aclassLLMClient_html_ad25a26b154b875a4e0f0fd7515e6f96f"><div class="ttname"><a href="classLLMClient.html#ad25a26b154b875a4e0f0fd7515e6f96f">LLMClient::embeddings_json</a></div><div class="ttdeci">std::string embeddings_json(const json &amp;data) override</div><div class="ttdoc">Generate embeddings with HTTP response support.</div><div class="ttdef"><b>Definition</b> <a href="#l00308">LLM_client.cpp:308</a></div></div>
 <div class="ttc" id="aclassLLMClient_html_aedfc3267eeda5ae10fef18f614b5df0f"><div class="ttname"><a href="classLLMClient.html#aedfc3267eeda5ae10fef18f614b5df0f">LLMClient::tokenize_json</a></div><div class="ttdeci">std::string tokenize_json(const json &amp;data) override</div><div class="ttdoc">Tokenize input (override)</div><div class="ttdef"><b>Definition</b> <a href="#l00284">LLM_client.cpp:284</a></div></div>
-<div class="ttc" id="aclassLLMClient_html_af0eeeae8c4360c2c8a9af632d13beb1d"><div class="ttname"><a href="classLLMClient.html#af0eeeae8c4360c2c8a9af632d13beb1d">LLMClient::cancel</a></div><div class="ttdeci">void cancel(int id_slot) override</div><div class="ttdoc">Cancel running request (override)</div><div class="ttdef"><b>Definition</b> <a href="#l00370">LLM_client.cpp:370</a></div></div>
+<div class="ttc" id="aclassLLMClient_html_af0eeeae8c4360c2c8a9af632d13beb1d"><div class="ttname"><a href="classLLMClient.html#af0eeeae8c4360c2c8a9af632d13beb1d">LLMClient::cancel</a></div><div class="ttdeci">void cancel(int id_slot) override</div><div class="ttdoc">Cancel running request (override)</div><div class="ttdef"><b>Definition</b> <a href="#l00389">LLM_client.cpp:389</a></div></div>
 <div class="ttc" id="aclassLLMLocal_html_a008288c45d9747cae2c0732772cff7fe"><div class="ttname"><a href="classLLMLocal.html#a008288c45d9747cae2c0732772cff7fe">LLMLocal::slot_json</a></div><div class="ttdeci">virtual std::string slot_json(const json &amp;data)=0</div><div class="ttdoc">Manage slots with HTTP response support.</div></div>
+<div class="ttc" id="aclassLLMLocal_html_a1f233be264bc94a50bed883739859d03"><div class="ttname"><a href="classLLMLocal.html#a1f233be264bc94a50bed883739859d03">LLMLocal::get_slot_context_size</a></div><div class="ttdeci">virtual int get_slot_context_size()=0</div><div class="ttdoc">Get slot context size.</div></div>
 <div class="ttc" id="aclassLLMLocal_html_a7031b71fe66ae3574d2015abe6d33cc1"><div class="ttname"><a href="classLLMLocal.html#a7031b71fe66ae3574d2015abe6d33cc1">LLMLocal::get_next_available_slot</a></div><div class="ttdeci">virtual int get_next_available_slot()=0</div><div class="ttdoc">Get an available processing slot.</div></div>
 <div class="ttc" id="aclassLLMLocal_html_ab4035793b13abac9346d9748782c2bc4"><div class="ttname"><a href="classLLMLocal.html#ab4035793b13abac9346d9748782c2bc4">LLMLocal::cancel</a></div><div class="ttdeci">virtual void cancel(int id_slot)=0</div><div class="ttdoc">Cancel request.</div></div>
-<div class="ttc" id="aclassLLMProvider_html"><div class="ttname"><a href="classLLMProvider.html">LLMProvider</a></div><div class="ttdoc">Abstract class for LLM service providers.</div><div class="ttdef"><b>Definition</b> <a href="LLM_8h_source.html#l00274">LLM.h:275</a></div></div>
+<div class="ttc" id="aclassLLMProvider_html"><div class="ttname"><a href="classLLMProvider.html">LLMProvider</a></div><div class="ttdoc">Abstract class for LLM service providers.</div><div class="ttdef"><b>Definition</b> <a href="LLM_8h_source.html#l00278">LLM.h:279</a></div></div>
 <div class="ttc" id="aclassLLM_html_a180ad8f0dfd734e10042bc6a45bb3126"><div class="ttname"><a href="classLLM.html#a180ad8f0dfd734e10042bc6a45bb3126">LLM::embeddings_json</a></div><div class="ttdeci">virtual std::string embeddings_json(const json &amp;data)=0</div><div class="ttdoc">Generate embeddings with HTTP response support.</div></div>
 <div class="ttc" id="aclassLLM_html_a4dabf05907391e76f5c25f57adc1bde0"><div class="ttname"><a href="classLLM.html#a4dabf05907391e76f5c25f57adc1bde0">LLM::apply_template_json</a></div><div class="ttdeci">virtual std::string apply_template_json(const json &amp;data)=0</div><div class="ttdoc">Apply a chat template to message data.</div></div>
 <div class="ttc" id="aclassLLM_html_a535b20d75538e5bb7bca8e8f0e52ba8f"><div class="ttname"><a href="classLLM.html#a535b20d75538e5bb7bca8e8f0e52ba8f">LLM::tokenize_json</a></div><div class="ttdeci">virtual std::string tokenize_json(const json &amp;data)=0</div><div class="ttdoc">Tokenize input (override)</div></div>
@@ -578,9 +601,9 @@ $(function(){initNavTree('LLM__client_8cpp_source.html',''); initResizable(); })
 <div class="ttc" id="aclassResponseConcatenator_html_a0c8a62c8c26209a3a5d34efab4b0e30b"><div class="ttname"><a href="classResponseConcatenator.html#a0c8a62c8c26209a3a5d34efab4b0e30b">ResponseConcatenator::process_chunk</a></div><div class="ttdeci">bool process_chunk(const std::string &amp;chunk_data)</div><div class="ttdoc">Process a single chunk and accumulate its content/tokens.</div><div class="ttdef"><b>Definition</b> <a href="completion__processor_8cpp_source.html#l00003">completion_processor.cpp:3</a></div></div>
 <div class="ttc" id="aclassResponseConcatenator_html_a8c7ab447055fa05f25571b5530332be7"><div class="ttname"><a href="classResponseConcatenator.html#a8c7ab447055fa05f25571b5530332be7">ResponseConcatenator::get_result_json</a></div><div class="ttdeci">std::string get_result_json() const</div><div class="ttdoc">Get the complete result as JSON string.</div><div class="ttdef"><b>Definition</b> <a href="completion__processor_8cpp_source.html#l00083">completion_processor.cpp:83</a></div></div>
 <div class="ttc" id="aclassResponseConcatenator_html_ae3ad686d308aef59ff97287971dee2de"><div class="ttname"><a href="classResponseConcatenator.html#ae3ad686d308aef59ff97287971dee2de">ResponseConcatenator::set_callback</a></div><div class="ttdeci">void set_callback(CharArrayFn callback, bool callWithJSON=false)</div><div class="ttdoc">Set a callback to be invoked after each chunk is processed.</div><div class="ttdef"><b>Definition</b> <a href="completion__processor_8h_source.html#l00067">completion_processor.h:67</a></div></div>
-<div class="ttc" id="agroup__c__api_html_ga6f2f5d43a4bf1ae52b05c602e6ee3a8f"><div class="ttname"><a href="group__c__api.html#ga6f2f5d43a4bf1ae52b05c602e6ee3a8f">LLMClient_Construct</a></div><div class="ttdeci">LLMClient * LLMClient_Construct(LLMProvider *llm)</div><div class="ttdoc">Construct local LLMClient (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00394">LLM_client.cpp:394</a></div></div>
-<div class="ttc" id="agroup__c__api_html_ga76b46ac93bf8735a0e2bb0e2cc34f4d0"><div class="ttname"><a href="group__c__api.html#ga76b46ac93bf8735a0e2bb0e2cc34f4d0">LLMClient_Set_SSL</a></div><div class="ttdeci">void LLMClient_Set_SSL(LLMClient *llm, const char *SSL_cert)</div><div class="ttdoc">Set SSL certificate (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00389">LLM_client.cpp:389</a></div></div>
-<div class="ttc" id="agroup__c__api_html_gae91722416d193cf4768f174b8b37aff7"><div class="ttname"><a href="group__c__api.html#gae91722416d193cf4768f174b8b37aff7">LLMClient_Construct_Remote</a></div><div class="ttdeci">LLMClient * LLMClient_Construct_Remote(const char *url, const int port, const char *API_key=&quot;&quot;)</div><div class="ttdoc">Construct remote LLMClient (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00399">LLM_client.cpp:399</a></div></div>
+<div class="ttc" id="agroup__c__api_html_ga6f2f5d43a4bf1ae52b05c602e6ee3a8f"><div class="ttname"><a href="group__c__api.html#ga6f2f5d43a4bf1ae52b05c602e6ee3a8f">LLMClient_Construct</a></div><div class="ttdeci">LLMClient * LLMClient_Construct(LLMProvider *llm)</div><div class="ttdoc">Construct local LLMClient (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00413">LLM_client.cpp:413</a></div></div>
+<div class="ttc" id="agroup__c__api_html_ga76b46ac93bf8735a0e2bb0e2cc34f4d0"><div class="ttname"><a href="group__c__api.html#ga76b46ac93bf8735a0e2bb0e2cc34f4d0">LLMClient_Set_SSL</a></div><div class="ttdeci">void LLMClient_Set_SSL(LLMClient *llm, const char *SSL_cert)</div><div class="ttdoc">Set SSL certificate (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00408">LLM_client.cpp:408</a></div></div>
+<div class="ttc" id="agroup__c__api_html_gae91722416d193cf4768f174b8b37aff7"><div class="ttname"><a href="group__c__api.html#gae91722416d193cf4768f174b8b37aff7">LLMClient_Construct_Remote</a></div><div class="ttdeci">LLMClient * LLMClient_Construct_Remote(const char *url, const int port, const char *API_key=&quot;&quot;)</div><div class="ttdoc">Construct remote LLMClient (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00418">LLM_client.cpp:418</a></div></div>
 <div class="ttc" id="astructHttpResult_html"><div class="ttname"><a href="structHttpResult.html">HttpResult</a></div><div class="ttdef"><b>Definition</b> <a href="ios__http__transport_8h_source.html#l00009">ios_http_transport.h:9</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->

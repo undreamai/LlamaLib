@@ -8,5 +8,5 @@ var searchData=
   ['completion_5',['completion',['../classLLM.html#a7e9e25d61ebba558111a74dd136e8c61',1,'LLM::completion()'],['../classLLMAgent.html#afb17d7be97ea8b561b5770b9c7f94659',1,'LLMAgent::completion()']]],
   ['completion_5fjson_6',['completion_json',['../classLLM.html#aa123c478d02e4ecff9e73da5be2f771b',1,'LLM::completion_json()'],['../classLLMAgent.html#a0a13f9a38043f95640411c2a4598f14f',1,'LLMAgent::completion_json()'],['../classLLMClient.html#a9613eb92ed2660c3e086754eaf1e3db6',1,'LLMClient::completion_json()'],['../classLLMService.html#add81f54b4e1d077338ed828bca5eb4f9',1,'LLMService::completion_json(const json &amp;data, CharArrayFn callback=nullptr, bool callbackWithJSON=true) override'],['../classLLMService.html#add81f54b4e1d077338ed828bca5eb4f9',1,'LLMService::completion_json(const json &amp;data, CharArrayFn callback=nullptr, bool callbackWithJSON=true) override']]],
   ['create_5fllm_5flibrary_7',['create_LLM_library',['../classLLMService.html#ac194e3210642288e650ed9f9194a69ee',1,'LLMService']]],
-  ['create_5fllm_5flibrary_5fbackend_8',['create_LLM_library_backend',['../classLLMService.html#a5aa62b2f1feb31a8977801c2bd2ed30d',1,'LLMService']]]
+  ['create_5fllm_5flibrary_5fbackend_8',['create_LLM_library_backend',['../classLLMService.html#a007564dfcf3c7c91b727f82a219c06d1',1,'LLMService']]]
 ];

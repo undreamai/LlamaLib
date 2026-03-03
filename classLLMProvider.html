@@ -47,7 +47,7 @@
   <td id="projectlogo"><img alt="Logo" src="logo_tiny.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">LlamaLib
-   &#160;<span id="projectnumber">v2.0.3</span>
+   &#160;<span id="projectnumber">v2.0.4</span>
    </div>
    <div id="projectbrief">Cross-platform library for local LLMs</div>
   </td>
@@ -194,6 +194,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a7031b71fe66ae3574d2015abe6d33cc1 inherit pub_methods_classLLMLocal" id="r_a7031b71fe66ae3574d2015abe6d33cc1"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMLocal.html#a7031b71fe66ae3574d2015abe6d33cc1">get_next_available_slot</a> ()=0</td></tr>
 <tr class="memdesc:a7031b71fe66ae3574d2015abe6d33cc1 inherit pub_methods_classLLMLocal"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get an available processing slot.  <br /></td></tr>
 <tr class="separator:a7031b71fe66ae3574d2015abe6d33cc1 inherit pub_methods_classLLMLocal"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f233be264bc94a50bed883739859d03 inherit pub_methods_classLLMLocal" id="r_a1f233be264bc94a50bed883739859d03"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMLocal.html#a1f233be264bc94a50bed883739859d03">get_slot_context_size</a> ()=0</td></tr>
+<tr class="memdesc:a1f233be264bc94a50bed883739859d03 inherit pub_methods_classLLMLocal"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get slot context size.  <br /></td></tr>
+<tr class="separator:a1f233be264bc94a50bed883739859d03 inherit pub_methods_classLLMLocal"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7bf773cf008c1b35b30d5c5a622bcea8 inherit pub_methods_classLLMLocal" id="r_a7bf773cf008c1b35b30d5c5a622bcea8"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLLMLocal.html#a7bf773cf008c1b35b30d5c5a622bcea8">save_slot</a> (int id_slot, const std::string &amp;filepath)</td></tr>
 <tr class="memdesc:a7bf773cf008c1b35b30d5c5a622bcea8 inherit pub_methods_classLLMLocal"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save slot state to file.  <br /></td></tr>
 <tr class="separator:a7bf773cf008c1b35b30d5c5a622bcea8 inherit pub_methods_classLLMLocal"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -340,7 +343,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="textblock"><p>Abstract class for <a class="el" href="classLLM.html" title="Abstract base class for Large Language Model operations.">LLM</a> service providers. </p>
 <p>Extends <a class="el" href="classLLMLocal.html" title="Abstract class for local LLM operations with slot management.">LLMLocal</a> with server functionality, debugging, logging, and advanced features like LoRA management </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8h_source.html#l00274">274</a> of file <a class="el" href="LLM_8h_source.html">LLM.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8h_source.html#l00278">278</a> of file <a class="el" href="LLM_8h_source.html">LLM.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ac778ad50369d60266e9e3a6799b443d4" name="ac778ad50369d60266e9e3a6799b443d4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac778ad50369d60266e9e3a6799b443d4">&#9670;&#160;</a></span>~LLMProvider()</h2>
@@ -404,7 +407,7 @@ Additional Inherited Members</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>JSON object ready for lora_list_json </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00361">361</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00362">362</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 
 </div>
 </div>
@@ -440,7 +443,7 @@ Additional Inherited Members</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>JSON object ready for lora_weight_json </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00331">331</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00332">332</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -582,7 +585,7 @@ Here is the caller graph for this function:</div>
 
 <p>Reimplemented in <a class="el" href="classLLMService.html#a303680807aba6210169bd64958d3d5d8">LLMService</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8h_source.html#l00301">301</a> of file <a class="el" href="LLM_8h_source.html">LLM.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8h_source.html#l00305">305</a> of file <a class="el" href="LLM_8h_source.html">LLM.h</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -724,7 +727,7 @@ Here is the caller graph for this function:</div>
 
 <p>Stop logging. </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00324">324</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00325">325</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 
 </div>
 </div>
@@ -754,7 +757,7 @@ Here is the caller graph for this function:</div>
 <p>List available LoRA adapters. </p>
 <dl class="section return"><dt>Returns</dt><dd>Vector of available LoRA adapters with paths </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00391">391</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00392">392</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -830,7 +833,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if configuration was successful, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00354">354</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00355">355</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -913,7 +916,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Vector of available LoRA adapters with paths </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00373">373</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00374">374</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -954,7 +957,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if configuration was successful, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00342">342</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00343">343</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1219,7 +1222,7 @@ Here is the caller graph for this function:</div>
 
 <p>Whether reasoning is enabled. </p>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8h_source.html#l00353">353</a> of file <a class="el" href="LLM_8h_source.html">LLM.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8h_source.html#l00357">357</a> of file <a class="el" href="LLM_8h_source.html">LLM.h</a>.</p>
 
 </div>
 </div>

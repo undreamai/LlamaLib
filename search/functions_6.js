@@ -13,8 +13,13 @@ var searchData=
   ['get_5finstances_10',['get_instances',['../classLLMProviderRegistry.html#a3e2cace34e86a7b20ed8a6b40d74930f',1,'LLMProviderRegistry']]],
   ['get_5flog_5fcallback_11',['get_log_callback',['../classLLMProviderRegistry.html#aa6ec65f1ff827d1102a3f7aeb2038d52',1,'LLMProviderRegistry']]],
   ['get_5fnext_5favailable_5fslot_12',['get_next_available_slot',['../classLLMLocal.html#a7031b71fe66ae3574d2015abe6d33cc1',1,'LLMLocal::get_next_available_slot()'],['../classLLMAgent.html#a80fea0b1a2c492521d14f3588d00337c',1,'LLMAgent::get_next_available_slot()'],['../classLLMClient.html#a1564f7ffcde80f00ffc57b72531d9882',1,'LLMClient::get_next_available_slot()'],['../classLLMService.html#aba6e99d9b6898d51eef3b20eb7c10dcc',1,'LLMService::get_next_available_slot() override'],['../classLLMService.html#aba6e99d9b6898d51eef3b20eb7c10dcc',1,'LLMService::get_next_available_slot() override']]],
-  ['get_5fresult_5fjson_13',['get_result_json',['../classResponseConcatenator.html#a8c7ab447055fa05f25571b5530332be7',1,'ResponseConcatenator']]],
-  ['get_5fslot_14',['get_slot',['../classLLMAgent.html#a4001c91cf9c5ce41ea2a744fbdb026ef',1,'LLMAgent']]],
-  ['get_5fsystem_5fprompt_15',['get_system_prompt',['../classLLMAgent.html#ae2d47c9ac540fd0c75402f7dffd04fe2',1,'LLMAgent']]],
-  ['get_5ftokens_16',['get_tokens',['../classResponseConcatenator.html#a63afa32b42313b46529f928e9e051b22',1,'ResponseConcatenator']]]
+  ['get_5foverflow_5fstrategy_13',['get_overflow_strategy',['../classLLMAgent.html#a7de95e67dab55017e7e1420307de6480',1,'LLMAgent']]],
+  ['get_5fprops_14',['get_props',['../classLLMService.html#a9bd4afb6376f5fffc4dc3272b200c0c8',1,'LLMService']]],
+  ['get_5fresult_5fjson_15',['get_result_json',['../classResponseConcatenator.html#a8c7ab447055fa05f25571b5530332be7',1,'ResponseConcatenator']]],
+  ['get_5fslot_16',['get_slot',['../classLLMAgent.html#a4001c91cf9c5ce41ea2a744fbdb026ef',1,'LLMAgent']]],
+  ['get_5fslot_5fcontext_5fsize_17',['get_slot_context_size',['../classLLMLocal.html#a1f233be264bc94a50bed883739859d03',1,'LLMLocal::get_slot_context_size()'],['../classLLMAgent.html#afa59516247e9fa3af6161877fcd2cb19',1,'LLMAgent::get_slot_context_size()'],['../classLLMClient.html#a5e38b8ad75b9d4c0c646dda28c1c97a9',1,'LLMClient::get_slot_context_size()'],['../classLLMService.html#af4628c91c28badf6fa8b588148d6fae0',1,'LLMService::get_slot_context_size() override'],['../classLLMService.html#af4628c91c28badf6fa8b588148d6fae0',1,'LLMService::get_slot_context_size() override']]],
+  ['get_5fsummarize_5fprompt_18',['get_summarize_prompt',['../classLLMAgent.html#af420dd1b84c146c68525975a9a858ef7',1,'LLMAgent']]],
+  ['get_5fsummary_19',['get_summary',['../classLLMAgent.html#a9de55fa1c2e6a2c3b56814896ed79b60',1,'LLMAgent']]],
+  ['get_5fsystem_5fprompt_20',['get_system_prompt',['../classLLMAgent.html#ae2d47c9ac540fd0c75402f7dffd04fe2',1,'LLMAgent']]],
+  ['get_5ftokens_21',['get_tokens',['../classResponseConcatenator.html#a63afa32b42313b46529f928e9e051b22',1,'ResponseConcatenator']]]
 ];

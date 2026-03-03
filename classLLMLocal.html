@@ -47,7 +47,7 @@
   <td id="projectlogo"><img alt="Logo" src="logo_tiny.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">LlamaLib
-   &#160;<span id="projectnumber">v2.0.3</span>
+   &#160;<span id="projectnumber">v2.0.4</span>
    </div>
    <div id="projectbrief">Cross-platform library for local LLMs</div>
   </td>
@@ -135,6 +135,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a7031b71fe66ae3574d2015abe6d33cc1" id="r_a7031b71fe66ae3574d2015abe6d33cc1"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7031b71fe66ae3574d2015abe6d33cc1">get_next_available_slot</a> ()=0</td></tr>
 <tr class="memdesc:a7031b71fe66ae3574d2015abe6d33cc1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get an available processing slot.  <br /></td></tr>
 <tr class="separator:a7031b71fe66ae3574d2015abe6d33cc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f233be264bc94a50bed883739859d03" id="r_a1f233be264bc94a50bed883739859d03"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1f233be264bc94a50bed883739859d03">get_slot_context_size</a> ()=0</td></tr>
+<tr class="memdesc:a1f233be264bc94a50bed883739859d03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get slot context size.  <br /></td></tr>
+<tr class="separator:a1f233be264bc94a50bed883739859d03"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7bf773cf008c1b35b30d5c5a622bcea8" id="r_a7bf773cf008c1b35b30d5c5a622bcea8"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7bf773cf008c1b35b30d5c5a622bcea8">save_slot</a> (int id_slot, const std::string &amp;filepath)</td></tr>
 <tr class="memdesc:a7bf773cf008c1b35b30d5c5a622bcea8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save slot state to file.  <br /></td></tr>
 <tr class="separator:a7bf773cf008c1b35b30d5c5a622bcea8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -307,7 +310,7 @@ Additional Inherited Members</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>JSON object ready for slot_json </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00296">296</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00297">297</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -391,6 +394,41 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
+<a id="a1f233be264bc94a50bed883739859d03" name="a1f233be264bc94a50bed883739859d03"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1f233be264bc94a50bed883739859d03">&#9670;&#160;</a></span>get_slot_context_size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual int LLMLocal::get_slot_context_size </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get slot context size. </p>
+<dl class="section return"><dt>Returns</dt><dd>Slot context size, or -1 if not determined </dd></dl>
+
+<p>Implemented in <a class="el" href="classLLMAgent.html#afa59516247e9fa3af6161877fcd2cb19">LLMAgent</a>, <a class="el" href="classLLMClient.html#a5e38b8ad75b9d4c0c646dda28c1c97a9">LLMClient</a>, <a class="el" href="classLLMService.html#af4628c91c28badf6fa8b588148d6fae0">LLMService</a>, and <a class="el" href="classLLMService.html#af4628c91c28badf6fa8b588148d6fae0">LLMService</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMLocal_a1f233be264bc94a50bed883739859d03_icgraph.svg" width="1350" height="130"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+
+</div>
+</div>
 <a id="a37eff46751edf994f581c432c821f9af" name="a37eff46751edf994f581c432c821f9af"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a37eff46751edf994f581c432c821f9af">&#9670;&#160;</a></span>load_slot()</h2>
 
@@ -428,7 +466,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Operation result string </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8h_source.html#l00238">238</a> of file <a class="el" href="LLM_8h_source.html">LLM.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8h_source.html#l00242">242</a> of file <a class="el" href="LLM_8h_source.html">LLM.h</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -469,7 +507,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Operation result string </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00305">305</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00306">306</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -515,7 +553,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Operation result string </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8h_source.html#l00232">232</a> of file <a class="el" href="LLM_8h_source.html">LLM.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8h_source.html#l00236">236</a> of file <a class="el" href="LLM_8h_source.html">LLM.h</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -567,7 +605,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Operation result string </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00317">317</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM_8cpp_source.html#l00318">318</a> of file <a class="el" href="LLM_8cpp_source.html">LLM.cpp</a>.</p>
 
 </div>
 </div>
