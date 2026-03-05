@@ -1084,7 +1084,7 @@ void run_all_tests(LLMService *llm_service, bool embedding)
     std::cout << std::endl << "-------- LLM remote client --------" << std::endl;
     LLMClient llm_remote_client("http://localhost", 8080);
     llm_service->start_server("", 8080);
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     if (embedding) run_LLM_embedding_tests(&llm_remote_client);
     else run_LLMLocal_tests(&llm_remote_client);
     llm_service->stop_server();
@@ -1095,7 +1095,7 @@ void run_all_tests(LLMService *llm_service, bool embedding)
     LLMClient llm_remote_client_SSL("https://localhost", 8080);
     set_SSL(llm_service, &llm_remote_client_SSL);
     llm_service->start_server("", 8080);
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     if (embedding) run_LLM_embedding_tests(&llm_remote_client_SSL);
     else run_LLMLocal_tests(&llm_remote_client_SSL);
     llm_service->stop_server();
