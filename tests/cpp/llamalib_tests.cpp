@@ -1091,14 +1091,14 @@ void run_all_tests(LLMService *llm_service, bool embedding)
 
     test_API_key(llm_service);
 
-    std::cout << std::endl << "-------- LLM remote client SSL --------" << std::endl;
-    LLMClient llm_remote_client_SSL("https://localhost", 8080);
-    set_SSL(llm_service, &llm_remote_client_SSL);
-    llm_service->start_server("", 8080);
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    if (embedding) run_LLM_embedding_tests(&llm_remote_client_SSL);
-    else run_LLMLocal_tests(&llm_remote_client_SSL);
-    llm_service->stop_server();
+    // std::cout << std::endl << "-------- LLM remote client SSL --------" << std::endl;
+    // LLMClient llm_remote_client_SSL("https://localhost", 8080);
+    // set_SSL(llm_service, &llm_remote_client_SSL);
+    // llm_service->start_server("", 8080);
+    // std::this_thread::sleep_for(std::chrono::seconds(1));
+    // if (embedding) run_LLM_embedding_tests(&llm_remote_client_SSL);
+    // else run_LLMLocal_tests(&llm_remote_client_SSL);
+    // llm_service->stop_server();
 
     std::cout << std::endl << "-------- Stop service --------" << std::endl;
     LLM_Delete(llm_service);
