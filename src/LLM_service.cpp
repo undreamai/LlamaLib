@@ -220,7 +220,7 @@ void LLMService::init(int argc, char **argv)
 
         // for consistency between server router mode and single-model mode, we set the same model name as alias
         if (params->model_alias.empty() && !params->model.name.empty()) {
-            params->model_alias = params->model.name;
+            params->model_alias.insert(params->model.name);
         }
 
         common_init();
@@ -244,8 +244,8 @@ void LLMService::init(int argc, char **argv)
         routes = new server_routes(*params, *ctx_server);
         routes->update_meta(*ctx_server);
 
-        params->chat_template = detect_chat_template();
-        LOG_INF("chat_template: %s\n", params->chat_template.c_str());
+        // params->chat_template = detect_chat_template();
+        // LOG_INF("chat_template: %s\n", params->chat_template.c_str());
 
         ctx_server->impl->queue_tasks.on_new_task([this](server_task && task)
                                             { this->ctx_server->impl->process_single_task(std::move(task)); });
@@ -261,31 +261,31 @@ void LLMService::init(int argc, char **argv)
 
 void LLMService::enable_reasoning(bool reasoning) {
     LLMProvider::enable_reasoning(reasoning);
-    if (ctx_server != nullptr) ctx_server->impl->oai_parser_opt.enable_thinking = reasoning_enabled;
+    if (ctx_server != nullptr) ctx_server->impl->chat_params.enable_thinking = reasoning_enabled;
 }
 
-const std::string LLMService::detect_chat_template()
-{
-    const char *chat_template_jinja = common_chat_templates_source(ctx_server->impl->chat_templates.get());
-    int chat_template_value = llm_chat_detect_template(chat_template_jinja);
-    std::vector<const char *> supported_tmpl;
-    int res = llama_chat_builtin_templates(nullptr, 0);
-    if (res > 0)
-    {
-        supported_tmpl.resize(res);
-        llama_chat_builtin_templates(supported_tmpl.data(), supported_tmpl.size());
-        for (const auto &key : supported_tmpl)
-        {
-            llm_chat_template val = llm_chat_template_from_str(key);
-            if ((int)val == chat_template_value)
-            {
-                return key;
-                break;
-            }
-        }
-    }
-    return "";
-}
+// const std::string LLMService::detect_chat_template()
+// {
+//     const char *chat_template_jinja = common_chat_templates_source(ctx_server->impl->chat_templates.get());
+//     int chat_template_value = llm_chat_detect_template(chat_template_jinja);
+//     std::vector<const char *> supported_tmpl;
+//     int res = llama_chat_builtin_templates(nullptr, 0);
+//     if (res > 0)
+//     {
+//         supported_tmpl.resize(res);
+//         llama_chat_builtin_templates(supported_tmpl.data(), supported_tmpl.size());
+//         for (const auto &key : supported_tmpl)
+//         {
+//             llm_chat_template val = llm_chat_template_from_str(key);
+//             if ((int)val == chat_template_value)
+//             {
+//                 return key;
+//                 break;
+//             }
+//         }
+//     }
+//     return "";
+// }
 
 void LLMService::debug(int debug_level)
 {
@@ -532,7 +532,7 @@ std::string LLMService::encapsulate_route(const json &body, server_http_context:
 
     try
     {
-        server_http_req req{ {}, {}, "", body.dump(), always_false };
+        server_http_req req{ {}, {}, "", "", body.dump(), always_false };
         return route_handler(req)->data;
     }
     catch (...)
@@ -550,7 +550,7 @@ std::string LLMService::apply_template_json(const json &body)
     json copy = body;
     json data = oaicompat_chat_params_parse(
         copy,
-        ctx_server->impl->oai_parser_opt,
+        ctx_server->impl->chat_params,
         files);
     return safe_json_to_str({{"prompt", std::move(data.at("prompt"))}});
 }
@@ -591,7 +591,7 @@ std::string LLMService::completion_json(const json &data_in, CharArrayFn callbac
         json data = data_in;
         data["stream"] = stream;
 
-        server_http_req req{ {}, {}, "", data.dump(), always_false };
+        server_http_req req{ {}, {}, "", "", data.dump(), always_false };
         auto result = routes->post_completions(req);
         if (result->status != 200)
         {
@@ -652,7 +652,7 @@ std::string LLMService::slot_json(const json &data)
 
         server_task task(task_type);
         task.id = ctx_server->impl->queue_tasks.get_new_id();
-        task.slot_action.slot_id = id_slot;
+        task.slot_action.id_slot = id_slot;
 
         if (action == "save" || action == "restore")
         {
@@ -712,7 +712,7 @@ std::unique_ptr<server_http_res> LLMService::get_props(){
     if (get_status_code() < 0 || setjmp(get_jump_point()) != 0)
         return nullptr;
 
-    server_http_req req{ {}, {}, "", "", always_false };
+    server_http_req req{ {}, {}, "", "", "", always_false };
     auto result = routes->get_props(req);
 
     json data = json::parse(result->data);
