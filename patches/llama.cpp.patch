@@ -1,8 +1,8 @@
 diff --git a/common/common.h b/common/common.h
-index b9566df62..b3f8f2363 100644
+index c5a803757..255c108ca 100644
 --- a/common/common.h
 +++ b/common/common.h
-@@ -497,7 +497,9 @@ struct common_params {
+@@ -539,7 +539,9 @@ struct common_params {
      std::vector<std::string> api_keys;
  
      std::string ssl_file_key  = "";                                                                         // NOLINT
@@ -48,7 +48,7 @@ index f0f8471b5..c1eb92d7e 100644
  // set via common_log_set_verbosity()
  extern int common_log_verbosity_thold;
 diff --git a/ggml/src/CMakeLists.txt b/ggml/src/CMakeLists.txt
-index 6192a8704..e5c03ff28 100644
+index 265023733..9fc397404 100644
 --- a/ggml/src/CMakeLists.txt
 +++ b/ggml/src/CMakeLists.txt
 @@ -136,18 +136,6 @@ endif()
@@ -80,10 +80,10 @@ index 6192a8704..e5c03ff28 100644
  
  add_library(ggml-base
 diff --git a/ggml/src/ggml-hip/CMakeLists.txt b/ggml/src/ggml-hip/CMakeLists.txt
-index 23b688991..820bb4887 100644
+index 80037d243..19ea71b7c 100644
 --- a/ggml/src/ggml-hip/CMakeLists.txt
 +++ b/ggml/src/ggml-hip/CMakeLists.txt
-@@ -132,7 +132,7 @@ else()
+@@ -134,7 +134,7 @@ else()
  endif()
  
  if (GGML_STATIC)
@@ -93,22 +93,22 @@ index 23b688991..820bb4887 100644
  
  target_link_libraries(ggml-hip PRIVATE ggml-base hip::host roc::rocblas roc::hipblas)
 diff --git a/ggml/src/ggml-metal/ggml-metal-context.h b/ggml/src/ggml-metal/ggml-metal-context.h
-index ec2b686b7..513da04b7 100644
+index abf4b06ed..a7f73fdda 100644
 --- a/ggml/src/ggml-metal/ggml-metal-context.h
 +++ b/ggml/src/ggml-metal/ggml-metal-context.h
-@@ -19,6 +19,7 @@ void ggml_metal_synchronize(ggml_metal_t ctx);
+@@ -21,6 +21,7 @@ void ggml_metal_synchronize(ggml_metal_t ctx);
  
  void ggml_metal_set_tensor_async(ggml_metal_t ctx, struct ggml_tensor * tensor, const void * data, size_t offset, size_t size);
  void ggml_metal_get_tensor_async(ggml_metal_t ctx, const struct ggml_tensor * tensor, void * data, size_t offset, size_t size);
 +void ggml_metal_get_tensor_async_staged_copy(ggml_metal_t ctx, const struct ggml_tensor * tensor, void * data, size_t offset, size_t size);
+ bool ggml_metal_cpy_tensor_async(ggml_metal_t ctx_src, ggml_metal_t ctx_dst, const struct ggml_tensor * src, struct ggml_tensor * dst);
  
  enum ggml_status ggml_metal_graph_compute (ggml_metal_t ctx, struct ggml_cgraph * gf);
- void             ggml_metal_graph_optimize(ggml_metal_t ctx, struct ggml_cgraph * gf);
 diff --git a/ggml/src/ggml-metal/ggml-metal-context.m b/ggml/src/ggml-metal/ggml-metal-context.m
-index 42a35736e..e5fbf1268 100644
+index 5d3a8ce41..18ca6016e 100644
 --- a/ggml/src/ggml-metal/ggml-metal-context.m
 +++ b/ggml/src/ggml-metal/ggml-metal-context.m
-@@ -312,6 +312,66 @@ void ggml_metal_set_tensor_async(ggml_metal_t ctx, struct ggml_tensor * tensor,
+@@ -326,6 +326,66 @@ void ggml_metal_set_tensor_async(ggml_metal_t ctx, struct ggml_tensor * tensor,
      }
  }
  
@@ -175,9 +175,9 @@ index 42a35736e..e5fbf1268 100644
  void ggml_metal_get_tensor_async(ggml_metal_t ctx, const struct ggml_tensor * tensor, void * data, size_t offset, size_t size) {
      @autoreleasepool {
          id<MTLDevice> device = ggml_metal_device_get_obj(ctx->dev);
-@@ -320,7 +380,11 @@ void ggml_metal_get_tensor_async(ggml_metal_t ctx, const struct ggml_tensor * te
-                                                               options:MTLResourceStorageModeShared
-                                                           deallocator:nil];
+@@ -334,7 +394,11 @@ void ggml_metal_get_tensor_async(ggml_metal_t ctx, const struct ggml_tensor * te
+                                                          options:MTLResourceStorageModeShared
+                                                      deallocator:nil];
  
 -        GGML_ASSERT(buf_dst);
 +        if (!buf_dst)
@@ -189,10 +189,10 @@ index 42a35736e..e5fbf1268 100644
          struct ggml_metal_buffer_id bid_src = ggml_metal_get_buffer_id(tensor);
          if (bid_src.metal == nil) {
 diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-index 08fd044ca..b808959f7 100644
+index 23d6d39e0..052f93ad2 100644
 --- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 +++ b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
-@@ -103,7 +103,7 @@ static bool is_pow2(uint32_t x) { return x > 1 && (x & (x-1)) == 0; }
+@@ -104,7 +104,7 @@ static bool is_pow2(uint32_t x) { return x > 1 && (x & (x-1)) == 0; }
          if (err_ != vk::Result::eSuccess) {                         \
              fprintf(stderr, "ggml_vulkan: %s error %s at %s:%d\n",  \
                  #err, to_string(err_).c_str(), __FILE__, __LINE__); \
@@ -202,7 +202,7 @@ index 08fd044ca..b808959f7 100644
      } while (0)
  
 diff --git a/ggml/src/ggml.c b/ggml/src/ggml.c
-index 1725ad165..3fe2de85d 100644
+index d644cca8a..789ca0174 100644
 --- a/ggml/src/ggml.c
 +++ b/ggml/src/ggml.c
 @@ -253,7 +253,12 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {
@@ -220,10 +220,10 @@ index 1725ad165..3fe2de85d 100644
  
  // ggml_print_backtrace is registered with std::set_terminate by ggml.cpp
 diff --git a/tools/mtmd/CMakeLists.txt b/tools/mtmd/CMakeLists.txt
-index 751440af3..26435cf6e 100644
+index 3be3c27e8..54e2e4132 100644
 --- a/tools/mtmd/CMakeLists.txt
 +++ b/tools/mtmd/CMakeLists.txt
-@@ -79,17 +79,3 @@ if (TARGET mtmd)
+@@ -82,17 +82,3 @@ if (TARGET mtmd)
                              "It must not link against common")
      endif()
  endif()
@@ -242,7 +242,7 @@ index 751440af3..26435cf6e 100644
 -target_link_libraries  (${TARGET} PRIVATE common mtmd Threads::Threads)
 -target_compile_features(${TARGET} PRIVATE cxx_std_17)
 diff --git a/tools/server/server-context.cpp b/tools/server/server-context.cpp
-index 82294d940..199ccf14c 100644
+index aafed4950..f80fed466 100644
 --- a/tools/server/server-context.cpp
 +++ b/tools/server/server-context.cpp
 @@ -16,6 +16,7 @@
@@ -253,7 +253,7 @@ index 82294d940..199ccf14c 100644
  
  // fix problem with std::min and std::max
  #if defined(_WIN32)
-@@ -61,8 +62,8 @@ struct server_slot {
+@@ -58,8 +59,8 @@ struct server_slot {
  
      // TODO: move members that belong to the task (such as `generated_text`, `has_new_line`) to task_results_state
      //       see https://github.com/ggml-org/llama.cpp/pull/18283#issuecomment-3710175837
@@ -264,7 +264,7 @@ index 82294d940..199ccf14c 100644
  
      // used to determine the slot that has been used the longest
      int64_t t_last_used = -1;
-@@ -545,7 +546,6 @@ public:
+@@ -546,7 +547,6 @@ public:
          }
      }
  
@@ -272,7 +272,7 @@ index 82294d940..199ccf14c 100644
      // note: accessing these fields outside of this class is not thread-safe
      // use server_context methods instead
  
-@@ -622,7 +622,6 @@ private:
+@@ -615,7 +615,6 @@ private:
          }
          sleeping = new_state;
      }
@@ -280,7 +280,7 @@ index 82294d940..199ccf14c 100644
      // load the model and initialize llama_context
      // this may also be called to resume from sleeping state
      bool load_model(const common_params & params) {
-@@ -642,6 +641,11 @@ private:
+@@ -635,6 +634,11 @@ private:
              return false;
          }
  
@@ -292,8 +292,8 @@ index 82294d940..199ccf14c 100644
          vocab = llama_model_get_vocab(model);
  
          n_ctx = llama_n_ctx(ctx);
-@@ -1184,7 +1188,7 @@ private:
-             slot.batch_spec = llama_batch_init(task.params.speculative.n_max + 1, 0, 1);
+@@ -1171,7 +1175,7 @@ private:
+             slot.smpl.reset();
          }
  
 -        slot.task = std::make_unique<const server_task>(std::move(task));
@@ -302,7 +302,7 @@ index 82294d940..199ccf14c 100644
          slot.state = slot.task->is_child()
              ? SLOT_STATE_WAIT_OTHER // wait for the parent to process prompt
 diff --git a/tools/server/server-http.cpp b/tools/server/server-http.cpp
-index 5d67e5722..f0bccd73d 100644
+index 129022a71..e2d39e2bd 100644
 --- a/tools/server/server-http.cpp
 +++ b/tools/server/server-http.cpp
 @@ -16,6 +16,30 @@
@@ -336,7 +336,7 @@ index 5d67e5722..f0bccd73d 100644
  class server_http_context::Impl {
  public:
      std::unique_ptr<httplib::Server> srv;
-@@ -54,6 +78,10 @@ bool server_http_context::init(const common_params & params) {
+@@ -60,6 +84,10 @@ bool server_http_context::init(const common_params & params) {
          srv.reset(
              new httplib::SSLServer(params.ssl_file_cert.c_str(), params.ssl_file_key.c_str())
          );
@@ -362,15 +362,15 @@ index 164f09b19..1fc9ba027 100644
      void cleanup_pending_task(int id_target);
  };
 diff --git a/tools/server/server.cpp b/tools/server/server.cpp
-index 1d9abf605..8c0d6b03d 100644
+index fab0bb587..0e6eaa31f 100644
 --- a/tools/server/server.cpp
 +++ b/tools/server/server.cpp
-@@ -66,7 +66,7 @@ static server_http_context::handler_t ex_wrapper(server_http_context::handler_t
+@@ -67,7 +67,7 @@ static server_http_context::handler_t ex_wrapper(server_http_context::handler_t
      };
  }
  
 -int main(int argc, char ** argv) {
 +int main_server(int argc, char ** argv) {
-     // own arguments required by this example
-     common_params params;
+     std::setlocale(LC_NUMERIC, "C");
  
+     // own arguments required by this example
