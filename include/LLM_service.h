@@ -236,7 +236,7 @@ private:
     /// @brief Auto-detect appropriate chat template
     /// @return Detected chat template string
     /// @details Analyzes the model to determine the best chat template format
-    const std::string detect_chat_template();
+    // const std::string detect_chat_template();
 
     /// @brief Escape reasoning by adding think tokens
     /// @param server_http_req request with original prompt
