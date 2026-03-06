@@ -1034,6 +1034,7 @@ void test_overflow(LLMService *llm_service, int n_ctx)
 {
     std::string system_prompt = "Say hi";
     LLMAgent *agent = new LLMAgent(llm_service, system_prompt);
+    agent->set_completion_params({{"seed", 0}, {"n_predict", 30}, {"temperature", 0}});
 
     int num_left = n_ctx - llm_service->tokenize(system_prompt).size();
     int num_messages = 8;
