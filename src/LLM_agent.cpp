@@ -229,6 +229,12 @@ void LLMAgent::summarize_history(const std::string &user_prompt)
         return apply_template(msgs);
     };
 
+    int n_keep_prev = n_keep;
+    json summary_prompt_msg = json::array({
+        ChatMessage(USER_ROLE, summarize_prompt).to_json()
+    });
+    n_keep = tokenize(apply_template(summary_prompt_msg)).size();
+
     try
     {
         // Walk history, flushing a summary call whenever the accumulating transcript
@@ -276,6 +282,8 @@ void LLMAgent::summarize_history(const std::string &user_prompt)
         history = json::array(); // clear history to avoid double-processing
         truncate_history(user_prompt);
     }
+
+    n_keep = n_keep_prev;
 }
 
 //================ C API ================//
