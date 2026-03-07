@@ -301,8 +301,9 @@ protected:
 
     /// @brief Build the full message list to send to the model
     /// @param user_prompt The current user message to append
+    /// @param include_history Whether to include the chat history
     /// @return JSON array: [system+summary, ...history, user_prompt]
-    json build_working_history(const std::string &user_prompt) const;
+    json build_working_history(const std::string &user_prompt, bool include_history=true) const;
 
     /// @brief Handle context overflow using the configured strategy before a chat call
     /// @param user_prompt The user prompt string about to be sent
