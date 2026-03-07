@@ -41,12 +41,14 @@ json LLMAgent::build_system_history() const
     return working_history;
 }
 
-json LLMAgent::build_working_history(const std::string &user_prompt) const
+json LLMAgent::build_working_history(const std::string &user_prompt, bool include_history) const
 {
     json working_history = build_system_history();
-    for (const auto &m : history) working_history.push_back(m);
-    if (!user_prompt.empty())
-        working_history.push_back(ChatMessage(USER_ROLE, user_prompt).to_json());
+    if (include_history)
+    {
+        for (const auto &m : history) working_history.push_back(m);
+    }
+    working_history.push_back(ChatMessage(USER_ROLE, user_prompt).to_json());
     return working_history;
 }
 
@@ -54,9 +56,7 @@ void LLMAgent::set_n_keep()
 {
     try
     {
-        json working_history = build_system_history();
-        working_history.push_back(ChatMessage(USER_ROLE, "").to_json());
-        n_keep = tokenize(apply_template(working_history)).size();
+        n_keep = tokenize(apply_template(build_working_history("", false))).size();
     } catch(...){ }
 }
 
