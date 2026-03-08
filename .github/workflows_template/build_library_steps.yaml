@@ -123,11 +123,6 @@ jobs:
           sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list https://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
           sudo apt-get update -y
           sudo apt-get install -y build-essential vulkan-sdk
-
-      - name: Copy Vulcan
-        id: copy_vulkan_linux
-        if: contains(matrix.arch, 'vulkan')
-        run: |
           cp /lib/x86_64-linux-gnu/libvulkan.so.1 build/libs/
 
       - uses: Jimver/cuda-toolkit@v0.2.15
@@ -247,21 +242,13 @@ jobs:
 
 ################################ Android ################################
 
-      - name: Install Vulkan headers
-        id: setup_vulcan_android
-        if: contains(matrix.arch, 'vulkan')
-        run: |
-          git submodule add https://github.com/KhronosGroup/Vulkan-Headers.git third_party/Vulkan-Headers
-          cd third_party/Vulkan-Headers
-          git checkout v1.3.275
-
       - name: Build
         id: cmake_build_android
         run: |
           export LD_LIBRARY_PATH=""
           export NDK=`ls -d /usr/local/lib/android/sdk/ndk/27.*`
           cd build
-          cmake .. -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_PLATFORM=android-29 -DANDROID_ABI=${{ matrix.ABI }} ${{ env.CMAKE_VARS }}
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_PLATFORM=android-23 -DANDROID_ABI=${{ matrix.ABI }} ${{ env.CMAKE_VARS }}
           cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
 ################################ iOS ################################

@@ -53,11 +53,6 @@ jobs:
             sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list https://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
             sudo apt-get update -y
             sudo apt-get install -y build-essential vulkan-sdk
-
-        - id: copy_vulkan_linux
-          if: contains(matrix.arch, 'vulkan')
-          name: Copy Vulcan
-          run: |
             cp /lib/x86_64-linux-gnu/libvulkan.so.1 build/libs/
 
         - id: setup_cuda_linux
@@ -545,8 +540,6 @@ jobs:
             ABI: arm64-v8a
           - arch: android-x64
             ABI: x86_64
-          - arch: android-arm64-vulkan
-            ABI: arm64-v8a
 
     steps:
         - id: setup_libs_linux
@@ -568,23 +561,6 @@ jobs:
             echo "CMAKE_VARS=-DARCHITECTURE=${{ matrix.arch }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/libs ${{ matrix.cmake_vars }}" >> $GITHUB_ENV
           shell: bash
 
-        - id: setup_vulkan_linux
-          if: contains(matrix.arch, 'vulkan')
-          name: Dependencies Vulcan
-          run: |
-            wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
-            sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list https://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
-            sudo apt-get update -y
-            sudo apt-get install -y build-essential vulkan-sdk
-
-        - id: setup_vulcan_android
-          if: contains(matrix.arch, 'vulkan')
-          name: Install Vulkan headers
-          run: |
-            git submodule add https://github.com/KhronosGroup/Vulkan-Headers.git third_party/Vulkan-Headers
-            cd third_party/Vulkan-Headers
-            git checkout v1.3.275
-
 
         - id: cpu-cores
           name: Get number of CPU cores
@@ -601,7 +577,7 @@ jobs:
             export LD_LIBRARY_PATH=""
             export NDK=`ls -d /usr/local/lib/android/sdk/ndk/27.*`
             cd build
-            cmake .. -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_PLATFORM=android-29 -DANDROID_ABI=${{ matrix.ABI }} ${{ env.CMAKE_VARS }}
+            cmake .. -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_PLATFORM=android-23 -DANDROID_ABI=${{ matrix.ABI }} ${{ env.CMAKE_VARS }}
             cmake --build . --config Release -j ${{ steps.cpu-cores.outputs.count }}
 
 
