@@ -8,7 +8,7 @@ var classLLMAgent =
     [ "build_completion_json", "classLLMAgent.html#a5f98db59a967cc0cac3d6fbe422d6a36", null ],
     [ "build_slot_json", "classLLMAgent.html#aa90275ac8b842f52ba41a87480c6e9e1", null ],
     [ "build_system_history", "classLLMAgent.html#ad5a4708a9f319ffc2ec7798057901006", null ],
-    [ "build_working_history", "classLLMAgent.html#a89677b14b18e12ffd6e0cd5c9064111b", null ],
+    [ "build_working_history", "classLLMAgent.html#a0aa1c2bd687d3178c533260e9b65bb99", null ],
     [ "cancel", "classLLMAgent.html#ae9de3ca5ecd05d98ae6dffbf2f786b03", null ],
     [ "cancel", "classLLMAgent.html#a956b159c96d3fe63ece9b39922bee15d", null ],
     [ "chat", "classLLMAgent.html#aecac08f1cbc4ed079cc75bc98f08d4ce", null ],

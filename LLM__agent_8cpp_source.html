@@ -47,7 +47,7 @@
   <td id="projectlogo"><img alt="Logo" src="logo_tiny.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">LlamaLib
-   &#160;<span id="projectnumber">v2.0.4</span>
+   &#160;<span id="projectnumber">v2.0.5</span>
    </div>
    <div id="projectbrief">Cross-platform library for local LLMs</div>
   </td>
@@ -172,23 +172,23 @@ $(function(){initNavTree('LLM__agent_8cpp_source.html',''); initResizable(); });
 </div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
 <div class="foldopen" id="foldopen00044" data-start="{" data-end="}">
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="classLLMAgent.html#a89677b14b18e12ffd6e0cd5c9064111b">   44</a></span>json <a class="code hl_function" href="classLLMAgent.html#a89677b14b18e12ffd6e0cd5c9064111b">LLMAgent::build_working_history</a>(<span class="keyword">const</span> std::string &amp;user_prompt)<span class="keyword"> const</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="classLLMAgent.html#a0aa1c2bd687d3178c533260e9b65bb99">   44</a></span>json <a class="code hl_function" href="classLLMAgent.html#a0aa1c2bd687d3178c533260e9b65bb99">LLMAgent::build_working_history</a>(<span class="keyword">const</span> std::string &amp;user_prompt, <span class="keywordtype">bool</span> include_history)<span class="keyword"> const</span></div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="keyword"></span>{</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    json working_history = <a class="code hl_function" href="classLLMAgent.html#ad5a4708a9f319ffc2ec7798057901006">build_system_history</a>();</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;m : history) working_history.push_back(m);</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <span class="keywordflow">if</span> (!user_prompt.empty())</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>        working_history.push_back(<a class="code hl_struct" href="structChatMessage.html">ChatMessage</a>(USER_ROLE, user_prompt).<a class="code hl_function" href="structChatMessage.html#aa67f5d826632f3eaf8c209f2a18ab8d9">to_json</a>());</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="keywordflow">return</span> working_history;</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>}</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="keywordflow">if</span> (include_history)</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    {</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>        <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;m : history) working_history.push_back(m);</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    }</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    working_history.push_back(<a class="code hl_struct" href="structChatMessage.html">ChatMessage</a>(USER_ROLE, user_prompt).<a class="code hl_function" href="structChatMessage.html#aa67f5d826632f3eaf8c209f2a18ab8d9">to_json</a>());</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <span class="keywordflow">return</span> working_history;</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>}</div>
 </div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="keywordtype">void</span> LLMAgent::set_n_keep()</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>{</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keywordflow">try</span></div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    {</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        json working_history = <a class="code hl_function" href="classLLMAgent.html#ad5a4708a9f319ffc2ec7798057901006">build_system_history</a>();</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        working_history.push_back(<a class="code hl_struct" href="structChatMessage.html">ChatMessage</a>(USER_ROLE, <span class="stringliteral">&quot;&quot;</span>).to_json());</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        <a class="code hl_variable" href="classLLM.html#a24116c2f24203d84810fb317d7a34e04">n_keep</a> = <a class="code hl_function" href="classLLM.html#a625ad6e037e16cdc61282150ef465229">tokenize</a>(<a class="code hl_function" href="classLLM.html#a390a093c9b269c1c342034baced79106">apply_template</a>(working_history)).size();</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="keywordtype">void</span> LLMAgent::set_n_keep()</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>{</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordflow">try</span></div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    {</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        <a class="code hl_variable" href="classLLM.html#a24116c2f24203d84810fb317d7a34e04">n_keep</a> = <a class="code hl_function" href="classLLM.html#a625ad6e037e16cdc61282150ef465229">tokenize</a>(<a class="code hl_function" href="classLLM.html#a390a093c9b269c1c342034baced79106">apply_template</a>(<a class="code hl_function" href="classLLMAgent.html#a0aa1c2bd687d3178c533260e9b65bb99">build_working_history</a>(<span class="stringliteral">&quot;&quot;</span>, <span class="keyword">false</span>))).size();</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    } <span class="keywordflow">catch</span>(...){ }</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>}</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
@@ -202,7 +202,7 @@ $(function(){initNavTree('LLM__agent_8cpp_source.html',''); initResizable(); });
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>        <a class="code hl_function" href="classLLMAgent.html#a152bf0a1849d69775af9a57144291f56">handle_overflow</a>(user_prompt);</div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    <span class="comment">// Apply template to get the formatted prompt</span></div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    std::string query_prompt = <a class="code hl_function" href="classLLM.html#a390a093c9b269c1c342034baced79106">apply_template</a>(<a class="code hl_function" href="classLLMAgent.html#a89677b14b18e12ffd6e0cd5c9064111b">build_working_history</a>(user_prompt));</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    std::string query_prompt = <a class="code hl_function" href="classLLM.html#a390a093c9b269c1c342034baced79106">apply_template</a>(<a class="code hl_function" href="classLLMAgent.html#a0aa1c2bd687d3178c533260e9b65bb99">build_working_history</a>(user_prompt));</div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="keywordflow">if</span> (debug_prompt)</div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    {</div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>        <a class="code hl_class" href="classLLMProviderRegistry.html">LLMProviderRegistry</a> &amp;registry = <a class="code hl_function" href="classLLMProviderRegistry.html#ada6617f6f572dc8c91e8da0700c625ce">LLMProviderRegistry::instance</a>();</div>
@@ -317,7 +317,7 @@ $(function(){initNavTree('LLM__agent_8cpp_source.html',''); initResizable(); });
 <div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    <span class="keywordtype">int</span> ctx = <a class="code hl_function" href="classLLMAgent.html#afa59516247e9fa3af6161877fcd2cb19">get_slot_context_size</a>();</div>
 <div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>    <span class="keywordflow">if</span> (ctx &lt;= 0) <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
 <div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span> </div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    <span class="keywordtype">int</span> prompt_tokens = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(<a class="code hl_function" href="classLLM.html#a625ad6e037e16cdc61282150ef465229">tokenize</a>(<a class="code hl_function" href="classLLM.html#a390a093c9b269c1c342034baced79106">apply_template</a>(<a class="code hl_function" href="classLLMAgent.html#a89677b14b18e12ffd6e0cd5c9064111b">build_working_history</a>(user_prompt))).size());</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    <span class="keywordtype">int</span> prompt_tokens = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(<a class="code hl_function" href="classLLM.html#a625ad6e037e16cdc61282150ef465229">tokenize</a>(<a class="code hl_function" href="classLLM.html#a390a093c9b269c1c342034baced79106">apply_template</a>(<a class="code hl_function" href="classLLMAgent.html#a0aa1c2bd687d3178c533260e9b65bb99">build_working_history</a>(user_prompt))).size());</div>
 <div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    <span class="keywordflow">if</span> (prompt_tokens &lt; ctx) <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
 <div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span> </div>
 <div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>    <span class="keywordflow">switch</span> (overflow_strategy)</div>
@@ -345,7 +345,7 @@ $(function(){initNavTree('LLM__agent_8cpp_source.html',''); initResizable(); });
 <div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    <span class="keywordtype">int</span> target_tokens = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(ctx * target_context_ratio);</div>
 <div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span> </div>
 <div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>    <span class="keyword">auto</span> measure = [&amp;]() -&gt; <span class="keywordtype">int</span> {</div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>        <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(<a class="code hl_function" href="classLLM.html#a625ad6e037e16cdc61282150ef465229">tokenize</a>(<a class="code hl_function" href="classLLM.html#a390a093c9b269c1c342034baced79106">apply_template</a>(<a class="code hl_function" href="classLLMAgent.html#a89677b14b18e12ffd6e0cd5c9064111b">build_working_history</a>(user_prompt))).size());</div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>        <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(<a class="code hl_function" href="classLLM.html#a625ad6e037e16cdc61282150ef465229">tokenize</a>(<a class="code hl_function" href="classLLM.html#a390a093c9b269c1c342034baced79106">apply_template</a>(<a class="code hl_function" href="classLLMAgent.html#a0aa1c2bd687d3178c533260e9b65bb99">build_working_history</a>(user_prompt))).size());</div>
 <div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>    };</div>
 <div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span> </div>
 <div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    <span class="keywordflow">while</span> (history.size() &gt;= 2 &amp;&amp; measure() &gt; target_tokens)</div>
@@ -376,217 +376,225 @@ $(function(){initNavTree('LLM__agent_8cpp_source.html',''); initResizable(); });
 <div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>        <span class="keywordflow">return</span> <a class="code hl_function" href="classLLM.html#a390a093c9b269c1c342034baced79106">apply_template</a>(msgs);</div>
 <div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>    };</div>
 <div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span> </div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    <span class="keywordflow">try</span></div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    {</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>        <span class="comment">// Walk history, flushing a summary call whenever the accumulating transcript</span></div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>        <span class="comment">// would itself overflow the context.</span></div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>        std::string transcript;</div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i=0; i&lt;history.size(); i+=2)</div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>        {</div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>            std::string line = <span class="stringliteral">&quot;&quot;</span>;</div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j=0; j&lt;2; j++)</div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>            {</div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>                <span class="keywordflow">if</span> (i+j &gt;= history.size()-1) <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>                json msg = history[i+j];</div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>                std::string role    = msg.at(<span class="stringliteral">&quot;role&quot;</span>).get&lt;std::string&gt;();</div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>                std::string content = msg.at(<span class="stringliteral">&quot;content&quot;</span>).get&lt;std::string&gt;();</div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>                line += role + <span class="stringliteral">&quot;: &quot;</span> + content + <span class="stringliteral">&quot;\n&quot;</span>;</div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>            }</div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span> </div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>            <span class="comment">// Flush before appending if this line would push the prompt over the limit</span></div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>            <span class="keywordflow">if</span> (!transcript.empty() &amp;&amp; <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(<a class="code hl_function" href="classLLM.html#a625ad6e037e16cdc61282150ef465229">tokenize</a>(build_summary_prompt(transcript + line)).size()) &gt;= ctx*0.75)</div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>            {</div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>                summary = <a class="code hl_function" href="classLLMAgent.html#afb17d7be97ea8b561b5770b9c7f94659">completion</a>(build_summary_prompt(transcript));</div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>                transcript = <span class="stringliteral">&quot;&quot;</span>;</div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>            }</div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>            transcript += line;</div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>        }</div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>        <span class="keywordflow">if</span> (!transcript.empty())</div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>            summary = <a class="code hl_function" href="classLLMAgent.html#afb17d7be97ea8b561b5770b9c7f94659">completion</a>(build_summary_prompt(transcript));</div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span> </div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>        <span class="comment">// History is now condensed into summary — clear the raw messages</span></div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>        history = json::array();</div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span> </div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>        <span class="comment">// The summary lives in the system message (injected by build_working_history).</span></div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>        <span class="comment">// If even system + summary + empty user message overflows the budget, discard it.</span></div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>        <span class="keywordtype">int</span> probe_tokens = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(<a class="code hl_function" href="classLLM.html#a625ad6e037e16cdc61282150ef465229">tokenize</a>(<a class="code hl_function" href="classLLM.html#a390a093c9b269c1c342034baced79106">apply_template</a>(<a class="code hl_function" href="classLLMAgent.html#a89677b14b18e12ffd6e0cd5c9064111b">build_working_history</a>(user_prompt))).size());</div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>        <span class="keywordtype">int</span> target_tokens = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(ctx * target_context_ratio);</div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>        <span class="keywordflow">if</span> (probe_tokens &gt; target_tokens)</div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>        {</div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>            std::cerr &lt;&lt; <span class="stringliteral">&quot;LLMAgent: summary itself exceeds context budget — discarding summary&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>            summary = <span class="stringliteral">&quot;&quot;</span>;</div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>        }</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>    }</div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>    <span class="keywordflow">catch</span> (<span class="keyword">const</span> std::exception &amp;e)</div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>    {</div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>        std::cerr &lt;&lt; <span class="stringliteral">&quot;LLMAgent: summarization failed (&quot;</span> &lt;&lt; e.what() &lt;&lt; <span class="stringliteral">&quot;), falling back to truncation&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>        history = json::array(); <span class="comment">// clear history to avoid double-processing</span></div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>        <a class="code hl_function" href="classLLMAgent.html#a1b2ce4f2eddc64953186861d0415a2f5">truncate_history</a>(user_prompt);</div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    <span class="keywordtype">int</span> n_keep_prev = <a class="code hl_variable" href="classLLM.html#a24116c2f24203d84810fb317d7a34e04">n_keep</a>;</div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    json summary_prompt_msg = json::array({</div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>        <a class="code hl_struct" href="structChatMessage.html">ChatMessage</a>(USER_ROLE, summarize_prompt).<a class="code hl_function" href="structChatMessage.html#aa67f5d826632f3eaf8c209f2a18ab8d9">to_json</a>()</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>    });</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>    <a class="code hl_variable" href="classLLM.html#a24116c2f24203d84810fb317d7a34e04">n_keep</a> = <a class="code hl_function" href="classLLM.html#a625ad6e037e16cdc61282150ef465229">tokenize</a>(<a class="code hl_function" href="classLLM.html#a390a093c9b269c1c342034baced79106">apply_template</a>(summary_prompt_msg)).size();</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span> </div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>    <span class="keywordflow">try</span></div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>    {</div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>        <span class="comment">// Walk history, flushing a summary call whenever the accumulating transcript</span></div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>        <span class="comment">// would itself overflow the context.</span></div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>        std::string transcript;</div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i=0; i&lt;history.size(); i+=2)</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>        {</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>            std::string line = <span class="stringliteral">&quot;&quot;</span>;</div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j=0; j&lt;2; j++)</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>            {</div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>                <span class="keywordflow">if</span> (i+j &gt;= history.size()-1) <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>                json msg = history[i+j];</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>                std::string role    = msg.at(<span class="stringliteral">&quot;role&quot;</span>).get&lt;std::string&gt;();</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>                std::string content = msg.at(<span class="stringliteral">&quot;content&quot;</span>).get&lt;std::string&gt;();</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>                line += role + <span class="stringliteral">&quot;: &quot;</span> + content + <span class="stringliteral">&quot;\n&quot;</span>;</div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>            }</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span> </div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>            <span class="comment">// Flush before appending if this line would push the prompt over the limit</span></div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>            <span class="keywordflow">if</span> (!transcript.empty() &amp;&amp; <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(<a class="code hl_function" href="classLLM.html#a625ad6e037e16cdc61282150ef465229">tokenize</a>(build_summary_prompt(transcript + line)).size()) &gt;= ctx*0.75)</div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>            {</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>                summary = <a class="code hl_function" href="classLLMAgent.html#afb17d7be97ea8b561b5770b9c7f94659">completion</a>(build_summary_prompt(transcript));</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>                transcript = <span class="stringliteral">&quot;&quot;</span>;</div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>            }</div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>            transcript += line;</div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>        }</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>        <span class="keywordflow">if</span> (!transcript.empty())</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>            summary = <a class="code hl_function" href="classLLMAgent.html#afb17d7be97ea8b561b5770b9c7f94659">completion</a>(build_summary_prompt(transcript));</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span> </div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>        <span class="comment">// History is now condensed into summary — clear the raw messages</span></div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>        history = json::array();</div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span> </div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>        <span class="comment">// The summary lives in the system message (injected by build_working_history).</span></div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>        <span class="comment">// If even system + summary + empty user message overflows the budget, discard it.</span></div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>        <span class="keywordtype">int</span> probe_tokens = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(<a class="code hl_function" href="classLLM.html#a625ad6e037e16cdc61282150ef465229">tokenize</a>(<a class="code hl_function" href="classLLM.html#a390a093c9b269c1c342034baced79106">apply_template</a>(<a class="code hl_function" href="classLLMAgent.html#a0aa1c2bd687d3178c533260e9b65bb99">build_working_history</a>(user_prompt))).size());</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>        <span class="keywordtype">int</span> target_tokens = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(ctx * target_context_ratio);</div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>        <span class="keywordflow">if</span> (probe_tokens &gt; target_tokens)</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>        {</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>            std::cerr &lt;&lt; <span class="stringliteral">&quot;LLMAgent: summary itself exceeds context budget — discarding summary&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>            summary = <span class="stringliteral">&quot;&quot;</span>;</div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>        }</div>
 <div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>    }</div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>}</div>
-</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span> </div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span><span class="comment">//================ C API ================//</span></div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span> </div>
-<div class="foldopen" id="foldopen00283" data-start="{" data-end="}">
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno"><a class="line" href="group__c__api.html#ga3d0d11a65566e013d3bf96e7c3a80876">  283</a></span><a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *<a class="code hl_function" href="group__c__api.html#ga3d0d11a65566e013d3bf96e7c3a80876">LLMAgent_Construct</a>(<a class="code hl_class" href="classLLMLocal.html">LLMLocal</a> *llm, <span class="keyword">const</span> <span class="keywordtype">char</span> *system_prompt_)</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>{</div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>    std::string system_prompt = system_prompt_ ? system_prompt_ : <span class="stringliteral">&quot;&quot;</span>;</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>    <span class="keywordflow">return</span> <span class="keyword">new</span> <a class="code hl_class" href="classLLMAgent.html">LLMAgent</a>(llm, system_prompt);</div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>    <span class="keywordflow">catch</span> (<span class="keyword">const</span> std::exception &amp;e)</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>    {</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>        std::cerr &lt;&lt; <span class="stringliteral">&quot;LLMAgent: summarization failed (&quot;</span> &lt;&lt; e.what() &lt;&lt; <span class="stringliteral">&quot;), falling back to truncation&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>        history = json::array(); <span class="comment">// clear history to avoid double-processing</span></div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>        <a class="code hl_function" href="classLLMAgent.html#a1b2ce4f2eddc64953186861d0415a2f5">truncate_history</a>(user_prompt);</div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>    }</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span> </div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>    <a class="code hl_variable" href="classLLM.html#a24116c2f24203d84810fb317d7a34e04">n_keep</a> = n_keep_prev;</div>
 <div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>}</div>
 </div>
 <div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span> </div>
-<div class="foldopen" id="foldopen00289" data-start="{" data-end="}">
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno"><a class="line" href="group__c__api.html#ga6ad321180ec6a42f0d8d2353ee686a7b">  289</a></span><span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code hl_function" href="group__c__api.html#ga6ad321180ec6a42f0d8d2353ee686a7b">LLMAgent_Chat</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm, <span class="keyword">const</span> <span class="keywordtype">char</span> *user_prompt, <span class="keywordtype">bool</span> add_to_history, CharArrayFn callback, <span class="keywordtype">bool</span> return_response_json, <span class="keywordtype">bool</span> debug_prompt)</div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>{</div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>    <span class="keywordflow">return</span> stringToCharArray(llm-&gt;<a class="code hl_function" href="classLLMAgent.html#aecac08f1cbc4ed079cc75bc98f08d4ce">chat</a>(user_prompt, add_to_history, callback, return_response_json, debug_prompt));</div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>}</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span><span class="comment">//================ C API ================//</span></div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span> </div>
+<div class="foldopen" id="foldopen00291" data-start="{" data-end="}">
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno"><a class="line" href="group__c__api.html#ga3d0d11a65566e013d3bf96e7c3a80876">  291</a></span><a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *<a class="code hl_function" href="group__c__api.html#ga3d0d11a65566e013d3bf96e7c3a80876">LLMAgent_Construct</a>(<a class="code hl_class" href="classLLMLocal.html">LLMLocal</a> *llm, <span class="keyword">const</span> <span class="keywordtype">char</span> *system_prompt_)</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>{</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>    std::string system_prompt = system_prompt_ ? system_prompt_ : <span class="stringliteral">&quot;&quot;</span>;</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>    <span class="keywordflow">return</span> <span class="keyword">new</span> <a class="code hl_class" href="classLLMAgent.html">LLMAgent</a>(llm, system_prompt);</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>}</div>
 </div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span> </div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span><span class="comment">// History management C API implementations</span></div>
-<div class="foldopen" id="foldopen00295" data-start="{" data-end="}">
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno"><a class="line" href="group__c__api.html#ga5e0a07cda62c8ac7700f6c8414798ad5">  295</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#ga5e0a07cda62c8ac7700f6c8414798ad5">LLMAgent_Clear_History</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm)</div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>{</div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>    llm-&gt;<a class="code hl_function" href="classLLMAgent.html#af4939eaa37cfbadc86672d06fe86739a">clear_history</a>();</div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>}</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span> </div>
+<div class="foldopen" id="foldopen00297" data-start="{" data-end="}">
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno"><a class="line" href="group__c__api.html#ga6ad321180ec6a42f0d8d2353ee686a7b">  297</a></span><span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code hl_function" href="group__c__api.html#ga6ad321180ec6a42f0d8d2353ee686a7b">LLMAgent_Chat</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm, <span class="keyword">const</span> <span class="keywordtype">char</span> *user_prompt, <span class="keywordtype">bool</span> add_to_history, CharArrayFn callback, <span class="keywordtype">bool</span> return_response_json, <span class="keywordtype">bool</span> debug_prompt)</div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>{</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>    <span class="keywordflow">return</span> stringToCharArray(llm-&gt;<a class="code hl_function" href="classLLMAgent.html#aecac08f1cbc4ed079cc75bc98f08d4ce">chat</a>(user_prompt, add_to_history, callback, return_response_json, debug_prompt));</div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>}</div>
 </div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span> </div>
-<div class="foldopen" id="foldopen00300" data-start="{" data-end="}">
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno"><a class="line" href="group__c__api.html#gaddaf48d1cea0709d3765e6ece7cea6f8">  300</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#gaddaf48d1cea0709d3765e6ece7cea6f8">LLMAgent_Set_System_Prompt</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm, <span class="keyword">const</span> <span class="keywordtype">char</span> *system_prompt)</div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>{</div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>    std::string sys_prompt = system_prompt ? system_prompt : <span class="stringliteral">&quot;&quot;</span>;</div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>    llm-&gt;<a class="code hl_function" href="classLLMAgent.html#ac4c90915ba15f9cbdcf76619479340bd">set_system_prompt</a>(sys_prompt);</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>}</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span> </div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span><span class="comment">// History management C API implementations</span></div>
+<div class="foldopen" id="foldopen00303" data-start="{" data-end="}">
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno"><a class="line" href="group__c__api.html#ga5e0a07cda62c8ac7700f6c8414798ad5">  303</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#ga5e0a07cda62c8ac7700f6c8414798ad5">LLMAgent_Clear_History</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm)</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>{</div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>    llm-&gt;<a class="code hl_function" href="classLLMAgent.html#af4939eaa37cfbadc86672d06fe86739a">clear_history</a>();</div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>}</div>
 </div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span> </div>
-<div class="foldopen" id="foldopen00306" data-start="{" data-end="}">
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno"><a class="line" href="group__c__api.html#gaec26b7774963dacf613d2bafe89877f5">  306</a></span><span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code hl_function" href="group__c__api.html#gaec26b7774963dacf613d2bafe89877f5">LLMAgent_Get_System_Prompt</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm)</div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>{</div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>    <span class="keywordflow">return</span> stringToCharArray(llm-&gt;<a class="code hl_function" href="classLLMAgent.html#ae2d47c9ac540fd0c75402f7dffd04fe2">get_system_prompt</a>());</div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>}</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span> </div>
+<div class="foldopen" id="foldopen00308" data-start="{" data-end="}">
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno"><a class="line" href="group__c__api.html#gaddaf48d1cea0709d3765e6ece7cea6f8">  308</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#gaddaf48d1cea0709d3765e6ece7cea6f8">LLMAgent_Set_System_Prompt</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm, <span class="keyword">const</span> <span class="keywordtype">char</span> *system_prompt)</div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>{</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>    std::string sys_prompt = system_prompt ? system_prompt : <span class="stringliteral">&quot;&quot;</span>;</div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>    llm-&gt;<a class="code hl_function" href="classLLMAgent.html#ac4c90915ba15f9cbdcf76619479340bd">set_system_prompt</a>(sys_prompt);</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>}</div>
 </div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span> </div>
-<div class="foldopen" id="foldopen00311" data-start="{" data-end="}">
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno"><a class="line" href="group__c__api.html#gaabc2fd0328a7525d3052c82850a3e7c4">  311</a></span><span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code hl_function" href="group__c__api.html#gaabc2fd0328a7525d3052c82850a3e7c4">LLMAgent_Get_History</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm)</div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>{</div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>    <span class="keywordflow">return</span> stringToCharArray(llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a25647d4729d0a574e7231d507f947a32">get_history</a>().dump());</div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>}</div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span> </div>
+<div class="foldopen" id="foldopen00314" data-start="{" data-end="}">
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno"><a class="line" href="group__c__api.html#gaec26b7774963dacf613d2bafe89877f5">  314</a></span><span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code hl_function" href="group__c__api.html#gaec26b7774963dacf613d2bafe89877f5">LLMAgent_Get_System_Prompt</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm)</div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>{</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>    <span class="keywordflow">return</span> stringToCharArray(llm-&gt;<a class="code hl_function" href="classLLMAgent.html#ae2d47c9ac540fd0c75402f7dffd04fe2">get_system_prompt</a>());</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>}</div>
 </div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span> </div>
-<div class="foldopen" id="foldopen00316" data-start="{" data-end="}">
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno"><a class="line" href="group__c__api.html#gaa7511136b443e2099add50610102cfa8">  316</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#gaa7511136b443e2099add50610102cfa8">LLMAgent_Set_Slot</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm, <span class="keywordtype">int</span> slot_id)</div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>{</div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>    llm-&gt;<a class="code hl_function" href="classLLMAgent.html#ab2361ba8a38dd238d20cdaa73cf9cb4f">set_slot</a>(slot_id);</div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>}</div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span> </div>
+<div class="foldopen" id="foldopen00319" data-start="{" data-end="}">
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno"><a class="line" href="group__c__api.html#gaabc2fd0328a7525d3052c82850a3e7c4">  319</a></span><span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code hl_function" href="group__c__api.html#gaabc2fd0328a7525d3052c82850a3e7c4">LLMAgent_Get_History</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm)</div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>{</div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>    <span class="keywordflow">return</span> stringToCharArray(llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a25647d4729d0a574e7231d507f947a32">get_history</a>().dump());</div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>}</div>
 </div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span> </div>
-<div class="foldopen" id="foldopen00321" data-start="{" data-end="}">
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno"><a class="line" href="group__c__api.html#ga7c91f0c927046a28df550d1ff0b9efe1">  321</a></span><span class="keywordtype">int</span> <a class="code hl_function" href="group__c__api.html#ga7c91f0c927046a28df550d1ff0b9efe1">LLMAgent_Get_Slot</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm)</div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>{</div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>    <span class="keywordflow">return</span> llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a4001c91cf9c5ce41ea2a744fbdb026ef">get_slot</a>();</div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>}</div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span> </div>
+<div class="foldopen" id="foldopen00324" data-start="{" data-end="}">
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno"><a class="line" href="group__c__api.html#gaa7511136b443e2099add50610102cfa8">  324</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#gaa7511136b443e2099add50610102cfa8">LLMAgent_Set_Slot</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm, <span class="keywordtype">int</span> slot_id)</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>{</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>    llm-&gt;<a class="code hl_function" href="classLLMAgent.html#ab2361ba8a38dd238d20cdaa73cf9cb4f">set_slot</a>(slot_id);</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>}</div>
 </div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span> </div>
-<div class="foldopen" id="foldopen00326" data-start="{" data-end="}">
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno"><a class="line" href="group__c__api.html#ga5f747a2ecd730788d71b95a81a2bf6e0">  326</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#ga5f747a2ecd730788d71b95a81a2bf6e0">LLMAgent_Set_History</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm, <span class="keyword">const</span> <span class="keywordtype">char</span> *history_json)</div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>{</div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>    <span class="keywordflow">try</span></div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>    {</div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>        json history = json::parse(history_json ? history_json : <span class="stringliteral">&quot;[]&quot;</span>);</div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>        <span class="keywordflow">if</span> (!history.is_array())</div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>            std::cerr &lt;&lt; <span class="stringliteral">&quot;Expected JSON array for history.&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>        <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>            llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a15a51eaf10c81d7b1e3ab60a325728b5">set_history</a>(history);</div>
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>    }</div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>    <span class="keywordflow">catch</span> (<span class="keyword">const</span> std::exception &amp;e)</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span> </div>
+<div class="foldopen" id="foldopen00329" data-start="{" data-end="}">
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno"><a class="line" href="group__c__api.html#ga7c91f0c927046a28df550d1ff0b9efe1">  329</a></span><span class="keywordtype">int</span> <a class="code hl_function" href="group__c__api.html#ga7c91f0c927046a28df550d1ff0b9efe1">LLMAgent_Get_Slot</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm)</div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>{</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>    <span class="keywordflow">return</span> llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a4001c91cf9c5ce41ea2a744fbdb026ef">get_slot</a>();</div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>}</div>
+</div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span> </div>
+<div class="foldopen" id="foldopen00334" data-start="{" data-end="}">
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno"><a class="line" href="group__c__api.html#ga5f747a2ecd730788d71b95a81a2bf6e0">  334</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#ga5f747a2ecd730788d71b95a81a2bf6e0">LLMAgent_Set_History</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm, <span class="keyword">const</span> <span class="keywordtype">char</span> *history_json)</div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>{</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>    <span class="keywordflow">try</span></div>
 <div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>    {</div>
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>        std::cerr &lt;&lt; <span class="stringliteral">&quot;Error parsing history JSON: &quot;</span> &lt;&lt; e.what() &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>    }</div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>}</div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>        json history = json::parse(history_json ? history_json : <span class="stringliteral">&quot;[]&quot;</span>);</div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>        <span class="keywordflow">if</span> (!history.is_array())</div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>            std::cerr &lt;&lt; <span class="stringliteral">&quot;Expected JSON array for history.&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>        <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>            llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a15a51eaf10c81d7b1e3ab60a325728b5">set_history</a>(history);</div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>    }</div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>    <span class="keywordflow">catch</span> (<span class="keyword">const</span> std::exception &amp;e)</div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>    {</div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>        std::cerr &lt;&lt; <span class="stringliteral">&quot;Error parsing history JSON: &quot;</span> &lt;&lt; e.what() &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>    }</div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>}</div>
 </div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span> </div>
-<div class="foldopen" id="foldopen00342" data-start="{" data-end="}">
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno"><a class="line" href="group__c__api.html#gab102a0bf9594499e6f1bf8f943d67a06">  342</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#gab102a0bf9594499e6f1bf8f943d67a06">LLMAgent_Add_User_Message</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm, <span class="keyword">const</span> <span class="keywordtype">char</span> *content)</div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>{</div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>    llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a577255a347a6423ff5dc995e762e0b35">add_user_message</a>(content ? content : <span class="stringliteral">&quot;&quot;</span>);</div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>}</div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span> </div>
+<div class="foldopen" id="foldopen00350" data-start="{" data-end="}">
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno"><a class="line" href="group__c__api.html#gab102a0bf9594499e6f1bf8f943d67a06">  350</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#gab102a0bf9594499e6f1bf8f943d67a06">LLMAgent_Add_User_Message</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm, <span class="keyword">const</span> <span class="keywordtype">char</span> *content)</div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>{</div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>    llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a577255a347a6423ff5dc995e762e0b35">add_user_message</a>(content ? content : <span class="stringliteral">&quot;&quot;</span>);</div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>}</div>
 </div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span> </div>
-<div class="foldopen" id="foldopen00347" data-start="{" data-end="}">
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno"><a class="line" href="group__c__api.html#ga3350529fb8673422d3b31ed22926d34e">  347</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#ga3350529fb8673422d3b31ed22926d34e">LLMAgent_Add_Assistant_Message</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm, <span class="keyword">const</span> <span class="keywordtype">char</span> *content)</div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>{</div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>    llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a8278bb4dc8613e88e8690dd18d4a5e58">add_assistant_message</a>(content ? content : <span class="stringliteral">&quot;&quot;</span>);</div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>}</div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span> </div>
+<div class="foldopen" id="foldopen00355" data-start="{" data-end="}">
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno"><a class="line" href="group__c__api.html#ga3350529fb8673422d3b31ed22926d34e">  355</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#ga3350529fb8673422d3b31ed22926d34e">LLMAgent_Add_Assistant_Message</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm, <span class="keyword">const</span> <span class="keywordtype">char</span> *content)</div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>{</div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>    llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a8278bb4dc8613e88e8690dd18d4a5e58">add_assistant_message</a>(content ? content : <span class="stringliteral">&quot;&quot;</span>);</div>
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>}</div>
 </div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span> </div>
-<div class="foldopen" id="foldopen00352" data-start="{" data-end="}">
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno"><a class="line" href="group__c__api.html#gafcd7d80c2bfc85bc943aa516607a1871">  352</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#gafcd7d80c2bfc85bc943aa516607a1871">LLMAgent_Remove_Last_Message</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm)</div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>{</div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>    llm-&gt;<a class="code hl_function" href="classLLMAgent.html#acb8fb4cfa24b1d1fa2591b7ca46effd5">remove_last_message</a>();</div>
-<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>}</div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span> </div>
+<div class="foldopen" id="foldopen00360" data-start="{" data-end="}">
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno"><a class="line" href="group__c__api.html#gafcd7d80c2bfc85bc943aa516607a1871">  360</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#gafcd7d80c2bfc85bc943aa516607a1871">LLMAgent_Remove_Last_Message</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm)</div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>{</div>
+<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>    llm-&gt;<a class="code hl_function" href="classLLMAgent.html#acb8fb4cfa24b1d1fa2591b7ca46effd5">remove_last_message</a>();</div>
+<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>}</div>
 </div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span> </div>
-<div class="foldopen" id="foldopen00357" data-start="{" data-end="}">
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno"><a class="line" href="group__c__api.html#ga0707f04e315abce3d3cb48a65bfef122">  357</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#ga0707f04e315abce3d3cb48a65bfef122">LLMAgent_Save_History</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm, <span class="keyword">const</span> <span class="keywordtype">char</span> *filepath)</div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>{</div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>    std::string path = filepath ? filepath : <span class="stringliteral">&quot;&quot;</span>;</div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>    <span class="keywordflow">if</span> (!path.empty())</div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>    {</div>
-<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>        llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a81341bcf94b9160731db12e3a15214b4">save_history</a>(path);</div>
-<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>    }</div>
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>}</div>
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span> </div>
+<div class="foldopen" id="foldopen00365" data-start="{" data-end="}">
+<div class="line"><a id="l00365" name="l00365"></a><span class="lineno"><a class="line" href="group__c__api.html#ga0707f04e315abce3d3cb48a65bfef122">  365</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#ga0707f04e315abce3d3cb48a65bfef122">LLMAgent_Save_History</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm, <span class="keyword">const</span> <span class="keywordtype">char</span> *filepath)</div>
+<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>{</div>
+<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>    std::string path = filepath ? filepath : <span class="stringliteral">&quot;&quot;</span>;</div>
+<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>    <span class="keywordflow">if</span> (!path.empty())</div>
+<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>    {</div>
+<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>        llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a81341bcf94b9160731db12e3a15214b4">save_history</a>(path);</div>
+<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span>    }</div>
+<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>}</div>
 </div>
-<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span> </div>
-<div class="foldopen" id="foldopen00366" data-start="{" data-end="}">
-<div class="line"><a id="l00366" name="l00366"></a><span class="lineno"><a class="line" href="group__c__api.html#ga25d65fb75652690163e7d4347d4ce4f8">  366</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#ga25d65fb75652690163e7d4347d4ce4f8">LLMAgent_Load_History</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm, <span class="keyword">const</span> <span class="keywordtype">char</span> *filepath)</div>
-<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>{</div>
-<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>    std::string path = filepath ? filepath : <span class="stringliteral">&quot;&quot;</span>;</div>
-<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>    <span class="keywordflow">if</span> (!path.empty())</div>
-<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>    {</div>
-<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span>        llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a11b450bc98aa7158d3e5bf93796c94fc">load_history</a>(path);</div>
-<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>    }</div>
-<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>}</div>
+<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span> </div>
+<div class="foldopen" id="foldopen00374" data-start="{" data-end="}">
+<div class="line"><a id="l00374" name="l00374"></a><span class="lineno"><a class="line" href="group__c__api.html#ga25d65fb75652690163e7d4347d4ce4f8">  374</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#ga25d65fb75652690163e7d4347d4ce4f8">LLMAgent_Load_History</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm, <span class="keyword">const</span> <span class="keywordtype">char</span> *filepath)</div>
+<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>{</div>
+<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>    std::string path = filepath ? filepath : <span class="stringliteral">&quot;&quot;</span>;</div>
+<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>    <span class="keywordflow">if</span> (!path.empty())</div>
+<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>    {</div>
+<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>        llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a11b450bc98aa7158d3e5bf93796c94fc">load_history</a>(path);</div>
+<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>    }</div>
+<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>}</div>
 </div>
-<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span> </div>
-<div class="foldopen" id="foldopen00375" data-start="{" data-end="}">
-<div class="line"><a id="l00375" name="l00375"></a><span class="lineno"><a class="line" href="group__c__api.html#ga277940928041a33dc91e86f22715e518">  375</a></span><span class="keywordtype">size_t</span> <a class="code hl_function" href="group__c__api.html#ga277940928041a33dc91e86f22715e518">LLMAgent_Get_History_Size</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm)</div>
-<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>{</div>
-<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>    <span class="keywordflow">return</span> llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a922ad83c352c2ffa9724eb7fa027ac6e">get_history_size</a>();</div>
-<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>}</div>
+<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span> </div>
+<div class="foldopen" id="foldopen00383" data-start="{" data-end="}">
+<div class="line"><a id="l00383" name="l00383"></a><span class="lineno"><a class="line" href="group__c__api.html#ga277940928041a33dc91e86f22715e518">  383</a></span><span class="keywordtype">size_t</span> <a class="code hl_function" href="group__c__api.html#ga277940928041a33dc91e86f22715e518">LLMAgent_Get_History_Size</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm)</div>
+<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>{</div>
+<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>    <span class="keywordflow">return</span> llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a922ad83c352c2ffa9724eb7fa027ac6e">get_history_size</a>();</div>
+<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>}</div>
 </div>
-<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span> </div>
-<div class="foldopen" id="foldopen00380" data-start="{" data-end="}">
-<div class="line"><a id="l00380" name="l00380"></a><span class="lineno"><a class="line" href="group__c__api.html#ga018feeee123d09250300b0a91dc837da">  380</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#ga018feeee123d09250300b0a91dc837da">LLMAgent_Set_Overflow_Strategy</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm, <span class="keywordtype">int</span> strategy, <span class="keywordtype">float</span> target_ratio, <span class="keyword">const</span> <span class="keywordtype">char</span> *summarize_prompt)</div>
-<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>{</div>
-<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>    <span class="keyword">constexpr</span> <span class="keywordtype">int</span> strategy_min = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(<a class="code hl_enumvalue" href="LLM__agent_8h.html#a088f6764b525b6915e24b5248d151446a6adf97f83acf6453d4a6a4b1070f3754">ContextOverflowStrategy::None</a>);</div>
-<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>    <span class="keyword">constexpr</span> <span class="keywordtype">int</span> strategy_max = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(<a class="code hl_enumvalue" href="LLM__agent_8h.html#a088f6764b525b6915e24b5248d151446a10fabddaa26f740c259e8adcfd5e32d4">ContextOverflowStrategy::Summarize</a>);</div>
-<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>    <span class="keywordflow">if</span> (strategy &lt; strategy_min || strategy &gt; strategy_max)</div>
-<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>    {</div>
-<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>        std::cerr &lt;&lt; <span class="stringliteral">&quot;LLMAgent_Set_Overflow_Strategy: invalid strategy &quot;</span> &lt;&lt; strategy &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>        <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>    }</div>
-<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>    <a class="code hl_enumeration" href="LLM__agent_8h.html#a088f6764b525b6915e24b5248d151446">ContextOverflowStrategy</a> s = <span class="keyword">static_cast&lt;</span><a class="code hl_enumeration" href="LLM__agent_8h.html#a088f6764b525b6915e24b5248d151446">ContextOverflowStrategy</a><span class="keyword">&gt;</span>(strategy);</div>
-<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span> </div>
-<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>    std::string prompt = summarize_prompt ? summarize_prompt : <span class="stringliteral">&quot;&quot;</span>;</div>
-<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>    <span class="keywordflow">if</span> (prompt.empty())</div>
-<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>        llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a280a1648b797ec9724ffbae28c1a9f94">set_overflow_strategy</a>(s, target_ratio);</div>
-<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span>        llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a280a1648b797ec9724ffbae28c1a9f94">set_overflow_strategy</a>(s, target_ratio, prompt);</div>
-<div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>}</div>
+<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span> </div>
+<div class="foldopen" id="foldopen00388" data-start="{" data-end="}">
+<div class="line"><a id="l00388" name="l00388"></a><span class="lineno"><a class="line" href="group__c__api.html#ga018feeee123d09250300b0a91dc837da">  388</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#ga018feeee123d09250300b0a91dc837da">LLMAgent_Set_Overflow_Strategy</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm, <span class="keywordtype">int</span> strategy, <span class="keywordtype">float</span> target_ratio, <span class="keyword">const</span> <span class="keywordtype">char</span> *summarize_prompt)</div>
+<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>{</div>
+<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>    <span class="keyword">constexpr</span> <span class="keywordtype">int</span> strategy_min = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(<a class="code hl_enumvalue" href="LLM__agent_8h.html#a088f6764b525b6915e24b5248d151446a6adf97f83acf6453d4a6a4b1070f3754">ContextOverflowStrategy::None</a>);</div>
+<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>    <span class="keyword">constexpr</span> <span class="keywordtype">int</span> strategy_max = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(<a class="code hl_enumvalue" href="LLM__agent_8h.html#a088f6764b525b6915e24b5248d151446a10fabddaa26f740c259e8adcfd5e32d4">ContextOverflowStrategy::Summarize</a>);</div>
+<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>    <span class="keywordflow">if</span> (strategy &lt; strategy_min || strategy &gt; strategy_max)</div>
+<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>    {</div>
+<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>        std::cerr &lt;&lt; <span class="stringliteral">&quot;LLMAgent_Set_Overflow_Strategy: invalid strategy &quot;</span> &lt;&lt; strategy &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span>        <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>    }</div>
+<div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span>    <a class="code hl_enumeration" href="LLM__agent_8h.html#a088f6764b525b6915e24b5248d151446">ContextOverflowStrategy</a> s = <span class="keyword">static_cast&lt;</span><a class="code hl_enumeration" href="LLM__agent_8h.html#a088f6764b525b6915e24b5248d151446">ContextOverflowStrategy</a><span class="keyword">&gt;</span>(strategy);</div>
+<div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span> </div>
+<div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>    std::string prompt = summarize_prompt ? summarize_prompt : <span class="stringliteral">&quot;&quot;</span>;</div>
+<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>    <span class="keywordflow">if</span> (prompt.empty())</div>
+<div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span>        llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a280a1648b797ec9724ffbae28c1a9f94">set_overflow_strategy</a>(s, target_ratio);</div>
+<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>        llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a280a1648b797ec9724ffbae28c1a9f94">set_overflow_strategy</a>(s, target_ratio, prompt);</div>
+<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>}</div>
 </div>
-<div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span> </div>
-<div class="foldopen" id="foldopen00398" data-start="{" data-end="}">
-<div class="line"><a id="l00398" name="l00398"></a><span class="lineno"><a class="line" href="group__c__api.html#ga7928ff4ffef7bd5ed886f128847785bb">  398</a></span><span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code hl_function" href="group__c__api.html#ga7928ff4ffef7bd5ed886f128847785bb">LLMAgent_Get_Summary</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm)</div>
-<div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>{</div>
-<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>    <span class="keywordflow">return</span> stringToCharArray(llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a9de55fa1c2e6a2c3b56814896ed79b60">get_summary</a>());</div>
-<div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span>}</div>
+<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span> </div>
+<div class="foldopen" id="foldopen00406" data-start="{" data-end="}">
+<div class="line"><a id="l00406" name="l00406"></a><span class="lineno"><a class="line" href="group__c__api.html#ga7928ff4ffef7bd5ed886f128847785bb">  406</a></span><span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code hl_function" href="group__c__api.html#ga7928ff4ffef7bd5ed886f128847785bb">LLMAgent_Get_Summary</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm)</div>
+<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>{</div>
+<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>    <span class="keywordflow">return</span> stringToCharArray(llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a9de55fa1c2e6a2c3b56814896ed79b60">get_summary</a>());</div>
+<div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>}</div>
 </div>
-<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span> </div>
-<div class="foldopen" id="foldopen00403" data-start="{" data-end="}">
-<div class="line"><a id="l00403" name="l00403"></a><span class="lineno"><a class="line" href="group__c__api.html#gade951504f284a64285274c3933d3ba01">  403</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#gade951504f284a64285274c3933d3ba01">LLMAgent_Set_Summary</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm, <span class="keyword">const</span> <span class="keywordtype">char</span> *summary)</div>
-<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>{</div>
-<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>    llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a97aa828eaed8dd6b3feafb6e7f891d98">set_summary</a>(summary ? summary : <span class="stringliteral">&quot;&quot;</span>);</div>
-<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>}</div>
+<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span> </div>
+<div class="foldopen" id="foldopen00411" data-start="{" data-end="}">
+<div class="line"><a id="l00411" name="l00411"></a><span class="lineno"><a class="line" href="group__c__api.html#gade951504f284a64285274c3933d3ba01">  411</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__c__api.html#gade951504f284a64285274c3933d3ba01">LLMAgent_Set_Summary</a>(<a class="code hl_class" href="classLLMAgent.html">LLMAgent</a> *llm, <span class="keyword">const</span> <span class="keywordtype">char</span> *summary)</div>
+<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>{</div>
+<div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span>    llm-&gt;<a class="code hl_function" href="classLLMAgent.html#a97aa828eaed8dd6b3feafb6e7f891d98">set_summary</a>(summary ? summary : <span class="stringliteral">&quot;&quot;</span>);</div>
+<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>}</div>
 </div>
 <div class="ttc" id="aLLM__agent_8h_html"><div class="ttname"><a href="LLM__agent_8h.html">LLM_agent.h</a></div><div class="ttdoc">High-level conversational agent interface for LLMs.</div></div>
 <div class="ttc" id="aLLM__agent_8h_html_a088f6764b525b6915e24b5248d151446"><div class="ttname"><a href="LLM__agent_8h.html#a088f6764b525b6915e24b5248d151446">ContextOverflowStrategy</a></div><div class="ttdeci">ContextOverflowStrategy</div><div class="ttdoc">Strategy to apply when the chat history would exceed the model's context window.</div><div class="ttdef"><b>Definition</b> <a href="LLM__agent_8h_source.html#l00057">LLM_agent.h:58</a></div></div>
@@ -595,6 +603,7 @@ $(function(){initNavTree('LLM__agent_8cpp_source.html',''); initResizable(); });
 <div class="ttc" id="aLLM__agent_8h_html_a088f6764b525b6915e24b5248d151446aa8156810bfee2bd2b44765b9e91db3bd"><div class="ttname"><a href="LLM__agent_8h.html#a088f6764b525b6915e24b5248d151446aa8156810bfee2bd2b44765b9e91db3bd">ContextOverflowStrategy::Truncate</a></div><div class="ttdeci">@ Truncate</div><div class="ttdoc">Remove oldest messages (in pairs) from the front until history fits within target_context_ratio.</div></div>
 <div class="ttc" id="aclassLLMAgent_html"><div class="ttname"><a href="classLLMAgent.html">LLMAgent</a></div><div class="ttdoc">High-level conversational agent for LLM interactions.</div><div class="ttdef"><b>Definition</b> <a href="LLM__agent_8h_source.html#l00082">LLM_agent.h:83</a></div></div>
 <div class="ttc" id="aclassLLMAgent_html_a06fb642149fc7e5f6e2c3ab93960b050"><div class="ttname"><a href="classLLMAgent.html#a06fb642149fc7e5f6e2c3ab93960b050">LLMAgent::LLMAgent</a></div><div class="ttdeci">LLMAgent(LLMLocal *llm, const std::string &amp;system_prompt=&quot;&quot;)</div><div class="ttdoc">Constructor for LLM agent.</div><div class="ttdef"><b>Definition</b> <a href="#l00005">LLM_agent.cpp:5</a></div></div>
+<div class="ttc" id="aclassLLMAgent_html_a0aa1c2bd687d3178c533260e9b65bb99"><div class="ttname"><a href="classLLMAgent.html#a0aa1c2bd687d3178c533260e9b65bb99">LLMAgent::build_working_history</a></div><div class="ttdeci">json build_working_history(const std::string &amp;user_prompt, bool include_history=true) const</div><div class="ttdoc">Build the full message list to send to the model.</div><div class="ttdef"><b>Definition</b> <a href="#l00044">LLM_agent.cpp:44</a></div></div>
 <div class="ttc" id="aclassLLMAgent_html_a11b450bc98aa7158d3e5bf93796c94fc"><div class="ttname"><a href="classLLMAgent.html#a11b450bc98aa7158d3e5bf93796c94fc">LLMAgent::load_history</a></div><div class="ttdeci">void load_history(const std::string &amp;filepath)</div><div class="ttdoc">Load conversation history from file.</div><div class="ttdef"><b>Definition</b> <a href="#l00133">LLM_agent.cpp:133</a></div></div>
 <div class="ttc" id="aclassLLMAgent_html_a152bf0a1849d69775af9a57144291f56"><div class="ttname"><a href="classLLMAgent.html#a152bf0a1849d69775af9a57144291f56">LLMAgent::handle_overflow</a></div><div class="ttdeci">bool handle_overflow(const std::string &amp;user_prompt)</div><div class="ttdoc">Handle context overflow using the configured strategy before a chat call.</div><div class="ttdef"><b>Definition</b> <a href="#l00172">LLM_agent.cpp:172</a></div></div>
 <div class="ttc" id="aclassLLMAgent_html_a15a51eaf10c81d7b1e3ab60a325728b5"><div class="ttname"><a href="classLLMAgent.html#a15a51eaf10c81d7b1e3ab60a325728b5">LLMAgent::set_history</a></div><div class="ttdeci">void set_history(const json &amp;history_)</div><div class="ttdoc">Set conversation history.</div><div class="ttdef"><b>Definition</b> <a href="LLM__agent_8h_source.html#l00211">LLM_agent.h:211</a></div></div>
@@ -607,7 +616,6 @@ $(function(){initNavTree('LLM__agent_8cpp_source.html',''); initResizable(); });
 <div class="ttc" id="aclassLLMAgent_html_a6486c1a1fc79c96bbc4442f722e0bba4"><div class="ttname"><a href="classLLMAgent.html#a6486c1a1fc79c96bbc4442f722e0bba4">LLMAgent::summarize_history</a></div><div class="ttdeci">void summarize_history(const std::string &amp;user_prompt)</div><div class="ttdoc">Summarise the entire history (chunking if needed), embed summary in system message,...</div><div class="ttdef"><b>Definition</b> <a href="#l00214">LLM_agent.cpp:214</a></div></div>
 <div class="ttc" id="aclassLLMAgent_html_a81341bcf94b9160731db12e3a15214b4"><div class="ttname"><a href="classLLMAgent.html#a81341bcf94b9160731db12e3a15214b4">LLMAgent::save_history</a></div><div class="ttdeci">void save_history(const std::string &amp;filepath) const</div><div class="ttdoc">Save conversation history to file.</div><div class="ttdef"><b>Definition</b> <a href="#l00109">LLM_agent.cpp:109</a></div></div>
 <div class="ttc" id="aclassLLMAgent_html_a8278bb4dc8613e88e8690dd18d4a5e58"><div class="ttname"><a href="classLLMAgent.html#a8278bb4dc8613e88e8690dd18d4a5e58">LLMAgent::add_assistant_message</a></div><div class="ttdeci">void add_assistant_message(const std::string &amp;content)</div><div class="ttdoc">Add an assistant message to conversation history.</div><div class="ttdef"><b>Definition</b> <a href="LLM__agent_8h_source.html#l00228">LLM_agent.h:228</a></div></div>
-<div class="ttc" id="aclassLLMAgent_html_a89677b14b18e12ffd6e0cd5c9064111b"><div class="ttname"><a href="classLLMAgent.html#a89677b14b18e12ffd6e0cd5c9064111b">LLMAgent::build_working_history</a></div><div class="ttdeci">json build_working_history(const std::string &amp;user_prompt) const</div><div class="ttdoc">Build the full message list to send to the model.</div><div class="ttdef"><b>Definition</b> <a href="#l00044">LLM_agent.cpp:44</a></div></div>
 <div class="ttc" id="aclassLLMAgent_html_a922ad83c352c2ffa9724eb7fa027ac6e"><div class="ttname"><a href="classLLMAgent.html#a922ad83c352c2ffa9724eb7fa027ac6e">LLMAgent::get_history_size</a></div><div class="ttdeci">size_t get_history_size() const</div><div class="ttdoc">Get number of messages in history.</div><div class="ttdef"><b>Definition</b> <a href="LLM__agent_8h_source.html#l00251">LLM_agent.h:251</a></div></div>
 <div class="ttc" id="aclassLLMAgent_html_a97aa828eaed8dd6b3feafb6e7f891d98"><div class="ttname"><a href="classLLMAgent.html#a97aa828eaed8dd6b3feafb6e7f891d98">LLMAgent::set_summary</a></div><div class="ttdeci">void set_summary(const std::string &amp;summary_)</div><div class="ttdoc">Set the rolling summary directly (e.g. after loading from file)</div><div class="ttdef"><b>Definition</b> <a href="LLM__agent_8h_source.html#l00280">LLM_agent.h:280</a></div></div>
 <div class="ttc" id="aclassLLMAgent_html_a9de55fa1c2e6a2c3b56814896ed79b60"><div class="ttname"><a href="classLLMAgent.html#a9de55fa1c2e6a2c3b56814896ed79b60">LLMAgent::get_summary</a></div><div class="ttdeci">std::string get_summary() const</div><div class="ttdoc">Get the current rolling summary (empty if none has been generated yet)</div><div class="ttdef"><b>Definition</b> <a href="LLM__agent_8h_source.html#l00277">LLM_agent.h:277</a></div></div>
@@ -630,24 +638,24 @@ $(function(){initNavTree('LLM__agent_8cpp_source.html',''); initResizable(); });
 <div class="ttc" id="aclassLLM_html_a390a093c9b269c1c342034baced79106"><div class="ttname"><a href="classLLM.html#a390a093c9b269c1c342034baced79106">LLM::apply_template</a></div><div class="ttdeci">virtual std::string apply_template(const json &amp;messages)</div><div class="ttdoc">Apply template to messages.</div><div class="ttdef"><b>Definition</b> <a href="LLM_8cpp_source.html#l00145">LLM.cpp:145</a></div></div>
 <div class="ttc" id="aclassLLM_html_a4ac51c5268e2af6d24e7ae6982cbe58f"><div class="ttname"><a href="classLLM.html#a4ac51c5268e2af6d24e7ae6982cbe58f">LLM::parse_completion_json</a></div><div class="ttdeci">virtual std::string parse_completion_json(const json &amp;result)</div><div class="ttdoc">Parse completion result.</div><div class="ttdef"><b>Definition</b> <a href="LLM_8cpp_source.html#l00265">LLM.cpp:265</a></div></div>
 <div class="ttc" id="aclassLLM_html_a625ad6e037e16cdc61282150ef465229"><div class="ttname"><a href="classLLM.html#a625ad6e037e16cdc61282150ef465229">LLM::tokenize</a></div><div class="ttdeci">virtual std::vector&lt; int &gt; tokenize(const std::string &amp;query)</div><div class="ttdoc">Tokenize text.</div><div class="ttdef"><b>Definition</b> <a href="LLM_8cpp_source.html#l00171">LLM.cpp:171</a></div></div>
-<div class="ttc" id="agroup__c__api_html_ga018feeee123d09250300b0a91dc837da"><div class="ttname"><a href="group__c__api.html#ga018feeee123d09250300b0a91dc837da">LLMAgent_Set_Overflow_Strategy</a></div><div class="ttdeci">void LLMAgent_Set_Overflow_Strategy(LLMAgent *llm, int strategy, float target_ratio, const char *summarize_prompt)</div><div class="ttdoc">Configure the context overflow strategy (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00380">LLM_agent.cpp:380</a></div></div>
-<div class="ttc" id="agroup__c__api_html_ga0707f04e315abce3d3cb48a65bfef122"><div class="ttname"><a href="group__c__api.html#ga0707f04e315abce3d3cb48a65bfef122">LLMAgent_Save_History</a></div><div class="ttdeci">void LLMAgent_Save_History(LLMAgent *llm, const char *filepath)</div><div class="ttdoc">Save conversation history to file (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00357">LLM_agent.cpp:357</a></div></div>
-<div class="ttc" id="agroup__c__api_html_ga25d65fb75652690163e7d4347d4ce4f8"><div class="ttname"><a href="group__c__api.html#ga25d65fb75652690163e7d4347d4ce4f8">LLMAgent_Load_History</a></div><div class="ttdeci">void LLMAgent_Load_History(LLMAgent *llm, const char *filepath)</div><div class="ttdoc">Load conversation history from file (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00366">LLM_agent.cpp:366</a></div></div>
-<div class="ttc" id="agroup__c__api_html_ga277940928041a33dc91e86f22715e518"><div class="ttname"><a href="group__c__api.html#ga277940928041a33dc91e86f22715e518">LLMAgent_Get_History_Size</a></div><div class="ttdeci">size_t LLMAgent_Get_History_Size(LLMAgent *llm)</div><div class="ttdoc">Get conversation history size (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00375">LLM_agent.cpp:375</a></div></div>
-<div class="ttc" id="agroup__c__api_html_ga3350529fb8673422d3b31ed22926d34e"><div class="ttname"><a href="group__c__api.html#ga3350529fb8673422d3b31ed22926d34e">LLMAgent_Add_Assistant_Message</a></div><div class="ttdeci">void LLMAgent_Add_Assistant_Message(LLMAgent *llm, const char *content)</div><div class="ttdoc">Add assistant message to history (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00347">LLM_agent.cpp:347</a></div></div>
-<div class="ttc" id="agroup__c__api_html_ga3d0d11a65566e013d3bf96e7c3a80876"><div class="ttname"><a href="group__c__api.html#ga3d0d11a65566e013d3bf96e7c3a80876">LLMAgent_Construct</a></div><div class="ttdeci">LLMAgent * LLMAgent_Construct(LLMLocal *llm, const char *system_prompt_)</div><div class="ttdoc">Construct LLMAgent (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00283">LLM_agent.cpp:283</a></div></div>
-<div class="ttc" id="agroup__c__api_html_ga5e0a07cda62c8ac7700f6c8414798ad5"><div class="ttname"><a href="group__c__api.html#ga5e0a07cda62c8ac7700f6c8414798ad5">LLMAgent_Clear_History</a></div><div class="ttdeci">void LLMAgent_Clear_History(LLMAgent *llm)</div><div class="ttdoc">Clear conversation history (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00295">LLM_agent.cpp:295</a></div></div>
-<div class="ttc" id="agroup__c__api_html_ga5f747a2ecd730788d71b95a81a2bf6e0"><div class="ttname"><a href="group__c__api.html#ga5f747a2ecd730788d71b95a81a2bf6e0">LLMAgent_Set_History</a></div><div class="ttdeci">void LLMAgent_Set_History(LLMAgent *llm, const char *history_json)</div><div class="ttdoc">Set conversation history (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00326">LLM_agent.cpp:326</a></div></div>
-<div class="ttc" id="agroup__c__api_html_ga6ad321180ec6a42f0d8d2353ee686a7b"><div class="ttname"><a href="group__c__api.html#ga6ad321180ec6a42f0d8d2353ee686a7b">LLMAgent_Chat</a></div><div class="ttdeci">const char * LLMAgent_Chat(LLMAgent *llm, const char *user_prompt, bool add_to_history=true, CharArrayFn callback=nullptr, bool return_response_json=false, bool debug_prompt=false)</div><div class="ttdoc">Conduct chat interaction (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00289">LLM_agent.cpp:289</a></div></div>
-<div class="ttc" id="agroup__c__api_html_ga7928ff4ffef7bd5ed886f128847785bb"><div class="ttname"><a href="group__c__api.html#ga7928ff4ffef7bd5ed886f128847785bb">LLMAgent_Get_Summary</a></div><div class="ttdeci">const char * LLMAgent_Get_Summary(LLMAgent *llm)</div><div class="ttdoc">Get the current rolling summary (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00398">LLM_agent.cpp:398</a></div></div>
-<div class="ttc" id="agroup__c__api_html_ga7c91f0c927046a28df550d1ff0b9efe1"><div class="ttname"><a href="group__c__api.html#ga7c91f0c927046a28df550d1ff0b9efe1">LLMAgent_Get_Slot</a></div><div class="ttdeci">int LLMAgent_Get_Slot(LLMAgent *llm)</div><div class="ttdoc">Get processing slot (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00321">LLM_agent.cpp:321</a></div></div>
-<div class="ttc" id="agroup__c__api_html_gaa7511136b443e2099add50610102cfa8"><div class="ttname"><a href="group__c__api.html#gaa7511136b443e2099add50610102cfa8">LLMAgent_Set_Slot</a></div><div class="ttdeci">void LLMAgent_Set_Slot(LLMAgent *llm, int slot_id)</div><div class="ttdoc">Set processing slot (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00316">LLM_agent.cpp:316</a></div></div>
-<div class="ttc" id="agroup__c__api_html_gaabc2fd0328a7525d3052c82850a3e7c4"><div class="ttname"><a href="group__c__api.html#gaabc2fd0328a7525d3052c82850a3e7c4">LLMAgent_Get_History</a></div><div class="ttdeci">const char * LLMAgent_Get_History(LLMAgent *llm)</div><div class="ttdoc">Get conversation history (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00311">LLM_agent.cpp:311</a></div></div>
-<div class="ttc" id="agroup__c__api_html_gab102a0bf9594499e6f1bf8f943d67a06"><div class="ttname"><a href="group__c__api.html#gab102a0bf9594499e6f1bf8f943d67a06">LLMAgent_Add_User_Message</a></div><div class="ttdeci">void LLMAgent_Add_User_Message(LLMAgent *llm, const char *content)</div><div class="ttdoc">Add user message to history (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00342">LLM_agent.cpp:342</a></div></div>
-<div class="ttc" id="agroup__c__api_html_gaddaf48d1cea0709d3765e6ece7cea6f8"><div class="ttname"><a href="group__c__api.html#gaddaf48d1cea0709d3765e6ece7cea6f8">LLMAgent_Set_System_Prompt</a></div><div class="ttdeci">void LLMAgent_Set_System_Prompt(LLMAgent *llm, const char *system_prompt)</div><div class="ttdoc">Set system prompt (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00300">LLM_agent.cpp:300</a></div></div>
-<div class="ttc" id="agroup__c__api_html_gade951504f284a64285274c3933d3ba01"><div class="ttname"><a href="group__c__api.html#gade951504f284a64285274c3933d3ba01">LLMAgent_Set_Summary</a></div><div class="ttdeci">void LLMAgent_Set_Summary(LLMAgent *llm, const char *summary)</div><div class="ttdoc">Set the rolling summary directly (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00403">LLM_agent.cpp:403</a></div></div>
-<div class="ttc" id="agroup__c__api_html_gaec26b7774963dacf613d2bafe89877f5"><div class="ttname"><a href="group__c__api.html#gaec26b7774963dacf613d2bafe89877f5">LLMAgent_Get_System_Prompt</a></div><div class="ttdeci">const char * LLMAgent_Get_System_Prompt(LLMAgent *llm)</div><div class="ttdoc">Get system prompt (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00306">LLM_agent.cpp:306</a></div></div>
-<div class="ttc" id="agroup__c__api_html_gafcd7d80c2bfc85bc943aa516607a1871"><div class="ttname"><a href="group__c__api.html#gafcd7d80c2bfc85bc943aa516607a1871">LLMAgent_Remove_Last_Message</a></div><div class="ttdeci">void LLMAgent_Remove_Last_Message(LLMAgent *llm)</div><div class="ttdoc">Remove last message from history (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00352">LLM_agent.cpp:352</a></div></div>
+<div class="ttc" id="agroup__c__api_html_ga018feeee123d09250300b0a91dc837da"><div class="ttname"><a href="group__c__api.html#ga018feeee123d09250300b0a91dc837da">LLMAgent_Set_Overflow_Strategy</a></div><div class="ttdeci">void LLMAgent_Set_Overflow_Strategy(LLMAgent *llm, int strategy, float target_ratio, const char *summarize_prompt)</div><div class="ttdoc">Configure the context overflow strategy (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00388">LLM_agent.cpp:388</a></div></div>
+<div class="ttc" id="agroup__c__api_html_ga0707f04e315abce3d3cb48a65bfef122"><div class="ttname"><a href="group__c__api.html#ga0707f04e315abce3d3cb48a65bfef122">LLMAgent_Save_History</a></div><div class="ttdeci">void LLMAgent_Save_History(LLMAgent *llm, const char *filepath)</div><div class="ttdoc">Save conversation history to file (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00365">LLM_agent.cpp:365</a></div></div>
+<div class="ttc" id="agroup__c__api_html_ga25d65fb75652690163e7d4347d4ce4f8"><div class="ttname"><a href="group__c__api.html#ga25d65fb75652690163e7d4347d4ce4f8">LLMAgent_Load_History</a></div><div class="ttdeci">void LLMAgent_Load_History(LLMAgent *llm, const char *filepath)</div><div class="ttdoc">Load conversation history from file (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00374">LLM_agent.cpp:374</a></div></div>
+<div class="ttc" id="agroup__c__api_html_ga277940928041a33dc91e86f22715e518"><div class="ttname"><a href="group__c__api.html#ga277940928041a33dc91e86f22715e518">LLMAgent_Get_History_Size</a></div><div class="ttdeci">size_t LLMAgent_Get_History_Size(LLMAgent *llm)</div><div class="ttdoc">Get conversation history size (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00383">LLM_agent.cpp:383</a></div></div>
+<div class="ttc" id="agroup__c__api_html_ga3350529fb8673422d3b31ed22926d34e"><div class="ttname"><a href="group__c__api.html#ga3350529fb8673422d3b31ed22926d34e">LLMAgent_Add_Assistant_Message</a></div><div class="ttdeci">void LLMAgent_Add_Assistant_Message(LLMAgent *llm, const char *content)</div><div class="ttdoc">Add assistant message to history (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00355">LLM_agent.cpp:355</a></div></div>
+<div class="ttc" id="agroup__c__api_html_ga3d0d11a65566e013d3bf96e7c3a80876"><div class="ttname"><a href="group__c__api.html#ga3d0d11a65566e013d3bf96e7c3a80876">LLMAgent_Construct</a></div><div class="ttdeci">LLMAgent * LLMAgent_Construct(LLMLocal *llm, const char *system_prompt_)</div><div class="ttdoc">Construct LLMAgent (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00291">LLM_agent.cpp:291</a></div></div>
+<div class="ttc" id="agroup__c__api_html_ga5e0a07cda62c8ac7700f6c8414798ad5"><div class="ttname"><a href="group__c__api.html#ga5e0a07cda62c8ac7700f6c8414798ad5">LLMAgent_Clear_History</a></div><div class="ttdeci">void LLMAgent_Clear_History(LLMAgent *llm)</div><div class="ttdoc">Clear conversation history (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00303">LLM_agent.cpp:303</a></div></div>
+<div class="ttc" id="agroup__c__api_html_ga5f747a2ecd730788d71b95a81a2bf6e0"><div class="ttname"><a href="group__c__api.html#ga5f747a2ecd730788d71b95a81a2bf6e0">LLMAgent_Set_History</a></div><div class="ttdeci">void LLMAgent_Set_History(LLMAgent *llm, const char *history_json)</div><div class="ttdoc">Set conversation history (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00334">LLM_agent.cpp:334</a></div></div>
+<div class="ttc" id="agroup__c__api_html_ga6ad321180ec6a42f0d8d2353ee686a7b"><div class="ttname"><a href="group__c__api.html#ga6ad321180ec6a42f0d8d2353ee686a7b">LLMAgent_Chat</a></div><div class="ttdeci">const char * LLMAgent_Chat(LLMAgent *llm, const char *user_prompt, bool add_to_history=true, CharArrayFn callback=nullptr, bool return_response_json=false, bool debug_prompt=false)</div><div class="ttdoc">Conduct chat interaction (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00297">LLM_agent.cpp:297</a></div></div>
+<div class="ttc" id="agroup__c__api_html_ga7928ff4ffef7bd5ed886f128847785bb"><div class="ttname"><a href="group__c__api.html#ga7928ff4ffef7bd5ed886f128847785bb">LLMAgent_Get_Summary</a></div><div class="ttdeci">const char * LLMAgent_Get_Summary(LLMAgent *llm)</div><div class="ttdoc">Get the current rolling summary (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00406">LLM_agent.cpp:406</a></div></div>
+<div class="ttc" id="agroup__c__api_html_ga7c91f0c927046a28df550d1ff0b9efe1"><div class="ttname"><a href="group__c__api.html#ga7c91f0c927046a28df550d1ff0b9efe1">LLMAgent_Get_Slot</a></div><div class="ttdeci">int LLMAgent_Get_Slot(LLMAgent *llm)</div><div class="ttdoc">Get processing slot (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00329">LLM_agent.cpp:329</a></div></div>
+<div class="ttc" id="agroup__c__api_html_gaa7511136b443e2099add50610102cfa8"><div class="ttname"><a href="group__c__api.html#gaa7511136b443e2099add50610102cfa8">LLMAgent_Set_Slot</a></div><div class="ttdeci">void LLMAgent_Set_Slot(LLMAgent *llm, int slot_id)</div><div class="ttdoc">Set processing slot (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00324">LLM_agent.cpp:324</a></div></div>
+<div class="ttc" id="agroup__c__api_html_gaabc2fd0328a7525d3052c82850a3e7c4"><div class="ttname"><a href="group__c__api.html#gaabc2fd0328a7525d3052c82850a3e7c4">LLMAgent_Get_History</a></div><div class="ttdeci">const char * LLMAgent_Get_History(LLMAgent *llm)</div><div class="ttdoc">Get conversation history (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00319">LLM_agent.cpp:319</a></div></div>
+<div class="ttc" id="agroup__c__api_html_gab102a0bf9594499e6f1bf8f943d67a06"><div class="ttname"><a href="group__c__api.html#gab102a0bf9594499e6f1bf8f943d67a06">LLMAgent_Add_User_Message</a></div><div class="ttdeci">void LLMAgent_Add_User_Message(LLMAgent *llm, const char *content)</div><div class="ttdoc">Add user message to history (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00350">LLM_agent.cpp:350</a></div></div>
+<div class="ttc" id="agroup__c__api_html_gaddaf48d1cea0709d3765e6ece7cea6f8"><div class="ttname"><a href="group__c__api.html#gaddaf48d1cea0709d3765e6ece7cea6f8">LLMAgent_Set_System_Prompt</a></div><div class="ttdeci">void LLMAgent_Set_System_Prompt(LLMAgent *llm, const char *system_prompt)</div><div class="ttdoc">Set system prompt (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00308">LLM_agent.cpp:308</a></div></div>
+<div class="ttc" id="agroup__c__api_html_gade951504f284a64285274c3933d3ba01"><div class="ttname"><a href="group__c__api.html#gade951504f284a64285274c3933d3ba01">LLMAgent_Set_Summary</a></div><div class="ttdeci">void LLMAgent_Set_Summary(LLMAgent *llm, const char *summary)</div><div class="ttdoc">Set the rolling summary directly (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00411">LLM_agent.cpp:411</a></div></div>
+<div class="ttc" id="agroup__c__api_html_gaec26b7774963dacf613d2bafe89877f5"><div class="ttname"><a href="group__c__api.html#gaec26b7774963dacf613d2bafe89877f5">LLMAgent_Get_System_Prompt</a></div><div class="ttdeci">const char * LLMAgent_Get_System_Prompt(LLMAgent *llm)</div><div class="ttdoc">Get system prompt (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00314">LLM_agent.cpp:314</a></div></div>
+<div class="ttc" id="agroup__c__api_html_gafcd7d80c2bfc85bc943aa516607a1871"><div class="ttname"><a href="group__c__api.html#gafcd7d80c2bfc85bc943aa516607a1871">LLMAgent_Remove_Last_Message</a></div><div class="ttdeci">void LLMAgent_Remove_Last_Message(LLMAgent *llm)</div><div class="ttdoc">Remove last message from history (C API)</div><div class="ttdef"><b>Definition</b> <a href="#l00360">LLM_agent.cpp:360</a></div></div>
 <div class="ttc" id="astructChatMessage_html"><div class="ttname"><a href="structChatMessage.html">ChatMessage</a></div><div class="ttdoc">Structure representing a single chat message.</div><div class="ttdef"><b>Definition</b> <a href="LLM__agent_8h_source.html#l00015">LLM_agent.h:16</a></div></div>
 <div class="ttc" id="astructChatMessage_html_aa67f5d826632f3eaf8c209f2a18ab8d9"><div class="ttname"><a href="structChatMessage.html#aa67f5d826632f3eaf8c209f2a18ab8d9">ChatMessage::to_json</a></div><div class="ttdeci">json to_json() const</div><div class="ttdoc">Convert message to JSON representation.</div><div class="ttdef"><b>Definition</b> <a href="LLM__agent_8h_source.html#l00032">LLM_agent.h:32</a></div></div>
 </div><!-- fragment --></div><!-- contents -->

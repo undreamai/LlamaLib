@@ -21,7 +21,7 @@
 <!-- Node2 -->
 <g id="Node000002" class="node">
 <title>Node2</title>
-<g id="a_Node000002"><a xlink:href="classLLMAgent.html#a89677b14b18e12ffd6e0cd5c9064111b" target="_top" xlink:title="Build the full message list to send to the model.">
+<g id="a_Node000002"><a xlink:href="classLLMAgent.html#a0aa1c2bd687d3178c533260e9b65bb99" target="_top" xlink:title="Build the full message list to send to the model.">
 <polygon fill="white" stroke="#666666" points="890,-92 751,-92 751,-62 890,-62 890,-92"/>
 <text text-anchor="start" x="759" y="-80" font-family="Helvetica,sans-Serif" font-size="10.00">LLMAgent::build_working</text>
 <text text-anchor="middle" x="820.5" y="-69" font-family="Helvetica,sans-Serif" font-size="10.00">_history</text>

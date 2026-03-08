@@ -10,5 +10,5 @@ var searchData=
   ['build_5fslot_5fjson_7',['build_slot_json',['../classLLMLocal.html#ac87d1592b783a9e75efe6a177a92e8bc',1,'LLMLocal::build_slot_json()'],['../classLLMAgent.html#aa90275ac8b842f52ba41a87480c6e9e1',1,'LLMAgent::build_slot_json(const std::string &amp;action, const std::string &amp;filepath)']]],
   ['build_5fsystem_5fhistory_8',['build_system_history',['../classLLMAgent.html#ad5a4708a9f319ffc2ec7798057901006',1,'LLMAgent']]],
   ['build_5ftokenize_5fjson_9',['build_tokenize_json',['../classLLM.html#a15a4fb3881c49f42bb1a9515a2593359',1,'LLM']]],
-  ['build_5fworking_5fhistory_10',['build_working_history',['../classLLMAgent.html#a89677b14b18e12ffd6e0cd5c9064111b',1,'LLMAgent']]]
+  ['build_5fworking_5fhistory_10',['build_working_history',['../classLLMAgent.html#a0aa1c2bd687d3178c533260e9b65bb99',1,'LLMAgent']]]
 ];

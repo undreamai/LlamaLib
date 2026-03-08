@@ -47,7 +47,7 @@
   <td id="projectlogo"><img alt="Logo" src="logo_tiny.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">LlamaLib
-   &#160;<span id="projectnumber">v2.0.4</span>
+   &#160;<span id="projectnumber">v2.0.5</span>
    </div>
    <div id="projectbrief">Cross-platform library for local LLMs</div>
   </td>
@@ -351,7 +351,7 @@ $(function(){initNavTree('LLM__service_8cpp_source.html',''); initResizable(); }
 <div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span> </div>
 <div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>        <span class="comment">// for consistency between server router mode and single-model mode, we set the same model name as alias</span></div>
 <div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>        <span class="keywordflow">if</span> (params-&gt;model_alias.empty() &amp;&amp; !params-&gt;model.name.empty()) {</div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>            params-&gt;model_alias = params-&gt;model.name;</div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>            params-&gt;model_alias.insert(params-&gt;model.name);</div>
 <div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>        }</div>
 <div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span> </div>
 <div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>        common_init();</div>
@@ -375,8 +375,8 @@ $(function(){initNavTree('LLM__service_8cpp_source.html',''); initResizable(); }
 <div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>        routes = <span class="keyword">new</span> server_routes(*params, *ctx_server);</div>
 <div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>        routes-&gt;update_meta(*ctx_server);</div>
 <div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span> </div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>        params-&gt;chat_template = detect_chat_template();</div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>        LOG_INF(<span class="stringliteral">&quot;chat_template: %s\n&quot;</span>, params-&gt;chat_template.c_str());</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>        <span class="comment">// params-&gt;chat_template = detect_chat_template();</span></div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>        <span class="comment">// LOG_INF(&quot;chat_template: %s\n&quot;, params-&gt;chat_template.c_str());</span></div>
 <div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span> </div>
 <div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>        ctx_server-&gt;impl-&gt;queue_tasks.on_new_task([<span class="keyword">this</span>](server_task &amp;&amp; task)</div>
 <div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>                                            { this-&gt;ctx_server-&gt;impl-&gt;process_single_task(std::move(task)); });</div>
@@ -394,32 +394,32 @@ $(function(){initNavTree('LLM__service_8cpp_source.html',''); initResizable(); }
 <div class="foldopen" id="foldopen00262" data-start="{" data-end="}">
 <div class="line"><a id="l00262" name="l00262"></a><span class="lineno"><a class="line" href="classLLMService.html#a303680807aba6210169bd64958d3d5d8">  262</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classLLMService.html#a303680807aba6210169bd64958d3d5d8">LLMService::enable_reasoning</a>(<span class="keywordtype">bool</span> reasoning) {</div>
 <div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    <a class="code hl_function" href="classLLMProvider.html#a75886f91ec01357c59bac03ab56b45e3">LLMProvider::enable_reasoning</a>(reasoning);</div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    <span class="keywordflow">if</span> (ctx_server != <span class="keyword">nullptr</span>) ctx_server-&gt;impl-&gt;oai_parser_opt.enable_thinking = <a class="code hl_variable" href="classLLMProvider.html#a22309652345d48c17f3abffd74656b30">reasoning_enabled</a>;</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    <span class="keywordflow">if</span> (ctx_server != <span class="keyword">nullptr</span>) ctx_server-&gt;impl-&gt;chat_params.enable_thinking = <a class="code hl_variable" href="classLLMProvider.html#a22309652345d48c17f3abffd74656b30">reasoning_enabled</a>;</div>
 <div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>}</div>
 </div>
 <div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span> </div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span><span class="keyword">const</span> std::string LLMService::detect_chat_template()</div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>{</div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    <span class="keyword">const</span> <span class="keywordtype">char</span> *chat_template_jinja = common_chat_templates_source(ctx_server-&gt;impl-&gt;chat_templates.get());</div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    <span class="keywordtype">int</span> chat_template_value = llm_chat_detect_template(chat_template_jinja);</div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    std::vector&lt;const char *&gt; supported_tmpl;</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>    <span class="keywordtype">int</span> res = llama_chat_builtin_templates(<span class="keyword">nullptr</span>, 0);</div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>    <span class="keywordflow">if</span> (res &gt; 0)</div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>    {</div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>        supported_tmpl.resize(res);</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>        llama_chat_builtin_templates(supported_tmpl.data(), supported_tmpl.size());</div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>        <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;key : supported_tmpl)</div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>        {</div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>            llm_chat_template val = llm_chat_template_from_str(key);</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>            <span class="keywordflow">if</span> ((<span class="keywordtype">int</span>)val == chat_template_value)</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>            {</div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>                <span class="keywordflow">return</span> key;</div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>                <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>            }</div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>        }</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>    }</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>    <span class="keywordflow">return</span> <span class="stringliteral">&quot;&quot;</span>;</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>}</div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span><span class="comment">// const std::string LLMService::detect_chat_template()</span></div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span><span class="comment">// {</span></div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span><span class="comment">//     const char *chat_template_jinja = common_chat_templates_source(ctx_server-&gt;impl-&gt;chat_templates.get());</span></div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span><span class="comment">//     int chat_template_value = llm_chat_detect_template(chat_template_jinja);</span></div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span><span class="comment">//     std::vector&lt;const char *&gt; supported_tmpl;</span></div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span><span class="comment">//     int res = llama_chat_builtin_templates(nullptr, 0);</span></div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span><span class="comment">//     if (res &gt; 0)</span></div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span><span class="comment">//     {</span></div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span><span class="comment">//         supported_tmpl.resize(res);</span></div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span><span class="comment">//         llama_chat_builtin_templates(supported_tmpl.data(), supported_tmpl.size());</span></div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span><span class="comment">//         for (const auto &amp;key : supported_tmpl)</span></div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span><span class="comment">//         {</span></div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span><span class="comment">//             llm_chat_template val = llm_chat_template_from_str(key);</span></div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span><span class="comment">//             if ((int)val == chat_template_value)</span></div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span><span class="comment">//             {</span></div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span><span class="comment">//                 return key;</span></div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span><span class="comment">//                 break;</span></div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span><span class="comment">//             }</span></div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span><span class="comment">//         }</span></div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span><span class="comment">//     }</span></div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span><span class="comment">//     return &quot;&quot;;</span></div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span><span class="comment">// }</span></div>
 <div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span> </div>
 <div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span><span class="keywordtype">void</span> <a class="code hl_function" href="classLLMService.html#ac4080b4e2a6ffaff05b8287726c24720">LLMService::debug</a>(<span class="keywordtype">int</span> debug_level)</div>
 <div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>{</div>
@@ -666,7 +666,7 @@ $(function(){initNavTree('LLM__service_8cpp_source.html',''); initResizable(); }
 <div class="line"><a id="l00532" name="l00532"></a><span class="lineno">  532</span> </div>
 <div class="line"><a id="l00533" name="l00533"></a><span class="lineno">  533</span>    <span class="keywordflow">try</span></div>
 <div class="line"><a id="l00534" name="l00534"></a><span class="lineno">  534</span>    {</div>
-<div class="line"><a id="l00535" name="l00535"></a><span class="lineno">  535</span>        server_http_req req{ {}, {}, <span class="stringliteral">&quot;&quot;</span>, body.dump(), always_false };</div>
+<div class="line"><a id="l00535" name="l00535"></a><span class="lineno">  535</span>        server_http_req req{ {}, {}, <span class="stringliteral">&quot;&quot;</span>, <span class="stringliteral">&quot;&quot;</span>, body.dump(), always_false };</div>
 <div class="line"><a id="l00536" name="l00536"></a><span class="lineno">  536</span>        <span class="keywordflow">return</span> route_handler(req)-&gt;data;</div>
 <div class="line"><a id="l00537" name="l00537"></a><span class="lineno">  537</span>    }</div>
 <div class="line"><a id="l00538" name="l00538"></a><span class="lineno">  538</span>    <span class="keywordflow">catch</span> (...)</div>
@@ -684,7 +684,7 @@ $(function(){initNavTree('LLM__service_8cpp_source.html',''); initResizable(); }
 <div class="line"><a id="l00550" name="l00550"></a><span class="lineno">  550</span>    json copy = body;</div>
 <div class="line"><a id="l00551" name="l00551"></a><span class="lineno">  551</span>    json data = oaicompat_chat_params_parse(</div>
 <div class="line"><a id="l00552" name="l00552"></a><span class="lineno">  552</span>        copy,</div>
-<div class="line"><a id="l00553" name="l00553"></a><span class="lineno">  553</span>        ctx_server-&gt;impl-&gt;oai_parser_opt,</div>
+<div class="line"><a id="l00553" name="l00553"></a><span class="lineno">  553</span>        ctx_server-&gt;impl-&gt;chat_params,</div>
 <div class="line"><a id="l00554" name="l00554"></a><span class="lineno">  554</span>        files);</div>
 <div class="line"><a id="l00555" name="l00555"></a><span class="lineno">  555</span>    <span class="keywordflow">return</span> safe_json_to_str({{<span class="stringliteral">&quot;prompt&quot;</span>, std::move(data.at(<span class="stringliteral">&quot;prompt&quot;</span>))}});</div>
 <div class="line"><a id="l00556" name="l00556"></a><span class="lineno">  556</span>}</div>
@@ -725,7 +725,7 @@ $(function(){initNavTree('LLM__service_8cpp_source.html',''); initResizable(); }
 <div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>        json data = data_in;</div>
 <div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span>        data[<span class="stringliteral">&quot;stream&quot;</span>] = stream;</div>
 <div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span> </div>
-<div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span>        server_http_req req{ {}, {}, <span class="stringliteral">&quot;&quot;</span>, data.dump(), always_false };</div>
+<div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span>        server_http_req req{ {}, {}, <span class="stringliteral">&quot;&quot;</span>, <span class="stringliteral">&quot;&quot;</span>, data.dump(), always_false };</div>
 <div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span>        <span class="keyword">auto</span> result = routes-&gt;post_completions(req);</div>
 <div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span>        <span class="keywordflow">if</span> (result-&gt;status != 200)</div>
 <div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>        {</div>
@@ -786,7 +786,7 @@ $(function(){initNavTree('LLM__service_8cpp_source.html',''); initResizable(); }
 <div class="line"><a id="l00652" name="l00652"></a><span class="lineno">  652</span> </div>
 <div class="line"><a id="l00653" name="l00653"></a><span class="lineno">  653</span>        server_task task(task_type);</div>
 <div class="line"><a id="l00654" name="l00654"></a><span class="lineno">  654</span>        task.id = ctx_server-&gt;impl-&gt;queue_tasks.get_new_id();</div>
-<div class="line"><a id="l00655" name="l00655"></a><span class="lineno">  655</span>        task.slot_action.slot_id = id_slot;</div>
+<div class="line"><a id="l00655" name="l00655"></a><span class="lineno">  655</span>        task.slot_action.id_slot = id_slot;</div>
 <div class="line"><a id="l00656" name="l00656"></a><span class="lineno">  656</span> </div>
 <div class="line"><a id="l00657" name="l00657"></a><span class="lineno">  657</span>        <span class="keywordflow">if</span> (action == <span class="stringliteral">&quot;save&quot;</span> || action == <span class="stringliteral">&quot;restore&quot;</span>)</div>
 <div class="line"><a id="l00658" name="l00658"></a><span class="lineno">  658</span>        {</div>
@@ -847,7 +847,7 @@ $(function(){initNavTree('LLM__service_8cpp_source.html',''); initResizable(); }
 <div class="line"><a id="l00712" name="l00712"></a><span class="lineno">  712</span>    <span class="keywordflow">if</span> (get_status_code() &lt; 0 || setjmp(get_jump_point()) != 0)</div>
 <div class="line"><a id="l00713" name="l00713"></a><span class="lineno">  713</span>        <span class="keywordflow">return</span> <span class="keyword">nullptr</span>;</div>
 <div class="line"><a id="l00714" name="l00714"></a><span class="lineno">  714</span> </div>
-<div class="line"><a id="l00715" name="l00715"></a><span class="lineno">  715</span>    server_http_req req{ {}, {}, <span class="stringliteral">&quot;&quot;</span>, <span class="stringliteral">&quot;&quot;</span>, always_false };</div>
+<div class="line"><a id="l00715" name="l00715"></a><span class="lineno">  715</span>    server_http_req req{ {}, {}, <span class="stringliteral">&quot;&quot;</span>, <span class="stringliteral">&quot;&quot;</span>, <span class="stringliteral">&quot;&quot;</span>, always_false };</div>
 <div class="line"><a id="l00716" name="l00716"></a><span class="lineno">  716</span>    <span class="keyword">auto</span> result = routes-&gt;get_props(req);</div>
 <div class="line"><a id="l00717" name="l00717"></a><span class="lineno">  717</span> </div>
 <div class="line"><a id="l00718" name="l00718"></a><span class="lineno">  718</span>    json data = json::parse(result-&gt;data);</div>

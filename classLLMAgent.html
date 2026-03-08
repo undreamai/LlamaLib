@@ -47,7 +47,7 @@
   <td id="projectlogo"><img alt="Logo" src="logo_tiny.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">LlamaLib
-   &#160;<span id="projectnumber">v2.0.4</span>
+   &#160;<span id="projectnumber">v2.0.5</span>
    </div>
    <div id="projectbrief">Cross-platform library for local LLMs</div>
   </td>
@@ -302,9 +302,9 @@ Protected Member Functions</h2></td></tr>
 <tr class="memitem:ad5a4708a9f319ffc2ec7798057901006" id="r_ad5a4708a9f319ffc2ec7798057901006"><td class="memItemLeft" align="right" valign="top">json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad5a4708a9f319ffc2ec7798057901006">build_system_history</a> () const</td></tr>
 <tr class="memdesc:ad5a4708a9f319ffc2ec7798057901006"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds the history to send to the model including only the prompts.  <br /></td></tr>
 <tr class="separator:ad5a4708a9f319ffc2ec7798057901006"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a89677b14b18e12ffd6e0cd5c9064111b" id="r_a89677b14b18e12ffd6e0cd5c9064111b"><td class="memItemLeft" align="right" valign="top">json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a89677b14b18e12ffd6e0cd5c9064111b">build_working_history</a> (const std::string &amp;user_prompt) const</td></tr>
-<tr class="memdesc:a89677b14b18e12ffd6e0cd5c9064111b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build the full message list to send to the model.  <br /></td></tr>
-<tr class="separator:a89677b14b18e12ffd6e0cd5c9064111b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0aa1c2bd687d3178c533260e9b65bb99" id="r_a0aa1c2bd687d3178c533260e9b65bb99"><td class="memItemLeft" align="right" valign="top">json&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0aa1c2bd687d3178c533260e9b65bb99">build_working_history</a> (const std::string &amp;user_prompt, bool include_history=true) const</td></tr>
+<tr class="memdesc:a0aa1c2bd687d3178c533260e9b65bb99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build the full message list to send to the model.  <br /></td></tr>
+<tr class="separator:a0aa1c2bd687d3178c533260e9b65bb99"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a152bf0a1849d69775af9a57144291f56" id="r_a152bf0a1849d69775af9a57144291f56"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a152bf0a1849d69775af9a57144291f56">handle_overflow</a> (const std::string &amp;user_prompt)</td></tr>
 <tr class="memdesc:a152bf0a1849d69775af9a57144291f56"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle context overflow using the configured strategy before a chat call.  <br /></td></tr>
 <tr class="separator:a152bf0a1849d69775af9a57144291f56"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -685,8 +685,8 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a id="a89677b14b18e12ffd6e0cd5c9064111b" name="a89677b14b18e12ffd6e0cd5c9064111b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a89677b14b18e12ffd6e0cd5c9064111b">&#9670;&#160;</a></span>build_working_history()</h2>
+<a id="a0aa1c2bd687d3178c533260e9b65bb99" name="a0aa1c2bd687d3178c533260e9b65bb99"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0aa1c2bd687d3178c533260e9b65bb99">&#9670;&#160;</a></span>build_working_history()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -697,8 +697,12 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname">json LLMAgent::build_working_history </td>
           <td>(</td>
-          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>user_prompt</em></span></td><td>)</td>
-          <td> const</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>user_prompt</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>include_history</em><span class="paramdefsep"> = </span><span class="paramdefval">true</span></span>&#160;) const</td>
         </tr>
       </table>
   </td>
@@ -712,6 +716,7 @@ Here is the caller graph for this function:</div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">user_prompt</td><td>The current user message to append </td></tr>
+    <tr><td class="paramname">include_history</td><td>Whether to include the chat history </td></tr>
   </table>
   </dd>
 </dl>
@@ -721,7 +726,7 @@ Here is the caller graph for this function:</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMAgent_a89677b14b18e12ffd6e0cd5c9064111b_icgraph.svg" width="1198" height="174"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="classLLMAgent_a0aa1c2bd687d3178c533260e9b65bb99_icgraph.svg" width="1198" height="174"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 
 </div>
@@ -1633,7 +1638,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00053">53</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="LLM__agent_8cpp_source.html#l00055">55</a> of file <a class="el" href="LLM__agent_8cpp_source.html">LLM_agent.cpp</a>.</p>
 
 </div>
 </div>
