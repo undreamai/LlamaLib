@@ -19,8 +19,10 @@
 #include "error_handling.h"
 #include "LLM.h"
 
-#if defined(_WIN32) || defined(__linux__)
+#if defined(_WIN32) || (defined(__linux__) && !defined(__ANDROID__))
 #include "archchecker.h"
+#elif defined(__ANDROID__) && defined(__aarch64__)
+#include "archchecker_arm.h"
 #endif
 
 // Platform-specific library loading definitions

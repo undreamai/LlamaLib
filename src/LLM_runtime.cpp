@@ -6,6 +6,12 @@ const std::string platform_name()
 {
 #if defined(_WIN32)
     return "win-x64";
+#elif defined(__ANDROID__)
+#if defined(__aarch64__)
+    return "android-arm64";
+#else
+    return "android-x64";
+#endif
 #elif defined(__linux__)
     return "linux-x64";
 #elif defined(__APPLE__)
@@ -61,7 +67,13 @@ const std::vector<std::string> available_architectures(bool gpu)
     }
     else
     {
-#if defined(_WIN32) || defined(__linux__)
+#if defined(__ANDROID__) && defined(__aarch64__)
+        if (has_i8mm())
+            add_library("i8mm");
+        if (has_dotprod())
+            add_library("dotprod");
+        add_library("");
+#elif defined(_WIN32) || defined(__linux__)
         if (has_avx512())
             add_library("avx512");
         if (has_avx2())
@@ -84,6 +96,14 @@ std::string get_current_directory()
 
 std::string get_executable_directory()
 {
+#ifdef __ANDROID__
+    // Use dladdr to locate this runtime .so — Android extracts all native libs
+    // from the APK to the same directory, so sibling variants are beside it.
+    Dl_info info;
+    if (dladdr(reinterpret_cast<void *>(&get_executable_directory), &info) != 0 && info.dli_fname)
+        return std::filesystem::path(info.dli_fname).parent_path().string();
+    return get_current_directory();
+#else
 #ifdef _WIN32
     char path[MAX_PATH];
     DWORD result = GetModuleFileNameA(nullptr, path, MAX_PATH);
@@ -108,6 +128,7 @@ std::string get_executable_directory()
     path[count] = '\0';
 #endif
     return std::filesystem::path(path).parent_path().string();
+#endif // __ANDROID__
 }
 
 std::vector<std::string> get_default_library_env_vars()

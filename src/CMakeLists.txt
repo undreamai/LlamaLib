@@ -30,14 +30,24 @@ target_link_libraries(${LLAMALIB_ARCHITECTURE_LIBRARY} PRIVATE common mtmd)
 install(TARGETS ${LLAMALIB_ARCHITECTURE_LIBRARY} LIBRARY)
 
 # build runtime library
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    if(NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-        # add CPU detection
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin" OR CMAKE_SYSTEM_NAME STREQUAL "Android")
+    if(CMAKE_SYSTEM_NAME STREQUAL "Android" AND ARCHITECTURE MATCHES "arm64")
+        # ARM CPU detection via getauxval(AT_HWCAP) — no x86 CPUID available
+        set(ARCHCHECKER_FILES archchecker_arm.cpp)
+    elseif(NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+        # x86 CPU detection via CPUID
         set(ARCHCHECKER_FILES archchecker.cpp $<TARGET_OBJECTS:feature_detector>)
         set(ARCHCHECKER_INCLUDES "${CMAKE_SOURCE_DIR}/third_party/FeatureDetector/src/x86")
     endif()
 
-    foreach(pair IN ITEMS "SHARED:${LLAMALIB_RUNTIME_LIBRARY}" "STATIC:${LLAMALIB_STATIC_RUNTIME_LIBRARY}")
+    if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+        # Android only needs the shared runtime dispatcher; no static library
+        set(RUNTIME_LIBRARY_PAIRS "SHARED:${LLAMALIB_RUNTIME_LIBRARY}")
+    else()
+        set(RUNTIME_LIBRARY_PAIRS "SHARED:${LLAMALIB_RUNTIME_LIBRARY}" "STATIC:${LLAMALIB_STATIC_RUNTIME_LIBRARY}")
+    endif()
+
+    foreach(pair IN ITEMS ${RUNTIME_LIBRARY_PAIRS})
         string(REPLACE ":" ";" split_pair ${pair})
         list(GET split_pair 0 lib_type)
         list(GET split_pair 1 lib_name)
@@ -48,8 +58,8 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux" OR
         install(TARGETS ${lib_name} LIBRARY)
     endforeach()
 
-    # merge OpenSSL into the static library
-    if (NOT WIN32)
+    # merge OpenSSL into the static library (desktop only)
+    if(NOT WIN32 AND NOT CMAKE_SYSTEM_NAME STREQUAL "Android")
         add_custom_command(TARGET ${LLAMALIB_STATIC_RUNTIME_LIBRARY} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/temp_extract
             COMMAND cd ${CMAKE_CURRENT_BINARY_DIR}/temp_extract && ${CMAKE_AR} x $<TARGET_FILE:cpp-httplib>
